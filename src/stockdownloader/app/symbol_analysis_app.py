@@ -22,9 +22,9 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.analysis.signal_generator import generate_alert
 from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.backtest.backtest_report_formatter import BacktestReportFormatter
+from stockdownloader.backtest import backtest_report_formatter
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.backtest.options_backtest_report_formatter import OptionsBacktestReportFormatter
+from stockdownloader.backtest import options_backtest_report_formatter
 from stockdownloader.data.yahoo_data_client import YahooDataClient
 from stockdownloader.strategy.sma_crossover_strategy import SMACrossoverStrategy
 from stockdownloader.strategy.rsi_strategy import RSIStrategy
@@ -205,12 +205,12 @@ def main() -> None:
             print(f"Running: {strategy.get_name()}...")
             result = equity_engine.run(strategy, data)
             equity_results.append(result)
-            BacktestReportFormatter.print_report(result, data)
+            backtest_report_formatter.print_report(result, data)
         except Exception as exc:
             logger.warning("Failed to run strategy %s: %s", strategy.get_name(), exc)
 
     if equity_results:
-        BacktestReportFormatter.print_comparison(equity_results, data)
+        backtest_report_formatter.print_comparison(equity_results, data)
 
     # === PHASE 4: Run Options Backtests ===
     print()
@@ -236,12 +236,12 @@ def main() -> None:
             print(f"Running: {strategy.get_name()}...")
             result = options_engine.run(strategy, data)
             options_results.append(result)
-            OptionsBacktestReportFormatter.print_report(result)
+            options_backtest_report_formatter.print_report(result)
         except Exception as exc:
             logger.warning("Failed to run options strategy %s: %s", strategy.get_name(), exc)
 
     if options_results:
-        OptionsBacktestReportFormatter.print_comparison(options_results)
+        options_backtest_report_formatter.print_comparison(options_results)
 
     # === PHASE 5: Summary ===
     _print_summary(symbol, data, alert, equity_results, options_results)

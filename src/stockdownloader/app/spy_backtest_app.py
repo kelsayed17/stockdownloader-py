@@ -15,7 +15,7 @@ import sys
 from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.backtest.backtest_report_formatter import BacktestReportFormatter
+from stockdownloader.backtest import backtest_report_formatter
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
 from stockdownloader.data.yahoo_data_client import YahooDataClient
 from stockdownloader.strategy.sma_crossover_strategy import SMACrossoverStrategy
@@ -114,9 +114,9 @@ def main() -> None:
         print(f"Running backtest: {strategy.get_name()}...")
         result = engine.run(strategy, data)
         results.append(result)
-        BacktestReportFormatter.print_report(result, data)
+        backtest_report_formatter.print_report(result, data)
 
-    BacktestReportFormatter.print_comparison(results, data)
+    backtest_report_formatter.print_comparison(results, data)
 
 
 if __name__ == "__main__":
