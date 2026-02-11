@@ -1,13 +1,13 @@
 [build-system]
 requires = ["setuptools>=75.0", "wheel"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "stockdownloader"
 version = "1.0.0"
 description = "Stock analysis, backtesting, and options trading platform"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 license = {text = "MIT"}
 
 dependencies = [
@@ -35,4 +35,5 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["stockdownloader*"]
