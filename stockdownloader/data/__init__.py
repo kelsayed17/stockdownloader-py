@@ -9,6 +9,8 @@ from stockdownloader.data.yahoo_finance_client import YahooFinanceClient
 from stockdownloader.data.yahoo_historical_client import YahooHistoricalClient
 from stockdownloader.data.yahoo_options_client import YahooOptionsClient
 from stockdownloader.data.yahoo_quote_client import YahooQuoteClient
+from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
+from stockdownloader.data.tradingview_trade_loader import TradingViewTradeLoader
 
 __all__ = [
     "CsvPriceDataLoader",
@@ -20,4 +22,6 @@ __all__ = [
     "YahooHistoricalClient",
     "YahooOptionsClient",
     "YahooQuoteClient",
+    "IntradayCsvLoader",
+    "TradingViewTradeLoader",
 ]

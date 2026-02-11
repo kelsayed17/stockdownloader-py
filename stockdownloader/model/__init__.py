@@ -23,6 +23,12 @@ from stockdownloader.model.alert_result import (
     Action,
     OptionsRecommendation,
 )
+from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.tournament_trade import TournamentTrade
+from stockdownloader.model.exit_mechanism_result import (
+    ExitMechanismTradeResult,
+    ExitMechanismSummary,
+)
 
 __all__ = [
     "PriceData",
@@ -46,4 +52,8 @@ __all__ = [
     "AlertDirection",
     "Action",
     "OptionsRecommendation",
+    "IntradayPriceData",
+    "TournamentTrade",
+    "ExitMechanismTradeResult",
+    "ExitMechanismSummary",
 ]

@@ -857,6 +857,117 @@ def average_volume(
 
 
 # =========================================================================
+# SESSION VWAP (Cumulative intraday VWAP with standard-deviation bands)
+# =========================================================================
+
+
+@dataclass(frozen=True)
+class SessionVWAP:
+    """Session VWAP with standard-deviation bands."""
+
+    vwap: Decimal
+    std_dev: Decimal
+    upper_1: Decimal
+    lower_1: Decimal
+    upper_05: Decimal
+    lower_05: Decimal
+
+
+def _find_session_start(data: Sequence[PriceData], end_index: int) -> int:
+    """Walk backward from *end_index* to find the first bar of the current
+    trading session.  A new session starts when the first-10-chars of
+    ``date`` change (i.e. a new calendar day)."""
+    current_day = data[end_index].date[:10]
+    start = end_index
+    while start > 0 and data[start - 1].date[:10] == current_day:
+        start -= 1
+    return start
+
+
+def session_vwap(
+    data: Sequence[PriceData], end_index: int
+) -> Decimal:
+    """Calculate cumulative session VWAP, resetting at each new trading day.
+
+    Walks backward from *end_index* to find the session start, then
+    cumulates ``TP * Volume / Volume`` forward.
+    """
+    session_start = _find_session_start(data, end_index)
+
+    sum_tpv = _ZERO
+    sum_vol = _ZERO
+
+    for i in range(session_start, end_index + 1):
+        tp = _quantize(
+            (data[i].high + data[i].low + data[i].close) / Decimal('3')
+        )
+        vol = Decimal(str(data[i].volume))
+        sum_tpv += tp * vol
+        sum_vol += vol
+
+    if sum_vol == _ZERO:
+        return _ZERO
+    return _quantize(sum_tpv / sum_vol)
+
+
+def session_vwap_bands(
+    data: Sequence[PriceData], end_index: int
+) -> SessionVWAP:
+    """Calculate session VWAP with standard-deviation bands.
+
+    sigma = sqrt( Sum((TP - VWAP)^2 * Volume) / Sum(Volume) )
+
+    Returns a :class:`SessionVWAP` with VWAP, std_dev and +-1/+-0.5 sigma
+    bands.
+    """
+    session_start = _find_session_start(data, end_index)
+
+    sum_tpv = _ZERO
+    sum_vol = _ZERO
+
+    # First pass: compute VWAP
+    tps: list[Decimal] = []
+    vols: list[Decimal] = []
+    for i in range(session_start, end_index + 1):
+        tp = _quantize(
+            (data[i].high + data[i].low + data[i].close) / Decimal('3')
+        )
+        vol = Decimal(str(data[i].volume))
+        tps.append(tp)
+        vols.append(vol)
+        sum_tpv += tp * vol
+        sum_vol += vol
+
+    if sum_vol == _ZERO:
+        return SessionVWAP(_ZERO, _ZERO, _ZERO, _ZERO, _ZERO, _ZERO)
+
+    vwap_val = _quantize(sum_tpv / sum_vol)
+
+    # Second pass: compute VWAP standard deviation
+    sum_var = _ZERO
+    for tp, vol in zip(tps, vols):
+        diff = tp - vwap_val
+        sum_var += diff * diff * vol
+
+    variance = float(sum_var / sum_vol)
+    std_float = math.sqrt(max(0.0, variance))
+    std_val = Decimal(str(std_float)).quantize(
+        Decimal(10) ** -SCALE, rounding=ROUND_HALF_UP
+    )
+
+    half_std = _quantize(std_val * Decimal('0.5'))
+
+    return SessionVWAP(
+        vwap=vwap_val,
+        std_dev=std_val,
+        upper_1=_quantize(vwap_val + std_val),
+        lower_1=_quantize(vwap_val - std_val),
+        upper_05=_quantize(vwap_val + half_std),
+        lower_05=_quantize(vwap_val - half_std),
+    )
+
+
+# =========================================================================
 # HELPERS
 # =========================================================================
 

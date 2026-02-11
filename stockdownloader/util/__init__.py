@@ -41,6 +41,9 @@ from stockdownloader.util.technical_indicators import (
     true_range,
     vwap,
     williams_r,
+    SessionVWAP,
+    session_vwap,
+    session_vwap_bands,
 )
 from stockdownloader.util.black_scholes_calculator import (
     delta,
@@ -105,6 +108,9 @@ __all__ = [
     "true_range",
     "vwap",
     "williams_r",
+    "SessionVWAP",
+    "session_vwap",
+    "session_vwap_bands",
     # black_scholes_calculator
     "delta",
     "estimate_volatility",

@@ -6,6 +6,9 @@ from stockdownloader.backtest import backtest_report_formatter
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
 from stockdownloader.backtest.options_backtest_result import OptionsBacktestResult
 from stockdownloader.backtest import options_backtest_report_formatter
+from stockdownloader.backtest.exit_tournament_engine import ExitTournamentEngine
+from stockdownloader.backtest.exit_tournament_result import ExitTournamentResult
+from stockdownloader.backtest import exit_tournament_report_formatter
 
 __all__ = [
     "BacktestEngine",
@@ -14,4 +17,7 @@ __all__ = [
     "OptionsBacktestEngine",
     "OptionsBacktestResult",
     "options_backtest_report_formatter",
+    "ExitTournamentEngine",
+    "ExitTournamentResult",
+    "exit_tournament_report_formatter",
 ]
