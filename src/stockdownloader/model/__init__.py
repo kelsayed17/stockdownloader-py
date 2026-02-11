@@ -29,6 +29,7 @@ from stockdownloader.model.exit_mechanism_result import (
     ExitMechanismTradeResult,
     ExitMechanismSummary,
 )
+from stockdownloader.model.intraday_signal import IntradaySignal, IntradayAction
 
 __all__ = [
     "PriceData",
@@ -56,4 +57,6 @@ __all__ = [
     "TournamentTrade",
     "ExitMechanismTradeResult",
     "ExitMechanismSummary",
+    "IntradaySignal",
+    "IntradayAction",
 ]
