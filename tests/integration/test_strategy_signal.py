@@ -9,9 +9,9 @@ import pytest
 
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.strategy.macd_strategy import MACDStrategy
-from stockdownloader.strategy.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.sma_crossover_strategy import SMACrossoverStrategy
+from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
+from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
+from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 
 
@@ -30,7 +30,7 @@ def test_sma_crossover_respects_warmup_period(price_data):
     strategy = SMACrossoverStrategy(20, 50)
 
     # During warmup period, all signals should be HOLD
-    for i in range(strategy.get_warmup_period()):
+    for i in range(strategy.warmup_period):
         assert strategy.evaluate(price_data, i) == Signal.HOLD, \
             f"Signal at index {i} should be HOLD during warmup"
 
@@ -41,7 +41,7 @@ def test_sma_crossover_generates_signals_after_warmup(price_data):
 
     # Should have HOLD signals during warmup and possibly BUY/SELL after
     hold_count = sum(1 for s in signals if s == Signal.HOLD)
-    assert hold_count >= strategy.get_warmup_period(), \
+    assert hold_count >= strategy.warmup_period, \
         "Should have at least warmup period number of HOLD signals"
 
     # Total signals should match data size
@@ -64,7 +64,7 @@ def test_sma_crossover_buy_always_precedes_sell(price_data):
 def test_rsi_respects_warmup_period(price_data):
     strategy = RSIStrategy(14, 30.0, 70.0)
 
-    for i in range(strategy.get_warmup_period()):
+    for i in range(strategy.warmup_period):
         assert strategy.evaluate(price_data, i) == Signal.HOLD, \
             f"RSI signal at index {i} should be HOLD during warmup"
 
@@ -99,9 +99,9 @@ def test_rsi_narrow_thresholds_generate_more_signals(price_data):
 
 def test_macd_respects_warmup_period(price_data):
     strategy = MACDStrategy(12, 26, 9)
-    assert strategy.get_warmup_period() == 35, "MACD warmup should be slow + signal"
+    assert strategy.warmup_period == 35, "MACD warmup should be slow + signal"
 
-    for i in range(strategy.get_warmup_period()):
+    for i in range(strategy.warmup_period):
         assert strategy.evaluate(price_data, i) == Signal.HOLD, \
             f"MACD signal at index {i} should be HOLD during warmup"
 

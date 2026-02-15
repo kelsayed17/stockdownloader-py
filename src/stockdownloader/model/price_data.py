@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class PriceData:
     """Immutable representation of a single day's OHLCV price data."""
 

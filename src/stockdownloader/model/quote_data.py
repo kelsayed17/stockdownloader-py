@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 
 
-@dataclass
+@dataclass(slots=True)
 class QuoteData:
     """Real-time stock quote data model with price, volume, and valuation fields."""
 

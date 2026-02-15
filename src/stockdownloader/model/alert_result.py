@@ -7,17 +7,25 @@ from decimal import Decimal, ROUND_HALF_UP
 from enum import Enum
 
 from stockdownloader.model.indicator_values import IndicatorValues
-from stockdownloader.model.option_type import OptionType
+from stockdownloader.model.options import OptionType
 
 
-class Direction(Enum):
-    """Signal direction for trading alerts."""
+class AlertDirection(Enum):
+    """Signal direction for trading alerts.
+
+    Not to be confused with :class:`~stockdownloader.model.trade.Direction`
+    which represents LONG/SHORT position direction.
+    """
 
     STRONG_BUY = "STRONG_BUY"
     BUY = "BUY"
     NEUTRAL = "NEUTRAL"
     SELL = "SELL"
     STRONG_SELL = "STRONG_SELL"
+
+
+# Backward compatibility alias
+Direction = AlertDirection
 
 
 class Action(Enum):
@@ -28,7 +36,7 @@ class Action(Enum):
     HOLD = "HOLD"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class OptionsRecommendation:
     """Options recommendation with strike, expiration, and rationale."""
 
@@ -53,7 +61,7 @@ class OptionsRecommendation:
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class AlertResult:
     """Represents a trading alert generated from multi-indicator analysis.
 
@@ -64,7 +72,7 @@ class AlertResult:
     symbol: str
     date: str
     current_price: Decimal
-    direction: Direction
+    direction: AlertDirection
     confluence_score: float
     total_indicators: int
     bullish_indicators: list[str]
@@ -75,7 +83,8 @@ class AlertResult:
     resistance_levels: list[Decimal]
     indicators: IndicatorValues
 
-    def get_signal_strength(self) -> str:
+    @property
+    def signal_strength(self) -> str:
         """Return a formatted string describing signal strength."""
         return (
             f"{self.confluence_score * 100:.0f}% "
@@ -93,7 +102,7 @@ class AlertResult:
             f"  Current Price:     ${self.current_price.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}"
         )
         lines.append(f"  Signal:            {self.direction.value}")
-        lines.append(f"  Confluence:        {self.get_signal_strength()}")
+        lines.append(f"  Confluence:        {self.signal_strength}")
         lines.append("")
 
         lines.append("-" * 80)

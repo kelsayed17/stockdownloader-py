@@ -9,19 +9,19 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.backtest.options_backtest_result import OptionsBacktestResult
+from stockdownloader.backtest.backtest_result import OptionsBacktestResult
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
-from stockdownloader.model.financial_data import FinancialData
-from stockdownloader.model.historical_data import HistoricalData
-from stockdownloader.model.option_contract import OptionContract
-from stockdownloader.model.option_type import OptionType
-from stockdownloader.model.options_chain import OptionsChain
+from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.quote_data import QuoteData
-from stockdownloader.model.unified_market_data import UnifiedMarketData
-from stockdownloader.strategy.covered_call_strategy import CoveredCallStrategy
+from stockdownloader.model.unified_market_data import (
+    FinancialData,
+    HistoricalData,
+    UnifiedMarketData,
+)
+from stockdownloader.strategy.options.covered_call_strategy import CoveredCallStrategy
 from stockdownloader.strategy.options_strategy import OptionsStrategy
-from stockdownloader.strategy.protective_put_strategy import ProtectivePutStrategy
+from stockdownloader.strategy.options.protective_put_strategy import ProtectivePutStrategy
 from stockdownloader.util.black_scholes_calculator import (
     price as bs_price,
     estimate_volatility,
@@ -163,13 +163,13 @@ def test_unified_market_data_integration(test_data):
 
     # Verify unified data
     assert unified.is_complete()
-    assert unified.get_current_price() > Decimal("0")
+    assert unified.current_price > Decimal("0")
     assert unified.has_price_history()
     assert unified.has_options_chain()
 
     # Equity + options volume
-    assert unified.get_total_combined_volume() > Decimal("0")
-    assert unified.get_options_volume() > 0
+    assert unified.total_combined_volume > Decimal("0")
+    assert unified.options_volume > 0
     assert unified.get_average_daily_volume(20) > Decimal("0")
 
 
@@ -207,5 +207,5 @@ def test_options_chain_search_integration(test_data):
     assert len(contracts) > 0
 
     # Volume metrics
-    assert chain.get_total_volume() > 0
-    assert chain.get_total_call_open_interest() > 0
+    assert chain.total_volume > 0
+    assert chain.total_call_open_interest > 0

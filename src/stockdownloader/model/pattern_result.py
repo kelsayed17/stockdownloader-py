@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import FrozenSet
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class PatternResult:
     """Holds the result of a pattern frequency analysis including the pattern,
     its inverse, offset, frequencies, and associated symbols.

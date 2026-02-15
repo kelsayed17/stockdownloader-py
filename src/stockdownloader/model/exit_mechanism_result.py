@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-import math
+import statistics
+from collections import Counter
 from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.model.trade import Direction
+from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
 
-_ZERO = Decimal("0")
-_HUNDRED = Decimal("100")
-
-
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class ExitMechanismTradeResult:
     """Result of running a single trade through one exit mechanism."""
 
@@ -29,7 +27,6 @@ class ExitMechanismTradeResult:
     peak_favorable: Decimal
     capture_pct: Decimal
     exit_reason: str
-
 
 class ExitMechanismSummary:
     """Aggregate statistics for one exit mechanism across multiple trades."""
@@ -64,7 +61,7 @@ class ExitMechanismSummary:
 
     @property
     def winning_trades(self) -> int:
-        return sum(1 for r in self._results if r.pnl > _ZERO)
+        return sum(1 for r in self._results if r.pnl > ZERO)
 
     @property
     def losing_trades(self) -> int:
@@ -73,21 +70,21 @@ class ExitMechanismSummary:
     @property
     def win_rate(self) -> Decimal:
         if self.total_trades == 0:
-            return _ZERO
+            return ZERO
         return (
             Decimal(str(self.winning_trades))
             / Decimal(str(self.total_trades))
-            * _HUNDRED
+            * HUNDRED
         ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
     @property
     def total_pnl(self) -> Decimal:
-        return sum((r.pnl for r in self._results), _ZERO)
+        return sum((r.pnl for r in self._results), ZERO)
 
     @property
     def avg_pnl(self) -> Decimal:
         if self.total_trades == 0:
-            return _ZERO
+            return ZERO
         return (self.total_pnl / Decimal(str(self.total_trades))).quantize(
             Decimal("0.0001"), rounding=ROUND_HALF_UP
         )
@@ -95,22 +92,17 @@ class ExitMechanismSummary:
     @property
     def median_pnl(self) -> Decimal:
         if not self._results:
-            return _ZERO
-        pnls = sorted(r.pnl for r in self._results)
-        n = len(pnls)
-        if n % 2 == 1:
-            return pnls[n // 2]
-        mid = n // 2
-        return ((pnls[mid - 1] + pnls[mid]) / Decimal("2")).quantize(
-            Decimal("0.0001"), rounding=ROUND_HALF_UP
-        )
+            return ZERO
+        pnls = [r.pnl for r in self._results]
+        result = statistics.median(pnls)
+        return result.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
 
     @property
     def profit_factor(self) -> Decimal:
-        gross_profit = sum((r.pnl for r in self._results if r.pnl > _ZERO), _ZERO)
-        gross_loss = sum((abs(r.pnl) for r in self._results if r.pnl <= _ZERO), _ZERO)
-        if gross_loss == _ZERO:
-            return Decimal("999.99") if gross_profit > _ZERO else _ZERO
+        gross_profit = sum((r.pnl for r in self._results if r.pnl > ZERO), ZERO)
+        gross_loss = sum((abs(r.pnl) for r in self._results if r.pnl <= ZERO), ZERO)
+        if gross_loss == ZERO:
+            return Decimal("999.99") if gross_profit > ZERO else ZERO
         return (gross_profit / gross_loss).quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         )
@@ -118,8 +110,8 @@ class ExitMechanismSummary:
     @property
     def avg_r_multiple(self) -> Decimal:
         if self.total_trades == 0:
-            return _ZERO
-        total_r = sum((r.r_multiple for r in self._results), _ZERO)
+            return ZERO
+        total_r = sum((r.r_multiple for r in self._results), ZERO)
         return (total_r / Decimal(str(self.total_trades))).quantize(
             Decimal("0.0001"), rounding=ROUND_HALF_UP
         )
@@ -127,8 +119,8 @@ class ExitMechanismSummary:
     @property
     def avg_capture_pct(self) -> Decimal:
         if self.total_trades == 0:
-            return _ZERO
-        total = sum((r.capture_pct for r in self._results), _ZERO)
+            return ZERO
+        total = sum((r.capture_pct for r in self._results), ZERO)
         return (total / Decimal(str(self.total_trades))).quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         )
@@ -136,20 +128,15 @@ class ExitMechanismSummary:
     @property
     def median_capture_pct(self) -> Decimal:
         if not self._results:
-            return _ZERO
-        caps = sorted(r.capture_pct for r in self._results)
-        n = len(caps)
-        if n % 2 == 1:
-            return caps[n // 2]
-        mid = n // 2
-        return ((caps[mid - 1] + caps[mid]) / Decimal("2")).quantize(
-            Decimal("0.01"), rounding=ROUND_HALF_UP
-        )
+            return ZERO
+        caps = [r.capture_pct for r in self._results]
+        result = statistics.median(caps)
+        return result.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
     @property
     def avg_holding_bars(self) -> Decimal:
         if self.total_trades == 0:
-            return _ZERO
+            return ZERO
         total = sum(r.holding_bars for r in self._results)
         return (Decimal(str(total)) / Decimal(str(self.total_trades))).quantize(
             Decimal("0.1"), rounding=ROUND_HALF_UP
@@ -158,23 +145,22 @@ class ExitMechanismSummary:
     @property
     def max_loss(self) -> Decimal:
         if not self._results:
-            return _ZERO
+            return ZERO
         return min(r.pnl for r in self._results)
 
     @property
     def max_win(self) -> Decimal:
         if not self._results:
-            return _ZERO
+            return ZERO
         return max(r.pnl for r in self._results)
 
     @property
     def pnl_std(self) -> Decimal:
         if len(self._results) < 2:
-            return _ZERO
+            return ZERO
         pnls = [float(r.pnl) for r in self._results]
-        mean = sum(pnls) / len(pnls)
-        variance = sum((p - mean) ** 2 for p in pnls) / len(pnls)
-        return Decimal(str(math.sqrt(variance))).quantize(
+        std = statistics.pstdev(pnls)
+        return Decimal(str(std)).quantize(
             Decimal("0.0001"), rounding=ROUND_HALF_UP
         )
 
@@ -182,15 +168,12 @@ class ExitMechanismSummary:
     def sharpe_approx(self) -> Decimal:
         """Approximate Sharpe: mean(P&L) / std(P&L)."""
         std = self.pnl_std
-        if std == _ZERO:
-            return _ZERO
+        if std == ZERO:
+            return ZERO
         return (self.avg_pnl / std).quantize(
             Decimal("0.001"), rounding=ROUND_HALF_UP
         )
 
     def exit_reason_counts(self) -> dict[str, int]:
         """Count occurrences of each exit reason."""
-        counts: dict[str, int] = {}
-        for r in self._results:
-            counts[r.exit_reason] = counts.get(r.exit_reason, 0) + 1
-        return counts
+        return dict(Counter(r.exit_reason for r in self._results))

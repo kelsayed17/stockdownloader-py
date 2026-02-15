@@ -4,9 +4,8 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.backtest.options_backtest_result import OptionsBacktestResult
-from stockdownloader.model.option_type import OptionType
-from stockdownloader.model.options_trade import OptionsTrade, OptionsDirection
+from stockdownloader.backtest.backtest_result import OptionsBacktestResult
+from stockdownloader.model.options import OptionType, OptionsTrade, OptionsDirection
 
 
 def _make_trade(entry_premium, exit_premium):
@@ -182,5 +181,5 @@ def test_closed_trades_excludes_open_trades():
     result.add_trade(closed_trade)
     result.add_trade(open_trade)
 
-    assert len(result.get_closed_trades()) == 1
+    assert len(result.closed_trades) == 1
     assert len(result.trades) == 2

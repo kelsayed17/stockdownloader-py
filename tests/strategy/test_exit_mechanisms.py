@@ -82,7 +82,7 @@ class TestTrailingStopExit:
         bar = _make_bar("2025-12-01 10:00:00-05:00", 100, 100, 98.5, 99)
         mech.reset()
         assert mech.evaluate_bar(bar, trade, 0) is True
-        assert mech.get_exit_reason() == "hard_stop"
+        assert mech.exit_reason == "hard_stop"
 
     def test_no_exit_above_stop(self):
         mech = TrailingStopExit()
@@ -105,7 +105,7 @@ class TestTrailingStopExit:
 
         assert exited
         # Should have been stopped out as price fell back
-        reason = mech.get_exit_reason()
+        reason = mech.exit_reason
         assert reason in ("trail_stop", "hard_stop")
 
     def test_session_end_if_no_exit(self):
@@ -134,15 +134,15 @@ class TestVwapCrossExit:
         mech.reset()
         mech.set_data_context([], 0)
         assert mech.evaluate_bar(bar, trade, 0) is True
-        assert mech.get_exit_reason() == "hard_stop"
+        assert mech.exit_reason == "hard_stop"
 
     def test_name_default(self):
         mech = VwapCrossExit()
-        assert mech.get_name() == "VWAP_CROSS"
+        assert mech.name == "VWAP_CROSS"
 
     def test_name_custom(self):
         mech = VwapCrossExit(name="VWAP_CROSS_LATE")
-        assert mech.get_name() == "VWAP_CROSS_LATE"
+        assert mech.name == "VWAP_CROSS_LATE"
 
 
 class TestAtrTrailExit:
@@ -157,7 +157,7 @@ class TestAtrTrailExit:
 
     def test_name(self):
         mech = AtrTrailExit()
-        assert mech.get_name() == "ATR_TRAIL"
+        assert mech.name == "ATR_TRAIL"
 
 
 class TestHybridExit:
@@ -172,11 +172,11 @@ class TestHybridExit:
 
     def test_name_default(self):
         mech = HybridExit()
-        assert mech.get_name() == "HYBRID"
+        assert mech.name == "HYBRID"
 
     def test_name_custom(self):
         mech = HybridExit(name="HYBRID_LATE")
-        assert mech.get_name() == "HYBRID_LATE"
+        assert mech.name == "HYBRID_LATE"
 
 
 class TestVwapBandExit:
@@ -191,7 +191,7 @@ class TestVwapBandExit:
 
     def test_name(self):
         mech = VwapBandExit()
-        assert mech.get_name() == "VWAP_BAND"
+        assert mech.name == "VWAP_BAND"
 
 
 class TestTimeDecayExit:
@@ -202,11 +202,11 @@ class TestTimeDecayExit:
         bar = _make_bar("2025-12-01 10:00:00-05:00", 100, 100, 98.5, 99)
         mech.reset()
         assert mech.evaluate_bar(bar, trade, 0) is True
-        assert mech.get_exit_reason() == "hard_stop"
+        assert mech.exit_reason == "hard_stop"
 
     def test_name(self):
         mech = TimeDecayExit()
-        assert mech.get_name() == "TIME_DECAY"
+        assert mech.name == "TIME_DECAY"
 
     def test_early_session_wider_trail(self):
         """Before 11:00, trail should be 0.6R (wider)."""
@@ -246,7 +246,7 @@ class TestTimeDecayExit:
         # Bar 2: Stop is now 101.3, bar low=101.0 < 101.3 → triggered
         bar2 = _make_bar("2025-12-01 14:05:00-05:00", 101.3, 101.3, 101.0, 101.0)
         assert mech.evaluate_bar(bar2, trade, 2) is True
-        assert mech.get_exit_reason() == "trail_stop"
+        assert mech.exit_reason == "trail_stop"
 
 
 class TestShortDirection:
@@ -258,7 +258,7 @@ class TestShortDirection:
         bar = _make_bar("2025-12-01 10:00:00-05:00", 100, 101.5, 99.5, 100)
         mech.reset()
         assert mech.evaluate_bar(bar, trade, 0) is True
-        assert mech.get_exit_reason() == "hard_stop"
+        assert mech.exit_reason == "hard_stop"
 
     def test_trailing_stop_short_no_exit(self):
         mech = TrailingStopExit()

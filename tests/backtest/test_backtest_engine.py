@@ -7,7 +7,7 @@ import pytest
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.trade import TradeStatus
-from stockdownloader.strategy.sma_crossover_strategy import SMACrossoverStrategy
+from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 
 
@@ -34,9 +34,6 @@ class _TestStrategy(TradingStrategy):
     def name(self):
         return self._name
 
-    def get_name(self):
-        return self._name
-
     def evaluate(self, data, current_index):
         if current_index == self._warmup + 1:
             return Signal.BUY
@@ -44,7 +41,8 @@ class _TestStrategy(TradingStrategy):
             return Signal.SELL
         return Signal.HOLD
 
-    def get_warmup_period(self):
+    @property
+    def warmup_period(self):
         return self._warmup
 
 
@@ -55,13 +53,11 @@ class _BuyOnlyStrategy(TradingStrategy):
     def name(self):
         return "Buy-Only"
 
-    def get_name(self):
-        return "Buy-Only"
-
     def evaluate(self, data, current_index):
         return Signal.BUY if current_index == 2 else Signal.HOLD
 
-    def get_warmup_period(self):
+    @property
+    def warmup_period(self):
         return 0
 
 
@@ -116,7 +112,10 @@ def test_start_and_end_dates_are_set():
     strategy = SMACrossoverStrategy(2, 5)
     data = _generate_flat_price_data(10, 100)
     result = engine.run(strategy, data)
-    assert result is not None
+    assert result.start_date is not None
+    assert result.end_date is not None
+    assert result.start_date == data[0].date
+    assert result.end_date == data[-1].date
 
 
 def test_commission_reduces_profit():

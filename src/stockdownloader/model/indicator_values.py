@@ -8,9 +8,10 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import PriceData
+    from stockdownloader.util.indicator_hub import IndicatorHub
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class IndicatorValues:
     """Snapshot of all computed technical indicator values at a given point in time.
 
@@ -91,76 +92,90 @@ class IndicatorValues:
     fib_786: Decimal
 
     @classmethod
-    def compute(cls, data: list[PriceData], index: int) -> IndicatorValues:
+    def compute(
+        cls,
+        data: list[PriceData],
+        index: int,
+        hub: IndicatorHub | None = None,
+    ) -> IndicatorValues:
         """Compute all indicator values at the given index in the price data.
 
         Requires at least 200 bars for SMA(200); partial values are returned
         for indicators that have enough data.
+
+        Parameters
+        ----------
+        hub:
+            Optional :class:`IndicatorHub` for caching.  When provided,
+            all indicator calls go through the hub's cache-through layer,
+            avoiding redundant recomputation when the same indicator is
+            requested at the same index elsewhere.
         """
-        from stockdownloader.util.moving_average_calculator import sma as _sma, ema as _ema
-        from stockdownloader.util import technical_indicators as ti
+        if hub is None:
+            from stockdownloader.util.indicator_hub import IndicatorHub
+            hub = IndicatorHub()
 
         bar = data[index]
 
         # Moving averages
-        sma20 = _sma(data, index, 20) if index >= 19 else Decimal("0")
-        sma50 = _sma(data, index, 50) if index >= 49 else Decimal("0")
-        sma200 = _sma(data, index, 200) if index >= 199 else Decimal("0")
-        ema12 = _ema(data, index, 12) if index >= 12 else Decimal("0")
-        ema26 = _ema(data, index, 26) if index >= 26 else Decimal("0")
+        sma20 = hub.sma(data, index, 20) if index >= 19 else Decimal("0")
+        sma50 = hub.sma(data, index, 50) if index >= 49 else Decimal("0")
+        sma200 = hub.sma(data, index, 200) if index >= 199 else Decimal("0")
+        ema12 = hub.ema(data, index, 12) if index >= 12 else Decimal("0")
+        ema26 = hub.ema(data, index, 26) if index >= 26 else Decimal("0")
 
         # RSI
-        rsi14 = ti.rsi(data, index, 14)
+        rsi14 = hub.rsi(data, index, 14)
 
         # MACD
-        macd_l = ti.macd_line(data, index, 12, 26)
-        macd_s = ti.macd_signal(data, index, 12, 26, 9)
-        macd_h = ti.macd_histogram(data, index, 12, 26, 9)
+        macd_l = hub.macd_line(data, index, 12, 26)
+        macd_s = hub.macd_signal(data, index, 12, 26, 9)
+        macd_h = hub.macd_histogram(data, index, 12, 26, 9)
 
         # ROC
-        roc = ti.roc(data, index, 12)
+        roc = hub.roc(data, index, 12)
 
         # Williams %R
-        will_r = ti.williams_r(data, index, 14)
+        will_r = hub.williams_r(data, index, 14)
 
         # Bollinger Bands
-        bb = ti.bollinger_bands(data, index)
-        bb_pct_b = ti.bollinger_percent_b(data, index, 20) if index >= 19 else Decimal("0")
+        bb = hub.bollinger_bands(data, index)
+        bb_pct_b = hub.bollinger_percent_b(data, index, 20) if index >= 19 else Decimal("0")
 
         # Stochastic
-        stoch = ti.stochastic(data, index)
+        stoch = hub.stochastic(data, index)
 
         # ATR
-        atr = ti.atr(data, index, 14)
+        atr = hub.atr(data, index, 14)
 
         # OBV
-        obv_val = ti.obv(data, index)
-        obv_ris = ti.is_obv_rising(data, index, 5)
+        obv_val = hub.obv(data, index)
+        obv_ris = hub.is_obv_rising(data, index, 5)
 
         # MFI
-        mfi_val = ti.mfi(data, index, 14)
+        mfi_val = hub.mfi(data, index, 14)
 
         # Average Volume
-        avg_vol = ti.average_volume(data, index, 20)
+        avg_vol = hub.average_volume(data, index, 20)
 
         # ADX
-        adx_result = ti.adx(data, index, 14)
+        adx_result = hub.adx(data, index, 14)
 
         # Parabolic SAR
-        psar = ti.parabolic_sar(data, index)
-        sar_bull = ti.is_sar_bullish(data, index)
+        psar = hub.parabolic_sar(data, index)
+        sar_bull = hub.is_sar_bullish(data, index)
 
         # CCI
-        cci_val = ti.cci(data, index, 20)
+        cci_val = hub.cci(data, index, 20)
 
         # VWAP
-        vwap_val = ti.vwap(data, index, 20)
+        vwap_val = hub.vwap(data, index, 20)
 
         # Ichimoku
-        ichimoku = ti.ichimoku(data, index)
+        ichimoku = hub.ichimoku(data, index)
 
         # Fibonacci
-        fib = ti.fibonacci_retracement(data, index, 50)
+        fib = hub.fibonacci_retracement(data, index, 50)
 
         return cls(
             date=bar.date,

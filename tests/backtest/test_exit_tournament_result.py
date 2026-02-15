@@ -80,7 +80,7 @@ class TestExitTournamentResult:
         result.add_result(_make_result("MECH_A", 3, 3.0))
         result.add_result(_make_result("MECH_B", 3, 0.5))
 
-        h2h = result.get_head_to_head()
+        h2h = result.head_to_head
         assert h2h["MECH_A"] == 2
         assert h2h["MECH_B"] == 1
 

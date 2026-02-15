@@ -10,6 +10,8 @@ import json
 import logging
 from decimal import Decimal, ROUND_CEILING
 
+import requests
+
 from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
 from stockdownloader.model import HistoricalData
 
@@ -52,7 +54,7 @@ class YahooHistoricalClient:
                 resp = self._auth.session.get(url, timeout=15)
                 self._parse_chart_json(resp.text, data)
                 return data
-            except Exception as exc:
+            except (requests.RequestException, json.JSONDecodeError, KeyError, ValueError) as exc:
                 last_exc = exc
                 if attempt < _MAX_RETRIES:
                     logger.debug(
@@ -100,7 +102,7 @@ class YahooHistoricalClient:
                 return
 
             self._parse_patterns(close_array, data)
-        except Exception as exc:
+        except (json.JSONDecodeError, KeyError, TypeError, IndexError, ValueError) as exc:
             logger.warning(
                 "%s has incomplete data from Yahoo chart API: %s",
                 data.ticker,

@@ -54,7 +54,7 @@ class YahooAuthHelper:
 
             logger.warning("Failed to obtain valid crumb from Yahoo Finance")
             return False
-        except Exception as exc:
+        except (requests.RequestException, OSError) as exc:
             logger.warning("Yahoo Finance authentication failed: %s", exc)
             return False
 

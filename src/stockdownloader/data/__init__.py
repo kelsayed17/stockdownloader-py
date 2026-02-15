@@ -1,6 +1,7 @@
 """Data fetching and loading modules."""
 
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
+from stockdownloader.data import json_helpers
 from stockdownloader.data.morningstar_client import MorningstarClient
 from stockdownloader.data.stock_list_downloader import StockListDownloader
 from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
@@ -14,6 +15,7 @@ from stockdownloader.data.tradingview_trade_loader import TradingViewTradeLoader
 
 __all__ = [
     "CsvPriceDataLoader",
+    "json_helpers",
     "MorningstarClient",
     "StockListDownloader",
     "YahooAuthHelper",

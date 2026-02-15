@@ -4,14 +4,14 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.financial_data import FinancialData
-from stockdownloader.model.historical_data import HistoricalData
-from stockdownloader.model.option_contract import OptionContract
-from stockdownloader.model.option_type import OptionType
-from stockdownloader.model.options_chain import OptionsChain
+from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.quote_data import QuoteData
-from stockdownloader.model.unified_market_data import UnifiedMarketData
+from stockdownloader.model.unified_market_data import (
+    FinancialData,
+    HistoricalData,
+    UnifiedMarketData,
+)
 
 
 def _make_contract(option_type, volume):
@@ -58,9 +58,9 @@ def test_symbol_is_required():
 
 def test_default_values_are_zero_or_empty(unified):
     assert unified.symbol == "SPY"
-    assert unified.get_equity_volume() == Decimal("0")
-    assert unified.get_options_volume() == 0
-    assert unified.get_current_price() == Decimal("0")
+    assert unified.equity_volume == Decimal("0")
+    assert unified.options_volume == 0
+    assert unified.current_price == Decimal("0")
     assert not unified.is_complete()
 
 
@@ -68,7 +68,7 @@ def test_equity_volume_from_quote_data(unified):
     quote = QuoteData()
     quote.volume = Decimal("5000000")
     unified.quote = quote
-    assert unified.get_equity_volume() == Decimal("5000000")
+    assert unified.equity_volume == Decimal("5000000")
 
 
 def test_options_volume_from_chain(unified):
@@ -78,9 +78,9 @@ def test_options_volume_from_chain(unified):
     chain.add_expiration_date("2024-01-19")
     unified.options_chain = chain
 
-    assert unified.get_options_volume() == 500
-    assert unified.get_call_volume() == 300
-    assert unified.get_put_volume() == 200
+    assert unified.options_volume == 500
+    assert unified.call_volume == 300
+    assert unified.put_volume == 200
 
 
 def test_total_combined_volume(unified):
@@ -93,7 +93,7 @@ def test_total_combined_volume(unified):
     chain.add_expiration_date("2024-01-19")
     unified.options_chain = chain
 
-    assert Decimal("1500").compare(unified.get_total_combined_volume()) == 0
+    assert Decimal("1500").compare(unified.total_combined_volume) == 0
 
 
 def test_average_daily_volume(unified):
@@ -120,7 +120,7 @@ def test_current_price_from_quote(unified):
     quote = QuoteData()
     quote.last_trade_price_only = Decimal("475.50")
     unified.quote = quote
-    assert unified.get_current_price() == Decimal("475.50")
+    assert unified.current_price == Decimal("475.50")
 
 
 def test_current_price_falls_back_to_latest_price(unified):
@@ -134,7 +134,7 @@ def test_current_price_falls_back_to_latest_price(unified):
         volume=100_000,
     )
     unified.latest_price = price
-    assert unified.get_current_price() == Decimal("474")
+    assert unified.current_price == Decimal("474")
 
 
 def test_put_call_ratio_delegation(unified):
@@ -144,7 +144,7 @@ def test_put_call_ratio_delegation(unified):
     chain.add_expiration_date("2024-01-19")
     unified.options_chain = chain
 
-    ratio = unified.get_put_call_ratio()
+    ratio = unified.put_call_ratio
     assert Decimal("2.0000").compare(ratio) == 0
 
 

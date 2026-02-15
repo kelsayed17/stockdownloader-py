@@ -1,15 +1,88 @@
-"""Unified view of all financial data for a single symbol."""
+"""Unified view of all financial data for a single symbol.
+
+Also contains the ``HistoricalData`` and ``FinancialData`` helper classes
+that were previously in their own modules.
+"""
 
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
-from typing import Optional
+from collections import defaultdict
+from decimal import Decimal, ROUND_HALF_UP, ROUND_CEILING
 
-from stockdownloader.model.financial_data import FinancialData
-from stockdownloader.model.historical_data import HistoricalData
-from stockdownloader.model.options_chain import OptionsChain
+from stockdownloader.model.options import OptionsChain
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.quote_data import QuoteData
+
+
+class HistoricalData:
+    """Historical price data and derived pattern information for a stock ticker."""
+
+    def __init__(self, ticker: str) -> None:
+        self._ticker: str = ticker
+
+        self.highest_price_this_qtr: Decimal = Decimal("0")
+        self.lowest_price_this_qtr: Decimal = Decimal("0")
+        self.highest_price_last_qtr: Decimal = Decimal("0")
+        self.lowest_price_last_qtr: Decimal = Decimal("0")
+
+        self.historical_prices: list[str] = []
+        self.patterns: defaultdict[str, set[str]] = defaultdict(set)
+
+        self.incomplete: bool = False
+        self.error: bool = False
+
+    @property
+    def ticker(self) -> str:
+        return self._ticker
+
+
+class FinancialData:
+    """Fundamental financial data model holding revenue, shares outstanding,
+    and derived revenue-per-share metrics.
+
+    Arrays are indexed 0-5 corresponding to Qtr1-5 + TTM.
+    """
+
+    def __init__(self) -> None:
+        self.revenue: list[int] = [0] * 6
+        self.basic_shares: list[int] = [0] * 6
+        self.diluted_shares: list[int] = [0] * 6
+        self.revenue_per_share: list[Decimal] = [Decimal("0")] * 6
+        self.revenue_per_share_ttm_last_qtr: Decimal = Decimal("0")
+        self.fiscal_quarters: list[str] = [""] * 6
+
+        self.incomplete: bool = False
+        self.error: bool = False
+
+    @staticmethod
+    def _divide_revenue(revenue: int, shares: int) -> Decimal:
+        """Divide revenue by shares with CEILING rounding, 2 decimal places."""
+        if shares == 0:
+            return Decimal("0")
+        return Decimal(revenue) / Decimal(shares)
+
+    def compute_revenue_per_share(self) -> None:
+        """Compute revenue per share for each quarter and TTM last quarter."""
+        for i in range(6):
+            if self.diluted_shares[i] == 0:
+                self.diluted_shares[i] = self.basic_shares[i]
+
+        for i in range(6):
+            self.revenue_per_share[i] = self._divide_revenue(
+                self.revenue[i], self.diluted_shares[i]
+            ).quantize(Decimal("0.01"), rounding=ROUND_CEILING)
+
+        self.revenue_per_share_ttm_last_qtr = (
+            self.revenue_per_share[0]
+            + self.revenue_per_share[1]
+            + self.revenue_per_share[2]
+            + self.revenue_per_share[3]
+        ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+    @property
+    def revenue_per_share_ttm(self) -> Decimal:
+        """Convenience accessor for TTM revenue per share (index 5)."""
+        return self.revenue_per_share[5]
 
 
 class UnifiedMarketData:
@@ -23,12 +96,12 @@ class UnifiedMarketData:
             raise ValueError("symbol must not be null")
 
         self._symbol: str = symbol
-        self.latest_price: Optional[PriceData] = None
+        self.latest_price: PriceData | None = None
         self.price_history: list[PriceData] = []
-        self.quote: Optional[QuoteData] = None
-        self.historical: Optional[HistoricalData] = None
-        self.financials: Optional[FinancialData] = None
-        self.options_chain: Optional[OptionsChain] = None
+        self.quote: QuoteData | None = None
+        self.historical: HistoricalData | None = None
+        self.financials: FinancialData | None = None
+        self.options_chain: OptionsChain | None = None
 
     @property
     def symbol(self) -> str:
@@ -36,33 +109,38 @@ class UnifiedMarketData:
 
     # --- Volume aggregation (unified across all data sources) ---
 
-    def get_equity_volume(self) -> Decimal:
+    @property
+    def equity_volume(self) -> Decimal:
         """Latest equity trading volume from quote data."""
         if self.quote is not None:
             return self.quote.volume
         return Decimal("0")
 
-    def get_options_volume(self) -> int:
+    @property
+    def options_volume(self) -> int:
         """Total options volume (calls + puts) across all expirations."""
         if self.options_chain is not None:
-            return self.options_chain.get_total_volume()
+            return self.options_chain.total_volume
         return 0
 
-    def get_call_volume(self) -> int:
+    @property
+    def call_volume(self) -> int:
         """Total call volume across all expirations."""
         if self.options_chain is not None:
-            return self.options_chain.get_total_call_volume()
+            return self.options_chain.total_call_volume
         return 0
 
-    def get_put_volume(self) -> int:
+    @property
+    def put_volume(self) -> int:
         """Total put volume across all expirations."""
         if self.options_chain is not None:
-            return self.options_chain.get_total_put_volume()
+            return self.options_chain.total_put_volume
         return 0
 
-    def get_total_combined_volume(self) -> Decimal:
+    @property
+    def total_combined_volume(self) -> Decimal:
         """Combined volume: equity trading volume + options volume."""
-        return self.get_equity_volume() + Decimal(self.get_options_volume())
+        return self.equity_volume + Decimal(self.options_volume)
 
     def get_average_daily_volume(self, days: int) -> Decimal:
         """Average daily equity volume from price history."""
@@ -77,24 +155,27 @@ class UnifiedMarketData:
             Decimal("1"), rounding=ROUND_HALF_UP
         )
 
-    def get_total_open_interest(self) -> int:
+    @property
+    def total_open_interest(self) -> int:
         """Total open interest across all options."""
         if self.options_chain is None:
             return 0
         return (
-            self.options_chain.get_total_call_open_interest()
-            + self.options_chain.get_total_put_open_interest()
+            self.options_chain.total_call_open_interest
+            + self.options_chain.total_put_open_interest
         )
 
-    def get_put_call_ratio(self) -> Decimal:
+    @property
+    def put_call_ratio(self) -> Decimal:
         """Put/call ratio based on volume."""
         if self.options_chain is not None:
-            return self.options_chain.get_put_call_ratio()
+            return self.options_chain.put_call_ratio
         return Decimal("0")
 
     # --- Price metrics ---
 
-    def get_current_price(self) -> Decimal:
+    @property
+    def current_price(self) -> Decimal:
         """Return the current price from quote data or latest price."""
         if (
             self.quote is not None
@@ -105,7 +186,8 @@ class UnifiedMarketData:
             return self.latest_price.close
         return Decimal("0")
 
-    def get_market_cap(self) -> Decimal:
+    @property
+    def market_cap(self) -> Decimal:
         """Return the market capitalization."""
         if self.quote is not None:
             return Decimal(self.quote.market_capitalization)
@@ -144,9 +226,9 @@ class UnifiedMarketData:
     def __str__(self) -> str:
         return (
             f"UnifiedMarketData[{self._symbol}] "
-            f"price=${self.get_current_price()} "
-            f"eqVol={self.get_equity_volume()} "
-            f"optVol={self.get_options_volume()} "
-            f"OI={self.get_total_open_interest()} "
-            f"P/C={float(self.get_put_call_ratio()):.4f}"
+            f"price=${self.current_price} "
+            f"eqVol={self.equity_volume} "
+            f"optVol={self.options_volume} "
+            f"OI={self.total_open_interest} "
+            f"P/C={float(self.put_call_ratio):.4f}"
         )

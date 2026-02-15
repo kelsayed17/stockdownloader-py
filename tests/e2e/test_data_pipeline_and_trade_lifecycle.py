@@ -24,9 +24,9 @@ from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.trade import Trade, Direction, TradeStatus
-from stockdownloader.strategy.macd_strategy import MACDStrategy
-from stockdownloader.strategy.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.sma_crossover_strategy import SMACrossoverStrategy
+from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
+from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
+from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal
 from stockdownloader.util.csv_parser import CsvParser
 from stockdownloader.util.moving_average_calculator import sma, ema
@@ -161,7 +161,7 @@ def test_data_to_signal_pipeline_sma(real_data):
     strategy = SMACrossoverStrategy(20, 50)
 
     # Before warmup, all signals should be HOLD
-    for i in range(strategy.get_warmup_period()):
+    for i in range(strategy.warmup_period):
         assert strategy.evaluate(real_data, i) == Signal.HOLD, \
             f"Before warmup, signal should be HOLD at index {i}"
 
@@ -169,7 +169,7 @@ def test_data_to_signal_pipeline_sma(real_data):
     buy_count = 0
     sell_count = 0
     hold_count = 0
-    for i in range(strategy.get_warmup_period(), len(real_data)):
+    for i in range(strategy.warmup_period, len(real_data)):
         signal = strategy.evaluate(real_data, i)
         if signal == Signal.BUY:
             buy_count += 1
@@ -189,11 +189,11 @@ def test_data_to_signal_pipeline_rsi(real_data):
     strategy = RSIStrategy(14, 30.0, 70.0)
 
     # Warmup period check
-    assert strategy.get_warmup_period() == 15  # period + 1
+    assert strategy.warmup_period == 15  # period + 1
 
     buy_count = 0
     sell_count = 0
-    for i in range(strategy.get_warmup_period(), len(real_data)):
+    for i in range(strategy.warmup_period, len(real_data)):
         signal = strategy.evaluate(real_data, i)
         if signal == Signal.BUY:
             buy_count += 1
@@ -201,7 +201,7 @@ def test_data_to_signal_pipeline_rsi(real_data):
             sell_count += 1
 
     # RSI signals should be relatively rare (extreme readings)
-    total_bars = len(real_data) - strategy.get_warmup_period()
+    total_bars = len(real_data) - strategy.warmup_period
     assert buy_count < total_bars // 2, "RSI BUY signals should be infrequent"
     assert sell_count < total_bars // 2, "RSI SELL signals should be infrequent"
 
@@ -209,11 +209,11 @@ def test_data_to_signal_pipeline_rsi(real_data):
 def test_data_to_signal_pipeline_macd(real_data):
     strategy = MACDStrategy(12, 26, 9)
 
-    assert strategy.get_warmup_period() == 35  # slowPeriod + signalPeriod
+    assert strategy.warmup_period == 35  # slowPeriod + signalPeriod
 
     buy_count = 0
     sell_count = 0
-    for i in range(strategy.get_warmup_period(), len(real_data)):
+    for i in range(strategy.warmup_period, len(real_data)):
         signal = strategy.evaluate(real_data, i)
         if signal == Signal.BUY:
             buy_count += 1
@@ -302,7 +302,7 @@ def test_engine_produces_closed_trades_with_valid_lifecycle(real_data):
 
     result = engine.run(strategy, real_data)
 
-    for trade in result.get_closed_trades():
+    for trade in result.closed_trades:
         # Every trade should go through complete lifecycle
         assert trade.status == TradeStatus.CLOSED
         assert trade.direction == Direction.LONG
@@ -339,7 +339,7 @@ def test_engine_trade_entry_dates_match_data_dates(real_data):
     # Collect all valid dates from the data
     valid_dates = [bar.date for bar in real_data]
 
-    for trade in result.get_closed_trades():
+    for trade in result.closed_trades:
         assert trade.entry_date in valid_dates, \
             f"Entry date {trade.entry_date} should be a valid trading date"
         assert trade.exit_date in valid_dates, \
@@ -352,7 +352,7 @@ def test_engine_trade_entry_prices_match_close_prices(real_data):
 
     result = engine.run(strategy, real_data)
 
-    for trade in result.get_closed_trades():
+    for trade in result.closed_trades:
         # Find the entry bar in real data
         for bar in real_data:
             if bar.date == trade.entry_date:
@@ -374,8 +374,8 @@ def test_engine_shares_calculated_from_capital(real_data):
 
     result = engine.run(strategy, real_data)
 
-    if result.get_closed_trades():
-        first_trade = result.get_closed_trades()[0]
+    if result.closed_trades:
+        first_trade = result.closed_trades[0]
         # shares = floor(capital / price)
         expected_shares = int(capital / first_trade.entry_price)
         assert expected_shares == first_trade.shares, \
@@ -412,7 +412,7 @@ def test_result_sum_of_trade_pl_matches_total_pl(real_data):
     result = engine.run(strategy, real_data)
 
     # The total P/L from result should be close to sum of individual trade P/L
-    trade_pl_sum = sum(t.profit_loss for t in result.get_closed_trades())
+    trade_pl_sum = sum(t.profit_loss for t in result.closed_trades)
 
     # Total P/L from result
     total_pl = result.total_pnl
@@ -420,7 +420,7 @@ def test_result_sum_of_trade_pl_matches_total_pl(real_data):
     # The difference should be small (just the cash that couldn't buy full shares)
     diff = abs(total_pl - trade_pl_sum)
     # Difference should be less than one share price (max rounding error)
-    if result.get_closed_trades():
+    if result.closed_trades:
         max_share_price = max(bar.close for bar in real_data)
         assert diff < max_share_price, \
             "P/L difference should be within one share price rounding error"

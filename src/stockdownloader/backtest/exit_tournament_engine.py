@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 from stockdownloader.backtest.exit_tournament_result import ExitTournamentResult
 from stockdownloader.model.exit_mechanism_result import ExitMechanismTradeResult
 from stockdownloader.model.trade import Direction
+from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.model.intraday_price_data import IntradayPriceData
@@ -23,10 +24,6 @@ if TYPE_CHECKING:
     from stockdownloader.strategy.exit_mechanism import ExitMechanism
 
 logger = logging.getLogger(__name__)
-
-_ZERO = Decimal("0")
-_HUNDRED = Decimal("100")
-
 
 class ExitTournamentEngine:
     """Runs trades through multiple exit mechanisms and collects results.
@@ -96,11 +93,9 @@ class ExitTournamentEngine:
 
         return result
 
-
 # ------------------------------------------------------------------
 # Internal helpers
 # ------------------------------------------------------------------
-
 
 def _build_date_ranges(
     data: list[IntradayPriceData],
@@ -114,7 +109,6 @@ def _build_date_ranges(
         else:
             ranges[day] = (ranges[day][0], i)
     return ranges
-
 
 def _find_entry_bar(
     trade: TournamentTrade,
@@ -150,7 +144,6 @@ def _find_entry_bar(
 
     return best_idx
 
-
 def _replay_trade(
     trade: TournamentTrade,
     data: list[IntradayPriceData],
@@ -174,7 +167,7 @@ def _replay_trade(
     stop_dist = trade.stop_distance
     direction = trade.direction
 
-    exit_price = _ZERO
+    exit_price = ZERO
     exit_datetime = ""
     exit_reason = "session_end"
     holding_bars = 0
@@ -196,9 +189,9 @@ def _replay_trade(
 
         exited = mechanism.evaluate_bar(bar, trade, bar_offset)
         if exited:
-            exit_price = mechanism.get_exit_price()
+            exit_price = mechanism.exit_price
             exit_datetime = bar.date
-            exit_reason = mechanism.get_exit_reason()
+            exit_reason = mechanism.exit_reason
             holding_bars = bar_offset
             break
     else:
@@ -217,20 +210,20 @@ def _replay_trade(
         pnl = entry - exit_price
         max_fav = entry - peak
 
-    r_multiple = _ZERO
-    if stop_dist > _ZERO:
+    r_multiple = ZERO
+    if stop_dist > ZERO:
         r_multiple = (pnl / stop_dist).quantize(
             Decimal("0.0001"), rounding=ROUND_HALF_UP
         )
 
-    capture = _ZERO
-    if max_fav > _ZERO:
-        capture = (pnl / max_fav * _HUNDRED).quantize(
+    capture = ZERO
+    if max_fav > ZERO:
+        capture = (pnl / max_fav * HUNDRED).quantize(
             Decimal("0.01"), rounding=ROUND_HALF_UP
         )
 
     return ExitMechanismTradeResult(
-        mechanism_name=mechanism.get_name(),
+        mechanism_name=mechanism.name,
         trade_id=trade.trade_id,
         direction=direction,
         signal_type=trade.signal_type,

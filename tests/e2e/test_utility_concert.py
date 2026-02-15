@@ -19,13 +19,10 @@ import pytest
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.util.big_decimal_math import (
-    add,
     average,
     divide,
-    multiply,
     percent_change,
     scale2,
-    subtract,
 )
 from stockdownloader.util.csv_parser import CsvParser
 from stockdownloader.util.date_helper import (

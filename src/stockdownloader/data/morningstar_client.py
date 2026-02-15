@@ -11,6 +11,9 @@ from __future__ import annotations
 import json
 import logging
 
+import requests
+
+from stockdownloader.data.json_helpers import get_raw_long, get_raw_string
 from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
 from stockdownloader.model import FinancialData
 
@@ -61,7 +64,7 @@ class MorningstarClient:
                 )
                 data.incomplete = True
                 return data
-            except Exception as exc:
+            except (requests.RequestException, json.JSONDecodeError, KeyError, ValueError) as exc:
                 last_exc = exc
                 if attempt < _MAX_RETRIES:
                     logger.debug(
@@ -122,12 +125,12 @@ class MorningstarClient:
         for i in range(count):
             stmt = statements[i]
 
-            revenue = _get_raw_long(stmt, "totalRevenue")
-            data.set_revenue(i, revenue)
+            revenue = get_raw_long(stmt, "totalRevenue")
+            data.revenue[i] = revenue
 
-            end_date = _get_string(stmt, "endDate")
+            end_date = get_raw_string(stmt, "endDate")
             if end_date:
-                data.set_fiscal_quarter(i, end_date)
+                data.fiscal_quarters[i] = end_date
 
     @staticmethod
     def _parse_annual_income(result: dict, data: FinancialData) -> None:
@@ -141,9 +144,9 @@ class MorningstarClient:
 
         # Use most recent annual as TTM approximation (index 5)
         latest_annual = statements[0]
-        annual_revenue = _get_raw_long(latest_annual, "totalRevenue")
+        annual_revenue = get_raw_long(latest_annual, "totalRevenue")
         if annual_revenue > 0:
-            data.set_revenue(5, annual_revenue)
+            data.revenue[5] = annual_revenue
 
     @staticmethod
     def _parse_key_statistics(result: dict, data: FinancialData) -> None:
@@ -151,62 +154,14 @@ class MorningstarClient:
         if stats is None:
             return
 
-        shares_outstanding = _get_raw_long(stats, "sharesOutstanding")
-        float_shares = _get_raw_long(stats, "floatShares")
+        shares_outstanding = get_raw_long(stats, "sharesOutstanding")
+        float_shares = get_raw_long(stats, "floatShares")
 
         # Use shares outstanding as basic, float as diluted approximation
         for i in range(6):
             if shares_outstanding > 0:
-                data.set_basic_shares(i, shares_outstanding)
+                data.basic_shares[i] = shares_outstanding
             if float_shares > 0:
-                data.set_diluted_shares(i, float_shares)
+                data.diluted_shares[i] = float_shares
             elif shares_outstanding > 0:
-                data.set_diluted_shares(i, shares_outstanding)
-
-
-# ------------------------------------------------------------------
-# Module-level helpers
-# ------------------------------------------------------------------
-
-
-def _get_raw_long(obj: dict, field: str) -> int:
-    """Extract a long integer from a Yahoo Finance JSON field.
-
-    Yahoo wraps numeric values as ``{"raw": 123, "fmt": "123"}``.
-    This helper handles both wrapped and direct numeric values.
-    """
-    val = obj.get(field)
-    if val is None:
-        return 0
-
-    # Yahoo Finance wraps numeric values in {"raw": ..., "fmt": ...}
-    if isinstance(val, dict):
-        raw = val.get("raw")
-        if raw is not None:
-            try:
-                return int(raw)
-            except (ValueError, TypeError):
-                return 0
-
-    # Direct numeric value
-    try:
-        return int(val)
-    except (ValueError, TypeError):
-        return 0
-
-
-def _get_string(obj: dict, field: str) -> str:
-    """Extract a string from a Yahoo Finance JSON field.
-
-    Handles the ``{"raw": ..., "fmt": "..."}`` wrapper format.
-    """
-    val = obj.get(field)
-    if val is None:
-        return ""
-
-    if isinstance(val, dict):
-        fmt = val.get("fmt")
-        if fmt is not None:
-            return str(fmt)
-
-    return str(val)
+                data.diluted_shares[i] = shares_outstanding

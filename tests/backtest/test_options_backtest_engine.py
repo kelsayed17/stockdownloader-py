@@ -7,8 +7,8 @@ import pytest
 
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.strategy.covered_call_strategy import CoveredCallStrategy
-from stockdownloader.strategy.protective_put_strategy import ProtectivePutStrategy
+from stockdownloader.strategy.options.covered_call_strategy import CoveredCallStrategy
+from stockdownloader.strategy.options.protective_put_strategy import ProtectivePutStrategy
 
 CAPITAL = Decimal("100000")
 NO_COMMISSION = Decimal("0")
@@ -76,7 +76,7 @@ def test_runs_with_uptrend():
     result = engine.run(strategy, data)
 
     assert result is not None
-    assert result.strategy_name == strategy.get_name()
+    assert result.strategy_name == strategy.name
     assert result.initial_capital == CAPITAL
     assert result.equity_curve is not None
     assert len(result.equity_curve) == len(data)

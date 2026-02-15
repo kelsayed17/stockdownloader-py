@@ -13,14 +13,14 @@ from decimal import Decimal, ROUND_HALF_UP
 import pytest
 
 from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.backtest.backtest_report_formatter import print_report, print_comparison
+from stockdownloader.backtest.report_formatter import print_daily_report, print_daily_comparison
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.trade import Trade, Direction, TradeStatus
-from stockdownloader.strategy.macd_strategy import MACDStrategy
-from stockdownloader.strategy.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.sma_crossover_strategy import SMACrossoverStrategy
+from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
+from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
+from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import TradingStrategy
 from stockdownloader.util.big_decimal_math import percent_change
 from stockdownloader.util.moving_average_calculator import sma, ema
@@ -127,7 +127,7 @@ def test_sma_20_50_generates_trades_with_real_data(spy_data, results):
         "SMA(20/50) should generate at least one trade with 272 days of real SPY data"
 
     # Verify every trade has valid entry/exit data
-    for trade in result.get_closed_trades():
+    for trade in result.closed_trades:
         assert trade.direction == Direction.LONG, "Engine only produces LONG trades"
         assert trade.status == TradeStatus.CLOSED
         assert trade.entry_date is not None
@@ -258,7 +258,7 @@ def test_individual_reports_generate_without_errors(spy_data, results):
 
     try:
         for result in results:
-            print_report(result, spy_data)
+            print_daily_report(result, spy_data)
     finally:
         sys.stdout = old_stdout
 
@@ -286,7 +286,7 @@ def test_comparison_report_generates_without_errors(spy_data, results):
     sys.stdout = capture
 
     try:
-        print_comparison(results, spy_data)
+        print_daily_comparison(results, spy_data)
     finally:
         sys.stdout = old_stdout
 
@@ -308,7 +308,7 @@ def test_best_strategy_identified_correctly(spy_data, results):
     sys.stdout = capture
 
     try:
-        print_comparison(results, spy_data)
+        print_daily_comparison(results, spy_data)
     finally:
         sys.stdout = old_stdout
 
@@ -333,7 +333,7 @@ def test_commission_impact_on_all_strategies(spy_data, strategies, results):
 
         if no_comm.total_trades > 0:
             assert no_comm.final_capital >= with_comm.final_capital, \
-                f"Commission should reduce final capital for {strategy.get_name()}"
+                f"Commission should reduce final capital for {strategy.name}"
 
 
 # ========== Determinism E2E ==========

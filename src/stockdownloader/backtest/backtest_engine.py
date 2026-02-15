@@ -38,7 +38,7 @@ class BacktestEngine:
         if not data:
             raise ValueError("data must not be None or empty")
 
-        result = BacktestResult(strategy.get_name(), self._initial_capital)
+        result = BacktestResult(strategy.name, self._initial_capital)
         cash: Decimal = self._initial_capital
         current_trade: Trade | None = None
         equity_curve: list[Decimal] = []
@@ -49,13 +49,7 @@ class BacktestEngine:
         for i, bar in enumerate(data):
             signal = strategy.evaluate(data, i)
 
-            # Compute current equity
-            equity = cash
-            if current_trade is not None and current_trade.status == TradeStatus.OPEN:
-                position_value = bar.close * Decimal(str(current_trade.shares))
-                equity = cash + position_value
-            equity_curve.append(equity)
-
+            # Process signal first, then compute equity at bar close
             if signal == Signal.BUY and current_trade is None:
                 shares = int(
                     (cash - self._commission) / bar.close
@@ -80,11 +74,21 @@ class BacktestEngine:
                 result.add_trade(current_trade)
                 current_trade = None
 
+            # Compute equity *after* processing the signal so that
+            # entry/exit on this bar's close is reflected immediately.
+            equity = cash
+            if current_trade is not None and current_trade.status == TradeStatus.OPEN:
+                position_value = bar.close * Decimal(str(current_trade.shares))
+                equity = cash + position_value
+            equity_curve.append(equity)
+
         # Force-close any remaining open position at the last bar
         if current_trade is not None and current_trade.status == TradeStatus.OPEN:
             last_bar = data[-1]
             cash = self._close_position(current_trade, last_bar, cash)
             result.add_trade(current_trade)
+            # Update last equity point to reflect the close
+            equity_curve[-1] = cash
 
         result.final_capital = cash
         result.equity_curve = equity_curve

@@ -1,11 +1,12 @@
 """Formats and prints exit tournament reports to the console.
 
 Follows the same module-level function pattern as
-:mod:`backtest_report_formatter`.
+:mod:`report_formatter`.
 """
 from __future__ import annotations
 
 from decimal import Decimal, ROUND_HALF_UP
+from operator import attrgetter
 
 from stockdownloader.backtest.exit_tournament_result import ExitTournamentResult
 from stockdownloader.model.exit_mechanism_result import ExitMechanismSummary
@@ -142,7 +143,7 @@ def print_report(result: ExitTournamentResult, label: str = "") -> None:
     print(thin)
     print("  HEAD-TO-HEAD: Best mechanism per trade")
     print(thin)
-    h2h = result.get_head_to_head()
+    h2h = result.head_to_head
     total_trades = result.trades_simulated or 1
     for mech, wins in h2h.items():
         pct = wins / total_trades * 100
@@ -231,5 +232,5 @@ def print_comparison(result: ExitTournamentResult) -> None:
 def _sorted_summaries(result: ExitTournamentResult) -> list[ExitMechanismSummary]:
     """Return mechanism summaries sorted by total P&L descending."""
     summaries = list(result.mechanism_summaries.values())
-    summaries.sort(key=lambda s: s.total_pnl, reverse=True)
+    summaries.sort(key=attrgetter("total_pnl"), reverse=True)
     return summaries

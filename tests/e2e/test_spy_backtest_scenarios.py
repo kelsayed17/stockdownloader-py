@@ -18,14 +18,14 @@ from decimal import Decimal, ROUND_HALF_UP
 import pytest
 
 from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.backtest.backtest_report_formatter import print_comparison
+from stockdownloader.backtest.report_formatter import print_daily_comparison
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.trade import Trade
-from stockdownloader.strategy.macd_strategy import MACDStrategy
-from stockdownloader.strategy.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.sma_crossover_strategy import SMACrossoverStrategy
+from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
+from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
+from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import TradingStrategy
 
 INITIAL_CAPITAL = Decimal("100000.00")
@@ -84,7 +84,7 @@ class TestMarketRegimeCharacterization:
         first_close = q1[0].close
         last_close = q1[-1].close
         return_pct = (last_close - first_close) / first_close * Decimal("100")
-        assert return_pct is not None
+        assert isinstance(return_pct, Decimal)
 
     def test_q2_bull_rally_buy_and_hold_performance(self, market_segments):
         q2 = market_segments["q2_bull_rally"]
@@ -99,7 +99,7 @@ class TestMarketRegimeCharacterization:
         first_close = q3[0].close
         last_close = q3[-1].close
         return_pct = (last_close - first_close) / first_close * Decimal("100")
-        assert return_pct is not None
+        assert isinstance(return_pct, Decimal)
 
     def test_q4_year_end_rally_buy_and_hold_performance(self, market_segments):
         q4 = market_segments["q4_year_end_rally"]
@@ -185,7 +185,7 @@ class TestSMAParameterSensitivity:
             strategy = SMACrossoverStrategy(short_p, long_p)
             result = engine.run(strategy, full_data)
 
-            trade_pl_sum = sum(t.profit_loss for t in result.get_closed_trades())
+            trade_pl_sum = sum(t.profit_loss for t in result.closed_trades)
             assert trade_pl_sum == result.total_pnl, \
                 f"SMA({short_p}/{long_p}) trade P/L sum should match total P/L"
 
@@ -287,7 +287,7 @@ class TestStrategyTournament:
             result = engine.run(strategy, full_data)
             if best_return is None or result.total_return > best_return:
                 best_return = result.total_return
-                best_strategy = strategy.get_name()
+                best_strategy = strategy.name
 
         assert best_strategy is not None
 
@@ -327,7 +327,7 @@ class TestStrategyTournament:
             for strategy in self.TOURNAMENT_STRATEGIES:
                 result = engine.run(strategy, segment)
                 assert result.total_return > max_loss_threshold, \
-                    f"{strategy.get_name()} should not lose >50% on any segment"
+                    f"{strategy.name} should not lose >50% on any segment"
 
 
 # ======================================================================
@@ -380,7 +380,7 @@ class TestCommissionImpactAnalysis:
         strategy = SMACrossoverStrategy(20, 50)
         result = engine.run(strategy, full_data)
 
-        trade_pl_sum = sum(t.profit_loss for t in result.get_closed_trades())
+        trade_pl_sum = sum(t.profit_loss for t in result.closed_trades)
 
         assert trade_pl_sum == result.total_pnl, \
             "Zero-commission trade P/L sum must exactly match total P/L"
@@ -466,9 +466,9 @@ class TestRiskMetricsDeepDive:
             sharpe = result.sharpe_ratio(TRADING_DAYS_PER_YEAR)
 
             assert sharpe > Decimal("-5"), \
-                f"{strategy.get_name()} Sharpe should be > -5"
+                f"{strategy.name} Sharpe should be > -5"
             assert sharpe < Decimal("10"), \
-                f"{strategy.get_name()} Sharpe should be < 10"
+                f"{strategy.name} Sharpe should be < 10"
 
     def test_profit_factor_correlates_with_win_rate(self, full_data):
         engine = BacktestEngine(INITIAL_CAPITAL, ZERO_COMMISSION)
@@ -496,7 +496,7 @@ class TestRiskMetricsDeepDive:
             result = engine.run(strategy, full_data)
             for i, equity in enumerate(result.equity_curve):
                 assert equity > Decimal("0"), \
-                    f"{strategy.get_name()} equity should never go negative (index {i})"
+                    f"{strategy.name} equity should never go negative (index {i})"
 
 
 # ======================================================================
@@ -530,7 +530,7 @@ class TestHeadToHeadComparison:
         old_stdout = sys.stdout
         sys.stdout = capture
         try:
-            print_comparison(all_results, full_data)
+            print_daily_comparison(all_results, full_data)
         finally:
             sys.stdout = old_stdout
 
@@ -556,7 +556,7 @@ class TestHeadToHeadComparison:
         for strategy in strategies:
             result = engine.run(strategy, full_data)
             rankings.append({
-                "name": strategy.get_name(),
+                "name": strategy.name,
                 "ret": result.total_return,
                 "sharpe": result.sharpe_ratio(TRADING_DAYS_PER_YEAR),
                 "max_dd": result.max_drawdown,
@@ -582,15 +582,15 @@ class TestEdgeCasesAndStressTesting:
 
         # SMA(50/200) needs at least 200 bars for warmup
         sma_strategy = SMACrossoverStrategy(50, 200)
-        assert sma_strategy.get_warmup_period() == 200
+        assert sma_strategy.warmup_period == 200
 
         # RSI(14, 30/70) needs 15 bars
         rsi = RSIStrategy(14, 30.0, 70.0)
-        assert rsi.get_warmup_period() == 15
+        assert rsi.warmup_period == 15
 
         # MACD(12/26/9) needs 35 bars
         macd = MACDStrategy(12, 26, 9)
-        assert macd.get_warmup_period() == 35
+        assert macd.warmup_period == 35
 
         # Test with just enough data for each strategy
         # Use 36 bars for MACD (minimum + 1)

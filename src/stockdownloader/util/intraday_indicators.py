@@ -12,45 +12,36 @@ accept ``Sequence[PriceData]`` with an ``end_index`` parameter, return
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
+from stockdownloader.util.big_decimal_math import ZERO
 from stockdownloader.util.moving_average_calculator import ema as _ema
-from stockdownloader.util.technical_indicators import atr as _atr
+from stockdownloader.util.technical_indicators import (
+    _compute_session_vwap_core,
+    _find_session_start,
+    atr as _atr,
+)
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
 
     from stockdownloader.model.intraday_price_data import IntradayPriceData
     from stockdownloader.model.price_data import PriceData
 
 SCALE = 10
-_ZERO = Decimal("0")
 _HALF = Decimal("0.5")
 _THREE = Decimal("3")
 
-
 def _quantize(value: Decimal) -> Decimal:
     return value.quantize(Decimal(10) ** -SCALE, rounding=ROUND_HALF_UP)
-
-
-def _find_session_start(data: Sequence[PriceData], end_index: int) -> int:
-    """Walk backward to find the first bar of the current trading session."""
-    current_day = data[end_index].date[:10]
-    start = end_index
-    while start > 0 and data[start - 1].date[:10] == current_day:
-        start -= 1
-    return start
-
 
 # =========================================================================
 # EXTENDED SESSION VWAP BANDS
 # =========================================================================
 
-
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class ExtendedSessionVWAP:
     """Session VWAP with 0.5 / 1 / 1.5 / 2 / 3 sigma bands."""
 
@@ -67,50 +58,45 @@ class ExtendedSessionVWAP:
     upper_3: Decimal
     lower_3: Decimal
 
+    def band_pair(self, label: str = "2σ") -> tuple[Decimal, Decimal]:
+        """Return ``(upper, lower)`` band pair for the given sigma label.
+
+        Supported labels: ``'0.5σ'``, ``'1σ'``, ``'1.5σ'``, ``'2σ'``, ``'3σ'``.
+        Defaults to ``'2σ'`` if the label is unrecognized.
+        """
+        suffix_map: dict[str, str] = {
+            "0.5σ": "_05",
+            "1σ": "_1",
+            "1.5σ": "_15",
+            "2σ": "_2",
+            "3σ": "_3",
+        }
+        sfx = suffix_map.get(label, "_2")
+        return (
+            getattr(self, f"upper{sfx}"),
+            getattr(self, f"lower{sfx}"),
+        )
 
 _EMPTY_VWAP = ExtendedSessionVWAP(
-    _ZERO, _ZERO, _ZERO, _ZERO, _ZERO, _ZERO,
-    _ZERO, _ZERO, _ZERO, _ZERO, _ZERO, _ZERO,
+    ZERO, ZERO, ZERO, ZERO, ZERO, ZERO,
+    ZERO, ZERO, ZERO, ZERO, ZERO, ZERO,
 )
-
 
 def extended_session_vwap_bands(
     data: Sequence[PriceData], end_index: int
 ) -> ExtendedSessionVWAP:
-    """Session VWAP with 0.5 / 1 / 1.5 / 2 / 3 sigma bands."""
+    """Session VWAP with 0.5 / 1 / 1.5 / 2 / 3 sigma bands.
+
+    Delegates core VWAP computation to
+    :func:`~stockdownloader.util.technical_indicators._compute_session_vwap_core`.
+    """
     if end_index < 0:
         return _EMPTY_VWAP
 
-    session_start = _find_session_start(data, end_index)
+    vwap_val, std_val = _compute_session_vwap_core(data, end_index)
 
-    sum_tpv = _ZERO
-    sum_vol = _ZERO
-    tps: list[Decimal] = []
-    vols: list[Decimal] = []
-
-    for i in range(session_start, end_index + 1):
-        bar = data[i]
-        tp = _quantize((bar.high + bar.low + bar.close) / _THREE)
-        vol = Decimal(str(bar.volume))
-        tps.append(tp)
-        vols.append(vol)
-        sum_tpv += tp * vol
-        sum_vol += vol
-
-    if sum_vol == _ZERO:
+    if vwap_val == ZERO and std_val == ZERO:
         return _EMPTY_VWAP
-
-    vwap_val = _quantize(sum_tpv / sum_vol)
-
-    # Weighted standard deviation
-    sum_var = _ZERO
-    for tp, vol in zip(tps, vols):
-        diff = tp - vwap_val
-        sum_var += diff * diff * vol
-
-    variance = float(sum_var / sum_vol)
-    std_float = math.sqrt(max(0.0, variance))
-    std_val = _quantize(Decimal(str(std_float)))
 
     s05 = _quantize(std_val * Decimal("0.5"))
     s15 = _quantize(std_val * Decimal("1.5"))
@@ -132,11 +118,9 @@ def extended_session_vwap_bands(
         lower_3=_quantize(vwap_val - s3),
     )
 
-
 # =========================================================================
 # TIME-OF-DAY RELATIVE VOLUME
 # =========================================================================
-
 
 def tod_rvol(
     data: Sequence[PriceData],
@@ -154,10 +138,10 @@ def tod_rvol(
         return Decimal("1")
 
     current_vol = Decimal(str(data[end_index].volume))
-    if current_vol <= _ZERO:
+    if current_vol <= ZERO:
         return Decimal("1")
 
-    total = _ZERO
+    total = ZERO
     count = 0
     for d in range(1, lookback_days + 1):
         offset = d * bars_per_day
@@ -166,20 +150,18 @@ def tod_rvol(
             total += Decimal(str(data[idx].volume))
             count += 1
 
-    if count == 0 or total == _ZERO:
+    if count == 0 or total == ZERO:
         return Decimal("1")
 
     avg = total / Decimal(str(count))
-    if avg <= _ZERO:
+    if avg <= ZERO:
         return Decimal("1")
 
     return _quantize(current_vol / avg)
 
-
 # =========================================================================
 # CUMULATIVE VOLUME DELTA PROXY
 # =========================================================================
-
 
 def cvd_session(
     data: Sequence[PriceData],
@@ -193,22 +175,21 @@ def cvd_session(
     This is the same approximation as the PineScript ``cumVD``.
     """
     if end_index < 0:
-        return _ZERO
+        return ZERO
 
     session_start = _find_session_start(data, end_index)
-    cum = _ZERO
+    cum = ZERO
 
     for i in range(session_start, end_index + 1):
         bar = data[i]
         bar_range = bar.high - bar.low
-        if bar_range > _ZERO:
+        if bar_range > ZERO:
             v_delta = (bar.close - bar.low) / bar_range
         else:
             v_delta = _HALF
         cum += (v_delta - _HALF) * Decimal(str(bar.volume))
 
     return _quantize(cum)
-
 
 def cvd_normalized(
     data: Sequence[PriceData],
@@ -219,24 +200,22 @@ def cvd_normalized(
     cvd = cvd_session(data, end_index)
 
     if end_index < vol_sma_period:
-        return _ZERO
+        return ZERO
 
-    total = _ZERO
+    total = ZERO
     for i in range(end_index - vol_sma_period + 1, end_index + 1):
         total += Decimal(str(data[i].volume))
     vol_sma = total / Decimal(str(vol_sma_period))
 
     denom = vol_sma * Decimal("20")
-    if denom <= _ZERO:
-        return _ZERO
+    if denom <= ZERO:
+        return ZERO
 
     return _quantize(cvd / denom)
-
 
 # =========================================================================
 # LINEAR REGRESSION SLOPE
 # =========================================================================
-
 
 def linear_regression_slope(
     data: Sequence[PriceData],
@@ -249,13 +228,13 @@ def linear_regression_slope(
     ``ta.linreg(close, 15, 0) - ta.linreg(close, 15, 1)`` calculation.
     """
     if end_index < period - 1:
-        return _ZERO
+        return ZERO
 
     n = Decimal(str(period))
-    sum_x = _ZERO
-    sum_y = _ZERO
-    sum_xy = _ZERO
-    sum_x2 = _ZERO
+    sum_x = ZERO
+    sum_y = ZERO
+    sum_xy = ZERO
+    sum_x2 = ZERO
 
     for i in range(period):
         x = Decimal(str(i))
@@ -266,92 +245,115 @@ def linear_regression_slope(
         sum_x2 += x * x
 
     denom = n * sum_x2 - sum_x * sum_x
-    if denom == _ZERO:
-        return _ZERO
+    if denom == ZERO:
+        return ZERO
 
     slope = (n * sum_xy - sum_x * sum_y) / denom
     return _quantize(slope)
-
 
 def lrs_normalized(
     data: Sequence[PriceData],
     end_index: int,
     period: int = 15,
     atr_period: int = 14,
+    *,
+    _atr_fn: Callable[[Sequence[PriceData], int, int], Decimal] | None = None,
 ) -> Decimal:
-    """LRS normalized by ATR (PineScript ``lrSlopeATR``)."""
-    slope = linear_regression_slope(data, end_index, period)
-    atr_val = _atr(data, end_index, atr_period)
-    if atr_val <= _ZERO:
-        return _ZERO
-    return _quantize(slope / atr_val)
+    """LRS normalized by ATR (PineScript ``lrSlopeATR``).
 
+    Parameters
+    ----------
+    _atr_fn:
+        Optional ATR callable for dependency injection.  When provided,
+        ``_atr_fn(data, end_index, atr_period)`` is used instead of the
+        raw :func:`~technical_indicators.atr`.  The :class:`IndicatorHub`
+        uses this to route ATR lookups through its cache.
+    """
+    slope = linear_regression_slope(data, end_index, period)
+    atr_val = (_atr_fn or _atr)(data, end_index, atr_period)
+    if atr_val <= ZERO:
+        return ZERO
+    return _quantize(slope / atr_val)
 
 # =========================================================================
 # VWAP SLOPE & ACCELERATION
 # =========================================================================
 
-
 def vwap_slope(
     data: Sequence[PriceData],
     end_index: int,
     lookback: int = 5,
+    *,
+    _vwap_fn: Callable[[Sequence[PriceData], int], Decimal] | None = None,
 ) -> Decimal:
     """Change in session VWAP over *lookback* bars.
 
     Mirrors PineScript ``ta.change(vwapLine, i_slopePer)``.
+
+    Parameters
+    ----------
+    _vwap_fn:
+        Optional VWAP callable for dependency injection.  When provided,
+        ``_vwap_fn(data, index)`` is used instead of :func:`_session_vwap_at`.
+        The :class:`IndicatorHub` uses this to route VWAP lookups through
+        its cache.
     """
     if end_index < lookback:
-        return _ZERO
+        return ZERO
 
-    cur = _session_vwap_at(data, end_index)
-    prev = _session_vwap_at(data, end_index - lookback)
+    vfn = _vwap_fn or _session_vwap_at
+    cur = vfn(data, end_index)
+    prev = vfn(data, end_index - lookback)
     return _quantize(cur - prev)
-
 
 def vwap_acceleration(
     data: Sequence[PriceData],
     end_index: int,
     lookback: int = 5,
     atr_period: int = 14,
+    *,
+    _atr_fn: Callable[[Sequence[PriceData], int, int], Decimal] | None = None,
+    _slope_fn: Callable[[Sequence[PriceData], int, int], Decimal] | None = None,
 ) -> Decimal:
     """VWAP acceleration normalized by ATR.
 
     ``(currentSlope - priorSlope) / ATR`` — mirrors PineScript ``vwapAccel``.
+
+    Parameters
+    ----------
+    _atr_fn:
+        Optional ATR callable for dependency injection.
+    _slope_fn:
+        Optional VWAP-slope callable; signature
+        ``(data, end_index, lookback) -> Decimal``.  The
+        :class:`IndicatorHub` uses this to route slope lookups through
+        its cache.
     """
     if end_index < lookback * 2:
-        return _ZERO
+        return ZERO
 
-    cur_slope = vwap_slope(data, end_index, lookback)
-    prev_slope = vwap_slope(data, end_index - lookback, lookback)
-    atr_val = _atr(data, end_index, atr_period)
-    if atr_val <= _ZERO:
-        return _ZERO
+    sfn = _slope_fn or (lambda d, i, lb: vwap_slope(d, i, lb))
+    cur_slope = sfn(data, end_index, lookback)
+    prev_slope = sfn(data, end_index - lookback, lookback)
+    atr_val = (_atr_fn or _atr)(data, end_index, atr_period)
+    if atr_val <= ZERO:
+        return ZERO
     return _quantize((cur_slope - prev_slope) / atr_val)
 
-
 def _session_vwap_at(data: Sequence[PriceData], end_index: int) -> Decimal:
-    """Quick session VWAP at a single index (no bands)."""
-    if end_index < 0:
-        return _ZERO
-    session_start = _find_session_start(data, end_index)
-    sum_tpv = _ZERO
-    sum_vol = _ZERO
-    for i in range(session_start, end_index + 1):
-        bar = data[i]
-        tp = (bar.high + bar.low + bar.close) / _THREE
-        vol = Decimal(str(bar.volume))
-        sum_tpv += tp * vol
-        sum_vol += vol
-    if sum_vol == _ZERO:
-        return _ZERO
-    return _quantize(sum_tpv / sum_vol)
+    """Quick session VWAP at a single index (no bands).
 
+    Delegates to :func:`_compute_session_vwap_core` for consistent
+    quantization of the typical price (TP).
+    """
+    if end_index < 0:
+        return ZERO
+    vwap_val, _ = _compute_session_vwap_core(data, end_index)
+    return vwap_val
 
 # =========================================================================
 # DAILY DATA AGGREGATION & DAILY ATR
 # =========================================================================
-
 
 def aggregate_to_daily(
     data: Sequence[PriceData],
@@ -397,7 +399,6 @@ def aggregate_to_daily(
                      close=c, adj_close=c, volume=vol))
     return daily
 
-
 def daily_atr_prior(
     daily_bars: Sequence[PriceData],
     trading_date: str,
@@ -415,15 +416,13 @@ def daily_atr_prior(
         idx = i
 
     if idx < 0:
-        return _ZERO
+        return ZERO
 
     return _atr(daily_bars, idx, period)
-
 
 # =========================================================================
 # HIGHER-TIMEFRAME RESAMPLING (5m → 15m)
 # =========================================================================
-
 
 def resample_to_htf(
     data: Sequence[PriceData],
@@ -460,7 +459,6 @@ def resample_to_htf(
                           close=c, adj_close=c, volume=vol))
     return result
 
-
 def htf_ema_trend(
     data: Sequence[PriceData],
     end_index: int,
@@ -486,16 +484,84 @@ def htf_ema_trend(
         return -1
     return 0
 
+# =========================================================================
+# CANDLE ANALYSIS HELPERS
+# =========================================================================
+
+@dataclass(frozen=True, slots=True)
+class CandleStrength:
+    """Pre-computed candle body and wick metrics normalized by ATR.
+
+    Avoids repeating the ``body / atr``, wick-ratio, and bull/bear checks
+    that appear in pullback, reversal, and breakout modes.
+    """
+
+    body: Decimal
+    bar_range: Decimal
+    body_atr: Decimal
+    is_bull: bool
+    is_bear: bool
+    bull_wick: bool
+    bear_wick: bool
+
+    def bull_candle(self, min_body_atr: Decimal) -> bool:
+        """Bullish candle with body/ATR at or above *min_body_atr*."""
+        return self.is_bull and self.body_atr >= min_body_atr
+
+    def bear_candle(self, min_body_atr: Decimal) -> bool:
+        """Bearish candle with body/ATR at or above *min_body_atr*."""
+        return self.is_bear and self.body_atr >= min_body_atr
+
+def candle_strength(
+    bar: PriceData,
+    atr_val: Decimal,
+    wick_ratio: Decimal = Decimal("0.6"),
+) -> CandleStrength:
+    """Compute ATR-normalized candle metrics for *bar*.
+
+    Parameters
+    ----------
+    wick_ratio:
+        Fraction of bar range the close must be in the upper (bull) or
+        lower (bear) portion to qualify as a wick signal.  Default 0.6
+        matches the threshold used across PB and REV modes.
+
+    Returns a :class:`CandleStrength` with body, range, body/ATR ratio,
+    bull/bear flags, and wick signals.
+    """
+    body = abs(bar.close - bar.open)
+    bar_range = bar.high - bar.low
+    body_atr = body / atr_val if atr_val > ZERO else ZERO
+    is_bull = bar.close > bar.open
+    is_bear = bar.close < bar.open
+    bw = (
+        bar_range > ZERO
+        and is_bull
+        and bar.close > bar.low + bar_range * wick_ratio
+    )
+    ew = (
+        bar_range > ZERO
+        and is_bear
+        and bar.close < bar.high - bar_range * wick_ratio
+    )
+    return CandleStrength(
+        body=body,
+        bar_range=bar_range,
+        body_atr=body_atr,
+        is_bull=is_bull,
+        is_bear=is_bear,
+        bull_wick=bw,
+        bear_wick=ew,
+    )
 
 # =========================================================================
 # CANDLE PATTERN DETECTION
 # =========================================================================
 
-
 def is_hammer(bar: PriceData, atr_val: Decimal) -> bool:
     """Bullish hammer: lower wick >= 60% of range, close > open, body > 0.05 ATR."""
     bar_range = bar.high - bar.low
-    if bar_range <= _ZERO:
+    if bar_range <= ZERO:
         return False
     lower_wick = min(bar.close, bar.open) - bar.low
     body = abs(bar.close - bar.open)
@@ -505,11 +571,10 @@ def is_hammer(bar: PriceData, atr_val: Decimal) -> bool:
         and body >= atr_val * Decimal("0.05")
     )
 
-
 def is_inv_hammer(bar: PriceData, atr_val: Decimal) -> bool:
     """Bearish inverted hammer: upper wick >= 60% of range, close < open."""
     bar_range = bar.high - bar.low
-    if bar_range <= _ZERO:
+    if bar_range <= ZERO:
         return False
     upper_wick = bar.high - max(bar.close, bar.open)
     body = abs(bar.close - bar.open)
@@ -518,7 +583,6 @@ def is_inv_hammer(bar: PriceData, atr_val: Decimal) -> bool:
         and bar.close < bar.open
         and body >= atr_val * Decimal("0.05")
     )
-
 
 def is_bull_engulfing(
     current: PriceData,
@@ -539,11 +603,10 @@ def is_bull_engulfing(
         current.close > previous.open
         and current.open <= previous.close
         and cur_body > prior_body
-        and prior_body > _ZERO
-        and bar_range > _ZERO
+        and prior_body > ZERO
+        and bar_range > ZERO
         and (current.close - current.open) / bar_range >= engulf_min
     )
-
 
 def is_bear_engulfing(
     current: PriceData,
@@ -564,16 +627,14 @@ def is_bear_engulfing(
         current.close < previous.open
         and current.open >= previous.close
         and cur_body > prior_body
-        and prior_body > _ZERO
-        and bar_range > _ZERO
+        and prior_body > ZERO
+        and bar_range > ZERO
         and (current.open - current.close) / bar_range >= engulf_min
     )
-
 
 # =========================================================================
 # S/R PROXIMITY
 # =========================================================================
-
 
 def near_level(
     price: Decimal,
@@ -581,22 +642,21 @@ def near_level(
     proximity_pct: Decimal = Decimal("0.35"),
 ) -> bool:
     """True if *price* is within *proximity_pct* % of *level*."""
-    if level <= _ZERO or price <= _ZERO:
+    if level <= ZERO or price <= ZERO:
         return False
     return abs(price - level) / price * Decimal("100") <= proximity_pct
-
 
 def compute_sr_score(
     close: Decimal,
     *,
-    pd_high: Decimal = _ZERO,
-    pd_low: Decimal = _ZERO,
-    pd_close: Decimal = _ZERO,
-    or_high: Decimal = _ZERO,
-    or_low: Decimal = _ZERO,
-    pw_high: Decimal = _ZERO,
-    pw_low: Decimal = _ZERO,
-    prev_vwap: Decimal = _ZERO,
+    pd_high: Decimal = ZERO,
+    pd_low: Decimal = ZERO,
+    pd_close: Decimal = ZERO,
+    or_high: Decimal = ZERO,
+    or_low: Decimal = ZERO,
+    pw_high: Decimal = ZERO,
+    pw_low: Decimal = ZERO,
+    prev_vwap: Decimal = ZERO,
     proximity_pct: Decimal = Decimal("0.35"),
     sr_pdhlc: bool = True,
     sr_round: bool = True,
@@ -638,16 +698,13 @@ def compute_sr_score(
 
     return any_near, score_count
 
-
 def _round_to_5(price: Decimal) -> Decimal:
     """Round price to nearest $5."""
     return (price / Decimal("5")).quantize(Decimal("1"), rounding=ROUND_HALF_UP) * Decimal("5")
 
-
 # =========================================================================
 # RELATIVE VOLUME (simple SMA-based, not time-of-day)
 # =========================================================================
-
 
 def rel_vol(
     data: Sequence[PriceData],
@@ -658,10 +715,10 @@ def rel_vol(
     if end_index < period:
         return Decimal("1")
 
-    total = _ZERO
+    total = ZERO
     for i in range(end_index - period + 1, end_index + 1):
         total += Decimal(str(data[i].volume))
     avg = total / Decimal(str(period))
-    if avg <= _ZERO:
+    if avg <= ZERO:
         return Decimal("1")
     return _quantize(Decimal(str(data[end_index].volume)) / avg)

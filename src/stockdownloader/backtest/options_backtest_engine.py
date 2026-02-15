@@ -15,13 +15,10 @@ The engine:
 
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
-from typing import TYPE_CHECKING
+from dataclasses import dataclass
+from decimal import Decimal
 
-if TYPE_CHECKING:
-    pass
-
-from stockdownloader.backtest.options_backtest_result import OptionsBacktestResult
+from stockdownloader.backtest.backtest_result import OptionsBacktestResult
 from stockdownloader.model import OptionsTrade, OptionsDirection, OptionsTradeStatus
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.strategy.options_strategy import OptionsStrategy, OptionsSignal
@@ -30,6 +27,18 @@ from stockdownloader.util import black_scholes_calculator as bsc
 _CONTRACT_MULTIPLIER = 100
 _DEFAULT_RISK_FREE_RATE = Decimal("0.05")
 _VOLATILITY_LOOKBACK = 20
+_MIN_VOLATILITY_BARS = 5
+_DEFAULT_MAX_CONTRACTS = 10
+
+
+@dataclass(slots=True)
+class _PositionState:
+    """Mutable state for the currently open options position."""
+
+    trade: OptionsTrade | None = None
+    entry_bar: int = -1
+    strike: Decimal = Decimal("0")
+    dte: int = 0
 
 
 class OptionsBacktestEngine:
@@ -41,6 +50,7 @@ class OptionsBacktestEngine:
         initial_capital: Decimal,
         commission: Decimal,
         risk_free_rate: Decimal | None = None,
+        max_contracts: int = _DEFAULT_MAX_CONTRACTS,
     ) -> None:
         if initial_capital is None:
             raise ValueError("initial_capital must not be None")
@@ -51,6 +61,7 @@ class OptionsBacktestEngine:
         self._risk_free_rate = (
             risk_free_rate if risk_free_rate is not None else _DEFAULT_RISK_FREE_RATE
         )
+        self._max_contracts = max_contracts
 
     # ------------------------------------------------------------------
     # Public API
@@ -65,207 +76,251 @@ class OptionsBacktestEngine:
         if not data:
             raise ValueError("data must not be None or empty")
 
-        result = OptionsBacktestResult(strategy.get_name(), self._initial_capital)
+        result = OptionsBacktestResult(strategy.name, self._initial_capital)
         cash: Decimal = self._initial_capital
-        current_trade: OptionsTrade | None = None
-        trade_entry_bar: int = -1
-        trade_strike: Decimal = Decimal("0")
-        trade_dte: int = 0
+        pos = _PositionState()
         equity_curve: list[Decimal] = []
 
         result.start_date = data[0].date
         result.end_date = data[-1].date
 
-        # Pre-compute close prices for volatility estimation
         close_prices: list[Decimal] = [bar.close for bar in data]
 
         for i, bar in enumerate(data):
-            spot_price = bar.close
-
-            # ---- Calculate current position value ----
-            equity = cash
-            if (
-                current_trade is not None
-                and current_trade.status == OptionsTradeStatus.OPEN
-            ):
-                bars_held = i - trade_entry_bar
-                remaining_dte = max(trade_dte - bars_held, 0)
-                time_to_expiry = Decimal(str(remaining_dte)) / Decimal("365")
-                vol = bsc.estimate_volatility(
-                    close_prices, min(i + 1, _VOLATILITY_LOOKBACK)
-                )
-
-                current_premium = bsc.price(
-                    strategy.get_option_type(),
-                    spot_price,
-                    trade_strike,
-                    time_to_expiry,
-                    self._risk_free_rate,
-                    vol,
-                )
-
-                position_value = current_premium * Decimal(
-                    str(current_trade.contracts * _CONTRACT_MULTIPLIER)
-                )
-
-                if strategy.is_short():
-                    # Short position: we received premium, owe the current value
-                    equity = cash - position_value + current_trade.total_entry_cost()
-                else:
-                    # Long position: value is the current premium
-                    equity = cash + position_value
-
+            # ---- Mark-to-market equity ----
+            equity = self._mark_to_market(
+                cash, pos, i, bar.close, strategy, close_prices,
+            )
             equity_curve.append(equity)
 
             # ---- Check expiration ----
-            if (
-                current_trade is not None
-                and current_trade.status == OptionsTradeStatus.OPEN
-            ):
-                bars_held = i - trade_entry_bar
-                if bars_held >= trade_dte:
-                    # Option expired
-                    intrinsic = bsc.intrinsic_value(
-                        strategy.get_option_type(), spot_price, trade_strike
-                    )
-
-                    notional = intrinsic * Decimal(
-                        str(current_trade.contracts * _CONTRACT_MULTIPLIER)
-                    )
-
-                    if strategy.is_short():
-                        current_trade.expire(bar.date, intrinsic)
-                        cash = cash - notional - self._commission
-                    else:
-                        current_trade.expire(bar.date, intrinsic)
-                        cash = cash + notional - self._commission
-
-                    result.add_trade(current_trade)
-                    current_trade = None
-                    continue
+            if self._check_expiration(pos, i):
+                cash = self._settle_expiration(cash, pos, bar, strategy)
+                result.add_trade(pos.trade)  # type: ignore[arg-type]
+                pos.trade = None
+                continue
 
             # ---- Evaluate strategy signal ----
             signal = strategy.evaluate(data, i)
 
-            if signal == OptionsSignal.OPEN and current_trade is None:
-                vol = bsc.estimate_volatility(
-                    close_prices, min(i + 1, _VOLATILITY_LOOKBACK)
+            if signal == OptionsSignal.OPEN and pos.trade is None:
+                cash = self._handle_entry(
+                    cash, pos, i, bar, strategy, close_prices, data,
                 )
-                trade_strike = strategy.get_target_strike(spot_price)
-                trade_dte = strategy.get_target_days_to_expiry()
-                time_to_expiry = Decimal(str(trade_dte)) / Decimal("365")
-
-                premium = bsc.price(
-                    strategy.get_option_type(),
-                    spot_price,
-                    trade_strike,
-                    time_to_expiry,
-                    self._risk_free_rate,
-                    vol,
-                )
-
-                if premium <= Decimal("0"):
-                    continue
-
-                # Determine number of contracts based on available capital
-                if strategy.is_short():
-                    # For short options, require margin (use underlying price as collateral)
-                    margin_per_contract = spot_price * Decimal(str(_CONTRACT_MULTIPLIER))
-                    contracts = int(
-                        (cash - self._commission) / margin_per_contract
-                    )
-                else:
-                    # For long options, cost is the premium
-                    cost_per_contract = premium * Decimal(str(_CONTRACT_MULTIPLIER))
-                    contracts = int(
-                        (cash - self._commission) / cost_per_contract
-                    )
-
-                # Cap at 10 contracts for risk management
-                contracts = min(contracts, 10)
-
-                if contracts > 0:
-                    direction = (
-                        OptionsDirection.SELL if strategy.is_short()
-                        else OptionsDirection.BUY
-                    )
-
-                    current_trade = OptionsTrade(
-                        option_type=strategy.get_option_type(),
-                        direction=direction,
-                        strike=trade_strike,
-                        expiration_date=bar.date,
-                        entry_date=bar.date,
-                        entry_premium=premium,
-                        contracts=contracts,
-                        entry_volume=bar.volume,
-                    )
-                    trade_entry_bar = i
-
-                    if strategy.is_short():
-                        cash = cash + current_trade.total_entry_cost()
-                    else:
-                        cash = cash - current_trade.total_entry_cost()
-                    cash = cash - self._commission
 
             elif (
                 signal == OptionsSignal.CLOSE
-                and current_trade is not None
-                and current_trade.status == OptionsTradeStatus.OPEN
+                and pos.trade is not None
+                and pos.trade.status == OptionsTradeStatus.OPEN
             ):
-                bars_held = i - trade_entry_bar
-                remaining_dte = max(trade_dte - bars_held, 0)
-                time_to_expiry = Decimal(str(remaining_dte)) / Decimal("365")
-                vol = bsc.estimate_volatility(
-                    close_prices, min(i + 1, _VOLATILITY_LOOKBACK)
+                cash = self._handle_exit(
+                    cash, pos, i, bar, strategy, close_prices,
                 )
-
-                exit_premium = bsc.price(
-                    strategy.get_option_type(),
-                    spot_price,
-                    trade_strike,
-                    time_to_expiry,
-                    self._risk_free_rate,
-                    vol,
-                )
-
-                notional = exit_premium * Decimal(
-                    str(current_trade.contracts * _CONTRACT_MULTIPLIER)
-                )
-
-                if strategy.is_short():
-                    cash = cash - notional
-                else:
-                    cash = cash + notional
-                cash = cash - self._commission
-
-                current_trade.close(bar.date, exit_premium)
-                result.add_trade(current_trade)
-                current_trade = None
+                result.add_trade(pos.trade)
+                pos.trade = None
 
         # Force close any remaining open position at the last bar
-        if (
-            current_trade is not None
-            and current_trade.status == OptionsTradeStatus.OPEN
-        ):
-            last_bar = data[-1]
-            intrinsic = bsc.intrinsic_value(
-                strategy.get_option_type(), last_bar.close, trade_strike
-            )
-
-            notional = intrinsic * Decimal(
-                str(current_trade.contracts * _CONTRACT_MULTIPLIER)
-            )
-
-            if strategy.is_short():
-                cash = cash - notional
-            else:
-                cash = cash + notional
-            cash = cash - self._commission
-
-            current_trade.close(last_bar.date, intrinsic)
-            result.add_trade(current_trade)
+        if pos.trade is not None and pos.trade.status == OptionsTradeStatus.OPEN:
+            cash = self._force_close(cash, pos, data[-1], strategy)
+            result.add_trade(pos.trade)
 
         result.final_capital = cash
         result.equity_curve = equity_curve
         return result
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _estimate_vol(
+        self, close_prices: list[Decimal], bar_index: int,
+    ) -> Decimal:
+        """Estimate historical volatility using available price data."""
+        lookback = max(min(bar_index + 1, _VOLATILITY_LOOKBACK), _MIN_VOLATILITY_BARS)
+        return bsc.estimate_volatility(close_prices, lookback)
+
+    def _mark_to_market(
+        self,
+        cash: Decimal,
+        pos: _PositionState,
+        bar_index: int,
+        spot: Decimal,
+        strategy: OptionsStrategy,
+        close_prices: list[Decimal],
+    ) -> Decimal:
+        """Compute current equity including open position value."""
+        if pos.trade is None or pos.trade.status != OptionsTradeStatus.OPEN:
+            return cash
+
+        remaining_dte = max(pos.dte - (bar_index - pos.entry_bar), 0)
+        time_to_expiry = Decimal(str(remaining_dte)) / Decimal("365")
+        vol = self._estimate_vol(close_prices, bar_index)
+
+        current_premium = bsc.price(
+            strategy.option_type, spot, pos.strike,
+            time_to_expiry, self._risk_free_rate, vol,
+        )
+        position_value = current_premium * Decimal(
+            str(pos.trade.contracts * _CONTRACT_MULTIPLIER)
+        )
+
+        if strategy.is_short():
+            return cash - position_value + pos.trade.total_entry_cost()
+        return cash + position_value
+
+    def _check_expiration(
+        self,
+        pos: _PositionState,
+        bar_index: int,
+    ) -> bool:
+        """Return True if the current position has expired."""
+        if pos.trade is None or pos.trade.status != OptionsTradeStatus.OPEN:
+            return False
+        return (bar_index - pos.entry_bar) >= pos.dte
+
+    def _settle_expiration(
+        self,
+        cash: Decimal,
+        pos: _PositionState,
+        bar: PriceData,
+        strategy: OptionsStrategy,
+    ) -> Decimal:
+        """Settle an expired position and return updated cash."""
+        assert pos.trade is not None
+        intrinsic = bsc.intrinsic_value(
+            strategy.option_type, bar.close, pos.strike,
+        )
+        notional = intrinsic * Decimal(
+            str(pos.trade.contracts * _CONTRACT_MULTIPLIER)
+        )
+
+        pos.trade.expire(bar.date, intrinsic)
+        if strategy.is_short():
+            return cash - notional - self._commission
+        return cash + notional - self._commission
+
+    def _handle_entry(
+        self,
+        cash: Decimal,
+        pos: _PositionState,
+        bar_index: int,
+        bar: PriceData,
+        strategy: OptionsStrategy,
+        close_prices: list[Decimal],
+        data: list[PriceData],
+    ) -> Decimal:
+        """Open a new options position.  Returns updated cash."""
+        spot = bar.close
+        vol = self._estimate_vol(close_prices, bar_index)
+        pos.strike = strategy.get_target_strike(spot)
+        pos.dte = strategy.target_days_to_expiry
+        time_to_expiry = Decimal(str(pos.dte)) / Decimal("365")
+
+        premium = bsc.price(
+            strategy.option_type, spot, pos.strike,
+            time_to_expiry, self._risk_free_rate, vol,
+        )
+        if premium <= Decimal("0"):
+            return cash
+
+        contracts = self._size_position(cash, spot, premium, strategy)
+        if contracts <= 0:
+            return cash
+
+        direction = (
+            OptionsDirection.SELL if strategy.is_short()
+            else OptionsDirection.BUY
+        )
+        exp_index = min(bar_index + pos.dte, len(data) - 1)
+
+        pos.trade = OptionsTrade(
+            option_type=strategy.option_type,
+            direction=direction,
+            strike=pos.strike,
+            expiration_date=data[exp_index].date,
+            entry_date=bar.date,
+            entry_premium=premium,
+            contracts=contracts,
+            entry_volume=bar.volume,
+        )
+        pos.entry_bar = bar_index
+
+        if strategy.is_short():
+            cash = cash + pos.trade.total_entry_cost()
+        else:
+            cash = cash - pos.trade.total_entry_cost()
+        return cash - self._commission
+
+    def _size_position(
+        self,
+        cash: Decimal,
+        spot: Decimal,
+        premium: Decimal,
+        strategy: OptionsStrategy,
+    ) -> int:
+        """Determine number of contracts to trade."""
+        if strategy.is_short():
+            margin_per_contract = spot * Decimal(str(_CONTRACT_MULTIPLIER))
+            contracts = int((cash - self._commission) / margin_per_contract)
+        else:
+            cost_per_contract = premium * Decimal(str(_CONTRACT_MULTIPLIER))
+            contracts = int((cash - self._commission) / cost_per_contract)
+        return min(contracts, self._max_contracts)
+
+    def _handle_exit(
+        self,
+        cash: Decimal,
+        pos: _PositionState,
+        bar_index: int,
+        bar: PriceData,
+        strategy: OptionsStrategy,
+        close_prices: list[Decimal],
+    ) -> Decimal:
+        """Close an open position on signal.  Returns updated cash."""
+        assert pos.trade is not None
+        spot = bar.close
+        remaining_dte = max(pos.dte - (bar_index - pos.entry_bar), 0)
+        time_to_expiry = Decimal(str(remaining_dte)) / Decimal("365")
+        vol = self._estimate_vol(close_prices, bar_index)
+
+        exit_premium = bsc.price(
+            strategy.option_type, spot, pos.strike,
+            time_to_expiry, self._risk_free_rate, vol,
+        )
+        notional = exit_premium * Decimal(
+            str(pos.trade.contracts * _CONTRACT_MULTIPLIER)
+        )
+
+        if strategy.is_short():
+            cash = cash - notional
+        else:
+            cash = cash + notional
+        cash = cash - self._commission
+
+        pos.trade.close(bar.date, exit_premium)
+        return cash
+
+    def _force_close(
+        self,
+        cash: Decimal,
+        pos: _PositionState,
+        last_bar: PriceData,
+        strategy: OptionsStrategy,
+    ) -> Decimal:
+        """Force-close an open position at end of data."""
+        assert pos.trade is not None
+        intrinsic = bsc.intrinsic_value(
+            strategy.option_type, last_bar.close, pos.strike,
+        )
+        notional = intrinsic * Decimal(
+            str(pos.trade.contracts * _CONTRACT_MULTIPLIER)
+        )
+
+        if strategy.is_short():
+            cash = cash - notional
+        else:
+            cash = cash + notional
+        cash = cash - self._commission
+
+        pos.trade.close(last_bar.date, intrinsic)
+        return cash

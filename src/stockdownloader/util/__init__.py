@@ -1,13 +1,10 @@
 """Utility functions for calculations and helpers."""
 
 from stockdownloader.util.big_decimal_math import (
-    add,
     average,
     divide,
-    multiply,
     percent_change,
     scale2,
-    subtract,
 )
 from stockdownloader.util.moving_average_calculator import ema, sma
 from stockdownloader.util.technical_indicators import (
@@ -66,13 +63,10 @@ from stockdownloader.util.retry_executor import execute, execute_with_result
 
 __all__ = [
     # big_decimal_math
-    "add",
     "average",
     "divide",
-    "multiply",
     "percent_change",
     "scale2",
-    "subtract",
     # moving_average_calculator
     "ema",
     "sma",

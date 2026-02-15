@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 import io
 import logging
+import re
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import BinaryIO
@@ -39,7 +40,7 @@ class IntradayCsvLoader:
         try:
             with open(filename, newline="", encoding="utf-8") as fh:
                 return _parse_intraday_records(fh)
-        except Exception as exc:
+        except (OSError, csv.Error, InvalidOperation, ValueError) as exc:
             logger.warning("Error loading intraday CSV file %s: %s", filename, exc)
             return []
 
@@ -52,7 +53,7 @@ class IntradayCsvLoader:
         try:
             text_stream = io.TextIOWrapper(stream, encoding="utf-8")
             return _parse_intraday_records(text_stream)
-        except Exception as exc:
+        except (OSError, csv.Error, InvalidOperation, ValueError) as exc:
             logger.warning("Error loading intraday CSV from stream: %s", exc)
             return []
 
@@ -82,7 +83,7 @@ def _parse_intraday_records(
     data: list[IntradayPriceData] = []
     for line in reader:
         try:
-            dt_str = line[0].strip()
+            dt_str = _normalize_tz(line[0].strip())
             open_ = Decimal(line[1])
             high = Decimal(line[2])
             low = Decimal(line[3])
@@ -119,7 +120,20 @@ def _parse_intraday_records(
                     volume=volume,
                 )
             )
-        except (InvalidOperation, ValueError, IndexError):
+        except (InvalidOperation, ValueError, IndexError) as exc:
+            logger.debug("Skipping invalid intraday CSV row: %s (%s)", line, exc)
             continue
 
     return data
+
+
+def _normalize_tz(dt_str: str) -> str:
+    """Ensure the timezone offset contains a colon (ISO-8601).
+
+    Yahoo's ``strftime("%z")`` produces ``-0500``; Polygon uses ``-05:00``.
+    Normalising here ensures consistent datetime keys regardless of source.
+    """
+    m = re.search(r'([+-])(\d{2})(\d{2})$', dt_str)
+    if m and ':' not in dt_str[-6:]:
+        return dt_str[:-4] + m.group(2) + ':' + m.group(3)
+    return dt_str

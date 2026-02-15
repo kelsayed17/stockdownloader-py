@@ -4,7 +4,7 @@ import random
 from decimal import Decimal
 
 from stockdownloader.analysis.signal_generator import generate_alert
-from stockdownloader.model.alert_result import Direction
+from stockdownloader.model.alert_result import AlertDirection
 from stockdownloader.model.price_data import PriceData
 
 
@@ -52,7 +52,7 @@ def test_generate_alert_with_insufficient_data():
     alert = generate_alert("TEST", DATA_50)
 
     assert alert is not None
-    assert alert.direction == Direction.NEUTRAL
+    assert alert.direction == AlertDirection.NEUTRAL
 
 
 def test_generate_alert_has_indicators():
@@ -93,7 +93,7 @@ def test_generate_alert_to_string_does_not_throw():
 def test_generate_alert_signal_strength():
     alert = generate_alert("TEST", DATA_300)
 
-    strength = alert.get_signal_strength()
+    strength = alert.signal_strength
     assert strength is not None
     assert "%" in strength
 

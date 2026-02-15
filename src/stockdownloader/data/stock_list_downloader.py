@@ -50,7 +50,7 @@ class StockListDownloader:
                 self._nasdaq_list = self._download_from_nasdaq_api("nasdaq")
                 if self._nasdaq_list:
                     return
-            except Exception as exc:
+            except (requests.RequestException, KeyError, ValueError) as exc:
                 if attempt < _MAX_RETRIES:
                     logger.debug("Retrying Nasdaq stock list download, attempt %d", attempt + 1)
                 else:
@@ -73,7 +73,7 @@ class StockListDownloader:
                 self._others_list.update(amex)
                 if self._others_list:
                     return
-            except Exception as exc:
+            except (requests.RequestException, KeyError, ValueError) as exc:
                 if attempt < _MAX_RETRIES:
                     logger.debug("Retrying Other exchanges stock list download, attempt %d", attempt + 1)
                 else:
@@ -108,7 +108,7 @@ class StockListDownloader:
                 for row in reader:
                     if row:
                         self._zacks_list.add(row[0])
-        except Exception as exc:
+        except (OSError, csv.Error, IndexError) as exc:
             logger.warning("Error reading Zacks file: %s", exc)
 
     def download_yahoo_earnings(self, market_date: date) -> None:
@@ -136,13 +136,13 @@ class StockListDownloader:
 
             for time_key, tickers in yahoo_earnings.items():
                 self._earnings_list.update(tickers)
-        except Exception as exc:
+        except (requests.RequestException, KeyError, AttributeError, ValueError) as exc:
             logger.warning(
                 "Error downloading Yahoo earnings for %s: %s", date_str, exc
             )
 
         for time_key, tickers in yahoo_earnings.items():
-            print(f"{date_str}\t{time_key}:\t{tickers}")
+            logger.info("%s\t%s:\t%s", date_str, time_key, tickers)
 
     # ------------------------------------------------------------------
     # Incomplete list management
@@ -246,7 +246,7 @@ def _download_file(url: str, filename: str) -> None:
             resp.raise_for_status()
             Path(filename).write_bytes(resp.content)
             return
-        except Exception as exc:
+        except (requests.RequestException, OSError) as exc:
             last_exc = exc
             if attempt < _MAX_RETRIES:
                 logger.debug("Retrying download %s, attempt %d", filename, attempt + 1)
@@ -274,7 +274,7 @@ def _read_pipe_delimited_file(filename: str) -> set[str]:
             pipe_idx = line.find("|")
             if pipe_idx > 0:
                 tickers.add(line[:pipe_idx])
-    except Exception as exc:
+    except OSError as exc:
         logger.warning("Error reading file %s: %s", filename, exc)
 
     return tickers
@@ -291,7 +291,7 @@ def _read_lines(filename: str) -> set[str]:
             stripped = line.strip()
             if stripped:
                 lines.add(stripped)
-    except Exception as exc:
+    except OSError as exc:
         logger.warning("Error reading file %s: %s", filename, exc)
     return lines
 
@@ -302,7 +302,7 @@ def _write_lines(lines: set[str], filename: str) -> None:
         Path(filename).write_text(
             "\n".join(sorted(lines)), encoding="utf-8"
         )
-    except Exception as exc:
+    except OSError as exc:
         logger.warning("Error writing file %s: %s", filename, exc)
 
 
@@ -311,5 +311,5 @@ def _append_line(line: str, filename: str) -> None:
     try:
         with open(filename, "a", encoding="utf-8") as fh:
             fh.write(line + "\n")
-    except Exception as exc:
+    except OSError as exc:
         logger.warning("Error appending to %s: %s", filename, exc)

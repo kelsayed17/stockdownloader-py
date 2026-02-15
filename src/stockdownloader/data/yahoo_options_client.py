@@ -9,9 +9,16 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime, timezone
-from decimal import Decimal
 from zoneinfo import ZoneInfo
 
+import requests
+
+from stockdownloader.data.json_helpers import (
+    get_boolean,
+    get_decimal,
+    get_long,
+    get_string,
+)
 from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
 from stockdownloader.model import OptionContract, OptionsChain, OptionType
 
@@ -102,7 +109,7 @@ class YahooOptionsClient:
                 resp = self._auth.session.get(url, timeout=15)
                 self._parse_options_json(resp.text, chain)
                 return
-            except Exception as exc:
+            except (requests.RequestException, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
                 last_exc = exc
                 if attempt < _MAX_RETRIES:
                     logger.debug(
@@ -132,7 +139,7 @@ class YahooOptionsClient:
             # Parse underlying price
             quote = result.get("quote")
             if quote:
-                chain.underlying_price = _get_decimal(quote, "regularMarketPrice")
+                chain.underlying_price = get_decimal(quote, "regularMarketPrice")
 
             # Parse expiration dates
             expirations = result.get("expirationDates", [])
@@ -166,8 +173,8 @@ class YahooOptionsClient:
                     contract = _parse_contract(el, OptionType.PUT, exp_date)
                     if contract is not None:
                         chain.add_put(exp_date, contract)
-        except Exception as exc:
-            logger.warning("Error parsing options chain JSON: %s", exc)
+        except (json.JSONDecodeError, KeyError, TypeError, IndexError, ValueError) as exc:
+            logger.warning("Error parsing options chain JSON: %s", exc, exc_info=True)
 
     @staticmethod
     def _date_to_epoch(date_str: str) -> int:
@@ -193,56 +200,22 @@ def _parse_contract(
 ) -> OptionContract | None:
     try:
         return OptionContract(
-            contract_symbol=_get_string(obj, "contractSymbol"),
-            option_type=option_type,
-            strike=_get_decimal(obj, "strike"),
+            contract_symbol=get_string(obj, "contractSymbol"),
+            type=option_type,
+            strike=get_decimal(obj, "strike"),
             expiration_date=exp_date,
-            last_price=_get_decimal(obj, "lastPrice"),
-            bid=_get_decimal(obj, "bid"),
-            ask=_get_decimal(obj, "ask"),
-            volume=_get_long(obj, "volume"),
-            open_interest=_get_long(obj, "openInterest"),
-            implied_volatility=_get_decimal(obj, "impliedVolatility"),
-            delta=_get_decimal(obj, "delta"),
-            gamma=_get_decimal(obj, "gamma"),
-            theta=_get_decimal(obj, "theta"),
-            vega=_get_decimal(obj, "vega"),
-            in_the_money=_get_boolean(obj, "inTheMoney"),
+            last_price=get_decimal(obj, "lastPrice"),
+            bid=get_decimal(obj, "bid"),
+            ask=get_decimal(obj, "ask"),
+            volume=get_long(obj, "volume"),
+            open_interest=get_long(obj, "openInterest"),
+            implied_volatility=get_decimal(obj, "impliedVolatility"),
+            delta=get_decimal(obj, "delta"),
+            gamma=get_decimal(obj, "gamma"),
+            theta=get_decimal(obj, "theta"),
+            vega=get_decimal(obj, "vega"),
+            in_the_money=get_boolean(obj, "inTheMoney"),
         )
-    except Exception as exc:
+    except (KeyError, TypeError, ValueError) as exc:
         logger.debug("Skipping malformed option contract: %s", exc)
         return None
-
-
-def _get_decimal(obj: dict, field: str) -> Decimal:
-    val = obj.get(field)
-    if val is None:
-        return Decimal(0)
-    try:
-        return Decimal(str(val))
-    except Exception:
-        return Decimal(0)
-
-
-def _get_long(obj: dict, field: str) -> int:
-    val = obj.get(field)
-    if val is None:
-        return 0
-    try:
-        return int(val)
-    except (ValueError, TypeError):
-        return 0
-
-
-def _get_string(obj: dict, field: str) -> str:
-    val = obj.get(field)
-    if val is None:
-        return ""
-    return str(val)
-
-
-def _get_boolean(obj: dict, field: str) -> bool:
-    val = obj.get(field)
-    if val is None:
-        return False
-    return bool(val)
