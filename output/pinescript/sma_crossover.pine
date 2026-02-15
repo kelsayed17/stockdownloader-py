@@ -1,0 +1,91 @@
+// This Pine Script(tm) v6 indicator is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+//
+// SMA Crossover Signals
+//
+// Generates signals when a fast SMA crosses above or below
+// a slow SMA (Golden Cross / Death Cross).
+//
+// Entry Logic:
+//   Long  - Fast SMA crosses above Slow SMA (Golden Cross)
+
+//@version=6
+indicator("SMA Crossover Signals", shorttitle="SMA-X", overlay=true, max_labels_count=500)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INPUTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+int    fastPeriod       = input.int(10, title="Fast SMA Period", minval=1)
+int    slowPeriod       = input.int(20, title="Slow SMA Period", minval=1)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INDICATORS
+// ─────────────────────────────────────────────────────────────────────────────
+
+float smaFast = ta.sma(close, fastPeriod)
+plot(smaFast, title="SMA(fastPeriod)", color=color.blue, linewidth=1)
+float smaSlow = ta.sma(close, slowPeriod)
+plot(smaSlow, title="SMA(slowPeriod)", color=color.red, linewidth=1)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SIGNAL LOGIC
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool longCondition = ta.crossover(smaFast, smaSlow)
+
+// Position state: +1 = long, -1 = short, 0 = flat
+var int posState = 0
+
+bool buySignal      = longCondition and posState != 1
+bool exitLongSignal  = posState == 1 and (ta.crossunder(smaFast, smaSlow))
+
+// Update position state
+if buySignal
+    posState := 1
+else if exitLongSignal
+    posState := 0
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LABELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+if true
+    if buySignal
+        label.new(bar_index, low, "Buy",
+             style=label.style_label_up,
+             color=color.green,
+             textcolor=color.white,
+             size=size.small)
+    if exitLongSignal
+        label.new(bar_index, high, "Exit Long",
+             style=label.style_label_down,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BACKGROUND
+// ─────────────────────────────────────────────────────────────────────────────
+
+color bgColor = na
+
+if true
+    if posState == 1
+        bgColor := color.new(color.green, 90)
+
+bgcolor(bgColor, title="Position Zone")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALERTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+alertcondition(buySignal,
+     title="Buy",
+     message="SMA Crossover Signals: Buy signal triggered.")
+alertcondition(exitLongSignal,
+     title="Exit Long",
+     message="SMA Crossover Signals: Exit Long signal.")
+alertcondition((buySignal or exitLongSignal),
+     title="Any Signal",
+     message="SMA Crossover Signals: Signal triggered. Check chart.")

@@ -19,19 +19,18 @@ import math
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.alert_result import AlertResult, Direction, OptionsRecommendation, Action
+from stockdownloader.model.alert_result import AlertResult, AlertDirection, OptionsRecommendation, Action
 from stockdownloader.model.indicator_values import IndicatorValues
-from stockdownloader.model.option_type import OptionType
+from stockdownloader.model.options import OptionType
 from stockdownloader.util import black_scholes_calculator as bsc
 from stockdownloader.util import technical_indicators as ti
+from stockdownloader.util.big_decimal_math import ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import PriceData
 
-_ZERO = Decimal("0")
 _RISK_FREE_RATE = Decimal("0.05")
 _VOLATILITY_LOOKBACK = 20
-
 
 def generate_alert(
     symbol: str,
@@ -83,19 +82,19 @@ def generate_alert(
     bearish_pct = len(bearish) / total_indicators
 
     if bullish_pct >= 0.75:
-        direction = Direction.STRONG_BUY
+        direction = AlertDirection.STRONG_BUY
         confluence_score = bullish_pct
     elif bullish_pct >= 0.55:
-        direction = Direction.BUY
+        direction = AlertDirection.BUY
         confluence_score = bullish_pct
     elif bearish_pct >= 0.75:
-        direction = Direction.STRONG_SELL
+        direction = AlertDirection.STRONG_SELL
         confluence_score = bearish_pct
     elif bearish_pct >= 0.55:
-        direction = Direction.SELL
+        direction = AlertDirection.SELL
         confluence_score = bearish_pct
     else:
-        direction = Direction.NEUTRAL
+        direction = AlertDirection.NEUTRAL
         confluence_score = max(bullish_pct, bearish_pct)
 
     # Generate options recommendations
@@ -126,7 +125,6 @@ def generate_alert(
         indicators=current,
     )
 
-
 # =========================================================================
 # TREND SCORING
 # =========================================================================
@@ -144,21 +142,21 @@ def _score_trend_indicators(
         bearish.append("EMA(12) < EMA(26) -- short-term downtrend")
 
     # Price vs SMA(200) -- long-term trend
-    if current.sma200 > _ZERO:
+    if current.sma200 > ZERO:
         if current.close > current.sma200:
             bullish.append("Price above SMA(200) -- long-term uptrend")
         else:
             bearish.append("Price below SMA(200) -- long-term downtrend")
 
     # SMA(50) vs SMA(200) -- golden/death cross
-    if current.sma50 > _ZERO and current.sma200 > _ZERO:
+    if current.sma50 > ZERO and current.sma200 > ZERO:
         if current.sma50 > current.sma200 and previous.sma50 <= previous.sma200:
             bullish.append("Golden Cross -- SMA(50) crossed above SMA(200)")
         elif current.sma50 < current.sma200 and previous.sma50 >= previous.sma200:
             bearish.append("Death Cross -- SMA(50) crossed below SMA(200)")
 
     # Ichimoku Cloud
-    if current.ichimoku_span_a > _ZERO:
+    if current.ichimoku_span_a > ZERO:
         if current.price_above_cloud:
             bullish.append("Ichimoku -- price above cloud (bullish)")
         else:
@@ -189,7 +187,6 @@ def _score_trend_indicators(
         else:
             bearish.append("ADX > 25 with -DI > +DI -- strong downtrend")
 
-
 # =========================================================================
 # MOMENTUM SCORING
 # =========================================================================
@@ -219,9 +216,9 @@ def _score_momentum_indicators(
         bearish.append("MACD bearish crossover (MACD < Signal)")
 
     # MACD histogram direction
-    if current.macd_histogram > _ZERO and current.macd_histogram > previous.macd_histogram:
+    if current.macd_histogram > ZERO and current.macd_histogram > previous.macd_histogram:
         bullish.append("MACD histogram expanding positive")
-    elif current.macd_histogram < _ZERO and current.macd_histogram < previous.macd_histogram:
+    elif current.macd_histogram < ZERO and current.macd_histogram < previous.macd_histogram:
         bearish.append("MACD histogram expanding negative")
 
     # Stochastic
@@ -252,7 +249,6 @@ def _score_momentum_indicators(
     elif roc < 0 and float(previous.roc12) >= 0:
         bearish.append("ROC(12) crossed negative -- momentum turning down")
 
-
 # =========================================================================
 # VOLUME SCORING
 # =========================================================================
@@ -279,7 +275,7 @@ def _score_volume_indicators(
 
     # Volume vs average
     avg_vol = current.avg_volume20
-    if avg_vol > _ZERO:
+    if avg_vol > ZERO:
         vol_ratio = (
             Decimal(str(current.volume))
             / avg_vol
@@ -290,7 +286,6 @@ def _score_volume_indicators(
                 bullish.append(f"Volume {float(vol_ratio):.1f}x avg -- confirming upward move")
             else:
                 bearish.append(f"Volume {float(vol_ratio):.1f}x avg -- confirming downward move")
-
 
 # =========================================================================
 # VOLATILITY SCORING
@@ -309,12 +304,11 @@ def _score_volatility_indicators(
         bearish.append("Price at/above upper Bollinger Band -- overbought")
 
     # Price vs VWAP
-    if current.vwap > _ZERO:
+    if current.vwap > ZERO:
         if current.close > current.vwap:
             bullish.append("Price above VWAP -- bullish intraday bias")
         else:
             bearish.append("Price below VWAP -- bearish intraday bias")
-
 
 # =========================================================================
 # OPTIONS RECOMMENDATIONS
@@ -329,10 +323,10 @@ def _generate_call_recommendation(
 ) -> OptionsRecommendation:
     price = current.close
 
-    if direction in (Direction.STRONG_BUY, Direction.BUY):
+    if direction in (AlertDirection.STRONG_BUY, AlertDirection.BUY):
         # Recommend buying calls
         target_delta = (
-            Decimal("0.50") if direction == Direction.STRONG_BUY else Decimal("0.35")
+            Decimal("0.50") if direction == AlertDirection.STRONG_BUY else Decimal("0.35")
         )
 
         strike = _select_call_strike(current, price)
@@ -357,7 +351,7 @@ def _generate_call_recommendation(
             rationale=rationale,
         )
 
-    elif direction in (Direction.STRONG_SELL, Direction.SELL):
+    elif direction in (AlertDirection.STRONG_SELL, AlertDirection.SELL):
         # Bearish scenario: sell calls (covered call / income)
         strike = (price * Decimal("1.05")).to_integral_value(rounding="ROUND_CEILING")
         dte = 30
@@ -385,11 +379,10 @@ def _generate_call_recommendation(
             action=Action.HOLD,
             suggested_strike=price,
             suggested_dte=0,
-            estimated_premium=_ZERO,
-            target_delta=_ZERO,
+            estimated_premium=ZERO,
+            target_delta=ZERO,
             rationale="Neutral -- wait for clearer signal",
         )
-
 
 def _generate_put_recommendation(
     current: IndicatorValues,
@@ -400,10 +393,10 @@ def _generate_put_recommendation(
 ) -> OptionsRecommendation:
     price = current.close
 
-    if direction in (Direction.STRONG_SELL, Direction.SELL):
+    if direction in (AlertDirection.STRONG_SELL, AlertDirection.SELL):
         # Recommend buying puts
         target_delta = (
-            Decimal("0.50") if direction == Direction.STRONG_SELL else Decimal("0.35")
+            Decimal("0.50") if direction == AlertDirection.STRONG_SELL else Decimal("0.35")
         )
 
         strike = _select_put_strike(current, price)
@@ -428,7 +421,7 @@ def _generate_put_recommendation(
             rationale=rationale,
         )
 
-    elif direction in (Direction.STRONG_BUY, Direction.BUY):
+    elif direction in (AlertDirection.STRONG_BUY, AlertDirection.BUY):
         # Bullish scenario: sell puts (cash-secured put for income)
         strike = (price * Decimal("0.95")).to_integral_value(rounding="ROUND_FLOOR")
         dte = 30
@@ -456,16 +449,15 @@ def _generate_put_recommendation(
             action=Action.HOLD,
             suggested_strike=price,
             suggested_dte=0,
-            estimated_premium=_ZERO,
-            target_delta=_ZERO,
+            estimated_premium=ZERO,
+            target_delta=ZERO,
             rationale="Neutral -- wait for clearer signal",
         )
-
 
 def _select_call_strike(current: IndicatorValues, price: Decimal) -> Decimal:
     """For strong signals, use ATM. Otherwise use nearest Fibonacci resistance or 2-3% OTM."""
     if (
-        current.fib_382 > _ZERO
+        current.fib_382 > ZERO
         and current.fib_382 > price
         and float(
             abs(current.fib_382 - price)
@@ -476,11 +468,10 @@ def _select_call_strike(current: IndicatorValues, price: Decimal) -> Decimal:
     # Default: ATM or slightly OTM
     return price.to_integral_value(rounding="ROUND_CEILING")
 
-
 def _select_put_strike(current: IndicatorValues, price: Decimal) -> Decimal:
     """Use nearest Fibonacci support or ATM."""
     if (
-        current.fib_618 > _ZERO
+        current.fib_618 > ZERO
         and current.fib_618 < price
         and float(
             (price - current.fib_618)
@@ -490,13 +481,12 @@ def _select_put_strike(current: IndicatorValues, price: Decimal) -> Decimal:
         return current.fib_618.to_integral_value(rounding="ROUND_FLOOR")
     return price.to_integral_value(rounding="ROUND_FLOOR")
 
-
 def _select_dte(atr: Decimal, price: Decimal, direction: Direction) -> int:
     """Strong signals get shorter DTE (more gamma), weaker signals get longer DTE."""
-    if direction in (Direction.STRONG_BUY, Direction.STRONG_SELL):
+    if direction in (AlertDirection.STRONG_BUY, AlertDirection.STRONG_SELL):
         return 30  # Optimal theta/gamma balance
 
-    if price > _ZERO:
+    if price > ZERO:
         atr_pct = float(
             atr / price
         )
@@ -505,12 +495,11 @@ def _select_dte(atr: Decimal, price: Decimal, direction: Direction) -> int:
 
     return 30
 
-
 def _build_call_rationale(current: IndicatorValues, direction: Direction) -> str:
     parts: list[str] = []
     if float(current.rsi14) < 40:
         parts.append("RSI oversold")
-    if current.macd_histogram > _ZERO:
+    if current.macd_histogram > ZERO:
         parts.append("MACD bullish")
     if current.price_above_cloud:
         parts.append("above Ichimoku cloud")
@@ -519,15 +508,14 @@ def _build_call_rationale(current: IndicatorValues, direction: Direction) -> str
     if current.sar_bullish:
         parts.append("SAR bullish")
 
-    strength = "Strong" if direction == Direction.STRONG_BUY else "Moderate"
+    strength = "Strong" if direction == AlertDirection.STRONG_BUY else "Moderate"
     return f"{strength} bullish confluence: {', '.join(parts)}"
-
 
 def _build_put_rationale(current: IndicatorValues, direction: Direction) -> str:
     parts: list[str] = []
     if float(current.rsi14) > 60:
         parts.append("RSI overbought")
-    if current.macd_histogram < _ZERO:
+    if current.macd_histogram < ZERO:
         parts.append("MACD bearish")
     if not current.price_above_cloud:
         parts.append("below Ichimoku cloud")
@@ -536,9 +524,8 @@ def _build_put_rationale(current: IndicatorValues, direction: Direction) -> str:
     if not current.sar_bullish:
         parts.append("SAR bearish")
 
-    strength = "Strong" if direction == Direction.STRONG_SELL else "Moderate"
+    strength = "Strong" if direction == AlertDirection.STRONG_SELL else "Moderate"
     return f"{strength} bearish confluence: {', '.join(parts)}"
-
 
 def _create_neutral_alert(
     symbol: str, data: list[PriceData], index: int
@@ -549,8 +536,8 @@ def _create_neutral_alert(
         action=Action.HOLD,
         suggested_strike=bar.close,
         suggested_dte=0,
-        estimated_premium=_ZERO,
-        target_delta=_ZERO,
+        estimated_premium=ZERO,
+        target_delta=ZERO,
         rationale="Insufficient data for analysis (need 200+ bars)",
     )
     noop_put = OptionsRecommendation(
@@ -558,8 +545,8 @@ def _create_neutral_alert(
         action=Action.HOLD,
         suggested_strike=bar.close,
         suggested_dte=0,
-        estimated_premium=_ZERO,
-        target_delta=_ZERO,
+        estimated_premium=ZERO,
+        target_delta=ZERO,
         rationale="Insufficient data for analysis (need 200+ bars)",
     )
 
@@ -567,7 +554,7 @@ def _create_neutral_alert(
         symbol=symbol,
         date=bar.date,
         current_price=bar.close,
-        direction=Direction.NEUTRAL,
+        direction=AlertDirection.NEUTRAL,
         confluence_score=0.0,
         total_indicators=0,
         bullish_indicators=[],

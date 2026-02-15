@@ -22,19 +22,18 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.analysis.signal_generator import generate_alert
 from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.backtest.backtest_report_formatter import BacktestReportFormatter
+from stockdownloader.backtest import report_formatter
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.backtest.options_backtest_report_formatter import OptionsBacktestReportFormatter
 from stockdownloader.data.yahoo_data_client import YahooDataClient
-from stockdownloader.strategy.sma_crossover_strategy import SMACrossoverStrategy
-from stockdownloader.strategy.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.macd_strategy import MACDStrategy
-from stockdownloader.strategy.bollinger_band_rsi_strategy import BollingerBandRSIStrategy
-from stockdownloader.strategy.momentum_confluence_strategy import MomentumConfluenceStrategy
-from stockdownloader.strategy.breakout_strategy import BreakoutStrategy
-from stockdownloader.strategy.multi_indicator_strategy import MultiIndicatorStrategy
-from stockdownloader.strategy.covered_call_strategy import CoveredCallStrategy
-from stockdownloader.strategy.protective_put_strategy import ProtectivePutStrategy
+from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
+from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
+from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
+from stockdownloader.strategy.daily.bollinger_band_rsi_strategy import BollingerBandRSIStrategy
+from stockdownloader.strategy.daily.momentum_confluence_strategy import MomentumConfluenceStrategy
+from stockdownloader.strategy.daily.breakout_strategy import BreakoutStrategy
+from stockdownloader.strategy.daily.multi_indicator_strategy import MultiIndicatorStrategy
+from stockdownloader.strategy.options.covered_call_strategy import CoveredCallStrategy
+from stockdownloader.strategy.options.protective_put_strategy import ProtectivePutStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -202,15 +201,18 @@ def main() -> None:
 
     for strategy in equity_strategies:
         try:
-            print(f"Running: {strategy.get_name()}...")
+            print(f"Running: {strategy.name}...")
             result = equity_engine.run(strategy, data)
             equity_results.append(result)
-            BacktestReportFormatter.print_report(result, data)
+            report_formatter.print_daily_report(result, data)
         except Exception as exc:
-            logger.warning("Failed to run strategy %s: %s", strategy.get_name(), exc)
+            logger.warning(
+                "Failed to run strategy %s: %s",
+                strategy.name, exc, exc_info=True,
+            )
 
     if equity_results:
-        BacktestReportFormatter.print_comparison(equity_results, data)
+        report_formatter.print_daily_comparison(equity_results, data)
 
     # === PHASE 4: Run Options Backtests ===
     print()
@@ -233,15 +235,18 @@ def main() -> None:
 
     for strategy in options_strategies:
         try:
-            print(f"Running: {strategy.get_name()}...")
+            print(f"Running: {strategy.name}...")
             result = options_engine.run(strategy, data)
             options_results.append(result)
-            OptionsBacktestReportFormatter.print_report(result)
+            report_formatter.print_options_report(result)
         except Exception as exc:
-            logger.warning("Failed to run options strategy %s: %s", strategy.get_name(), exc)
+            logger.warning(
+                "Failed to run options strategy %s: %s",
+                strategy.name, exc, exc_info=True,
+            )
 
     if options_results:
-        OptionsBacktestReportFormatter.print_comparison(options_results)
+        report_formatter.print_options_comparison(options_results)
 
     # === PHASE 5: Summary ===
     _print_summary(symbol, data, alert, equity_results, options_results)

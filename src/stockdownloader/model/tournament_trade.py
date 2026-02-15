@@ -5,10 +5,7 @@ from __future__ import annotations
 from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.model.trade import Direction
-
-_ZERO = Decimal("0")
-_HUNDRED = Decimal("100")
-
+from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
 
 class TournamentTrade:
     """Represents a trade imported from TradingView for the exit tournament.
@@ -36,9 +33,9 @@ class TournamentTrade:
             raise ValueError("direction must not be None")
         if entry_datetime is None:
             raise ValueError("entry_datetime must not be None")
-        if entry_price is None or entry_price <= _ZERO:
+        if entry_price is None or entry_price <= ZERO:
             raise ValueError("entry_price must be positive")
-        if stop_distance is None or stop_distance <= _ZERO:
+        if stop_distance is None or stop_distance <= ZERO:
             raise ValueError("stop_distance must be positive")
         if shares <= 0:
             raise ValueError("shares must be positive")
@@ -114,8 +111,8 @@ class TournamentTrade:
     @property
     def original_r_multiple(self) -> Decimal:
         """How many R the original trade captured."""
-        if self._stop_distance == _ZERO:
-            return _ZERO
+        if self._stop_distance == ZERO:
+            return ZERO
         return (self._original_pnl / self._stop_distance).quantize(
             Decimal("0.0001"), rounding=ROUND_HALF_UP
         )

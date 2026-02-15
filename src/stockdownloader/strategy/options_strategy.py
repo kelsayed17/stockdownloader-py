@@ -11,7 +11,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from stockdownloader.model.option_type import OptionType
+    from stockdownloader.model.options import OptionType
     from stockdownloader.model.price_data import PriceData
 
 
@@ -25,8 +25,9 @@ class OptionsSignal(Enum):
 class OptionsStrategy(ABC):
     """Abstract base class for options trading strategies."""
 
+    @property
     @abstractmethod
-    def get_name(self) -> str:
+    def name(self) -> str:
         """Return the display name of the strategy."""
 
     @abstractmethod
@@ -41,8 +42,9 @@ class OptionsStrategy(ABC):
             OPEN to enter a position, CLOSE to exit, HOLD to do nothing.
         """
 
+    @property
     @abstractmethod
-    def get_option_type(self) -> OptionType:
+    def option_type(self) -> OptionType:
         """Get the option type this strategy trades."""
 
     @abstractmethod
@@ -60,10 +62,12 @@ class OptionsStrategy(ABC):
             Target strike price.
         """
 
+    @property
     @abstractmethod
-    def get_target_days_to_expiry(self) -> int:
+    def target_days_to_expiry(self) -> int:
         """Get the target days to expiration for new positions."""
 
+    @property
     @abstractmethod
-    def get_warmup_period(self) -> int:
+    def warmup_period(self) -> int:
         """Number of warmup bars needed before the strategy can generate signals."""

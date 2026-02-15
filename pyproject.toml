@@ -27,12 +27,26 @@ spy-backtest = "stockdownloader.app.spy_backtest_app:main"
 options-backtest = "stockdownloader.app.options_backtest_app:main"
 trend-analysis = "stockdownloader.app.trend_analysis_app:main"
 symbol-analysis = "stockdownloader.app.symbol_analysis_app:main"
+intraday-backtest = "stockdownloader.app.intraday_backtest_app:main"
+intraday-accumulate = "stockdownloader.app.intraday_accumulate_app:main"
+strategy-optimize = "stockdownloader.app.optimize_app:main"
+grand-tournament = "stockdownloader.app.grand_tournament:main"
+multi-timeframe-optimizer = "stockdownloader.app.multi_timeframe_optimizer:main"
+multi-timeframe-tournament = "stockdownloader.app.multi_timeframe_tournament:main"
+dmi-vwap-backtest = "stockdownloader.app.dmi_vwap_backtest:main"
+generate-pinescript = "stockdownloader.app.generate_pinescript:main"
+exit-tournament = "stockdownloader.app.exit_tournament_app:main"
+signal-stack-tournament = "stockdownloader.app.signal_stack_tournament:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+markers = [
+    "live: tests that hit real external APIs (Yahoo Finance, NASDAQ) -- run with pytest -m live",
+]
+addopts = "-m 'not live'"
 
 [tool.setuptools.packages.find]
 where = ["src"]

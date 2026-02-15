@@ -10,6 +10,7 @@ suitable for the exit tournament engine.
 """
 from __future__ import annotations
 
+import contextlib
 import csv
 import logging
 import re
@@ -19,11 +20,9 @@ from typing import BinaryIO
 
 from stockdownloader.model.tournament_trade import TournamentTrade
 from stockdownloader.model.trade import Direction
+from stockdownloader.util.big_decimal_math import ZERO
 
 logger = logging.getLogger(__name__)
-
-_ZERO = Decimal("0")
-
 
 class TradingViewTradeLoader:
     """Loads :class:`TournamentTrade` objects from TradingView CSV exports.
@@ -55,10 +54,9 @@ class TradingViewTradeLoader:
         try:
             with open(filename, newline="", encoding="utf-8") as fh:
                 return _parse_trades(fh, default_stop_distance, timezone_offset_hours)
-        except Exception as exc:
+        except (OSError, csv.Error, ValueError) as exc:
             logger.warning("Error loading TradingView CSV %s: %s", filename, exc)
             return []
-
 
 # ------------------------------------------------------------------
 # Internal helpers
@@ -95,12 +93,11 @@ def _parse_trades(
             )
             if trade is not None:
                 trades.append(trade)
-        except Exception as exc:
+        except (ValueError, KeyError, InvalidOperation, TypeError) as exc:
             logger.debug("Skipping trade #%s: %s", tn, exc)
             continue
 
     return trades
-
 
 def _build_tournament_trade(
     trade_num_str: str,
@@ -137,7 +134,7 @@ def _build_tournament_trade(
     if pnl is None:
         pnl = _parse_decimal(exit_row, "Profit USDT")
     if pnl is None:
-        pnl = _ZERO
+        pnl = ZERO
 
     # Parse datetimes
     entry_dt = entry_row.get("Date and time", "").strip()
@@ -145,13 +142,13 @@ def _build_tournament_trade(
 
     # Parse stop distance from signal or use default
     stop_distance = _parse_stop_distance(signal, entry_price)
-    if stop_distance is None or stop_distance <= _ZERO:
-        if default_stop_distance is not None and default_stop_distance > _ZERO:
+    if stop_distance is None or stop_distance <= ZERO:
+        if default_stop_distance is not None and default_stop_distance > ZERO:
             stop_distance = default_stop_distance
         else:
             # Fallback: use adverse excursion if available, else 1% of entry
             ae = _parse_decimal(exit_row, "Drawdown USD")
-            if ae is not None and ae > _ZERO:
+            if ae is not None and ae > ZERO:
                 stop_distance = ae
             else:
                 stop_distance = (entry_price * Decimal("0.01")).quantize(
@@ -176,7 +173,6 @@ def _build_tournament_trade(
         stop_distance=stop_distance,
     )
 
-
 def _parse_direction(row: dict) -> Direction | None:
     """Determine trade direction from the row."""
     signal = str(row.get("Signal", ""))
@@ -197,7 +193,6 @@ def _parse_direction(row: dict) -> Direction | None:
 
     return None
 
-
 def _parse_signal_type(signal: str) -> str:
     """Extract strategy type from signal string (e.g. 'PB|L|S:3')."""
     if not signal:
@@ -209,7 +204,6 @@ def _parse_signal_type(signal: str) -> str:
             return tag
     return "UNK"
 
-
 def _parse_stop_distance(signal: str, entry_price: Decimal) -> Decimal | None:
     """Try to extract stop distance from signal string."""
     # Look for patterns like |SL:675.50| or |RR:1.4|
@@ -220,14 +214,11 @@ def _parse_stop_distance(signal: str, entry_price: Decimal) -> Decimal | None:
     # Try to find ATR-based stop in signal
     atr_match = re.search(r"\|ATR:([0-9.]+)", signal)
     if atr_match:
-        try:
+        with contextlib.suppress(InvalidOperation):
             atr_val = Decimal(atr_match.group(1))
             return atr_val * Decimal("1.5")  # typical ATR multiplier
-        except InvalidOperation:
-            pass
 
     return None
-
 
 def _parse_decimal(row: dict, key: str) -> Decimal | None:
     """Parse a Decimal from the named column, returning None on failure."""

@@ -8,6 +8,8 @@ from abc import ABC, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING
 
+from stockdownloader.util.pinescript_models import StrategyDefinition
+
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import PriceData
 
@@ -22,8 +24,9 @@ class Signal(Enum):
 class TradingStrategy(ABC):
     """Abstract base class for trading strategies."""
 
+    @property
     @abstractmethod
-    def get_name(self) -> str:
+    def name(self) -> str:
         """Return the display name of the strategy."""
 
     @abstractmethod
@@ -38,6 +41,20 @@ class TradingStrategy(ABC):
             A Signal indicating BUY, SELL, or HOLD.
         """
 
+    @property
     @abstractmethod
-    def get_warmup_period(self) -> int:
+    def warmup_period(self) -> int:
         """Return the number of bars needed before the strategy can generate signals."""
+
+    def to_pinescript(self) -> StrategyDefinition:
+        """Convert this strategy to a PineScript v6 strategy definition.
+
+        Returns a :class:`~stockdownloader.util.pinescript_models.StrategyDefinition`
+        that :class:`~stockdownloader.util.pinescript_generator.PineScriptGenerator`
+        can render into Pine Script v6 code.
+
+        Override in subclasses that support PineScript generation.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not support PineScript generation"
+        )

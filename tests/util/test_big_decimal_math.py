@@ -4,9 +4,6 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.util.big_decimal_math import (
     divide,
-    multiply,
-    add,
-    subtract,
     scale2,
     average,
     percent_change,
@@ -33,20 +30,6 @@ def test_divide_by_zero_with_scale_returns_zero():
     result = divide(Decimal("10"), Decimal("0"), 2)
     assert Decimal("0").compare(result) == 0
 
-
-def test_multiply():
-    result = multiply(Decimal("5"), Decimal("3"))
-    assert Decimal("15").compare(result) == 0
-
-
-def test_add():
-    result = add(Decimal("7"), Decimal("3"))
-    assert Decimal("10").compare(result) == 0
-
-
-def test_subtract():
-    result = subtract(Decimal("10"), Decimal("3"))
-    assert Decimal("7").compare(result) == 0
 
 
 def test_scale2():

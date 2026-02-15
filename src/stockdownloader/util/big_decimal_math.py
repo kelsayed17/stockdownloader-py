@@ -1,9 +1,21 @@
-"""Utility functions for common Decimal arithmetic with safe division handling."""
+"""Utility functions for common Decimal arithmetic with safe division handling.
+
+Public constants
+----------------
+``ZERO``, ``ONE``, ``TWO``, ``HUNDRED`` — pre-constructed :class:`Decimal`
+sentinels used across the codebase to avoid repeated ``Decimal("0")`` allocations.
+"""
 from __future__ import annotations
 
 from decimal import Decimal, ROUND_HALF_UP
 
 DEFAULT_SCALE = 10
+
+# Pre-constructed Decimal constants used across the codebase.
+ZERO = Decimal("0")
+ONE = Decimal("1")
+TWO = Decimal("2")
+HUNDRED = Decimal("100")
 
 
 def divide(dividend: Decimal, divisor: Decimal, scale: int = DEFAULT_SCALE) -> Decimal:
@@ -24,19 +36,16 @@ def divide(dividend: Decimal, divisor: Decimal, scale: int = DEFAULT_SCALE) -> D
     return _quantize(result, scale)
 
 
-def multiply(a: Decimal, b: Decimal) -> Decimal:
-    """Multiply two Decimals."""
-    return a * b
 
+def quantize_decimal(value: Decimal, places: str = "0.01") -> Decimal:
+    """Quantize *value* to the precision specified by *places*.
 
-def add(a: Decimal, b: Decimal) -> Decimal:
-    """Add two Decimals."""
-    return a + b
+    Example::
 
-
-def subtract(a: Decimal, b: Decimal) -> Decimal:
-    """Subtract *b* from *a*."""
-    return a - b
+        quantize_decimal(Decimal("1.2345"))           # -> Decimal("1.23")
+        quantize_decimal(Decimal("1.2345"), "0.0001") # -> Decimal("1.2345")
+    """
+    return value.quantize(Decimal(places), rounding=ROUND_HALF_UP)
 
 
 def scale2(value: Decimal) -> Decimal:

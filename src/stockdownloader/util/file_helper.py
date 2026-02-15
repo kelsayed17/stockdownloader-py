@@ -6,8 +6,9 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, TextIO
 
 logger = logging.getLogger(__name__)
 
@@ -95,3 +96,21 @@ def delete_file(filename: str) -> bool:
     except OSError as e:
         logger.warning('Error deleting %s: %s', filename, e)
         return False
+
+
+class TeeWriter:
+    """Write to both stdout and a file simultaneously."""
+
+    def __init__(self, file: TextIO) -> None:
+        self._file = file
+
+    def write(self, msg: str) -> None:
+        """Write *msg* to both stdout and the backing file."""
+        sys.stdout.write(msg)
+        sys.stdout.flush()
+        self._file.write(msg)
+        self._file.flush()
+
+    def print(self, msg: str = "") -> None:
+        """Write *msg* followed by a newline (convenience wrapper)."""
+        self.write(msg + "\n")

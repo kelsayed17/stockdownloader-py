@@ -1,0 +1,236 @@
+// This Pine Script(tm) v5 indicator is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+//
+// SPY DMI VWAP Signals
+//
+// Combines a session-anchored VWAP with Directional Movement Index (DMI/ADX)
+// to generate intraday call/put signals for SPY.
+//
+// Entry Logic:
+//   Buy Call  - price above VWAP, +DI > -DI, ADX > 25 (trending bullish)
+//   Buy Put   - price below VWAP, -DI > +DI, ADX > 25 (trending bearish)
+//
+// Exit Logic:
+//   Exit Long  - was in a long signal and conditions reversed
+//   Exit Short - was in a short signal and conditions reversed
+//
+// The VWAP resets at the start of each regular trading session (09:30 ET).
+// DMI period defaults to 14. ADX threshold defaults to 25.
+
+//@version=5
+indicator("SPY DMI VWAP Signals", shorttitle="DMI-VWAP", overlay=true, max_labels_count=500)
+
+// ============================================================================
+// INPUTS
+// ============================================================================
+
+string SESSION       = "0930-1600"
+string TIMEZONE      = "America/New_York"
+
+int    dmiPeriod     = input.int(14, title="DMI Period", minval=1)
+int    adxSmoothing  = input.int(14, title="ADX Smoothing", minval=1)
+float  adxThreshold  = input.float(25.0, title="ADX Threshold", minval=0.0, step=0.5)
+color  vwapColor     = input.color(color.blue, title="VWAP Color")
+int    vwapWidth     = input.int(2, title="VWAP Line Width", minval=1, maxval=5)
+bool   showLabels    = input.bool(true, title="Show Signal Labels")
+bool   showBgColor   = input.bool(true, title="Show Background Coloring")
+
+// ============================================================================
+// SESSION DETECTION
+// ============================================================================
+
+// Returns true during the regular trading session window.
+inSession = not na(time(timeframe.period, SESSION, TIMEZONE))
+
+// Detect the first bar of a new session (session opens after being closed).
+bool isNewSession = inSession and not inSession[1]
+
+// ============================================================================
+// SESSION-ANCHORED VWAP
+// ============================================================================
+
+// Typical price: (High + Low + Close) / 3
+float tp = (high + low + close) / 3.0
+
+// Cumulative volume * typical-price and cumulative volume, reset each session.
+var float cumTPV = 0.0
+var float cumVol = 0.0
+
+if isNewSession
+    cumTPV := tp * volume
+    cumVol := volume
+else
+    cumTPV += tp * volume
+    cumVol += volume
+
+// Anchored VWAP value. Guard against zero volume.
+float vwapValue = cumVol != 0 ? cumTPV / cumVol : close
+
+// Plot the VWAP on the price chart.
+plot(inSession ? vwapValue : na, title="VWAP", color=vwapColor, linewidth=vwapWidth)
+
+// ============================================================================
+// DMI / ADX CALCULATION
+// ============================================================================
+
+// Use the built-in DMI function which returns +DI, -DI, and ADX.
+[plusDI, minusDI, adxValue] = ta.dmi(dmiPeriod, adxSmoothing)
+
+// ============================================================================
+// SIGNAL LOGIC
+// ============================================================================
+
+// Core directional conditions.
+bool bullishCondition = close > vwapValue and plusDI > minusDI and adxValue > adxThreshold
+bool bearishCondition = close < vwapValue and minusDI > plusDI and adxValue > adxThreshold
+
+// Track the current position state:
+//   +1 = long (Buy Call active)
+//   -1 = short (Buy Put active)
+//    0 = flat
+var int posState = 0
+
+// Determine signal triggers (only fire once per state change).
+bool buyCallSignal  = bullishCondition and posState != 1
+bool buyPutSignal   = bearishCondition and posState != -1
+bool exitLongSignal = posState == 1 and not bullishCondition
+bool exitShortSignal = posState == -1 and not bearishCondition
+
+// Update position state. Entry signals take priority over exit signals when
+// a direct reversal occurs (e.g., long directly to short).
+if buyCallSignal
+    posState := 1
+else if buyPutSignal
+    posState := -1
+else if exitLongSignal or exitShortSignal
+    posState := 0
+
+// Reset state at the start of each session so signals do not carry overnight.
+if isNewSession
+    posState := 0
+
+// ============================================================================
+// LABELS
+// ============================================================================
+
+if showLabels and inSession
+    if buyCallSignal
+        label.new(bar_index, low, "Buy Call",
+             style=label.style_label_up,
+             color=color.green,
+             textcolor=color.white,
+             size=size.small)
+
+    if buyPutSignal
+        label.new(bar_index, high, "Buy Put",
+             style=label.style_label_down,
+             color=color.red,
+             textcolor=color.white,
+             size=size.small)
+
+    if exitLongSignal
+        label.new(bar_index, high, "Exit Long",
+             style=label.style_label_down,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+
+    if exitShortSignal
+        label.new(bar_index, low, "Exit Short",
+             style=label.style_label_up,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+
+// ============================================================================
+// BACKGROUND COLORING
+// ============================================================================
+
+// Shade the background to indicate the current directional bias.
+color bgColor = na
+
+if showBgColor and inSession
+    if posState == 1
+        bgColor := color.new(color.green, 90)
+    else if posState == -1
+        bgColor := color.new(color.red, 90)
+
+bgcolor(bgColor, title="Directional Zone")
+
+// ============================================================================
+// ALERTS
+// ============================================================================
+
+alertcondition(buyCallSignal and inSession,
+     title="Buy Call",
+     message="SPY DMI-VWAP: Buy Call signal. Price above VWAP with bullish DMI trend.")
+
+alertcondition(buyPutSignal and inSession,
+     title="Buy Put",
+     message="SPY DMI-VWAP: Buy Put signal. Price below VWAP with bearish DMI trend.")
+
+alertcondition(exitLongSignal and inSession,
+     title="Exit Long",
+     message="SPY DMI-VWAP: Exit Long signal. Bullish conditions no longer met.")
+
+alertcondition(exitShortSignal and inSession,
+     title="Exit Short",
+     message="SPY DMI-VWAP: Exit Short signal. Bearish conditions no longer met.")
+
+// Combined alert for any signal (useful for a single webhook).
+alertcondition((buyCallSignal or buyPutSignal or exitLongSignal or exitShortSignal) and inSession,
+     title="Any Signal",
+     message="SPY DMI-VWAP: Signal triggered. Check chart for details.")
+
+// ============================================================================
+// ADX PANE (separate window)
+// ============================================================================
+
+// We cannot plot in a second pane from a single indicator in Pine Script v5.
+// Instead, we use plot() with display=display.pane to render ADX, +DI, and -DI
+// in the indicator's built-in data window, and provide a companion indicator
+// below for the ADX pane.
+//
+// However, since the indicator is set to overlay=true, we plot these values
+// using display.data_window so they appear in the data window tooltip and
+// can be referenced by other scripts. For a dedicated ADX pane, use the
+// companion script further below, or change overlay to false.
+
+plot(adxValue,  title="ADX",  color=color.new(color.yellow, 100), display=display.data_window)
+plot(plusDI,    title="+DI",  color=color.new(color.green, 100),  display=display.data_window)
+plot(minusDI,   title="-DI",  color=color.new(color.red, 100),    display=display.data_window)
+
+// ============================================================================
+// END OF OVERLAY INDICATOR
+// ============================================================================
+
+
+// ////////////////////////////////////////////////////////////////////////////
+//
+// COMPANION INDICATOR - ADX PANE
+//
+// To use this as a separate lower pane, copy everything between the
+// START and END markers below into a new Pine Script indicator.
+//
+// --- START: ADX Pane Indicator ---
+//
+// //@version=5
+// indicator("SPY DMI VWAP - ADX Pane", shorttitle="DMI-VWAP ADX", overlay=false)
+//
+// int    dmiPeriod2    = input.int(14, title="DMI Period", minval=1)
+// int    adxSmoothing2 = input.int(14, title="ADX Smoothing", minval=1)
+// float  adxThresh2    = input.float(25.0, title="ADX Threshold", minval=0.0, step=0.5)
+//
+// [pDI2, mDI2, adx2] = ta.dmi(dmiPeriod2, adxSmoothing2)
+//
+// plot(adx2, title="ADX", color=color.yellow, linewidth=2)
+// plot(pDI2, title="+DI", color=color.green, linewidth=1)
+// plot(mDI2, title="-DI", color=color.red,   linewidth=1)
+// hline(adxThresh2, "ADX Threshold", color=color.gray, linestyle=hline.style_dashed)
+//
+// // Background when ADX is above threshold (trending market).
+// bgcolor(adx2 > adxThresh2 ? color.new(color.yellow, 90) : na, title="Trending Zone")
+//
+// --- END: ADX Pane Indicator ---
+//
+// ////////////////////////////////////////////////////////////////////////////

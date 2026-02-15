@@ -24,7 +24,12 @@ def sma(data: Sequence[PriceData], end_index: int, period: int) -> Decimal:
 
     Returns:
         The SMA as a ``Decimal`` rounded to *SCALE* decimal places.
+
+    Raises:
+        ValueError: If *period* is less than 1.
     """
+    if period < 1:
+        raise ValueError(f"SMA period must be >= 1, got {period}")
     total = Decimal('0')
     for i in range(end_index - period + 1, end_index + 1):
         total += data[i].close
@@ -44,7 +49,12 @@ def ema(data: Sequence[PriceData], end_index: int, period: int) -> Decimal:
 
     Returns:
         The EMA as a ``Decimal`` rounded to *SCALE* decimal places.
+
+    Raises:
+        ValueError: If *period* is less than 1.
     """
+    if period < 1:
+        raise ValueError(f"EMA period must be >= 1, got {period}")
     multiplier = Decimal(str(2.0 / (period + 1)))
     one_minus_multiplier = Decimal('1') - multiplier
 

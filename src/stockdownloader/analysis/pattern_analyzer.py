@@ -5,9 +5,10 @@ from __future__ import annotations
 
 from collections import defaultdict
 from decimal import Decimal
+from operator import attrgetter
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.big_decimal_math import divide, multiply, scale2
+from stockdownloader.util.big_decimal_math import divide, scale2
 
 if TYPE_CHECKING:
     from stockdownloader.model.pattern_result import PatternResult
@@ -56,7 +57,7 @@ def analyze(frequency: dict[str, set[str]]) -> list[PatternResult]:
         offset_freq = Decimal(str(len(offset_set)))
 
         total = pattern_freq + similar_freq
-        accuracy = scale2(divide(multiply(pattern_freq, Decimal("100")), total))
+        accuracy = scale2(divide(pattern_freq * Decimal("100"), total))
 
         results.append(
             PatternResult(
@@ -74,7 +75,7 @@ def analyze(frequency: dict[str, set[str]]) -> list[PatternResult]:
         )
 
     # Sort by pattern_freq descending (matches Java TreeSet with compareTo)
-    results.sort(key=lambda r: r.pattern_freq, reverse=True)
+    results.sort(key=attrgetter("pattern_freq"), reverse=True)
     return results
 
 

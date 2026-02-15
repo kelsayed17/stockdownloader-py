@@ -21,10 +21,10 @@ import pytest
 
 from stockdownloader.analysis.pattern_analyzer import analyze, print_results
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
-from stockdownloader.model.historical_data import HistoricalData
 from stockdownloader.model.pattern_result import PatternResult
+from stockdownloader.model.unified_market_data import HistoricalData
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.big_decimal_math import add, divide, multiply, scale2
+from stockdownloader.util.big_decimal_math import divide, scale2
 
 PATTERN_DAYS = 7
 
@@ -237,10 +237,10 @@ def test_accuracy_formula_verification(analysis_results):
     for result in analysis_results:
         pf = result.pattern_freq
         sf = result.similar_freq
-        total = add(pf, sf)
+        total = pf + sf
 
         if total > Decimal("0"):
-            expected_accuracy = scale2(divide(multiply(pf, Decimal("100")), total))
+            expected_accuracy = scale2(divide(pf * Decimal("100"), total))
             assert expected_accuracy == result.accuracy, \
                 "Accuracy should be (patternFreq * 100) / (patternFreq + similarFreq)"
 

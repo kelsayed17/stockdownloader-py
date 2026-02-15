@@ -6,11 +6,12 @@ underlying price data when historical options data is not available.
 from __future__ import annotations
 
 import math
+import statistics
 from decimal import Decimal, ROUND_HALF_UP
 
 from scipy.stats import norm
 
-from stockdownloader.model.option_type import OptionType
+from stockdownloader.model.options import OptionType
 
 
 def price(
@@ -160,10 +161,7 @@ def estimate_volatility(
         else:
             log_returns.append(0.0)
 
-    mean = sum(log_returns) / len(log_returns)
-
-    sum_sq_diff = sum((lr - mean) ** 2 for lr in log_returns)
-    daily_vol = math.sqrt(sum_sq_diff / len(log_returns))
+    daily_vol = statistics.pstdev(log_returns)
 
     # Annualize
     annual_vol = daily_vol * math.sqrt(252)

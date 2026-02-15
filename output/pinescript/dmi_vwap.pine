@@ -1,0 +1,158 @@
+// This Pine Script(tm) v6 indicator is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+//
+// SPY DMI VWAP Signals
+//
+// Combines DMI (14-period) with session-anchored VWAP.
+// Long when price > VWAP, +DI > -DI, ADX > threshold.
+// Short when price < VWAP, -DI > +DI, ADX > threshold.
+//
+// Entry Logic:
+//   Long  - Price above VWAP with bullish DMI trend
+//   Short - Price below VWAP with bearish DMI trend
+
+//@version=6
+indicator("SPY DMI VWAP Signals", shorttitle="DMI-VWAP", overlay=true, max_labels_count=500)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INPUTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+int    dmiPeriod        = input.int(14, title="DMI Period", minval=1)
+int    adxSmoothing     = input.int(14, title="ADX Smoothing", minval=1)
+float  adxThreshold     = input.float(25.0, title="ADX Threshold", minval=0.0, step=0.5)
+
+bool   showLabels    = input.bool(true, title="Show Signal Labels")
+bool   showBgColor   = input.bool(true, title="Show Background Coloring")
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SESSION DETECTION
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+string SESSION  = "0930-1600"
+string TIMEZONE = "America/New_York"
+
+inSession = not na(time(timeframe.period, SESSION, TIMEZONE))
+bool isNewSession = inSession and not inSession[1]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INDICATORS
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+// Session-Anchored VWAP
+float tp = (high + low + close) / 3.0
+var float cumTPV = 0.0
+var float cumVol = 0.0
+
+if isNewSession
+    cumTPV := tp * volume
+    cumVol := volume
+else
+    cumTPV += tp * volume
+    cumVol += volume
+
+float vwapValue = cumVol != 0 ? cumTPV / cumVol : close
+plot(inSession ? vwapValue : na, title="VWAP", color=color.blue, linewidth=2)
+
+[plusDI, minusDI, adxValue] = ta.dmi(dmiPeriod, adxSmoothing)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SIGNAL LOGIC
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool longCondition = close > vwapValue and plusDI > minusDI and adxValue > adxThreshold
+bool shortCondition = close < vwapValue and minusDI > plusDI and adxValue > adxThreshold
+
+// Position state: +1 = long, -1 = short, 0 = flat
+var int posState = 0
+
+bool buySignal      = longCondition and posState != 1
+bool sellSignal     = shortCondition and posState != -1
+bool exitLongSignal  = posState == 1 and (shortCondition)
+bool exitShortSignal = posState == -1 and (longCondition)
+
+// Update position state
+if buySignal
+    posState := 1
+else if sellSignal
+    posState := -1
+else if exitLongSignal or exitShortSignal
+    posState := 0
+
+if isNewSession
+    posState := 0
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LABELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+if showLabels and inSession
+    if buySignal
+        label.new(bar_index, low, "Buy Call",
+             style=label.style_label_up,
+             color=color.green,
+             textcolor=color.white,
+             size=size.small)
+    if sellSignal
+        label.new(bar_index, high, "Buy Put",
+             style=label.style_label_down,
+             color=color.red,
+             textcolor=color.white,
+             size=size.small)
+    if exitLongSignal
+        label.new(bar_index, high, "Exit Long",
+             style=label.style_label_down,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+    if exitShortSignal
+        label.new(bar_index, low, "Exit Short",
+             style=label.style_label_up,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BACKGROUND
+// ─────────────────────────────────────────────────────────────────────────────
+
+color bgColor = na
+
+if showBgColor and inSession
+    if posState == 1
+        bgColor := color.new(color.green, 90)
+    else if posState == -1
+        bgColor := color.new(color.red, 90)
+
+bgcolor(bgColor, title="Position Zone")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALERTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+alertcondition(buySignal and inSession,
+     title="Buy Call",
+     message="SPY DMI VWAP Signals: Buy Call signal triggered.")
+alertcondition(sellSignal and inSession,
+     title="Buy Put",
+     message="SPY DMI VWAP Signals: Buy Put signal triggered.")
+alertcondition(exitLongSignal and inSession,
+     title="Exit Long",
+     message="SPY DMI VWAP Signals: Exit Long signal.")
+alertcondition(exitShortSignal and inSession,
+     title="Exit Short",
+     message="SPY DMI VWAP Signals: Exit Short signal.")
+alertcondition((buySignal or sellSignal or exitLongSignal or exitShortSignal) and inSession,
+     title="Any Signal",
+     message="SPY DMI VWAP Signals: Signal triggered. Check chart.")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADDITIONAL PLOTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+plot(adxValue, title="ADX", color=color.new(color.yellow, 100), display=display.data_window)
+plot(plusDI, title="+DI", color=color.new(color.green, 100), display=display.data_window)
+plot(minusDI, title="-DI", color=color.new(color.red, 100), display=display.data_window)

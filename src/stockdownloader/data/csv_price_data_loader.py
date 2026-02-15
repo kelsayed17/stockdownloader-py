@@ -38,7 +38,7 @@ class CsvPriceDataLoader:
         try:
             with open(filename, newline="", encoding="utf-8") as fh:
                 return _parse_records(fh)
-        except Exception as exc:
+        except (OSError, csv.Error, InvalidOperation, ValueError) as exc:
             logger.warning("Error loading CSV file %s: %s", filename, exc)
             return []
 
@@ -51,7 +51,7 @@ class CsvPriceDataLoader:
         try:
             text_stream = io.TextIOWrapper(stream, encoding="utf-8")
             return _parse_records(text_stream)
-        except Exception as exc:
+        except (OSError, csv.Error, InvalidOperation, ValueError) as exc:
             logger.warning("Error loading CSV from stream: %s", exc)
             return []
 
@@ -91,8 +91,8 @@ def _parse_records(text_io: io.TextIOBase | io.TextIOWrapper) -> list[PriceData]
                     volume=volume,
                 )
             )
-        except (InvalidOperation, ValueError, IndexError):
-            # Skip lines with invalid data (e.g. "null" values)
+        except (InvalidOperation, ValueError, IndexError) as exc:
+            logger.debug("Skipping invalid CSV row: %s (%s)", line, exc)
             continue
 
     return data

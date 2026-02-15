@@ -4,9 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.option_contract import OptionContract
-from stockdownloader.model.option_type import OptionType
-from stockdownloader.model.options_chain import OptionsChain
+from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
 
 
 def _make_contract(symbol, option_type, strike, exp, volume, oi):
@@ -78,35 +76,35 @@ def test_empty_expiration_returns_empty_list(chain):
 
 def test_total_call_volume(chain):
     # 500 + 300 + 200 + 150 = 1150
-    assert chain.get_total_call_volume() == 1150
+    assert chain.total_call_volume == 1150
 
 
 def test_total_put_volume(chain):
     # 400 + 600 + 250 = 1250
-    assert chain.get_total_put_volume() == 1250
+    assert chain.total_put_volume == 1250
 
 
 def test_total_volume(chain):
-    assert chain.get_total_volume() == 2400
+    assert chain.total_volume == 2400
 
 
 def test_total_open_interest(chain):
     # Calls: 10000 + 8000 + 5000 + 3000 = 26000
-    assert chain.get_total_call_open_interest() == 26000
+    assert chain.total_call_open_interest == 26000
     # Puts: 12000 + 15000 + 7000 = 34000
-    assert chain.get_total_put_open_interest() == 34000
+    assert chain.total_put_open_interest == 34000
 
 
 def test_put_call_ratio(chain):
     # 1250 / 1150 = 1.0870
-    ratio = chain.get_put_call_ratio()
+    ratio = chain.put_call_ratio
     assert float(ratio) > 1.0
     assert float(ratio) < 1.2
 
 
 def test_put_call_ratio_zero_call_volume():
     empty = OptionsChain("TEST")
-    assert empty.get_put_call_ratio() == Decimal("0")
+    assert empty.put_call_ratio == Decimal("0")
 
 
 def test_find_nearest_strike(chain):
@@ -127,5 +125,5 @@ def test_get_contracts_at_strike(chain):
 
 
 def test_get_all_calls_and_puts(chain):
-    assert len(chain.get_all_calls()) == 4
-    assert len(chain.get_all_puts()) == 3
+    assert len(chain.all_calls) == 4
+    assert len(chain.all_puts) == 3

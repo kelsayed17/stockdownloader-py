@@ -1,0 +1,209 @@
+// This Pine Script(tm) v6 indicator is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+//
+// VWAP OR Reversal
+//
+// Fade opening range extreme on retest with reversal pattern. Fire-once per session.
+//
+// Entry Logic:
+//   Long  - Price retests OR low with bullish reversal pattern
+//   Short - Price retests OR high with bearish reversal pattern
+
+//@version=6
+indicator("VWAP OR Reversal", shorttitle="VWAP-ORR", overlay=true, max_labels_count=500)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INPUTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+// --- Shared ---
+int    atrLen           = input.int(14, title="ATR Length", minval=1)
+int    adxLen           = input.int(14, title="ADX Length", minval=1)
+int    emaFastLen       = input.int(9, title="EMA Fast", minval=1)
+int    emaSlowLen       = input.int(21, title="EMA Slow", minval=1)
+int    orrWindow        = input.int(25, title="Max Bar for ORR", minval=1)
+float  orrProx          = input.float(0.2, title="OR Proximity (x ATR)", minval=0.0, step=0.05)
+float  orrRvol          = input.float(1.0, title="Min RVOL", minval=0.5, step=0.5)
+
+bool   showLabels    = input.bool(true, title="Show Signal Labels")
+bool   showBgColor   = input.bool(true, title="Show Background Coloring")
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SESSION DETECTION
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+string SESSION  = "0930-1600"
+string TIMEZONE = "America/New_York"
+
+inSession = not na(time(timeframe.period, SESSION, TIMEZONE))
+bool isNewSession = inSession and not inSession[1]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INDICATORS
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+// Session-Anchored VWAP
+float tp = (high + low + close) / 3.0
+var float cumTPV = 0.0
+var float cumVol = 0.0
+
+if isNewSession
+    cumTPV := tp * volume
+    cumVol := volume
+else
+    cumTPV += tp * volume
+    cumVol += volume
+
+float vwapValue = cumVol != 0 ? cumTPV / cumVol : close
+plot(inSession ? vwapValue : na, title="VWAP", color=color.blue, linewidth=2)
+
+float atrVal = ta.atr(atrLen)
+plot(atrVal, title="ATR", color=color.new(color.gray, 100), display=display.data_window)
+[plusDI, minusDI, adxValue] = ta.dmi(adxLen, adxLen)
+float emaFast = ta.ema(close, emaFastLen)
+plot(emaFast, title="EMA(emaFastLen)", color=color.teal, linewidth=1)
+float emaSlow = ta.ema(close, emaSlowLen)
+plot(emaSlow, title="EMA(emaSlowLen)", color=color.orange, linewidth=1)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXTRA COMPUTATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// --- Opening Range Tracking ---
+int    orBars        = 3
+var float orHigh     = na
+var float orLow      = na
+var bool  orDone     = false
+var int   barOfDay   = 0
+
+if isNewSession
+    orHigh  := high
+    orLow   := low
+    orDone  := false
+    barOfDay := 0
+
+barOfDay += 1
+
+if not orDone
+    orHigh := math.max(orHigh, high)
+    orLow  := math.min(orLow, low)
+    if barOfDay >= orBars
+        orDone := true
+
+float orRange = orDone ? orHigh - orLow : na
+
+// --- Candle Helpers ---
+float bodySize = math.abs(close - open)
+bool  bullCandle = close > open and bodySize >= atrVal * 0.15
+bool  bearCandle = close < open and bodySize >= atrVal * 0.15
+
+// --- VWAP Distance ---
+float vwapDist = math.abs(close - vwapValue)
+
+// --- Relative Volume ---
+float avgVol20 = ta.sma(volume, 20)
+float relVol   = avgVol20 > 0 ? volume / avgVol20 : 0
+var bool orrFiredToday = false
+if isNewSession
+    orrFiredToday := false
+
+// Hammer: small body, long lower wick (bullish reversal)
+float upperWick = high - math.max(open, close)
+float lowerWick = math.min(open, close) - low
+float candleRange = high - low
+bool  isHammer = candleRange > 0 and lowerWick / candleRange >= 0.6 and bodySize / candleRange <= 0.3
+bool  isInvHammer = candleRange > 0 and upperWick / candleRange >= 0.6 and bodySize / candleRange <= 0.3
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SIGNAL LOGIC
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool longCondition = orDone and not orrFiredToday and barOfDay <= orrWindow and low <= orLow + atrVal * orrProx and (isHammer or bullCandle) and relVol >= orrRvol
+bool shortCondition = orDone and not orrFiredToday and barOfDay <= orrWindow and high >= orHigh - atrVal * orrProx and (isInvHammer or bearCandle) and relVol >= orrRvol
+
+// Position state: +1 = long, -1 = short, 0 = flat
+var int posState = 0
+
+bool buySignal      = longCondition and posState != 1
+bool sellSignal     = shortCondition and posState != -1
+bool exitLongSignal  = posState == 1 and (shortCondition)
+bool exitShortSignal = posState == -1 and (longCondition)
+
+// Update position state
+if buySignal
+    posState := 1
+else if sellSignal
+    posState := -1
+else if exitLongSignal or exitShortSignal
+    posState := 0
+
+if isNewSession
+    posState := 0
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LABELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+if showLabels and inSession
+    if buySignal
+        label.new(bar_index, low, "Buy",
+             style=label.style_label_up,
+             color=color.green,
+             textcolor=color.white,
+             size=size.small)
+    if sellSignal
+        label.new(bar_index, high, "Sell",
+             style=label.style_label_down,
+             color=color.red,
+             textcolor=color.white,
+             size=size.small)
+    if exitLongSignal
+        label.new(bar_index, high, "Exit Long",
+             style=label.style_label_down,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+    if exitShortSignal
+        label.new(bar_index, low, "Exit Short",
+             style=label.style_label_up,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BACKGROUND
+// ─────────────────────────────────────────────────────────────────────────────
+
+color bgColor = na
+
+if showBgColor and inSession
+    if posState == 1
+        bgColor := color.new(color.green, 90)
+    else if posState == -1
+        bgColor := color.new(color.red, 90)
+
+bgcolor(bgColor, title="Position Zone")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALERTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+alertcondition(buySignal and inSession,
+     title="Buy",
+     message="VWAP OR Reversal: Buy signal triggered.")
+alertcondition(sellSignal and inSession,
+     title="Sell",
+     message="VWAP OR Reversal: Sell signal triggered.")
+alertcondition(exitLongSignal and inSession,
+     title="Exit Long",
+     message="VWAP OR Reversal: Exit Long signal.")
+alertcondition(exitShortSignal and inSession,
+     title="Exit Short",
+     message="VWAP OR Reversal: Exit Short signal.")
+alertcondition((buySignal or sellSignal or exitLongSignal or exitShortSignal) and inSession,
+     title="Any Signal",
+     message="VWAP OR Reversal: Signal triggered. Check chart.")

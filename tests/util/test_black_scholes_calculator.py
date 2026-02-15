@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.option_type import OptionType
+from stockdownloader.model.options import OptionType
 from stockdownloader.util.black_scholes_calculator import (
     price as bs_price,
     delta,

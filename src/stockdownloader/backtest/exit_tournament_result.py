@@ -7,6 +7,7 @@ comparisons.
 from __future__ import annotations
 
 from decimal import Decimal
+from operator import attrgetter, itemgetter
 
 from stockdownloader.model.exit_mechanism_result import (
     ExitMechanismSummary,
@@ -123,7 +124,8 @@ class ExitTournamentResult:
             summaries[key].add_result(r)
         return summaries
 
-    def get_head_to_head(self) -> dict[str, int]:
+    @property
+    def head_to_head(self) -> dict[str, int]:
         """For each trade, which mechanism produced the best P&L?
 
         Returns a dict mapping mechanism name to the number of trades it
@@ -136,7 +138,7 @@ class ExitTournamentResult:
 
         counts: dict[str, int] = {name: 0 for name in self._summaries}
         for trade_id, results in trades.items():
-            best = max(results, key=lambda r: r.pnl)
+            best = max(results, key=attrgetter("pnl"))
             counts[best.mechanism_name] = counts.get(best.mechanism_name, 0) + 1
 
-        return dict(sorted(counts.items(), key=lambda x: x[1], reverse=True))
+        return dict(sorted(counts.items(), key=itemgetter(1), reverse=True))

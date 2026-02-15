@@ -10,6 +10,8 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
+import requests
+
 from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
 
 logger = logging.getLogger(__name__)
@@ -40,8 +42,8 @@ class YahooQuoteClient:
         try:
             resp = self._auth.session.get(url, timeout=15)
             return resp.text
-        except Exception:
-            logger.warning("Failed to fetch page for symbol: %s", symbol)
+        except (requests.RequestException, OSError):
+            logger.warning("Failed to fetch page for symbol: %s", symbol, exc_info=True)
             return None
 
     def get_crumb(self, symbol: str) -> str:
@@ -73,8 +75,8 @@ class YahooQuoteClient:
             resp = self._auth.session.get(url, timeout=30, stream=True)
             resp.raise_for_status()
             Path(filename).write_bytes(resp.content)
-        except Exception:
-            logger.warning("Failed to download data for symbol: %s", symbol)
+        except (requests.RequestException, OSError):
+            logger.warning("Failed to download data for symbol: %s", symbol, exc_info=True)
 
     # ------------------------------------------------------------------
     # Properties

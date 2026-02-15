@@ -1,0 +1,225 @@
+// This Pine Script(tm) v6 indicator is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+//
+// Signal Stack Composite
+//
+// Top signal generators as independently toggleable modes.
+// Combines MACD crossover, RSI extremes, SMA crossover,
+// OBV trend, and ADX trend into one indicator.
+// Default aggregation: any mode that fires triggers a signal.
+//
+// Modes: MACD, RSI, SMA, OBV, ADX
+// Aggregation: any
+
+//@version=6
+indicator("Signal Stack Composite", shorttitle="SIG-STACK", overlay=true, max_labels_count=500)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INPUTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool   showLabels    = input.bool(true, title="Show Signal Labels", group="Display")
+bool   showBgColor   = input.bool(true, title="Show Background Coloring", group="Display")
+
+// --- MACD Crossover ---
+bool   enableMACD       = input.bool(true, title="Enable MACD Crossover Signals", group="MACD Crossover")
+int    fastLen          = input.int(12, title="MACD Fast Length", minval=1)
+int    slowLen          = input.int(26, title="MACD Slow Length", minval=1)
+int    signalLen        = input.int(9, title="Signal Length", minval=1)
+
+// --- RSI Extremes ---
+bool   enableRSI        = input.bool(true, title="Enable RSI Strategy Signals", group="RSI Extremes")
+int    rsiPeriod        = input.int(14, title="RSI Period", minval=1)
+float  oversold         = input.float(30.0, title="Oversold Threshold", minval=0.0, step=1.0)
+float  overbought       = input.float(70.0, title="Overbought Threshold", minval=0.0, step=1.0)
+
+// --- SMA Crossover ---
+bool   enableSMA        = input.bool(true, title="Enable SMA Crossover Signals", group="SMA Crossover")
+int    fastPeriod       = input.int(10, title="Fast SMA Period", minval=1)
+int    slowPeriod       = input.int(20, title="Slow SMA Period", minval=1)
+
+// --- OBV Trend ---
+bool   enableOBV        = input.bool(true, title="Enable OBV Trend", group="OBV Trend")
+int    obvSmooth        = input.int(5, title="OBV Smoothing", minval=1)
+
+// --- ADX Trend ---
+bool   enableADX        = input.bool(true, title="Enable ADX Trend", group="ADX Trend")
+int    adxPeriod        = input.int(14, title="ADX Period", minval=1)
+float  adxThreshold     = input.float(25.0, title="ADX Threshold", minval=0.0, step=1.0)
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SHARED INDICATORS
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODE: MACD CROSSOVER SIGNALS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Generates signals on MACD / Signal line crossovers.
+// Bullish when MACD crosses above Signal, bearish when below.
+
+[macdLine, macdSignal, macdHist] = ta.macd(close, fastLen, slowLen, signalLen)
+bool macdLong = enableMACD and (ta.crossover(macdLine, macdSignal))
+bool macdShort = enableMACD and (ta.crossunder(macdLine, macdSignal))
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODE: RSI STRATEGY SIGNALS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Generates buy signals when RSI crosses above oversold,
+// sell signals when RSI crosses below overbought.
+
+float rsiValue = ta.rsi(close, rsiPeriod)
+bool rsiLong = enableRSI and (ta.crossover(rsiValue, oversold))
+bool rsiShort = enableRSI and (ta.crossunder(rsiValue, overbought))
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODE: SMA CROSSOVER SIGNALS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Generates signals when a fast SMA crosses above or below
+// a slow SMA (Golden Cross / Death Cross).
+
+float smaFast = ta.sma(close, fastPeriod)
+float smaSlow = ta.sma(close, slowPeriod)
+bool smaLong = enableSMA and (ta.crossover(smaFast, smaSlow))
+bool smaShort = false
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODE: OBV TREND
+// ─────────────────────────────────────────────────────────────────────────────
+
+float obvRaw = ta.obv
+float obvSmoothed = ta.ema(obvRaw, obvSmooth)
+bool obvRising = obvSmoothed > obvSmoothed[1]
+bool obvFalling = obvSmoothed < obvSmoothed[1]
+bool obvCrossUp = obvRising and not obvRising[1]
+bool obvCrossDown = obvFalling and not obvFalling[1]
+bool obvLong = enableOBV and (obvCrossUp)
+bool obvShort = enableOBV and (obvCrossDown)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODE: ADX TREND
+// ─────────────────────────────────────────────────────────────────────────────
+
+[adxPlusDI, adxMinusDI, adxVal] = ta.dmi(adxPeriod, adxPeriod)
+bool adxLong = enableADX and (adxVal > adxThreshold and ta.crossover(adxPlusDI, adxMinusDI))
+bool adxShort = enableADX and (adxVal > adxThreshold and ta.crossover(adxMinusDI, adxPlusDI))
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SIGNAL AGGREGATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool longCondition = false
+bool shortCondition = false
+var string activeMode = ""
+
+longCondition := macdLong or rsiLong or smaLong or obvLong or adxLong
+shortCondition := macdShort or rsiShort or smaShort or obvShort or adxShort
+if macdLong or macdShort
+    activeMode := "MACD"
+if rsiLong or rsiShort
+    activeMode := "RSI"
+if smaLong or smaShort
+    activeMode := "SMA"
+if obvLong or obvShort
+    activeMode := "OBV"
+if adxLong or adxShort
+    activeMode := "ADX"
+
+// Position state: +1 = long, -1 = short, 0 = flat
+var int posState = 0
+
+bool buySignal      = longCondition and posState != 1
+bool sellSignal     = shortCondition and posState != -1
+bool exitLongSignal  = posState == 1 and (shortCondition)
+bool exitShortSignal = posState == -1 and (longCondition)
+
+// Update position state
+if buySignal
+    posState := 1
+else if sellSignal
+    posState := -1
+else if exitLongSignal or exitShortSignal
+    posState := 0
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LABELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+if showLabels
+    if buySignal
+        label.new(bar_index, low, activeMode + " Buy",
+             style=label.style_label_up,
+             color=color.green,
+             textcolor=color.white,
+             size=size.small)
+    if sellSignal
+        label.new(bar_index, high, activeMode + " Sell",
+             style=label.style_label_down,
+             color=color.red,
+             textcolor=color.white,
+             size=size.small)
+    if exitLongSignal
+        label.new(bar_index, high, "Exit Long",
+             style=label.style_label_down,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+    if exitShortSignal
+        label.new(bar_index, low, "Exit Short",
+             style=label.style_label_up,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BACKGROUND
+// ─────────────────────────────────────────────────────────────────────────────
+
+color bgColor = na
+
+if showBgColor
+    if posState == 1
+        bgColor := color.new(color.green, 90)
+    else if posState == -1
+        bgColor := color.new(color.red, 90)
+
+bgcolor(bgColor, title="Position Zone")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALERTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+alertcondition(buySignal,
+     title="Buy",
+     message="Signal Stack Composite: Buy signal triggered.")
+alertcondition(sellSignal,
+     title="Sell",
+     message="Signal Stack Composite: Sell signal triggered.")
+alertcondition(exitLongSignal,
+     title="Exit Long",
+     message="Signal Stack Composite: Exit Long signal.")
+alertcondition(exitShortSignal,
+     title="Exit Short",
+     message="Signal Stack Composite: Exit Short signal.")
+alertcondition((macdLong or macdShort),
+     title="MACD Crossover Signals Signal",
+     message="Signal Stack Composite: MACD Crossover Signals signal triggered.")
+alertcondition((rsiLong or rsiShort),
+     title="RSI Strategy Signals Signal",
+     message="Signal Stack Composite: RSI Strategy Signals signal triggered.")
+alertcondition((smaLong or smaShort),
+     title="SMA Crossover Signals Signal",
+     message="Signal Stack Composite: SMA Crossover Signals signal triggered.")
+alertcondition((obvLong or obvShort),
+     title="OBV Trend Signal",
+     message="Signal Stack Composite: OBV Trend signal triggered.")
+alertcondition((adxLong or adxShort),
+     title="ADX Trend Signal",
+     message="Signal Stack Composite: ADX Trend signal triggered.")
+alertcondition((buySignal or sellSignal or exitLongSignal or exitShortSignal),
+     title="Any Signal",
+     message="Signal Stack Composite: Signal triggered. Check chart.")

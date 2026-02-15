@@ -4,8 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.option_contract import OptionContract
-from stockdownloader.model.option_type import OptionType
+from stockdownloader.model.options import OptionContract, OptionType
 
 
 def _sample_call():

@@ -9,7 +9,7 @@ from decimal import Decimal
 from stockdownloader.model.price_data import PriceData
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class IntradayPriceData(PriceData):
     """Intraday OHLCV price data with datetime precision.
 

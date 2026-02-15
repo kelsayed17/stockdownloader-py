@@ -8,8 +8,15 @@ from __future__ import annotations
 
 import json
 import logging
-from decimal import Decimal
 
+import requests
+
+from stockdownloader.data.json_helpers import (
+    format_market_cap,
+    get_decimal,
+    get_long,
+    get_string,
+)
 from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
 from stockdownloader.model import QuoteData
 
@@ -48,7 +55,7 @@ class YahooFinanceClient:
                 resp = self._auth.session.get(url, timeout=15)
                 self._parse_quote_json(resp.text, data)
                 return data
-            except Exception as exc:
+            except (requests.RequestException, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
                 last_exc = exc
                 if attempt < _MAX_RETRIES:
                     logger.debug(
@@ -82,75 +89,35 @@ class YahooFinanceClient:
 
             quote = quote_response["result"][0]
 
-            data.price_sales = _get_decimal(quote, "priceToSalesTrailing12Months")
-            data.trailing_annual_dividend_yield = _get_decimal(
+            data.price_sales = get_decimal(quote, "priceToSalesTrailing12Months")
+            data.trailing_annual_dividend_yield = get_decimal(
                 quote, "trailingAnnualDividendYield"
             )
-            data.diluted_eps = _get_decimal(quote, "epsTrailingTwelveMonths")
-            data.eps_estimate_next_year = _get_decimal(quote, "epsForward")
-            data.last_trade_price_only = _get_decimal(quote, "regularMarketPrice")
-            data.year_high = _get_decimal(quote, "fiftyTwoWeekHigh")
-            data.year_low = _get_decimal(quote, "fiftyTwoWeekLow")
-            data.fifty_day_moving_average = _get_decimal(quote, "fiftyDayAverage")
-            data.two_hundred_day_moving_average = _get_decimal(
+            data.diluted_eps = get_decimal(quote, "epsTrailingTwelveMonths")
+            data.eps_estimate_next_year = get_decimal(quote, "epsForward")
+            data.last_trade_price_only = get_decimal(quote, "regularMarketPrice")
+            data.year_high = get_decimal(quote, "fiftyTwoWeekHigh")
+            data.year_low = get_decimal(quote, "fiftyTwoWeekLow")
+            data.fifty_day_moving_average = get_decimal(quote, "fiftyDayAverage")
+            data.two_hundred_day_moving_average = get_decimal(
                 quote, "twoHundredDayAverage"
             )
-            data.previous_close = _get_decimal(quote, "regularMarketPreviousClose")
-            data.open = _get_decimal(quote, "regularMarketOpen")
-            data.days_high = _get_decimal(quote, "regularMarketDayHigh")
-            data.days_low = _get_decimal(quote, "regularMarketDayLow")
-            data.volume = _get_decimal(quote, "regularMarketVolume")
+            data.previous_close = get_decimal(quote, "regularMarketPreviousClose")
+            data.open = get_decimal(quote, "regularMarketOpen")
+            data.days_high = get_decimal(quote, "regularMarketDayHigh")
+            data.days_low = get_decimal(quote, "regularMarketDayLow")
+            data.volume = get_decimal(quote, "regularMarketVolume")
 
-            data.year_range = _get_string(quote, "fiftyTwoWeekRange")
+            data.year_range = get_string(quote, "fiftyTwoWeekRange")
 
-            market_cap = _get_long(quote, "marketCap")
+            market_cap = get_long(quote, "marketCap")
             data.market_capitalization = market_cap
-            data.market_capitalization_str = _format_market_cap(market_cap)
+            data.market_capitalization_str = format_market_cap(market_cap)
 
             if data.last_trade_price_only < data.year_low:
                 data.year_low = data.last_trade_price_only
-        except Exception as exc:
+        except (json.JSONDecodeError, KeyError, TypeError, IndexError, ValueError) as exc:
             logger.warning(
                 "Error parsing Yahoo Finance quote JSON: %s", exc
             )
             data.incomplete = True
-
-
-# ------------------------------------------------------------------
-# Module-level helpers
-# ------------------------------------------------------------------
-
-
-def _get_decimal(obj: dict, field: str) -> Decimal:
-    val = obj.get(field)
-    if val is None:
-        return Decimal(0)
-    try:
-        return Decimal(str(val))
-    except Exception:
-        return Decimal(0)
-
-
-def _get_long(obj: dict, field: str) -> int:
-    val = obj.get(field)
-    if val is None:
-        return 0
-    try:
-        return int(val)
-    except (ValueError, TypeError):
-        return 0
-
-
-def _get_string(obj: dict, field: str) -> str:
-    val = obj.get(field)
-    if val is None:
-        return ""
-    return str(val)
-
-
-def _format_market_cap(market_cap: int) -> str:
-    if market_cap >= 1_000_000_000:
-        return f"{market_cap / 1_000_000_000:.2f}B"
-    elif market_cap >= 1_000_000:
-        return f"{market_cap / 1_000_000:.2f}M"
-    return str(market_cap)

@@ -15,11 +15,11 @@ import sys
 from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.backtest.options_backtest_report_formatter import OptionsBacktestReportFormatter
+from stockdownloader.backtest import report_formatter
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
 from stockdownloader.data.yahoo_data_client import YahooDataClient
-from stockdownloader.strategy.covered_call_strategy import CoveredCallStrategy
-from stockdownloader.strategy.protective_put_strategy import ProtectivePutStrategy
+from stockdownloader.strategy.options.covered_call_strategy import CoveredCallStrategy
+from stockdownloader.strategy.options.protective_put_strategy import ProtectivePutStrategy
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,27 @@ def main() -> None:
     )
     parser.add_argument("symbol", nargs="?", default="SPY", help="Ticker symbol (default: SPY)")
     parser.add_argument("--csv", dest="csv_file", default=None, help="Load data from CSV file")
+    parser.add_argument(
+        "--strategy",
+        default=None,
+        help="Run a single options strategy by name (e.g., covered-call, protective-put).",
+    )
+    parser.add_argument(
+        "--list-strategies",
+        action="store_true",
+        dest="list_strategies",
+        help="List all available options strategies and exit.",
+    )
     args = parser.parse_args()
+
+    if args.list_strategies:
+        from stockdownloader.strategy.registrations import ensure_registered
+        from stockdownloader.strategy.registry import StrategyRegistry
+        ensure_registered()
+        print("Available options strategies:")
+        for entry in StrategyRegistry.all_entries(category="options"):
+            print(f"  {entry.name:<20s}  {entry.display_name}")
+        return
 
     print("================================================")
     print("  Options Strategy Backtester")
@@ -91,27 +111,38 @@ def main() -> None:
     print(f"Commission: ${COMMISSION} per contract")
     print()
 
-    strategies = [
-        # Covered calls: varying OTM% and DTE
-        CoveredCallStrategy(20, Decimal("0.03"), 30, Decimal("0.03")),
-        CoveredCallStrategy(20, Decimal("0.05"), 30, Decimal("0.03")),
-        CoveredCallStrategy(50, Decimal("0.05"), 45, Decimal("0.04")),
-        # Protective puts: varying OTM% and DTE
-        ProtectivePutStrategy(20, Decimal("0.05"), 30, 5),
-        ProtectivePutStrategy(20, Decimal("0.03"), 45, 10),
-        ProtectivePutStrategy(50, Decimal("0.05"), 60, 10),
-    ]
+    if args.strategy:
+        from stockdownloader.strategy.registrations import ensure_registered
+        from stockdownloader.strategy.registry import StrategyRegistry
+        ensure_registered()
+        entry = StrategyRegistry.get(args.strategy)
+        if entry.category != "options":
+            print(f"ERROR: Strategy '{args.strategy}' is category '{entry.category}', "
+                  "not an options strategy.")
+            return
+        strategies = [StrategyRegistry.create(args.strategy)]
+    else:
+        strategies = [
+            # Covered calls: varying OTM% and DTE
+            CoveredCallStrategy(20, Decimal("0.03"), 30, Decimal("0.03")),
+            CoveredCallStrategy(20, Decimal("0.05"), 30, Decimal("0.03")),
+            CoveredCallStrategy(50, Decimal("0.05"), 45, Decimal("0.04")),
+            # Protective puts: varying OTM% and DTE
+            ProtectivePutStrategy(20, Decimal("0.05"), 30, 5),
+            ProtectivePutStrategy(20, Decimal("0.03"), 45, 10),
+            ProtectivePutStrategy(50, Decimal("0.05"), 60, 10),
+        ]
 
     engine = OptionsBacktestEngine(INITIAL_CAPITAL, COMMISSION)
     results = []
 
     for strategy in strategies:
-        print(f"Running options backtest: {strategy.get_name()}...")
+        print(f"Running options backtest: {strategy.name}...")
         result = engine.run(strategy, data)
         results.append(result)
-        OptionsBacktestReportFormatter.print_report(result)
+        report_formatter.print_options_report(result)
 
-    OptionsBacktestReportFormatter.print_comparison(results)
+    report_formatter.print_options_comparison(results)
 
 
 if __name__ == "__main__":

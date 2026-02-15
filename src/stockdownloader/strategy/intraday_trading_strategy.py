@@ -23,8 +23,9 @@ class IntradayTradingStrategy(ABC):
     internally (via ``IntradayPriceData.trading_date``).
     """
 
+    @property
     @abstractmethod
-    def get_name(self) -> str:
+    def name(self) -> str:
         """Return the display name of this strategy."""
 
     @abstractmethod
@@ -48,6 +49,30 @@ class IntradayTradingStrategy(ABC):
         change, but may also be invoked externally for explicit control.
         """
 
+    @property
     @abstractmethod
-    def get_warmup_period(self) -> int:
+    def warmup_period(self) -> int:
         """Return the number of bars needed before signals are valid."""
+
+    # ------------------------------------------------------------------
+    # Engine callbacks — non-abstract with default no-ops.
+    #
+    # The :class:`IntradayBacktestEngine` calls these after it actually
+    # opens or closes a position, allowing strategies that track position
+    # state internally to stay in sync with the engine's ground truth.
+    # ------------------------------------------------------------------
+
+    def on_position_opened(self, is_long: bool) -> None:
+        """Called by the engine after a position is successfully opened.
+
+        Strategies that track ``_in_position`` / ``_position_is_long``
+        should override this to set those flags **only** here, rather
+        than optimistically in :meth:`evaluate`.
+        """
+
+    def on_position_closed(self) -> None:
+        """Called by the engine after a position is closed.
+
+        Covers strategy-initiated EXIT signals, engine-level
+        force-closes (end-of-data), and any future SL/TP handling.
+        """
