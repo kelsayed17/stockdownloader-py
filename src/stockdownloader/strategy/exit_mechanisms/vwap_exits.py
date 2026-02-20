@@ -11,7 +11,7 @@ from stockdownloader.util.indicator_hub import IndicatorHub
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData
-    from stockdownloader.model.tournament_trade import TournamentTrade
+    from stockdownloader.model.trade import TournamentTrade
 
 
 # ============================================================================

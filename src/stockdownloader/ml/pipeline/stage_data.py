@@ -308,7 +308,7 @@ class DataStage:
         # --- Borrow rate ---
         if alt_cfg.enable_borrow_rate and si_records:
             try:
-                from stockdownloader.data.borrow_rate_proxy import (
+                from stockdownloader.data.borrow_rate import (
                     BorrowRateProxy,
                 )
 

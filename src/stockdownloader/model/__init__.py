@@ -22,7 +22,7 @@ from stockdownloader.model.alert_result import (
     PatternResult,
 )
 from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.tournament_trade import TournamentTrade
+from stockdownloader.model.trade import TournamentTrade
 from stockdownloader.model.exit_mechanism_result import (
     ExitMechanismTradeResult,
     ExitMechanismSummary,

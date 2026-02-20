@@ -102,7 +102,7 @@ def fetch_live_data(symbol='GME'):
 
     # 1. IBKR Borrow Rate (real, not estimated)
     try:
-        from stockdownloader.data.ibkr_borrow_rate_client import IbkrBorrowRateClient
+        from stockdownloader.data.borrow_rate import IbkrBorrowRateClient
         client = IbkrBorrowRateClient()
         rate = client.fetch_borrow_rate(symbol)
         if rate is not None:

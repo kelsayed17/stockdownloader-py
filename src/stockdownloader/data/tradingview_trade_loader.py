@@ -18,8 +18,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import BinaryIO
 
-from stockdownloader.model.tournament_trade import TournamentTrade
-from stockdownloader.model.trade import Direction
+from stockdownloader.model.trade import Direction, TournamentTrade
 from stockdownloader.util.big_decimal_math import ZERO
 
 logger = logging.getLogger(__name__)

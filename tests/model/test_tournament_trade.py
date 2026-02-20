@@ -4,8 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.tournament_trade import TournamentTrade
-from stockdownloader.model.trade import Direction
+from stockdownloader.model.trade import Direction, TournamentTrade
 
 
 def _make_trade(**overrides):

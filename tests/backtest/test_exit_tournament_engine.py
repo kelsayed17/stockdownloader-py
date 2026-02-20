@@ -6,8 +6,7 @@ import pytest
 
 from stockdownloader.backtest.exit_tournament_engine import ExitTournamentEngine
 from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.tournament_trade import TournamentTrade
-from stockdownloader.model.trade import Direction
+from stockdownloader.model.trade import Direction, TournamentTrade
 from stockdownloader.strategy.exit_mechanisms import TrailingStopExit
 
 

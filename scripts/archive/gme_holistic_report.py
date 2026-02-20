@@ -30,7 +30,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from stockdownloader.data.sec_ftd_client import SecFtdClient
-from stockdownloader.data.borrow_rate_proxy import BorrowRateProxy
+from stockdownloader.data.borrow_rate import BorrowRateProxy
 
 DATA_DIR = PROJECT_ROOT / "data"
 CACHE_DIR = DATA_DIR / "cache"

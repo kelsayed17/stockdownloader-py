@@ -22,7 +22,7 @@ from stockdownloader.util.big_decimal_math import ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData
-    from stockdownloader.model.tournament_trade import TournamentTrade
+    from stockdownloader.model.trade import TournamentTrade
 
 
 # =========================================================================

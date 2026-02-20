@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.data.yahoo_historical_client import YahooHistoricalClient
+from stockdownloader.data.yahoo_finance_client import YahooHistoricalClient
 from stockdownloader.model.unified_market_data import HistoricalData
 
 pytestmark = pytest.mark.live
