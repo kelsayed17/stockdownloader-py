@@ -9,7 +9,7 @@ import pytest
 
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
+from stockdownloader.data.data_parsers import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.trade import Trade, Direction, TradeStatus
 from stockdownloader.strategy.daily.macd_strategy import MACDStrategy

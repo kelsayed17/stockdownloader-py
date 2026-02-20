@@ -12,14 +12,13 @@ from typing import Sequence
 
 import requests
 
-from stockdownloader.data.json_helpers import (
+from stockdownloader.data.data_parsers import (
     format_market_cap,
     get_decimal,
     get_long,
     get_string,
 )
-from stockdownloader.data.yahoo_base_client import YahooBaseClient
-from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
+from stockdownloader.data.yahoo_base_client import YahooAuthHelper, YahooBaseClient
 from stockdownloader.model import QuoteData
 
 logger = logging.getLogger(__name__)

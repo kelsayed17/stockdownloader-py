@@ -13,9 +13,8 @@ import logging
 
 import requests
 
-from stockdownloader.data.json_helpers import get_raw_decimal, get_raw_long, get_raw_string
-from stockdownloader.data.yahoo_base_client import YahooBaseClient
-from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
+from stockdownloader.data.data_parsers import get_raw_decimal, get_raw_long, get_raw_string
+from stockdownloader.data.yahoo_base_client import YahooAuthHelper, YahooBaseClient
 from stockdownloader.model import DetailedFinancialData, FinancialData
 
 logger = logging.getLogger(__name__)

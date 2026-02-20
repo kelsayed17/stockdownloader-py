@@ -1,7 +1,7 @@
 """Tests for json_helpers utility functions."""
 from decimal import Decimal
 
-from stockdownloader.data.json_helpers import (
+from stockdownloader.data.data_parsers import (
     get_decimal,
     get_long,
     get_raw_decimal,

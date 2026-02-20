@@ -20,9 +20,8 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from stockdownloader.data.json_helpers import get_decimal_at, get_long_at
-from stockdownloader.data.yahoo_base_client import YahooBaseClient
-from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
+from stockdownloader.data.data_parsers import get_decimal_at, get_long_at
+from stockdownloader.data.yahoo_base_client import YahooAuthHelper, YahooBaseClient
 from stockdownloader.model import PriceData
 from stockdownloader.model.price_data import IntradayPriceData
 

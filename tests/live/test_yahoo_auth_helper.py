@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
+from stockdownloader.data.yahoo_base_client import YahooAuthHelper
 
 pytestmark = pytest.mark.live
 

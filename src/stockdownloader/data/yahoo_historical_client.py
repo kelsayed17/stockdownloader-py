@@ -12,8 +12,7 @@ from decimal import Decimal, ROUND_CEILING
 
 import requests
 
-from stockdownloader.data.yahoo_base_client import YahooBaseClient
-from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
+from stockdownloader.data.yahoo_base_client import YahooAuthHelper, YahooBaseClient
 from stockdownloader.model import HistoricalData
 
 logger = logging.getLogger(__name__)

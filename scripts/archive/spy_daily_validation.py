@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
+from stockdownloader.data.data_parsers import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.util.indicator_hub import IndicatorHub
 

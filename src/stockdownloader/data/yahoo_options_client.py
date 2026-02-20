@@ -19,7 +19,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from stockdownloader.data.json_helpers import (
+from stockdownloader.data.data_parsers import (
     get_boolean,
     get_decimal,
     get_long,
@@ -27,8 +27,7 @@ from stockdownloader.data.json_helpers import (
     get_raw_long,
     get_string,
 )
-from stockdownloader.data.yahoo_base_client import YahooBaseClient
-from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
+from stockdownloader.data.yahoo_base_client import YahooAuthHelper, YahooBaseClient
 from stockdownloader.model import OptionContract, OptionsChain, OptionType
 
 logger = logging.getLogger(__name__)
