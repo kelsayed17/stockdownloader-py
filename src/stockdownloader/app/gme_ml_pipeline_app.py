@@ -26,6 +26,7 @@ from stockdownloader.app._ml_helpers import (
     init_ml_env,
     run_ml_pipeline,
 )
+from stockdownloader.util.app_config import AppConfig
 from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
 
 logger = logging.getLogger(__name__)
@@ -130,18 +131,16 @@ def main(argv: list[str] | None = None) -> None:
 
     from stockdownloader.ml.pipeline.config import AltDataConfig
 
-    # Set API keys from CLI
-    if args.polygon_key:
-        os.environ["POLYGON_API_KEY"] = args.polygon_key
-    if args.finra_client_id:
-        os.environ["FINRA_CLIENT_ID"] = args.finra_client_id
-    if args.finra_client_secret:
-        os.environ["FINRA_CLIENT_SECRET"] = args.finra_client_secret
+    # Build centralized config — CLI flags override env vars
+    app_cfg = AppConfig.from_env(
+        polygon_api_key=args.polygon_key or "",
+        finra_client_id=args.finra_client_id or "",
+        finra_client_secret=args.finra_client_secret or "",
+    )
 
     # Polygon fetch
     if args.use_polygon:
-        polygon_key = os.environ.get("POLYGON_API_KEY", "")
-        if not polygon_key:
+        if not app_cfg.polygon_api_key:
             print("ERROR: Polygon API key required.", file=sys.stderr)
             sys.exit(1)
         print("Fetching daily data from Polygon.io...")
@@ -149,7 +148,7 @@ def main(argv: list[str] | None = None) -> None:
             from datetime import date as _date
             from stockdownloader.data.polygon_data_client import PolygonDataClient
 
-            client = PolygonDataClient(api_key=polygon_key)
+            client = PolygonDataClient(api_key=app_cfg.polygon_api_key)
             today = _date.today()
             range_map = {"1y": 365, "2y": 730, "5y": 1825, "10y": 3650, "max": 9000}
             days = range_map.get(args.range_, 3650)
@@ -172,8 +171,8 @@ def main(argv: list[str] | None = None) -> None:
             enable_ownership=not args.no_ownership,
             enable_borrow_rate=not args.no_borrow_rate,
             ftd_start_year=args.ftd_start_year,
-            finra_client_id=args.finra_client_id or "",
-            finra_client_secret=args.finra_client_secret or "",
+            finra_client_id=app_cfg.finra_client_id,
+            finra_client_secret=app_cfg.finra_client_secret,
         )
 
     # Auto-detect CSV
