@@ -751,11 +751,10 @@ class SecOwnershipClient:
                 top_10_concentration=top10_conc,
                 holdings=tuple(sorted_h),
             )
+            self._save_quarter_snapshot(symbol, year, quarter, snapshot)
+            return snapshot
         except ValueError:
             return None
-
-        self._save_quarter_snapshot(symbol, year, quarter, snapshot)
-        return snapshot
 
     # ------------------------------------------------------------------
     # HTTP helpers
