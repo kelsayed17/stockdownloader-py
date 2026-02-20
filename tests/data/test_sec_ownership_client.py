@@ -795,6 +795,24 @@ class TestLegacyTextParsing:
         result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
         assert result == []
 
+    def test_html_content_returns_empty(self) -> None:
+        """HTML content should be rejected."""
+        content = "<html><body>36467W109\t5000\t200000</body></html>"
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert result == []
+
+    def test_sgml_wrapped_content_is_accepted(self) -> None:
+        """Pre-2013 SGML container tags like <DOCUMENT> should NOT be rejected."""
+        content = (
+            "<DOCUMENT>\n"
+            "<TYPE>INFORMATION TABLE\n"
+            "GAMESTOP CORP\tCOM\t36467W109\t5000\t200000\tSH\n"
+            "</DOCUMENT>\n"
+        )
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert len(result) == 1
+        assert result[0].shares == 200000
+
     def test_multiple_holders_same_cusip(self) -> None:
         """Multiple institutions holding the same CUSIP."""
         content = (

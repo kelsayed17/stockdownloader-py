@@ -941,8 +941,11 @@ class SecOwnershipClient:
         Returns empty list if content looks like XML or CUSIP is absent.
         """
         # Skip XML content — that's handled by _parse_13f_xml.
+        # Only reject actual XML declarations and HTML; SGML container
+        # tags like <DOCUMENT> or <SEC-HEADER> are expected wrappers
+        # around text tables in pre-2013 EDGAR filings.
         stripped = content.lstrip()
-        if stripped.startswith("<?xml") or stripped.startswith("<"):
+        if stripped.startswith("<?xml") or stripped.startswith("<html"):
             return []
 
         cusip_upper = cusip.upper().replace(" ", "")
@@ -983,17 +986,13 @@ class SecOwnershipClient:
 
             # Convention: value is reported in $1000s (smaller number),
             # shares is the actual count (larger number).
-            # Sort ascending and take the two largest — but value < shares
-            # for any normal holding, so min=value, max=shares.
+            # Sort ascending and take the two largest: second-largest is
+            # value ($1000s), largest is shares.
             integers.sort()
             value_usd = integers[-2]  # second largest = value ($1000s)
             shares = integers[-1]     # largest = shares
 
-            # Sanity: if "value" > "shares", swap — could be reversed cols
-            if value_usd > shares:
-                value_usd, shares = shares, value_usd
-
-            # Extract the issuer/manager name from the first field.
+            # Extract the issuer name from the first field.
             name = fields[0].strip() if fields else "Unknown"
             if not name:
                 name = "Unknown"
