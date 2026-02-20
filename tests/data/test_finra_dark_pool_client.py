@@ -574,7 +574,9 @@ class TestDPCaching:
 
     def test_load_corrupt_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        cache_file = client._cache_dir / "CORRUPT_dp.json"
+        sym_dir = client._cache_dir / "CORRUPT"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        cache_file = sym_dir / "dp.json"
         cache_file.write_text("{{invalid json", encoding="utf-8")
         loaded = client._load_cache("CORRUPT")
         assert loaded is None
@@ -592,7 +594,60 @@ class TestDPCaching:
             ),
         ]
         client._save_cache("AAPL", records)
-        assert (client._cache_dir / "AAPL_dp.json").exists()
+        assert (client._cache_dir / "AAPL" / "dp.json").exists()
+
+    def test_save_creates_symbol_subdir(self, tmp_path: Path) -> None:
+        client = _make_client(tmp_path)
+        records = [
+            DarkPoolRecord(
+                week_ending="2024-01-12",
+                symbol="TSLA",
+                total_weekly_volume=200,
+                ats_volume=100,
+                otc_volume=100,
+                ats_pct=0.5,
+            ),
+        ]
+        client._save_cache("TSLA", records)
+        sym_dir = client._cache_dir / "TSLA"
+        assert sym_dir.is_dir()
+        assert (sym_dir / "dp.json").exists()
+
+    def test_legacy_migration_on_load(self, tmp_path: Path) -> None:
+        client = _make_client(tmp_path)
+        records = [
+            DarkPoolRecord(
+                week_ending="2024-01-12",
+                symbol="MSFT",
+                total_weekly_volume=300,
+                ats_volume=100,
+                otc_volume=200,
+                ats_pct=0.333,
+            ),
+        ]
+        # Write legacy flat file
+        import json as _json
+        legacy_file = client._cache_dir / "MSFT_dp.json"
+        legacy_file.write_text(
+            _json.dumps([{
+                "week_ending": r.week_ending,
+                "symbol": r.symbol,
+                "total_weekly_volume": r.total_weekly_volume,
+                "ats_volume": r.ats_volume,
+                "otc_volume": r.otc_volume,
+                "ats_pct": r.ats_pct,
+            } for r in records]),
+            encoding="utf-8",
+        )
+        assert legacy_file.exists()
+
+        loaded = client._load_cache("MSFT")
+        assert loaded is not None
+        assert len(loaded) == 1
+        assert loaded[0].symbol == "MSFT"
+        # Legacy file should have been moved
+        assert not legacy_file.exists()
+        assert (client._cache_dir / "MSFT" / "dp.json").exists()
 
 
 # ------------------------------------------------------------------

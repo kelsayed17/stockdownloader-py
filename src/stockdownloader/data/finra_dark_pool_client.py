@@ -33,6 +33,7 @@ import json
 import logging
 import os
 import time
+from pathlib import Path
 
 import requests
 
@@ -349,12 +350,27 @@ class FinraDarkPoolClient(BaseDataClient):
     # Caching
     # ------------------------------------------------------------------
 
+    def _symbol_cache_dir(self, symbol: str) -> Path:
+        """Return per-symbol cache subdirectory, creating it if needed."""
+        d = self._cache_dir / symbol.upper()
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def _load_cache(self, symbol: str) -> list[DarkPoolRecord] | None:
         """Load cached dark pool records for *symbol*.
 
         Returns ``None`` if no cache exists.
         """
-        cache_file = self._cache_dir / f"{symbol}_dp.json"
+        sym_dir = self._symbol_cache_dir(symbol)
+        cache_file = sym_dir / "dp.json"
+
+        # Legacy migration
+        if not cache_file.exists():
+            legacy = self._cache_dir / f"{symbol}_dp.json"
+            if legacy.exists():
+                legacy.rename(cache_file)
+                logger.info("Migrated %s → %s", legacy, cache_file)
+
         if not cache_file.exists():
             return None
 
@@ -385,7 +401,7 @@ class FinraDarkPoolClient(BaseDataClient):
         records: list[DarkPoolRecord],
     ) -> None:
         """Persist dark pool records to JSON cache."""
-        cache_file = self._cache_dir / f"{symbol}_dp.json"
+        cache_file = self._symbol_cache_dir(symbol) / "dp.json"
         data = [
             {
                 "week_ending": r.week_ending,
