@@ -99,17 +99,17 @@ class TestProperties:
         info = _make_info(ipo_date=date(2004, 6, 1))
         assert info.ftd_start_year == 2004
 
-    def test_ownership_start_year_after_2013(self) -> None:
+    def test_ownership_start_year_after_2003(self) -> None:
         info = _make_info(ipo_date=date(2020, 1, 1))
         assert info.ownership_start_year == 2020
 
-    def test_ownership_start_year_before_2013(self) -> None:
-        info = _make_info(ipo_date=date(2002, 2, 13))
-        assert info.ownership_start_year == 2013
+    def test_ownership_start_year_before_2003(self) -> None:
+        info = _make_info(ipo_date=date(1999, 2, 13))
+        assert info.ownership_start_year == 2003
 
-    def test_ownership_start_year_exactly_2013(self) -> None:
-        info = _make_info(ipo_date=date(2013, 6, 1))
-        assert info.ownership_start_year == 2013
+    def test_ownership_start_year_exactly_2003(self) -> None:
+        info = _make_info(ipo_date=date(2003, 6, 1))
+        assert info.ownership_start_year == 2003
 
 
 # ------------------------------------------------------------------

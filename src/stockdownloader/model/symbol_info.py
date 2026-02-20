@@ -69,12 +69,14 @@ class SymbolInfo:
 
     @property
     def ownership_start_year(self) -> int:
-        """Earliest useful year for 13F ownership data (floored at 2013).
+        """Earliest useful year for 13F ownership data (floored at 2003).
 
-        SEC bulk 13F data sets begin Q2 2013.  Pre-2013 filings use
-        SGML format that the current parser cannot handle.
+        SEC bulk 13F data sets begin Q2 2013, but EFTS full-text search
+        can find 13F-HR filings back to ~2001.  The legacy text parser
+        handles pre-2013 non-XML formats.  We use 2003 as the floor
+        because earlier filings are sparse and unreliable.
         """
-        return max(self.ipo_date.year, 2013)
+        return max(self.ipo_date.year, 2003)
 
 
 # ------------------------------------------------------------------
