@@ -29,15 +29,8 @@ from stockdownloader.analysis.signal_generator import generate_alert
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.backtest import report_formatter
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
-from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
-from stockdownloader.strategy.daily.bollinger_band_rsi_strategy import BollingerBandRSIStrategy
-from stockdownloader.strategy.daily.momentum_confluence_strategy import MomentumConfluenceStrategy
-from stockdownloader.strategy.daily.breakout_strategy import BreakoutStrategy
-from stockdownloader.strategy.daily.multi_indicator_strategy import MultiIndicatorStrategy
-from stockdownloader.strategy.options.covered_call_strategy import CoveredCallStrategy
-from stockdownloader.strategy.options.protective_put_strategy import ProtectivePutStrategy
+from stockdownloader.strategy.registrations import ensure_registered
+from stockdownloader.strategy.registry import StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -182,18 +175,20 @@ def main() -> None:
     print("\u255a" + "\u2550" * 66 + "\u255d")
     print()
 
+    ensure_registered()
+
     equity_strategies = [
         # Classic strategies
-        SMACrossoverStrategy(50, 200),
-        SMACrossoverStrategy(20, 50),
-        RSIStrategy(14, 30, 70),
-        RSIStrategy(14, 25, 75),
-        MACDStrategy(12, 26, 9),
+        StrategyRegistry.create("sma", short_period=50, long_period=200),
+        StrategyRegistry.create("sma", short_period=20, long_period=50),
+        StrategyRegistry.create("rsi", period=14, oversold=30.0, overbought=70.0),
+        StrategyRegistry.create("rsi", period=14, oversold=25.0, overbought=75.0),
+        StrategyRegistry.create("macd", fast_period=12, slow_period=26, signal_period=9),
         # Multi-indicator strategies
-        BollingerBandRSIStrategy(),
-        MomentumConfluenceStrategy(),
-        BreakoutStrategy(),
-        MultiIndicatorStrategy(),
+        StrategyRegistry.create("bollinger"),
+        StrategyRegistry.create("momentum"),
+        StrategyRegistry.create("breakout"),
+        StrategyRegistry.create("multi"),
     ]
 
     equity_engine = BacktestEngine(INITIAL_CAPITAL, EQUITY_COMMISSION)
@@ -222,12 +217,30 @@ def main() -> None:
     print()
 
     options_strategies = [
-        CoveredCallStrategy(20, Decimal("0.03"), 30, Decimal("0.03")),
-        CoveredCallStrategy(20, Decimal("0.05"), 30, Decimal("0.03")),
-        CoveredCallStrategy(50, Decimal("0.05"), 45, Decimal("0.04")),
-        ProtectivePutStrategy(20, Decimal("0.05"), 30, 5),
-        ProtectivePutStrategy(20, Decimal("0.03"), 45, 10),
-        ProtectivePutStrategy(50, Decimal("0.05"), 60, 10),
+        StrategyRegistry.create(
+            "covered-call", ma_period=20, otm_percent=Decimal("0.03"),
+            days_to_expiry=30, exit_threshold=Decimal("0.03"),
+        ),
+        StrategyRegistry.create(
+            "covered-call", ma_period=20, otm_percent=Decimal("0.05"),
+            days_to_expiry=30, exit_threshold=Decimal("0.03"),
+        ),
+        StrategyRegistry.create(
+            "covered-call", ma_period=50, otm_percent=Decimal("0.05"),
+            days_to_expiry=45, exit_threshold=Decimal("0.04"),
+        ),
+        StrategyRegistry.create(
+            "protective-put", ma_period=20, otm_percent=Decimal("0.05"),
+            days_to_expiry=30, momentum_lookback=5,
+        ),
+        StrategyRegistry.create(
+            "protective-put", ma_period=20, otm_percent=Decimal("0.03"),
+            days_to_expiry=45, momentum_lookback=10,
+        ),
+        StrategyRegistry.create(
+            "protective-put", ma_period=50, otm_percent=Decimal("0.05"),
+            days_to_expiry=60, momentum_lookback=10,
+        ),
     ]
 
     options_engine = OptionsBacktestEngine(INITIAL_CAPITAL, OPTIONS_COMMISSION)
