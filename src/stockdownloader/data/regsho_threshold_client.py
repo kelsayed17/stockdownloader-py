@@ -353,8 +353,23 @@ class RegShoThresholdClient:
     # Caching
     # ------------------------------------------------------------------
 
+    def _symbol_cache_dir(self, symbol: str) -> Path:
+        """Return per-symbol cache subdirectory, creating it if needed."""
+        d = self._cache_dir / symbol.upper()
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def _load_cache(self, symbol: str) -> list[ThresholdRecord] | None:
-        cache_file = self._cache_dir / f"{symbol}_threshold.json"
+        sym_dir = self._symbol_cache_dir(symbol)
+        cache_file = sym_dir / "threshold.json"
+
+        # Legacy migration
+        if not cache_file.exists():
+            legacy = self._cache_dir / f"{symbol}_threshold.json"
+            if legacy.exists():
+                legacy.rename(cache_file)
+                logger.info("Migrated %s → %s", legacy, cache_file)
+
         if not cache_file.exists():
             return None
         try:
@@ -371,7 +386,7 @@ class RegShoThresholdClient:
     def _save_cache(
         self, symbol: str, records: list[ThresholdRecord]
     ) -> None:
-        cache_file = self._cache_dir / f"{symbol}_threshold.json"
+        cache_file = self._symbol_cache_dir(symbol) / "threshold.json"
         try:
             cache_file.write_text(
                 json.dumps(
