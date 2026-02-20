@@ -41,7 +41,7 @@ import logging
 import time
 import zipfile
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
@@ -161,13 +161,52 @@ class SplitAdjustment:
     split_ratio: Decimal
 
 
-# Registry of well-known stock splits that affect FTD data.  Callers can
-# extend this at runtime via the *extra_splits* parameter on
-# :meth:`SecFtdClient.fetch_ftd_data`.
+# Registry of well-known stock splits that affect FTD and 13F data.
+# Callers can extend this at runtime via the *extra_splits* parameter.
 _KNOWN_SPLITS: list[SplitAdjustment] = [
     SplitAdjustment(
         symbol="GME",
         split_date=date(2022, 7, 22),
+        split_ratio=Decimal("4"),
+    ),
+    SplitAdjustment(
+        symbol="AAPL",
+        split_date=date(2020, 8, 31),
+        split_ratio=Decimal("4"),
+    ),
+    SplitAdjustment(
+        symbol="TSLA",
+        split_date=date(2022, 8, 25),
+        split_ratio=Decimal("3"),
+    ),
+    SplitAdjustment(
+        symbol="TSLA",
+        split_date=date(2020, 8, 31),
+        split_ratio=Decimal("5"),
+    ),
+    SplitAdjustment(
+        symbol="AMZN",
+        split_date=date(2022, 6, 6),
+        split_ratio=Decimal("20"),
+    ),
+    SplitAdjustment(
+        symbol="GOOGL",
+        split_date=date(2022, 7, 18),
+        split_ratio=Decimal("20"),
+    ),
+    SplitAdjustment(
+        symbol="GOOG",
+        split_date=date(2022, 7, 18),
+        split_ratio=Decimal("20"),
+    ),
+    SplitAdjustment(
+        symbol="NVDA",
+        split_date=date(2024, 6, 10),
+        split_ratio=Decimal("10"),
+    ),
+    SplitAdjustment(
+        symbol="NVDA",
+        split_date=date(2021, 7, 20),
         split_ratio=Decimal("4"),
     ),
 ]
@@ -227,18 +266,16 @@ class SecFtdClient:
 
         symbol_upper = symbol.upper()
 
-        # Build the combined splits list and look up the one for this symbol.
+        # Build the combined splits list for this symbol (may be multiple).
         all_splits = _KNOWN_SPLITS + (extra_splits or [])
-        split = next(
-            (s for s in all_splits if s.symbol == symbol_upper), None,
-        )
+        splits = [s for s in all_splits if s.symbol == symbol_upper]
         all_records: list[FtdRecord] = []
 
         # Phase 1: Quarterly archives (Q1 2004 -- Q2 2009)
         if start_year <= _QUARTERLY_LAST[0]:
             all_records.extend(
                 self._fetch_quarterly_era(
-                    symbol_upper, start_year, end_year, split,
+                    symbol_upper, start_year, end_year, splits,
                 ),
             )
 
@@ -247,7 +284,7 @@ class SecFtdClient:
         if hm_start_year <= end_year:
             all_records.extend(
                 self._fetch_half_month_era(
-                    symbol_upper, hm_start_year, end_year, split,
+                    symbol_upper, hm_start_year, end_year, splits,
                 ),
             )
 
@@ -263,7 +300,7 @@ class SecFtdClient:
         symbol: str,
         start_year: int,
         end_year: int,
-        split: SplitAdjustment | None,
+        splits: list[SplitAdjustment],
     ) -> list[FtdRecord]:
         """Fetch from the quarterly archive era (Q1 2004 -- Q2 2009)."""
         records: list[FtdRecord] = []
@@ -283,7 +320,7 @@ class SecFtdClient:
                     continue
                 for content in contents:
                     records.extend(
-                        self._parse_ftd_file(content, symbol, split=split),
+                        self._parse_ftd_file(content, symbol, splits=splits),
                     )
         return records
 
@@ -292,7 +329,7 @@ class SecFtdClient:
         symbol: str,
         start_year: int,
         end_year: int,
-        split: SplitAdjustment | None,
+        splits: list[SplitAdjustment],
     ) -> list[FtdRecord]:
         """Fetch from the half-month archive era (Jul 2009 -- present)."""
         records: list[FtdRecord] = []
@@ -317,7 +354,7 @@ class SecFtdClient:
                         )
                         continue
                     records.extend(
-                        self._parse_ftd_file(content, symbol, split=split),
+                        self._parse_ftd_file(content, symbol, splits=splits),
                     )
         return records
 
@@ -442,6 +479,7 @@ class SecFtdClient:
         symbol: str,
         *,
         split: SplitAdjustment | None = None,
+        splits: list[SplitAdjustment] | None = None,
     ) -> list[FtdRecord]:
         """Parse pipe-delimited FTD text and filter by *symbol*.
 
@@ -452,9 +490,16 @@ class SecFtdClient:
         symbol:
             Ticker to filter for (already upper-cased).
         split:
-            Optional :class:`SplitAdjustment` to apply.  Records with a
-            settlement date **before** the split date will have their
-            quantity multiplied and price divided by the split ratio.
+            *Deprecated* — single :class:`SplitAdjustment`.  Prefer
+            *splits* for stocks with multiple historical splits.
+            Kept for backward compatibility.
+        splits:
+            List of :class:`SplitAdjustment` objects to apply.  Each
+            split whose cutoff date (``split_date + 4 days``) is after
+            the settlement date will be applied, multiplying quantity
+            and dividing price by the split ratio.  Splits are applied
+            chronologically (newest first) so that the combined effect
+            is cumulative.
 
         Returns
         -------
@@ -463,9 +508,26 @@ class SecFtdClient:
         records: list[FtdRecord] = []
         lines = content.splitlines()
 
-        # Pre-format the split date for fast string comparison (dates in
-        # ISO format are comparable as strings).
-        split_date_str = split.split_date.isoformat() if split else None
+        # Normalise into a single list, merging legacy `split` with `splits`.
+        all_splits: list[SplitAdjustment] = list(splits or [])
+        if split is not None and split not in all_splits:
+            all_splits.append(split)
+
+        # Pre-compute cutoff strings for each split.  We sort newest
+        # first so the outer loop processes the most-recent split first.
+        # Use split_date + 4 calendar days (~3 business days) to cover
+        # T+2 settlement: trades executed pre-split may settle a few
+        # days after the ex-date with pre-split prices/quantities.
+        split_cutoffs: list[tuple[str, Decimal]] = sorted(
+            [
+                (
+                    (s.split_date + timedelta(days=4)).isoformat(),
+                    s.split_ratio,
+                )
+                for s in all_splits
+            ],
+            reverse=True,  # newest split first
+        )
 
         for line in lines:
             # Skip header and blank lines
@@ -507,11 +569,14 @@ class SecFtdClient:
             except InvalidOperation:
                 price = Decimal("0")
 
-            # Apply split adjustment for records before the split date
-            if split_date_str and settlement_date < split_date_str:
-                quantity = int(Decimal(quantity) * split.split_ratio)
-                if price > 0:
-                    price = price / split.split_ratio
+            # Apply ALL applicable splits cumulatively.
+            # For each split whose cutoff is *after* the settlement
+            # date, multiply quantity and divide price.
+            for cutoff_str, ratio in split_cutoffs:
+                if settlement_date < cutoff_str:
+                    quantity = int(Decimal(quantity) * ratio)
+                    if price > 0:
+                        price = price / ratio
 
             try:
                 records.append(FtdRecord(

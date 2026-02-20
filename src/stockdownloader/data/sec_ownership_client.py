@@ -33,6 +33,7 @@ from pathlib import Path
 
 import requests
 
+from stockdownloader.data.sec_ftd_client import SplitAdjustment, _KNOWN_SPLITS
 from stockdownloader.model.regulatory_records import (
     InstitutionalHolding,
     OwnershipSnapshot,
@@ -182,9 +183,10 @@ class SecOwnershipClient:
         self,
         symbol: str,
         cusip: str = _GME_CUSIP,
-        num_quarters: int = 24,
+        num_quarters: int = 100,
         *,
         force_refresh: bool = False,
+        extra_splits: list[SplitAdjustment] | None = None,
     ) -> list[OwnershipSnapshot]:
         """Fetch institutional ownership snapshots for *symbol*.
 
@@ -202,11 +204,16 @@ class SecOwnershipClient:
             Maximum number of quarterly snapshots to return.
         force_refresh:
             If ``True``, ignore the JSON cache and re-download.
+        extra_splits:
+            Additional stock splits to apply.  Well-known splits
+            (see :data:`_KNOWN_SPLITS` in ``sec_ftd_client``) are
+            applied automatically.
 
         Returns
         -------
         List of :class:`OwnershipSnapshot` sorted by ``quarter_end``
-        ascending.
+        ascending.  Share counts are split-adjusted so that pre-split
+        quarters are comparable to post-split quarters.
         """
         symbol_upper = symbol.upper()
 
@@ -266,9 +273,22 @@ class SecOwnershipClient:
             quarters_fetched += 1
             year, quarter = _prev_quarter(year, quarter)
 
-            # Stop if we go before 2013 Q3 (bulk data starts here)
-            if year < 2013 or (year == 2013 and quarter < 3):
+            # Stop if we go before Q2 2013 (earliest bulk data)
+            if year < 2013 or (year == 2013 and quarter < 2):
                 break
+
+        # Apply split adjustments so pre-split share counts are
+        # comparable to post-split counts.  A stock may have multiple
+        # historical splits (e.g. TSLA 5:1 in 2020 and 3:1 in 2022).
+        all_splits = _KNOWN_SPLITS + (extra_splits or [])
+        symbol_splits = [
+            s for s in all_splits if s.symbol == symbol_upper
+        ]
+        for split in symbol_splits:
+            snapshots = [
+                _apply_split_to_snapshot(snap, split)
+                for snap in snapshots
+            ]
 
         snapshots.sort(key=lambda s: s.quarter_end)
 
@@ -1000,6 +1020,47 @@ def _filing_date_to_quarter_end(filing_date: str) -> str:
     if month <= 11:
         return f"{year}-09-30"
     return f"{year}-12-31"
+
+
+def _apply_split_to_snapshot(
+    snap: OwnershipSnapshot,
+    split: SplitAdjustment,
+) -> OwnershipSnapshot:
+    """Apply a stock split adjustment to an ownership snapshot.
+
+    If the snapshot's quarter-end date falls **before** the split date,
+    share counts are multiplied and per-share values divided by the
+    split ratio so that pre-split quarters are comparable to post-split.
+    """
+    split_date_str = split.split_date.isoformat()
+    if snap.quarter_end >= split_date_str:
+        return snap  # post-split — no adjustment needed
+
+    ratio = int(split.split_ratio)
+    adjusted_holdings = tuple(
+        InstitutionalHolding(
+            filing_date=h.filing_date,
+            manager_name=h.manager_name,
+            manager_cik=h.manager_cik,
+            shares=h.shares * ratio,
+            value_usd=h.value_usd,  # dollar value unchanged
+            share_class=h.share_class,
+        )
+        for h in snap.holdings
+    )
+    total_shares = sum(h.shares for h in adjusted_holdings)
+    sorted_h = sorted(adjusted_holdings, key=lambda h: h.shares, reverse=True)
+    top10 = sum(h.shares for h in sorted_h[:10])
+    top10_conc = top10 / total_shares if total_shares > 0 else 0.0
+
+    return OwnershipSnapshot(
+        quarter_end=snap.quarter_end,
+        symbol=snap.symbol,
+        total_institutional_shares=total_shares,
+        num_institutions=snap.num_institutions,
+        top_10_concentration=top10_conc,
+        holdings=tuple(sorted_h),
+    )
 
 
 def _prev_quarter(year: int, quarter: int) -> tuple[int, int]:

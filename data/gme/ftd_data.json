@@ -28027,17 +28027,17 @@
     "settlement_date": "2022-07-22",
     "symbol": "GME",
     "cusip": "36467W109",
-    "quantity": 276992,
+    "quantity": 1107968,
     "description": "GAMESTOP CORP (HLDG CO) CL A",
-    "price": "153.47"
+    "price": "38.3675"
   },
   {
     "settlement_date": "2022-07-25",
     "symbol": "GME",
     "cusip": "36467W109",
-    "quantity": 244731,
+    "quantity": 978924,
     "description": "GAMESTOP CORP (HLDG CO) CL A",
-    "price": "143.12"
+    "price": "35.78"
   },
   {
     "settlement_date": "2022-07-26",

@@ -43,7 +43,7 @@ _FTD_ROWS_PRE_SPLIT = """\
 
 _FTD_ROWS_POST_SPLIT = """\
 {header}
-20220725|36467W109|GME|100000|GAMESTOP CORP NEW CL A|35.00
+20220727|36467W109|GME|100000|GAMESTOP CORP NEW CL A|35.00
 20220801|36467W109|GME|120000|GAMESTOP CORP NEW CL A|33.50
 """.format(header=_FTD_HEADER)
 
@@ -217,6 +217,123 @@ class TestSplitAdjustment:
         assert len(records) == 1
         assert records[0].quantity == 9000 * 3
         assert records[0].price == Decimal("900.00") / 3
+
+
+# ------------------------------------------------------------------
+# Tests: Multiple splits per symbol (e.g. TSLA 5:1 + 3:1)
+# ------------------------------------------------------------------
+
+
+class TestMultiSplitAdjustment:
+    """Tests for cumulative multi-split adjustment via `splits` param."""
+
+    # TSLA had 5:1 on 2020-08-31 and 3:1 on 2022-08-25.
+    _TSLA_SPLITS = [
+        SplitAdjustment(
+            symbol="TSLA",
+            split_date=date(2020, 8, 31),
+            split_ratio=Decimal("5"),
+        ),
+        SplitAdjustment(
+            symbol="TSLA",
+            split_date=date(2022, 8, 25),
+            split_ratio=Decimal("3"),
+        ),
+    ]
+
+    def test_pre_both_splits_applies_both(self) -> None:
+        """A date before both splits should get both ratios applied."""
+        content = (
+            "SETTLEMENT DATE|CUSIP|SYMBOL|QUANTITY (FAILS)|DESCRIPTION|PRICE\n"
+            "20200101|88160R101|TSLA|1000|TESLA INC|300.00\n"
+        )
+        records = SecFtdClient._parse_ftd_file(
+            content, "TSLA", splits=self._TSLA_SPLITS,
+        )
+        assert len(records) == 1
+        # Both splits apply: 1000 * 5 * 3 = 15000
+        assert records[0].quantity == 1000 * 5 * 3
+        # Price: 300 / 5 / 3 = 20.00
+        assert records[0].price == Decimal("300.00") / 5 / 3
+
+    def test_between_splits_applies_only_later(self) -> None:
+        """A date after the 5:1 but before the 3:1 gets only the 3:1."""
+        content = (
+            "SETTLEMENT DATE|CUSIP|SYMBOL|QUANTITY (FAILS)|DESCRIPTION|PRICE\n"
+            "20210601|88160R101|TSLA|1000|TESLA INC|600.00\n"
+        )
+        records = SecFtdClient._parse_ftd_file(
+            content, "TSLA", splits=self._TSLA_SPLITS,
+        )
+        assert len(records) == 1
+        # Only the 3:1 split applies: 1000 * 3 = 3000
+        assert records[0].quantity == 1000 * 3
+        assert records[0].price == Decimal("600.00") / 3
+
+    def test_after_all_splits_no_adjustment(self) -> None:
+        """A date after both splits should have no adjustment."""
+        content = (
+            "SETTLEMENT DATE|CUSIP|SYMBOL|QUANTITY (FAILS)|DESCRIPTION|PRICE\n"
+            "20230101|88160R101|TSLA|1000|TESLA INC|120.00\n"
+        )
+        records = SecFtdClient._parse_ftd_file(
+            content, "TSLA", splits=self._TSLA_SPLITS,
+        )
+        assert len(records) == 1
+        assert records[0].quantity == 1000
+        assert records[0].price == Decimal("120.00")
+
+    def test_empty_splits_list_no_adjustment(self) -> None:
+        """An empty splits list should not adjust anything."""
+        content = (
+            "SETTLEMENT DATE|CUSIP|SYMBOL|QUANTITY (FAILS)|DESCRIPTION|PRICE\n"
+            "20200101|88160R101|TSLA|1000|TESLA INC|300.00\n"
+        )
+        records = SecFtdClient._parse_ftd_file(
+            content, "TSLA", splits=[],
+        )
+        assert len(records) == 1
+        assert records[0].quantity == 1000
+        assert records[0].price == Decimal("300.00")
+
+    def test_legacy_split_param_still_works(self) -> None:
+        """The deprecated `split` param should still apply correctly."""
+        single = SplitAdjustment(
+            symbol="TSLA",
+            split_date=date(2022, 8, 25),
+            split_ratio=Decimal("3"),
+        )
+        content = (
+            "SETTLEMENT DATE|CUSIP|SYMBOL|QUANTITY (FAILS)|DESCRIPTION|PRICE\n"
+            "20220101|88160R101|TSLA|1000|TESLA INC|600.00\n"
+        )
+        records = SecFtdClient._parse_ftd_file(
+            content, "TSLA", split=single,
+        )
+        assert records[0].quantity == 3000
+
+    def test_split_and_splits_merged(self) -> None:
+        """When both `split` and `splits` are provided, they merge."""
+        older = SplitAdjustment(
+            symbol="TSLA",
+            split_date=date(2020, 8, 31),
+            split_ratio=Decimal("5"),
+        )
+        newer = SplitAdjustment(
+            symbol="TSLA",
+            split_date=date(2022, 8, 25),
+            split_ratio=Decimal("3"),
+        )
+        content = (
+            "SETTLEMENT DATE|CUSIP|SYMBOL|QUANTITY (FAILS)|DESCRIPTION|PRICE\n"
+            "20200101|88160R101|TSLA|1000|TESLA INC|300.00\n"
+        )
+        # Pass older as legacy `split`, newer in `splits` list
+        records = SecFtdClient._parse_ftd_file(
+            content, "TSLA", split=older, splits=[newer],
+        )
+        # Both should apply: 1000 * 5 * 3 = 15000
+        assert records[0].quantity == 15000
 
 
 # ------------------------------------------------------------------
