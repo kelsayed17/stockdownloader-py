@@ -34,9 +34,9 @@ options-backtest = "stockdownloader.app.backtest_app:main_options"
 dmi-vwap-backtest = "stockdownloader.app.backtest_app:main_dmi_vwap"
 symbol-analysis = "stockdownloader.app.symbol_analysis_app:main"
 # ── Tournaments ───────────────────────────────────────────────────
-grand-tournament = "stockdownloader.app.tournament_app:main_walkforward"
-multi-timeframe-tournament = "stockdownloader.app.tournament_app:main_baseline"
-multi-timeframe-optimizer = "stockdownloader.app.tournament_app:main_greedy"
+grand-tournament = "stockdownloader.app.tournament.cli:main_walkforward"
+multi-timeframe-tournament = "stockdownloader.app.tournament.cli:main_baseline"
+multi-timeframe-optimizer = "stockdownloader.app.tournament.cli:main_greedy"
 exit-tournament = "stockdownloader.app.exit_tournament_app:main"
 signal-stack-tournament = "stockdownloader.app.signal_stack_tournament:main"
 # ── ML pipelines ────────────────────────────────────────────────

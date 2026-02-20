@@ -6,12 +6,14 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from stockdownloader.app.tournament_app import (
+from stockdownloader.app.tournament.cli import (
+    _parse_args,
+    main,
+)
+from stockdownloader.app.tournament.helpers import (
     _box_title,
     _build_skip_set,
-    _parse_args,
     _status_label,
-    main,
 )
 from stockdownloader.backtest.tournament_engine import ComboKey, ComboResult
 
