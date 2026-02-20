@@ -314,7 +314,7 @@ class HybridStage:
 
                 try:
                     base = StrategyRegistry.create(pair.strategy_name)
-                except Exception:
+                except (KeyError, ValueError):
                     continue
 
                 label = (

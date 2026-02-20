@@ -360,7 +360,7 @@ class BarEncoder:
         try:
             dt = bar.datetime_parsed
             dow = dt.weekday()
-        except Exception:
+        except (ValueError, AttributeError):
             dow = 0
 
         # ── Trend direction ───────────────────────────────────────────
@@ -391,7 +391,7 @@ class BarEncoder:
                 rsi_zone = "overbought"
             else:
                 rsi_zone = "neutral"
-        except Exception:
+        except (ValueError, TypeError, KeyError, IndexError, ZeroDivisionError):
             pass
 
         try:
@@ -404,13 +404,13 @@ class BarEncoder:
                     vwap_position = "above"
                 else:
                     vwap_position = "below"
-        except Exception:
+        except (ValueError, TypeError, KeyError, IndexError, ZeroDivisionError):
             pass
 
         try:
             obv_rising = self._hub.is_obv_rising(data, index, 5)
             obv_trend = "rising" if obv_rising else "falling"
-        except Exception:
+        except (ValueError, TypeError, KeyError, IndexError):
             pass
 
         try:
@@ -422,20 +422,20 @@ class BarEncoder:
                 adx_level = "strong"
             else:
                 adx_level = "moderate"
-        except Exception:
+        except (ValueError, TypeError, KeyError, IndexError, ZeroDivisionError):
             pass
 
         try:
             macd_hist = self._hub.macd_histogram(data, index)
             macd_signal = "bullish" if macd_hist > ZERO else "bearish"
-        except Exception:
+        except (ValueError, TypeError, KeyError, IndexError, ZeroDivisionError):
             pass
 
         # ── HTF trend ────────────────────────────────────────────────
         htf_trend: int | None = None
         try:
             htf_trend = self._hub.htf_ema_trend(data, index)
-        except Exception:
+        except (ValueError, TypeError, KeyError, IndexError):
             pass
 
         # ── CVD direction ────────────────────────────────────────────
@@ -448,7 +448,7 @@ class BarEncoder:
                 cvd_direction = "selling"
             else:
                 cvd_direction = "neutral"
-        except Exception:
+        except (ValueError, TypeError, KeyError, IndexError):
             pass
 
         return PatternContext(

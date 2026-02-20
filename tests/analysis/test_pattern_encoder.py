@@ -537,13 +537,13 @@ class TestPatternContextIndicators:
     def test_indicator_error_leaves_none(self):
         """If an indicator raises, its field should remain None."""
         hub = _make_hub()
-        hub.rsi.side_effect = Exception("No data")
-        hub.adx.side_effect = Exception("No data")
-        hub.is_obv_rising.side_effect = Exception("No data")
-        hub.macd_histogram.side_effect = Exception("No data")
-        hub.session_vwap.side_effect = Exception("No data")
-        hub.htf_ema_trend.side_effect = Exception("No data")
-        hub.cvd_normalized.side_effect = Exception("No data")
+        hub.rsi.side_effect = ValueError("No data")
+        hub.adx.side_effect = ValueError("No data")
+        hub.is_obv_rising.side_effect = ValueError("No data")
+        hub.macd_histogram.side_effect = ValueError("No data")
+        hub.session_vwap.side_effect = ValueError("No data")
+        hub.htf_ema_trend.side_effect = ValueError("No data")
+        hub.cvd_normalized.side_effect = ValueError("No data")
         encoder = BarEncoder(hub)
         bar = _make_bar(100.0, 101.0, 99.0, 100.5)
         ctx = encoder.encode_context([bar], 0, bar_of_day=5)
@@ -598,7 +598,7 @@ class TestPatternContextHTFAndCVD:
 
     def test_htf_trend_error_leaves_none(self):
         hub = _make_hub()
-        hub.htf_ema_trend.side_effect = Exception("Not enough data")
+        hub.htf_ema_trend.side_effect = ValueError("Not enough data")
         hub.cvd_normalized.return_value = Decimal("0.0")
         hub.rsi.return_value = Decimal("50.0")
         hub.adx.return_value = MagicMock(adx=Decimal("25.0"))
@@ -651,7 +651,7 @@ class TestPatternContextHTFAndCVD:
     def test_cvd_direction_error_leaves_none(self):
         hub = _make_hub()
         hub.htf_ema_trend.return_value = 0
-        hub.cvd_normalized.side_effect = Exception("Not enough data")
+        hub.cvd_normalized.side_effect = ValueError("Not enough data")
         hub.rsi.return_value = Decimal("50.0")
         hub.adx.return_value = MagicMock(adx=Decimal("25.0"))
         hub.is_obv_rising.return_value = True

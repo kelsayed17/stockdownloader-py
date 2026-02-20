@@ -68,7 +68,7 @@ class ConvergenceStage:
             for entry in StrategyRegistry.all_entries(category=cat):
                 try:
                     strategies[entry.name] = StrategyRegistry.create(entry.name)
-                except Exception:
+                except (KeyError, ValueError):
                     continue
 
         if not strategies:
@@ -138,7 +138,7 @@ class ConvergenceStage:
                 X_row = dataset.X[sample_i: sample_i + 1]
                 proba = model.predict_proba(X_row)
                 predictions[bar_i] = float(proba[0, 1])
-            except Exception:
+            except (ValueError, IndexError, TypeError):
                 predictions[bar_i] = 0.5
 
         return predictions
@@ -177,7 +177,7 @@ class ConvergenceStage:
             # Strategy signal
             try:
                 signal = strategy.evaluate(data, bar_i)  # type: ignore[attr-defined]
-            except Exception:
+            except (ValueError, IndexError, KeyError, ZeroDivisionError):
                 continue
 
             if signal == Signal.HOLD:

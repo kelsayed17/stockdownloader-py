@@ -426,7 +426,7 @@ class BacktestStage:
 
                     is_scores.append(is_score)
                     oos_scores.append(oos_score)
-            except Exception:
+            except (ValueError, ZeroDivisionError, ArithmeticError, KeyError):
                 continue
 
         if not oos_scores:
@@ -653,6 +653,6 @@ class BacktestStage:
                 strat = StrategyRegistry.create(reg.name)
                 if strat.name == entry.strategy_name:
                     return strat
-        except Exception:
+        except (KeyError, ValueError, ImportError):
             pass
         return None

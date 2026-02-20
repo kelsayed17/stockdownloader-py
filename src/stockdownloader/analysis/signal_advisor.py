@@ -387,7 +387,7 @@ class SignalAdvisor:
         try:
             from stockdownloader.ml.predictor import MLPredictor
             return MLPredictor.from_path(self._cfg.ml_model_path, hub=self._hub)
-        except Exception:
+        except (ImportError, OSError, ValueError, KeyError):
             import logging
             logging.getLogger(__name__).debug(
                 "Failed to load ML model from %s",

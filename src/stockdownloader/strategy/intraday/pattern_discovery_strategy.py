@@ -159,7 +159,7 @@ class PatternDiscoveryStrategy(IntradayTradingStrategy):
                     return None
                 if go_short and htf_trend > 0:
                     return None
-            except Exception:
+            except (ValueError, KeyError, IndexError):
                 pass  # skip gate if HTF trend unavailable
         if not go_long and not go_short:
             return None
@@ -256,7 +256,7 @@ class PatternDiscoveryStrategy(IntradayTradingStrategy):
                         self._data, self._idx, 5,
                     )
                     actual = "rising" if obv_rising else "falling"
-                except Exception:
+                except (ValueError, KeyError, IndexError):
                     continue  # skip if hub can't compute
 
             elif field == "macd_signal":
@@ -265,7 +265,7 @@ class PatternDiscoveryStrategy(IntradayTradingStrategy):
                         self._data, self._idx,
                     )
                     actual = "bullish" if macd_hist > ZERO else "bearish"
-                except Exception:
+                except (ValueError, KeyError, IndexError):
                     continue
 
             elif field == "htf_trend":
@@ -274,7 +274,7 @@ class PatternDiscoveryStrategy(IntradayTradingStrategy):
                         self._data, self._idx,
                     )
                     actual = str(htf)
-                except Exception:
+                except (ValueError, KeyError, IndexError):
                     continue
 
             elif field == "cvd_direction":
@@ -288,7 +288,7 @@ class PatternDiscoveryStrategy(IntradayTradingStrategy):
                         actual = "selling"
                     else:
                         actual = "neutral"
-                except Exception:
+                except (ValueError, KeyError, IndexError):
                     continue
 
             else:

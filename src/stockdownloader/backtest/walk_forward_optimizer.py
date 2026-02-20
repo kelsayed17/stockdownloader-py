@@ -267,7 +267,7 @@ class WalkForwardOptimizer(OptimizerBase):
             result.optimized_oos = _run_backtest(
                 opt_strategy_oos, self._oos_data, self._capital, self._risk,
             )
-        except Exception as e:
+        except (ValueError, ZeroDivisionError, ArithmeticError) as e:
             self._print(f"  OOS validation failed: {e}")
             return result
 

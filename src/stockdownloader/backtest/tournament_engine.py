@@ -489,7 +489,7 @@ def classify_timeframe_bars(
             try:
                 rc = detector.classify(data, i)
                 regime_map[bar.date] = rc.regime
-            except Exception:
+            except (ValueError, KeyError, IndexError):
                 regime_map[bar.date] = MarketRegime.WEAK_TREND
 
     return regime_map

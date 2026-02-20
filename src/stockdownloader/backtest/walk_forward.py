@@ -241,7 +241,7 @@ class WalkForwardValidator:
             try:
                 is_strategy = strategy_factory()
                 is_result = engine.run(is_strategy, is_data)
-            except Exception as e:
+            except (ValueError, ZeroDivisionError, ArithmeticError) as e:
                 logger.warning("IS backtest failed for window %d: %s", w.window_id, e)
                 continue
 
@@ -249,7 +249,7 @@ class WalkForwardValidator:
             try:
                 oos_strategy = strategy_factory()
                 oos_result = engine.run(oos_strategy, oos_data)
-            except Exception as e:
+            except (ValueError, ZeroDivisionError, ArithmeticError) as e:
                 logger.warning("OOS backtest failed for window %d: %s", w.window_id, e)
                 continue
 

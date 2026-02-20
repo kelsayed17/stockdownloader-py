@@ -107,7 +107,7 @@ def analyze_return_distribution(
     # Student-t fit
     try:
         df, loc, scale = t_dist.fit(log_rets)
-    except Exception:
+    except (ValueError, RuntimeError):
         df, loc, scale = float("inf"), mean_r, std_r
 
     # VaR / CVaR (empirical)

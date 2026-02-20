@@ -240,7 +240,7 @@ def _run_single_config(
         )
         bt_result = engine.run(strategy, data)
         combo_score = _score(bt_result, trading_days)
-    except Exception:
+    except (ValueError, ZeroDivisionError, ArithmeticError):
         return None
 
     return ComboResult(
@@ -411,7 +411,7 @@ class CombinatorialTester:
                 try:
                     bt_result = engine.run(strategy, self._data)
                     combo_score = _score(bt_result, trading_days)
-                except Exception as e:
+                except (ValueError, ZeroDivisionError, ArithmeticError) as e:
                     logger.warning("Failed: %s — %s", strategy_name, e)
                     continue
 
@@ -505,7 +505,7 @@ class CombinatorialTester:
                         result = fut.result()
                         if result is not None:
                             results.append(result)
-                    except Exception as e:
+                    except (ValueError, ZeroDivisionError, ArithmeticError) as e:
                         logger.warning("Worker failed: %s", e)
 
                     # Progress every 100 configs

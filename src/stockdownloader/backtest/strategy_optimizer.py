@@ -246,7 +246,7 @@ class StrategyOptimizer(OptimizerBase):
                     f"    P/L: {sign}${pnl:>9,.2f}  WR: {result.win_rate:>5.1f}%  "
                     f"Trades: {result.total_trades:>3d}  Score: {score:>7.2f}"
                 )
-            except Exception as exc:
+            except (ValueError, ZeroDivisionError, ArithmeticError) as exc:
                 logger.warning("Strategy %s failed: %s", name, exc, exc_info=True)
                 self._print(f"    ERROR: {exc}")
 

@@ -667,7 +667,7 @@ class TestCombinatorialTesterRun:
             "stockdownloader.backtest.combinatorial_tester.IntradayBacktestEngine"
         ) as MockEngine:
             mock_engine_instance = MockEngine.return_value
-            mock_engine_instance.run.side_effect = RuntimeError("Boom")
+            mock_engine_instance.run.side_effect = ValueError("Boom")
 
             tester = CombinatorialTester(cfg, data)
             results = tester.run()

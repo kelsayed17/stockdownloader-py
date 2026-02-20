@@ -71,7 +71,11 @@ def _download_one_detailed(symbol: str) -> tuple[str, object | None]:
         client = _get_thread_client()
         data = client.download_detailed(symbol)
         return (symbol, data if not data.incomplete else None)
-    except Exception:
+    except (OSError, ConnectionError, TimeoutError, ValueError) as exc:
+        import logging
+        logging.getLogger(__name__).debug(
+            "Failed to download detailed data for %s: %s", symbol, exc,
+        )
         return (symbol, None)
 
 
