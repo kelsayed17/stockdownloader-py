@@ -45,7 +45,8 @@ from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.registrations import ensure_registered
 from stockdownloader.strategy.registry import StrategyRegistry
-from stockdownloader.util.constants import DEFAULT_DATA_FILE, INITIAL_CAPITAL, OPTIONS_COMMISSION, RISK_PER_TRADE
+from stockdownloader.app.app_helpers import add_intraday_csv_arg, add_log_arg
+from stockdownloader.util.constants import INITIAL_CAPITAL, OPTIONS_COMMISSION, RISK_PER_TRADE
 from stockdownloader.util.file_helper import TeeWriter
 
 logger = logging.getLogger(__name__)
@@ -826,10 +827,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Unified strategy pipeline — backtest, optimize, validate",
     )
-    parser.add_argument(
-        "--csv", dest="csv_file", default=str(DEFAULT_DATA_FILE),
-        help="Intraday CSV file path (default: data/spy/5m_bars.csv)",
-    )
+    add_intraday_csv_arg(parser)
     parser.add_argument(
         "--stage", choices=_STAGES, default="all",
         help="Pipeline stage to run (default: all)",
@@ -846,10 +844,7 @@ def main() -> None:
         "--optimize-mode", choices=_OPTIMIZE_MODES, default="wf",
         help="Optimizer mode: wf (walk-forward, default), full (full-data), skip",
     )
-    parser.add_argument(
-        "--log", dest="log_file", default=None,
-        help="Save output to log file",
-    )
+    add_log_arg(parser, help="Save output to log file")
     args = parser.parse_args()
 
     # Set up output

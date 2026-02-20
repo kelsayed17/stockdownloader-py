@@ -22,9 +22,9 @@ import argparse
 import logging
 from decimal import Decimal
 
+from stockdownloader.app.app_helpers import add_intraday_csv_arg, add_log_arg
 from stockdownloader.backtest.strategy_optimizer import StrategyOptimizer
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.util.constants import DEFAULT_DATA_FILE
 
 logger = logging.getLogger(__name__)
 
@@ -45,12 +45,7 @@ def main() -> None:
             "  strategy-optimize --all-strategies           # compare all strategies\n"
         ),
     )
-    parser.add_argument(
-        "--csv",
-        dest="csv_file",
-        default=str(DEFAULT_DATA_FILE),
-        help="Intraday CSV file path (default: data/spy/5m_bars.csv)",
-    )
+    add_intraday_csv_arg(parser)
     parser.add_argument(
         "--capital",
         type=float,
@@ -63,12 +58,7 @@ def main() -> None:
         default=0.01,
         help="Risk per trade as decimal (default: 0.01 = 1%%)",
     )
-    parser.add_argument(
-        "--log",
-        dest="log_file",
-        default=None,
-        help="Write output to a log file (use with 'tail -f' for real-time)",
-    )
+    add_log_arg(parser, help="Write output to a log file (use with 'tail -f' for real-time)")
     parser.add_argument(
         "--all-strategies",
         action="store_true",

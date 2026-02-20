@@ -244,6 +244,35 @@ def add_strategy_args(
     )
 
 
+def add_intraday_csv_arg(parser: argparse.ArgumentParser) -> None:
+    """Add a ``--csv`` argument defaulting to the standard intraday CSV.
+
+    This is the intraday-specific variant of :func:`add_csv_arg` — it
+    defaults to :data:`DEFAULT_DATA_FILE` (``data/spy/5m_bars.csv``)
+    instead of ``None``.
+    """
+    parser.add_argument(
+        "--csv", dest="csv_file", default=str(DEFAULT_DATA_FILE),
+        help="Intraday CSV file path (default: data/spy/5m_bars.csv)",
+    )
+
+
+def add_log_arg(
+    parser: argparse.ArgumentParser,
+    *,
+    help: str = "Write output to a log file",
+    metavar: str | None = None,
+) -> None:
+    """Add a ``--log`` argument for optional log-file output.
+
+    All callers share ``dest="log_file"`` and ``default=None``.
+    """
+    kwargs: dict = dict(dest="log_file", default=None, help=help)
+    if metavar is not None:
+        kwargs["metavar"] = metavar
+    parser.add_argument("--log", **kwargs)
+
+
 # ======================================================================
 # Display helpers
 # ======================================================================

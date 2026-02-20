@@ -25,6 +25,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
+from stockdownloader.app.app_helpers import add_log_arg
 from stockdownloader.analysis.gme_analyzer import (
     EventStudyResult,
     FilingImpact,
@@ -639,11 +640,10 @@ def main() -> None:
         action="store_true",
         help="Skip Stage 4 (options chain download)",
     )
-    parser.add_argument(
-        "--log",
-        dest="log_file",
-        metavar="FILE",
+    add_log_arg(
+        parser,
         help="Write output to a log file in addition to stdout",
+        metavar="FILE",
     )
     parser.add_argument(
         "--user-agent",

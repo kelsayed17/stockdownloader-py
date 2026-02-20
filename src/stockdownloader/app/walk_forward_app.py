@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import logging
 import time
+from stockdownloader.app.app_helpers import add_intraday_csv_arg
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.walk_forward import WalkForwardValidator
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
@@ -23,7 +24,7 @@ from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStr
 from stockdownloader.strategy.intraday.pattern_scalp_strategy import PatternScalpStrategy
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
-from stockdownloader.util.constants import DEFAULT_DATA_FILE, INITIAL_CAPITAL, RISK_PER_TRADE
+from stockdownloader.util.constants import INITIAL_CAPITAL, RISK_PER_TRADE
 
 logger = logging.getLogger(__name__)
 
@@ -35,10 +36,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Walk-forward validation for intraday strategies",
     )
-    parser.add_argument(
-        "--csv", dest="csv_file", default=str(DEFAULT_DATA_FILE),
-        help="Intraday CSV file path (default: data/spy/5m_bars.csv)",
-    )
+    add_intraday_csv_arg(parser)
     parser.add_argument(
         "--windows", type=int, default=5,
         help="Number of walk-forward windows (default: 5)",
