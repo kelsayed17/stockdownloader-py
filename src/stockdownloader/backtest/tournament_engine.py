@@ -32,7 +32,7 @@ from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.regime.regime_detector import MarketRegime
 from stockdownloader.strategy.registration_loader import ensure_registered
-from stockdownloader.strategy.registry import StrategyRegistry
+from stockdownloader.strategy.base_registry import StrategyRegistry
 from stockdownloader.util.constants import INITIAL_CAPITAL, RISK_PER_TRADE
 
 

@@ -276,7 +276,7 @@ class HybridStage:
     ) -> HybridStageResult:
         """Build hybrid strategies from the top convergence pairs."""
         from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.registry import StrategyRegistry
+        from stockdownloader.strategy.base_registry import StrategyRegistry
 
         ensure_registered()
 

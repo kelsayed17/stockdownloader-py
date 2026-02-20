@@ -20,7 +20,7 @@ from stockdownloader.strategy.signals.signal_generator import (
     SignalDirection,
     SignalResult,
 )
-from stockdownloader.strategy.signals.signal_registry import (
+from stockdownloader.strategy.base_registry import (
     SignalGeneratorRegistry,
 )
 from stockdownloader.strategy.signals.stacked_signal_engine import (

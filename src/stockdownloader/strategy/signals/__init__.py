@@ -25,7 +25,7 @@ from stockdownloader.strategy.signals.signal_generator import (
     SignalDirection,
     SignalResult,
 )
-from stockdownloader.strategy.signals.signal_registry import SignalGeneratorRegistry
+from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
 from stockdownloader.strategy.signals.multi_timeframe_aligner import (
     AlignedSignal,
     MultiTimeframeAligner,

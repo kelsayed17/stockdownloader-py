@@ -24,7 +24,7 @@ from typing import Any, ClassVar, TYPE_CHECKING
 from stockdownloader.model.indicator_values import IndicatorValues
 from stockdownloader.strategy.regime.regime_detector import MarketRegimeDetector
 from stockdownloader.strategy.signals.signal_generator import AtomicSignalGenerator
-from stockdownloader.strategy.signals.signal_registry import SignalGeneratorRegistry
+from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
 import stockdownloader.strategy.signals.generators  # noqa: F401 — trigger registry population
 from stockdownloader.util.indicator_hub import IndicatorHub
 

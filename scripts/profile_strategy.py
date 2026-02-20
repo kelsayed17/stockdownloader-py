@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
-from stockdownloader.strategy.registry import StrategyRegistry
+from stockdownloader.strategy.base_registry import StrategyRegistry
 
 from stockdownloader.strategy.registration_loader import ensure_registered
 ensure_registered()

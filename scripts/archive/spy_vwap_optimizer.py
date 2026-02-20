@@ -38,7 +38,7 @@ from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
 from stockdownloader.strategy.registration_loader import ensure_registered
 ensure_registered()
 
-from stockdownloader.strategy.registry import StrategyRegistry
+from stockdownloader.strategy.base_registry import StrategyRegistry
 
 # ======================================================================
 # Constants

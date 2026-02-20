@@ -14,6 +14,43 @@ Usage::
     class MyRegistry(BaseRegistry[MyEntry]):
         _entries: dict[str, MyEntry] = {}
         _entry_cls = MyEntry
+
+Concrete Registries
+-------------------
+
+:class:`StrategyRegistry`
+    Central strategy registry for auto-discovery and CLI resolution.
+    Provides a mapping from short CLI names (case-insensitive) to factory
+    functions that create strategy instances with default parameters.
+
+    Usage::
+
+        from stockdownloader.strategy.base_registry import StrategyRegistry
+
+        # Resolve by CLI name
+        entry = StrategyRegistry.get("rsi")
+        strategy = StrategyRegistry.create("rsi")
+
+        # With overrides
+        strategy = StrategyRegistry.create("rsi", period=21, oversold=25.0)
+
+        # List all
+        for entry in StrategyRegistry.all_entries(category="daily"):
+            print(entry.name, entry.display_name)
+
+:class:`SignalGeneratorRegistry`
+    Registry for atomic signal generators. Shares the same lookup, creation,
+    and filtering API as StrategyRegistry.
+
+    Usage::
+
+        from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
+
+        entry = SignalGeneratorRegistry.get("rsi")
+        gen   = SignalGeneratorRegistry.create("rsi", period=7)
+
+        for e in SignalGeneratorRegistry.all_entries(category="momentum"):
+            print(e.name, e.display_name)
 """
 
 from __future__ import annotations
@@ -178,3 +215,37 @@ class BaseRegistry(Generic[T]):
     def clear(cls) -> None:
         """Remove all registrations (for testing only)."""
         cls._entries.clear()
+
+
+# ── Concrete Registries ──────────────────────────────────────────────────────
+
+StrategyEntry = RegistryEntry
+"""Alias for :class:`RegistryEntry` used by :class:`StrategyRegistry`."""
+
+
+class StrategyRegistry(BaseRegistry[RegistryEntry]):
+    """Singleton-style registry for strategies.
+
+    Strategies self-register at import time via their subpackage
+    ``__init__.py`` files.
+    """
+
+    _entries: ClassVar[dict[str, RegistryEntry]] = {}
+    _entry_cls: ClassVar[type[RegistryEntry]] = RegistryEntry
+    _label: ClassVar[str] = "strategy"
+
+
+SignalGeneratorEntry = RegistryEntry
+"""Alias for :class:`RegistryEntry` used by :class:`SignalGeneratorRegistry`."""
+
+
+class SignalGeneratorRegistry(BaseRegistry[RegistryEntry]):
+    """Singleton-style registry for atomic signal generators.
+
+    Generators self-register at import time via their sub-package
+    ``__init__.py``.
+    """
+
+    _entries: ClassVar[dict[str, RegistryEntry]] = {}
+    _entry_cls: ClassVar[type[RegistryEntry]] = RegistryEntry
+    _label: ClassVar[str] = "signal generator"

@@ -80,7 +80,7 @@ def main() -> None:
 
     if args.list_strategies:
         from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.registry import StrategyRegistry
+        from stockdownloader.strategy.base_registry import StrategyRegistry
         ensure_registered()
         print("Available strategies for optimization:")
         print()
@@ -114,7 +114,7 @@ def main() -> None:
 
         if args.strategy:
             from stockdownloader.strategy.registration_loader import ensure_registered
-            from stockdownloader.strategy.registry import StrategyRegistry
+            from stockdownloader.strategy.base_registry import StrategyRegistry
             ensure_registered()
             entry = StrategyRegistry.get(args.strategy)
             if entry.category == "intraday" and entry.name == "vwap":

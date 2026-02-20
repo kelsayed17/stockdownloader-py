@@ -70,7 +70,7 @@ def load_registrations(category: str, config_path: str) -> None:
     config_path:
         Path to the JSON config file, relative to the project root.
     """
-    from stockdownloader.strategy.registry import StrategyRegistry
+    from stockdownloader.strategy.base_registry import StrategyRegistry
 
     resolved = _resolve_config_path(config_path)
     with open(resolved) as f:

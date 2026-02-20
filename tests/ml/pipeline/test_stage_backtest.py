@@ -299,7 +299,7 @@ class TestBacktestStage:
 
         # Need a real strategy registry name for true WF to recreate base
         from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.registry import StrategyRegistry
+        from stockdownloader.strategy.base_registry import StrategyRegistry
 
         ensure_registered()
         # Pick any registered daily strategy

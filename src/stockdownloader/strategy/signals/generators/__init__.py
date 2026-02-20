@@ -34,7 +34,7 @@ from stockdownloader.strategy.signals.generators.volume import (
     OBVGenerator,
     VolumeSurgeGenerator,
 )
-from stockdownloader.strategy.signals.signal_registry import SignalGeneratorRegistry
+from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
 
 __all__ = [
     # Momentum

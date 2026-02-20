@@ -21,7 +21,7 @@ from stockdownloader.backtest.daily_strategy_optimizer import (
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.optimizer_scoring import score as _score
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.strategy.registry import StrategyRegistry
+from stockdownloader.strategy.base_registry import StrategyRegistry
 
 # Real data file
 _DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy" / "5m_bars.csv"

@@ -8,7 +8,7 @@ from stockdownloader.data.yahoo_data_client import YahooDataClient
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.trade import Trade
-from stockdownloader.strategy.registry import StrategyRegistry
+from stockdownloader.strategy.base_registry import StrategyRegistry
 
 __all__ = [
     # Engines

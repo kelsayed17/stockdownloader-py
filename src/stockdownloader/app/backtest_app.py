@@ -124,7 +124,7 @@ def _build_daily_strategies(args):
     """Build the list of daily equity strategies to backtest."""
     if getattr(args, "strategy", None):
         from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.registry import StrategyRegistry
+        from stockdownloader.strategy.base_registry import StrategyRegistry
 
         ensure_registered()
         return [StrategyRegistry.create(args.strategy)]
@@ -177,7 +177,7 @@ def _build_intraday_strategies(args):
             DailyToIntradayAdapter,
         )
         from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.registry import StrategyRegistry
+        from stockdownloader.strategy.base_registry import StrategyRegistry
 
         ensure_registered()
         entry = StrategyRegistry.get(args.strategy)
@@ -197,7 +197,7 @@ def _build_intraday_strategies(args):
             DailyToIntradayAdapter,
         )
         from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.registry import StrategyRegistry
+        from stockdownloader.strategy.base_registry import StrategyRegistry
 
         ensure_registered()
         strategies = [
@@ -226,7 +226,7 @@ def _build_options_strategies(args):
     """Build the list of options strategies to backtest."""
     if getattr(args, "strategy", None):
         from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.registry import StrategyRegistry
+        from stockdownloader.strategy.base_registry import StrategyRegistry
 
         ensure_registered()
         entry = StrategyRegistry.get(args.strategy)

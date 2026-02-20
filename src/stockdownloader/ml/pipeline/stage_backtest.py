@@ -45,7 +45,7 @@ def _run_baseline_backtest(
 ) -> BacktestEntry | None:
     """Run a single baseline backtest (thread target)."""
     from stockdownloader.strategy.registration_loader import ensure_registered
-    from stockdownloader.strategy.registry import StrategyRegistry
+    from stockdownloader.strategy.base_registry import StrategyRegistry
 
     ensure_registered()
     try:
@@ -139,7 +139,7 @@ class BacktestStage:
     ) -> BacktestStageResult:
         """Backtest all strategies and return ranked results."""
         from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.registry import StrategyRegistry
+        from stockdownloader.strategy.base_registry import StrategyRegistry
 
         ensure_registered()
         data = data_result.data
@@ -472,7 +472,7 @@ class BacktestStage:
         )
         from stockdownloader.ml.trainer import MLTrainer
         from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.registry import StrategyRegistry
+        from stockdownloader.strategy.base_registry import StrategyRegistry
         from stockdownloader.util.indicator_hub import IndicatorHub
 
         ensure_registered()
@@ -645,7 +645,7 @@ class BacktestStage:
             return None  # Can't recreate hybrids here
         try:
             from stockdownloader.strategy.registration_loader import ensure_registered
-            from stockdownloader.strategy.registry import StrategyRegistry
+            from stockdownloader.strategy.base_registry import StrategyRegistry
 
             ensure_registered()
             # Try to find the matching registry name

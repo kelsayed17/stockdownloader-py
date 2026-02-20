@@ -30,7 +30,7 @@ from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEn
 from stockdownloader.backtest.optimizer_base import OptimizerBase
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
-from stockdownloader.strategy.registry import StrategyRegistry, StrategyEntry
+from stockdownloader.strategy.base_registry import StrategyRegistry, StrategyEntry
 
 
 # Default search space for adapter parameters.

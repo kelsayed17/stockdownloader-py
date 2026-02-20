@@ -12,7 +12,7 @@ signals : Signal filtering and routing
 
 from stockdownloader.strategy.exit_mechanism import ExitMechanism
 from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
-from stockdownloader.strategy.registry import StrategyRegistry
+from stockdownloader.strategy.base_registry import StrategyRegistry
 
 __all__ = [
     "ExitMechanism",
