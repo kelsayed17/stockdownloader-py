@@ -34,13 +34,14 @@ class HybridExit(TrailingExitBase):
         atr_multiplier: Decimal = Decimal("0.3"),
         atr_period: int = 14,
         name: str | None = None,
+        hub: IndicatorHub | None = None,
     ) -> None:
         super().__init__()
         self._activation_r = activation_r
         self._atr_multiplier = atr_multiplier
         self._atr_period = atr_period
         self._name = name or "HYBRID"
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

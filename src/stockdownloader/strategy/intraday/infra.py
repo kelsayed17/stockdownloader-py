@@ -42,9 +42,10 @@ class IntradayInfra:
         self,
         config: InfraExitConfig,
         exit_manager: IntradayExitManager,
+        hub: IndicatorHub | None = None,
     ) -> None:
         self.state = SessionState()
-        self.hub = IndicatorHub()
+        self.hub = hub or IndicatorHub()
         self.exit_mgr = exit_manager
         self._c = config
         self._day = DayTracker()

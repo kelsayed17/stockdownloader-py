@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 class MACDStrategy(TradingStrategy):
     """MACD signal-line crossover strategy."""
 
-    def __init__(self, fast_period: int, slow_period: int, signal_period: int) -> None:
+    def __init__(self, fast_period: int, slow_period: int, signal_period: int, hub: IndicatorHub | None = None) -> None:
         if fast_period <= 0 or slow_period <= 0 or signal_period <= 0:
             raise ValueError("All periods must be positive")
         if fast_period >= slow_period:
@@ -29,7 +29,7 @@ class MACDStrategy(TradingStrategy):
         self._fast_period = fast_period
         self._slow_period = slow_period
         self._signal_period = signal_period
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

@@ -25,7 +25,7 @@ Usage::
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from stockdownloader.strategy.signals.signal_generator import (
     AtomicSignalGenerator,
@@ -109,10 +109,15 @@ class MultiTimeframeAligner:
         The :class:`TimeframeAggregator` holding the 5-minute data.
     """
 
-    __slots__ = ("_aggregator", "_htf_hubs", "_htf_cache")
+    __slots__ = ("_aggregator", "_htf_hubs", "_htf_cache", "_hub_factory")
 
-    def __init__(self, aggregator: TimeframeAggregator) -> None:
+    def __init__(
+        self,
+        aggregator: TimeframeAggregator,
+        hub_factory: Callable[[], IndicatorHub] | None = None,
+    ) -> None:
         self._aggregator = aggregator
+        self._hub_factory = hub_factory or IndicatorHub
         # Per-timeframe IndicatorHub instances (HTF data is different list)
         self._htf_hubs: dict[Timeframe, IndicatorHub] = {}
         # Cache: (generator_name, timeframe, htf_bar_count) → AlignedSignal
@@ -207,7 +212,7 @@ class MultiTimeframeAligner:
 
         # Get or create per-timeframe hub
         if tf not in self._htf_hubs:
-            self._htf_hubs[tf] = IndicatorHub()
+            self._htf_hubs[tf] = self._hub_factory()
         htf_hub = self._htf_hubs[tf]
 
         bar_idx = bar_count - 1

@@ -77,6 +77,7 @@ class StackedIntradayStrategy(IntradayTradingStrategy):
         sl_cap: Decimal = Decimal("2.00"),
         allow_shorts: bool = False,
         atr_period: int = 14,
+        hub: IndicatorHub | None = None,
     ) -> None:
         self._name = name
         self._config = config
@@ -92,7 +93,7 @@ class StackedIntradayStrategy(IntradayTradingStrategy):
         self._all_m5 = all(s.timeframe == Timeframe.M5 for s in specs)
 
         # Lazy-initialized on first evaluate
-        self._hub_m5: IndicatorHub = IndicatorHub()
+        self._hub_m5: IndicatorHub = hub or IndicatorHub()
         self._aggregator: TimeframeAggregator | None = None
         self._aligner: MultiTimeframeAligner | None = None
         self._data_id: int | None = None
@@ -155,11 +156,11 @@ class StackedIntradayStrategy(IntradayTradingStrategy):
         if current_index < self.warmup_period:
             return HOLD
 
-        # Lazy-init hub (once per data list)
+        # Lazy-init hub (once per data list); re-create to clear stale caches
         did = id(data)
         if self._data_id != did:
             self._data_id = did
-            self._hub_m5 = IndicatorHub()
+            self._hub_m5 = IndicatorHub()  # fresh hub for new data
             if not self._all_m5:
                 self._aggregator = TimeframeAggregator(data)
                 self._aligner = MultiTimeframeAligner(self._aggregator)

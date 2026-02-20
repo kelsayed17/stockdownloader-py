@@ -30,12 +30,12 @@ if TYPE_CHECKING:
 class MultiIndicatorStrategy(TradingStrategy):
     """Multi-indicator confluence strategy with configurable score thresholds."""
 
-    def __init__(self, buy_threshold: int = 4, sell_threshold: int = 4) -> None:
+    def __init__(self, buy_threshold: int = 4, sell_threshold: int = 4, hub: IndicatorHub | None = None) -> None:
         if buy_threshold < 1 or sell_threshold < 1:
             raise ValueError("Thresholds must be >= 1")
         self._buy_threshold = buy_threshold
         self._sell_threshold = sell_threshold
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
         # Cache the last computed IndicatorValues to avoid recomputing 28
         # indicators for the previous bar on every call.
         self._cached_index: int = -1

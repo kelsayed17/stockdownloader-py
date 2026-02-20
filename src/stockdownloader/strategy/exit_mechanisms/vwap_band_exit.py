@@ -29,11 +29,12 @@ class VwapBandExit(TrailingExitBase):
         self,
         band_sigma: Decimal = Decimal("0.5"),
         activation_r: Decimal = Decimal("0.5"),
+        hub: IndicatorHub | None = None,
     ) -> None:
         super().__init__()
         self._band_sigma = band_sigma
         self._activation_r = activation_r
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

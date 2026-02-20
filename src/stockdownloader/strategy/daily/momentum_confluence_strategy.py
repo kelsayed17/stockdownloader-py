@@ -32,6 +32,7 @@ class MomentumConfluenceStrategy(TradingStrategy):
         ema_trend_filter: int = 200,
         adx_strength_threshold: float = 25,
         adx_weak_threshold: float = 20,
+        hub: IndicatorHub | None = None,
     ) -> None:
         self._fast_ema = fast_ema
         self._slow_ema = slow_ema
@@ -39,7 +40,7 @@ class MomentumConfluenceStrategy(TradingStrategy):
         self._ema_trend_filter = ema_trend_filter
         self._adx_strength_threshold = adx_strength_threshold
         self._adx_weak_threshold = adx_weak_threshold
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

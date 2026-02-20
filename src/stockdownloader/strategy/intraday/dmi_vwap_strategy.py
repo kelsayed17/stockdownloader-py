@@ -52,9 +52,9 @@ class DmiVwapStrategy(IntradayTradingStrategy):
     is below VWAP with bearish DMI.  All positions are closed at EOD.
     """
 
-    def __init__(self, config: DmiVwapConfig | None = None) -> None:
+    def __init__(self, config: DmiVwapConfig | None = None, hub: IndicatorHub | None = None) -> None:
         self._cfg = config or DmiVwapConfig()
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
         # Per-session state
         self._session_date: str = ""

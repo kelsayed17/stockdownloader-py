@@ -29,11 +29,12 @@ class VwapCrossExit(TrailingExitBase):
         self,
         activation_r: Decimal = Decimal("0.5"),
         name: str | None = None,
+        hub: IndicatorHub | None = None,
     ) -> None:
         super().__init__()
         self._activation_r = activation_r
         self._name = name or "VWAP_CROSS"
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

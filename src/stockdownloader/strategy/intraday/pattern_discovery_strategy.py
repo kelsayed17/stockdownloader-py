@@ -65,11 +65,12 @@ class PatternDiscoveryStrategy(IntradayTradingStrategy):
         self,
         catalog: PatternCatalog,
         config: PatternDiscoveryConfig | None = None,
+        hub: IndicatorHub | None = None,
     ) -> None:
         c = config or PatternDiscoveryConfig()
         self._c = c
         self._catalog = catalog
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
         self._encoder = BarEncoder(self._hub)
         self._infra = IntradayInfra(c, IntradayExitManager(VwapRatchetTrail()))
         self._max_pattern_len = (

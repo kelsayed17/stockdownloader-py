@@ -53,12 +53,13 @@ class StackedDailyStrategy(TradingStrategy):
         name: str,
         config: StackConfig,
         specs: list[TimeframeSignalSpec],
+        hub: IndicatorHub | None = None,
     ) -> None:
         self._name = name
         self._config = config
         self._specs = specs
         self._engine = StackedSignalEngine(config)
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

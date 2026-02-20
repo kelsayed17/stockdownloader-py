@@ -30,6 +30,7 @@ class ProtectivePutStrategy(OptionsStrategy):
         otm_percent: Decimal | None = None,
         days_to_expiry: int = 45,
         momentum_lookback: int = 5,
+        hub: IndicatorHub | None = None,
     ) -> None:
         """Initialize the protective put strategy.
 
@@ -38,6 +39,7 @@ class ProtectivePutStrategy(OptionsStrategy):
             otm_percent: Percentage OTM for strike selection (e.g., 0.05 = 5% OTM).
             days_to_expiry: Target days to expiration.
             momentum_lookback: Bars to look back for momentum calculation.
+            hub: Optional shared IndicatorHub instance for dependency injection.
         """
         if ma_period <= 0:
             raise ValueError("ma_period must be positive")
@@ -49,7 +51,7 @@ class ProtectivePutStrategy(OptionsStrategy):
         self._otm_percent = otm_percent if otm_percent is not None else Decimal("0.05")
         self._days_to_expiry = days_to_expiry
         self._momentum_lookback = momentum_lookback
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

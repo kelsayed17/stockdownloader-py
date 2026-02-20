@@ -43,6 +43,7 @@ class BollingerBandRSIStrategy(TradingStrategy):
         rsi_oversold: float = 30,
         rsi_overbought: float = 70,
         adx_threshold: float = 25,
+        hub: IndicatorHub | None = None,
     ) -> None:
         self._bb_period = bb_period
         self._bb_std_dev = bb_std_dev
@@ -50,7 +51,7 @@ class BollingerBandRSIStrategy(TradingStrategy):
         self._rsi_oversold = rsi_oversold
         self._rsi_overbought = rsi_overbought
         self._adx_threshold = adx_threshold
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

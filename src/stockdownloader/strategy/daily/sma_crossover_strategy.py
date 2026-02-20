@@ -21,14 +21,14 @@ if TYPE_CHECKING:
 class SMACrossoverStrategy(TradingStrategy):
     """SMA crossover strategy using golden/death cross signals."""
 
-    def __init__(self, short_period: int, long_period: int) -> None:
+    def __init__(self, short_period: int, long_period: int, hub: IndicatorHub | None = None) -> None:
         if short_period <= 0 or long_period <= 0:
             raise ValueError("Periods must be positive")
         if short_period >= long_period:
             raise ValueError("Short period must be less than long period")
         self._short_period = short_period
         self._long_period = long_period
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

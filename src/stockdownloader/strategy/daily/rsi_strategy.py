@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class RSIStrategy(TradingStrategy):
     """RSI-based strategy with configurable oversold/overbought thresholds."""
 
-    def __init__(self, period: int, oversold: float, overbought: float) -> None:
+    def __init__(self, period: int, oversold: float, overbought: float, hub: IndicatorHub | None = None) -> None:
         if period <= 0:
             raise ValueError("Period must be positive")
         if oversold < 0 or overbought > 100 or oversold >= overbought:
@@ -32,7 +32,7 @@ class RSIStrategy(TradingStrategy):
         self._period = period
         self._oversold_threshold = Decimal(str(oversold))
         self._overbought_threshold = Decimal(str(overbought))
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

@@ -31,11 +31,12 @@ class BreakoutStrategy(TradingStrategy):
         bb_period: int = 20,
         squeeze_lookback: int = 120,
         volume_multiplier: float = 1.5,
+        hub: IndicatorHub | None = None,
     ) -> None:
         self._bb_period = bb_period
         self._squeeze_lookback = squeeze_lookback
         self._volume_multiplier = volume_multiplier
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:

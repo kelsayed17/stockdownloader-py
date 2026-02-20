@@ -64,6 +64,7 @@ class DailyToIntradayAdapter(IntradayTradingStrategy):
         allow_shorts: bool = False,
         atr_period: int = 14,
         max_consecutive_losses: int = 5,
+        hub: IndicatorHub | None = None,
     ) -> None:
         self._strategy = strategy
         self._sl_atr_mult = sl_atr_mult
@@ -72,7 +73,7 @@ class DailyToIntradayAdapter(IntradayTradingStrategy):
         self._allow_shorts = allow_shorts
         self._atr_period = atr_period
         self._max_consecutive_losses = max_consecutive_losses
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
         # Position tracking
         self._in_position = False

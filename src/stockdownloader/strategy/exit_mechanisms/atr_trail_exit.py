@@ -27,12 +27,13 @@ class AtrTrailExit(TrailingExitBase):
         atr_multiplier: Decimal = Decimal("0.3"),
         activation_r: Decimal = Decimal("1"),
         atr_period: int = 14,
+        hub: IndicatorHub | None = None,
     ) -> None:
         super().__init__()
         self._atr_multiplier = atr_multiplier
         self._activation_r = activation_r
         self._atr_period = atr_period
-        self._hub = IndicatorHub()
+        self._hub = hub or IndicatorHub()
 
     @property
     def name(self) -> str:
