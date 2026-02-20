@@ -588,6 +588,71 @@ class TestFetchFtdData:
 
 
 # ------------------------------------------------------------------
+# Tests: IPO-aware start_year narrowing
+# ------------------------------------------------------------------
+
+
+class TestIpoDateNarrowing:
+    """Verify that fetch_ftd_data auto-narrows start_year from IPO date."""
+
+    @patch("stockdownloader.data.sec_ftd_client.time")
+    def test_tsla_skips_quarterly_era(
+        self, mock_time: MagicMock, tmp_path: Path,
+    ) -> None:
+        """TSLA IPO'd in 2010; quarterly era (2004-2009) should be skipped."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+        with patch.object(client, "_fetch_quarterly_era") as mock_q, \
+             patch.object(client, "_fetch_half_month_era") as mock_hm:
+            mock_q.return_value = []
+            mock_hm.return_value = []
+            client.fetch_ftd_data("TSLA")
+
+        # Quarterly era is 2004-2009; TSLA IPO'd 2010 -> should be skipped
+        mock_q.assert_not_called()
+
+    @patch("stockdownloader.data.sec_ftd_client.time")
+    def test_gme_includes_quarterly_era(
+        self, mock_time: MagicMock, tmp_path: Path,
+    ) -> None:
+        """GME IPO'd in 2002; quarterly era should be fetched."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+        with patch.object(client, "_fetch_quarterly_era") as mock_q, \
+             patch.object(client, "_fetch_half_month_era") as mock_hm:
+            mock_q.return_value = []
+            mock_hm.return_value = []
+            client.fetch_ftd_data("GME")
+
+        # GME IPO'd 2002, FTD starts 2004 -> quarterly era IS fetched
+        mock_q.assert_called_once()
+
+    @patch("stockdownloader.data.sec_ftd_client.time")
+    def test_explicit_start_year_overrides_ipo(
+        self, mock_time: MagicMock, tmp_path: Path,
+    ) -> None:
+        """An explicit start_year=2004 should still fetch from 2004."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+        with patch.object(client, "_fetch_quarterly_era") as mock_q, \
+             patch.object(client, "_fetch_half_month_era") as mock_hm:
+            mock_q.return_value = []
+            mock_hm.return_value = []
+            # Explicit start_year=2004 for TSLA (IPO 2010)
+            # The auto-narrow still uses max(2004, 2010) = 2010
+            client.fetch_ftd_data("TSLA", start_year=2004)
+
+        # Even with explicit 2004, TSLA's IPO narrows to 2010
+        mock_q.assert_not_called()
+
+
+# ------------------------------------------------------------------
 # Tests: Rate limiting
 # ------------------------------------------------------------------
 

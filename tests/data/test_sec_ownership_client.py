@@ -664,6 +664,79 @@ class TestFetchOwnershipSnapshots:
 
 
 # ------------------------------------------------------------------
+# Tests: CUSIP auto-resolution from symbol registry
+# ------------------------------------------------------------------
+
+
+class TestCusipAutoResolution:
+    """Verify that CUSIP auto-resolves from the symbol registry."""
+
+    @patch("stockdownloader.data.sec_ownership_client.time")
+    def test_aapl_auto_resolves_cusip(
+        self, mock_time: MagicMock, tmp_path: Path,
+    ) -> None:
+        """Calling fetch_ownership_snapshots('AAPL') without cusip=
+        should auto-resolve AAPL's CUSIP, not use GME's."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+
+        # Track what CUSIP is passed to _fetch_from_bulk
+        with patch.object(client, "_fetch_from_bulk") as mock_bulk, \
+             patch.object(client, "_fetch_from_efts", return_value=None):
+            mock_bulk.return_value = None
+            client.fetch_ownership_snapshots("AAPL", num_quarters=1)
+
+        # The first call should have used AAPL's CUSIP, not GME's
+        if mock_bulk.called:
+            _, cusip_arg, _, _, _ = mock_bulk.call_args[0]
+            assert cusip_arg == "037833100"  # AAPL CUSIP
+            assert cusip_arg != "36467W109"  # Not GME CUSIP
+
+    @patch("stockdownloader.data.sec_ownership_client.time")
+    def test_gme_uses_default_cusip(
+        self, mock_time: MagicMock, tmp_path: Path,
+    ) -> None:
+        """Calling fetch_ownership_snapshots('GME') should still use
+        the default GME CUSIP."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+
+        with patch.object(client, "_fetch_from_bulk") as mock_bulk, \
+             patch.object(client, "_fetch_from_efts", return_value=None):
+            mock_bulk.return_value = None
+            client.fetch_ownership_snapshots("GME", num_quarters=1)
+
+        if mock_bulk.called:
+            _, cusip_arg, _, _, _ = mock_bulk.call_args[0]
+            assert cusip_arg == "36467W109"
+
+    @patch("stockdownloader.data.sec_ownership_client.time")
+    def test_explicit_cusip_not_overridden(
+        self, mock_time: MagicMock, tmp_path: Path,
+    ) -> None:
+        """An explicitly passed cusip= should be used as-is."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+
+        with patch.object(client, "_fetch_from_bulk") as mock_bulk, \
+             patch.object(client, "_fetch_from_efts", return_value=None):
+            mock_bulk.return_value = None
+            client.fetch_ownership_snapshots(
+                "AAPL", cusip="CUSTOM123", num_quarters=1,
+            )
+
+        if mock_bulk.called:
+            _, cusip_arg, _, _, _ = mock_bulk.call_args[0]
+            assert cusip_arg == "CUSTOM123"
+
+
+# ------------------------------------------------------------------
 # Tests: Rate limiting
 # ------------------------------------------------------------------
 

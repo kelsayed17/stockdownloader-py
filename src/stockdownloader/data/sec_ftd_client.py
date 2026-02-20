@@ -266,6 +266,15 @@ class SecFtdClient:
 
         symbol_upper = symbol.upper()
 
+        # Auto-narrow start year from IPO date when the caller used the
+        # default.  This avoids downloading years of empty ZIPs for
+        # symbols that IPO'd after 2004 (e.g. TSLA in 2010).
+        from stockdownloader.model.symbol_info import get_symbol_info
+
+        _info = get_symbol_info(symbol_upper)
+        if _info is not None:
+            start_year = max(start_year, _info.ftd_start_year)
+
         # Build the combined splits list for this symbol (may be multiple).
         all_splits = _KNOWN_SPLITS + (extra_splits or [])
         splits = [s for s in all_splits if s.symbol == symbol_upper]

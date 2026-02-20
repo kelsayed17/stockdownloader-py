@@ -217,6 +217,27 @@ class SecOwnershipClient:
         """
         symbol_upper = symbol.upper()
 
+        # Auto-resolve CUSIP from the symbol registry when the caller
+        # used the default GME CUSIP.  This fixes a bug where non-GME
+        # symbols silently queried with GME's CUSIP.
+        from stockdownloader.model.symbol_info import get_symbol_info
+
+        _info = get_symbol_info(symbol_upper)
+        if cusip == _GME_CUSIP and symbol_upper != "GME":
+            if _info is not None and _info.cusip:
+                cusip = _info.cusip
+                logger.info(
+                    "Auto-resolved CUSIP for %s: %s",
+                    symbol_upper, cusip,
+                )
+            else:
+                logger.warning(
+                    "No CUSIP found for %s in symbol registry; "
+                    "using default GME CUSIP — results will be "
+                    "incorrect.  Pass cusip= explicitly.",
+                    symbol_upper,
+                )
+
         # Try cache first (unless force refresh)
         if not force_refresh:
             cached = self._load_cache(symbol_upper)
@@ -231,6 +252,16 @@ class SecOwnershipClient:
         today = date.today()
         current_quarter = (today.month - 1) // 3 + 1
         current_year = today.year
+
+        # Compute the earliest useful quarter.  SEC bulk 13F data starts
+        # at Q2 2013 — that is the absolute floor.  If the symbol IPO'd
+        # after Q2 2013 we can skip even more.
+        min_year, min_quarter = 2013, 2
+        if _info is not None:
+            ipo_y = _info.ipo_date.year
+            ipo_q = (_info.ipo_date.month - 1) // 3 + 1
+            if (ipo_y, ipo_q) > (min_year, min_quarter):
+                min_year, min_quarter = ipo_y, ipo_q
 
         snapshots: list[OwnershipSnapshot] = []
 
@@ -273,8 +304,8 @@ class SecOwnershipClient:
             quarters_fetched += 1
             year, quarter = _prev_quarter(year, quarter)
 
-            # Stop if we go before Q2 2013 (earliest bulk data)
-            if year < 2013 or (year == 2013 and quarter < 2):
+            # Stop if we've gone before the earliest useful quarter
+            if year < min_year or (year == min_year and quarter < min_quarter):
                 break
 
         # Apply split adjustments so pre-split share counts are

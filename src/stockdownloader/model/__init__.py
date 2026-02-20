@@ -45,6 +45,11 @@ from stockdownloader.model.regulatory_records import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )
+from stockdownloader.model.symbol_info import (
+    SymbolInfo,
+    SYMBOL_REGISTRY,
+    get_symbol_info,
+)
 
 __all__ = [
     "PriceData",
@@ -88,4 +93,7 @@ __all__ = [
     "InstitutionalHolding",
     "OwnershipSnapshot",
     "BorrowRateRecord",
+    "SymbolInfo",
+    "SYMBOL_REGISTRY",
+    "get_symbol_info",
 ]
