@@ -17,7 +17,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.ml.predictor import MLPredictor
-from stockdownloader.model.intraday_signal import IntradaySignal
+from stockdownloader.model.trade import IntradaySignal
 from stockdownloader.strategy.intraday.base_config import InfraExitConfig
 from stockdownloader.strategy.intraday.entry_helpers import (
     clamp_sl_dist,

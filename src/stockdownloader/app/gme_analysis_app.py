@@ -54,7 +54,7 @@ from stockdownloader.model.alert_result import AlertResult
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.options import OptionsChain
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.sec_filing import SecFiling
+from stockdownloader.model.sec_models import SecFiling
 
 logger = logging.getLogger(__name__)
 

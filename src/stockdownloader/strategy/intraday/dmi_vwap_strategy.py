@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.intraday_signal import (
+from stockdownloader.model.trade import (
     HOLD,
     IntradayAction,
     IntradaySignal,

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from stockdownloader.model.sec_filing import SecFiling
+from stockdownloader.model.sec_models import SecFiling
 
 __all__ = [
     "FilingImpact",

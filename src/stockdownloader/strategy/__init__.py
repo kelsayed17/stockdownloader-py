@@ -10,7 +10,7 @@ exit_mechanisms : Exit mechanism implementations for tournaments
 signals : Signal filtering and routing
 """
 
-from stockdownloader.strategy.exit_mechanism import ExitMechanism
+from stockdownloader.strategy.exit_mechanisms.trailing_exit_base import ExitMechanism
 from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.base_registry import StrategyRegistry
 

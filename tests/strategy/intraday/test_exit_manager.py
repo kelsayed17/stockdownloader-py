@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 
-from stockdownloader.model.intraday_signal import IntradayAction, HOLD
+from stockdownloader.model.trade import IntradayAction, HOLD
 from stockdownloader.model.trade import Direction
 from stockdownloader.strategy.intraday.base_config import InfraExitConfig
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager

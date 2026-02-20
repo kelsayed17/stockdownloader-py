@@ -6,7 +6,7 @@ import pytest
 
 from stockdownloader.model.options import OptionType
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.strategy.options_strategy import OptionsSignal
+from stockdownloader.strategy.options.options_strategies import OptionsSignal
 from stockdownloader.strategy.options.options_strategies import ProtectivePutStrategy
 
 

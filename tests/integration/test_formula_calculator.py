@@ -8,7 +8,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import pytest
 
 from stockdownloader.analysis.formula_calculator import FormulaCalculator, ValuationInputs
-from stockdownloader.model.quote_data import QuoteData
+from stockdownloader.model.financial_models import QuoteData
 from stockdownloader.model.unified_market_data import FinancialData, HistoricalData
 
 

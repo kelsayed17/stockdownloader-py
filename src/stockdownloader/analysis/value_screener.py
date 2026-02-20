@@ -30,9 +30,9 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from stockdownloader.model.detailed_financial_data import DetailedFinancialData
-    from stockdownloader.model.quote_data import QuoteData
-    from stockdownloader.model.value_screener_result import ValueScreenerResult
+    from stockdownloader.model.financial_models import DetailedFinancialData
+    from stockdownloader.model.financial_models import QuoteData
+    from stockdownloader.model.financial_models import ValueScreenerResult
 
 _ZERO = Decimal("0")
 _ONE = Decimal("1")
@@ -127,7 +127,7 @@ class ValueScreener:
         growth / valuation / income scores use quote-only data (Phase 1
         coarse scoring mode).
         """
-        from stockdownloader.model.value_screener_result import ValueScreenerResult
+        from stockdownloader.model.financial_models import ValueScreenerResult
 
         val_score = self._score_valuation(quote, detailed)
         growth_score = self._score_growth(quote, detailed)

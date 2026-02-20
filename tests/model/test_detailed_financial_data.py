@@ -1,7 +1,7 @@
 """Tests for DetailedFinancialData model."""
 from decimal import Decimal
 
-from stockdownloader.model.detailed_financial_data import DetailedFinancialData
+from stockdownloader.model.financial_models import DetailedFinancialData
 
 
 class TestDetailedFinancialData:

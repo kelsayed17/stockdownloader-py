@@ -89,7 +89,7 @@ def _period_midpoint(
 
 
 def _deduplicate_levels(
-    levels: list[Decimal], reference: Decimal
+    levels: list[Decimal], reference: Decimal,
 ) -> list[Decimal]:
     if not levels:
         return levels
@@ -105,6 +105,63 @@ def _deduplicate_levels(
         if not too_close:
             deduped.append(levels[i])
     return deduped
+
+
+# =========================================================================
+# Crossover detection
+# =========================================================================
+
+
+def crossed_above(
+    current: Decimal,
+    previous: Decimal,
+    threshold: Decimal,
+) -> bool:
+    """Return ``True`` if *current* is above *threshold* while *previous* was at or below it.
+
+    This detects the exact bar where an upward crossing occurs.
+    """
+    return current > threshold and previous <= threshold
+
+
+def crossed_below(
+    current: Decimal,
+    previous: Decimal,
+    threshold: Decimal,
+) -> bool:
+    """Return ``True`` if *current* is below *threshold* while *previous* was at or above it.
+
+    This detects the exact bar where a downward crossing occurs.
+    """
+    return current < threshold and previous >= threshold
+
+
+def crossed_above_series(
+    current_a: Decimal,
+    prev_a: Decimal,
+    current_b: Decimal,
+    prev_b: Decimal,
+) -> bool:
+    """Return ``True`` if series *A* crossed above series *B*.
+
+    Useful for MACD-over-signal, SMA-fast-over-slow, and similar
+    two-series crossover patterns.
+    """
+    return current_a > current_b and prev_a <= prev_b
+
+
+def crossed_below_series(
+    current_a: Decimal,
+    prev_a: Decimal,
+    current_b: Decimal,
+    prev_b: Decimal,
+) -> bool:
+    """Return ``True`` if series *A* crossed below series *B*.
+
+    Useful for MACD-under-signal, SMA-fast-under-slow, and similar
+    two-series crossover patterns.
+    """
+    return current_a < current_b and prev_a >= prev_b
 
 
 # =========================================================================
@@ -161,6 +218,11 @@ __all__ = [
     "standard_deviation",
     "_period_midpoint",
     "_deduplicate_levels",
+    # crossover detection
+    "crossed_above",
+    "crossed_below",
+    "crossed_above_series",
+    "crossed_below_series",
     # volatility
     "BollingerBands",
     "bollinger_bands",

@@ -13,7 +13,7 @@ from stockdownloader.data.sec_ownership_client import (
     _filing_date_to_quarter_end,
     _get_xml_text,
 )
-from stockdownloader.model.institutional_holding import (
+from stockdownloader.model.sec_models import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )

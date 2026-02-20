@@ -23,7 +23,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.intraday_signal import IntradaySignal
+from stockdownloader.model.trade import IntradaySignal
 from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
 
 if TYPE_CHECKING:

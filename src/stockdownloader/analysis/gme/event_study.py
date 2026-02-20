@@ -14,7 +14,7 @@ from scipy.stats import t as t_dist
 
 from stockdownloader.analysis.gme.models import EventStudyResult, FilingImpact
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.sec_filing import SecFiling
+from stockdownloader.model.sec_models import SecFiling
 
 __all__ = [
     "correlate_filings_with_price",

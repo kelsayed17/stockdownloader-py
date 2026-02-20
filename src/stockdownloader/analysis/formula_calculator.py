@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from stockdownloader.model.unified_market_data import FinancialData, HistoricalData
-    from stockdownloader.model.quote_data import QuoteData
+    from stockdownloader.model.financial_models import QuoteData
 
 DEFAULT_FIXED_EPS_GROWTH = Decimal("0.06")
 DEFAULT_DESIRED_RETURN = Decimal("0.05")

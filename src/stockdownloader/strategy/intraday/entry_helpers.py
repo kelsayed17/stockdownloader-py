@@ -9,7 +9,7 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.intraday_signal import IntradayAction, IntradaySignal
+from stockdownloader.model.trade import IntradayAction, IntradaySignal
 from stockdownloader.util.big_decimal_math import ZERO
 from stockdownloader.util.intraday_indicators import (
     is_bear_engulfing,

@@ -11,7 +11,7 @@ from decimal import Decimal, ROUND_HALF_UP, ROUND_CEILING
 
 from stockdownloader.model.options import OptionsChain
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.quote_data import QuoteData
+from stockdownloader.model.financial_models import QuoteData
 
 
 class HistoricalData:

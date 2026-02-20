@@ -11,7 +11,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.intraday_signal import IntradaySignal
+from stockdownloader.model.trade import IntradaySignal
 
 
 class IntradayTradingStrategy(ABC):

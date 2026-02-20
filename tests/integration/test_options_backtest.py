@@ -13,14 +13,14 @@ from stockdownloader.backtest.backtest_result import OptionsBacktestResult
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
 from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.quote_data import QuoteData
+from stockdownloader.model.financial_models import QuoteData
 from stockdownloader.model.unified_market_data import (
     FinancialData,
     HistoricalData,
     UnifiedMarketData,
 )
 from stockdownloader.strategy.options.options_strategies import CoveredCallStrategy, ProtectivePutStrategy
-from stockdownloader.strategy.options_strategy import OptionsStrategy
+from stockdownloader.strategy.options.options_strategies import OptionsStrategy
 from stockdownloader.util.black_scholes_calculator import (
     price as bs_price,
     estimate_volatility,

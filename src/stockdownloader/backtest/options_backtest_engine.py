@@ -21,7 +21,7 @@ from decimal import Decimal
 from stockdownloader.backtest.backtest_result import OptionsBacktestResult
 from stockdownloader.model import OptionsTrade, OptionsDirection, OptionsTradeStatus
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.strategy.options_strategy import OptionsStrategy, OptionsSignal
+from stockdownloader.strategy.options.options_strategies import OptionsStrategy, OptionsSignal
 from stockdownloader.util import black_scholes_calculator as bsc
 
 _CONTRACT_MULTIPLIER = 100

@@ -18,7 +18,7 @@ from __future__ import annotations
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.intraday_signal import (
+from stockdownloader.model.trade import (
     IntradayAction,
     IntradaySignal,
     HOLD,

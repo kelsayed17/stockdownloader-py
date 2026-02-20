@@ -8,7 +8,7 @@ compatibility.
 from decimal import Decimal
 
 from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.intraday_signal import IntradayAction, HOLD
+from stockdownloader.model.trade import IntradayAction, HOLD
 from stockdownloader.model.trade import Direction
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
 from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategy
@@ -511,7 +511,7 @@ class TestFiredTodayReset:
         We build two synthetic sessions with bars that satisfy all ORB filters
         and verify the strategy produces an entry signal in each session.
         """
-        from stockdownloader.model.intraday_signal import IntradayAction
+        from stockdownloader.model.trade import IntradayAction
 
         D = Decimal
         bars: list[IntradayPriceData] = []

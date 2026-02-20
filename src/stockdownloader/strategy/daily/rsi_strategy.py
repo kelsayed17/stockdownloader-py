@@ -9,7 +9,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
-from stockdownloader.util.crossover import crossed_above, crossed_below
+from stockdownloader.util.technical import crossed_above, crossed_below
 from stockdownloader.util.indicator_hub import IndicatorHub
 from stockdownloader.util.pinescript_models import (
     Condition, Indicator, Input, StrategyDefinition,

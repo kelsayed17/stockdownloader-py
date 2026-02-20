@@ -6,8 +6,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.analysis.value_screener import ValueScreener
-from stockdownloader.model.detailed_financial_data import DetailedFinancialData
-from stockdownloader.model.quote_data import QuoteData
+from stockdownloader.model.financial_models import DetailedFinancialData, QuoteData
 
 
 def _make_quote(

@@ -1,4 +1,8 @@
-"""Shared boilerplate for trailing-stop exit mechanisms.
+"""Exit mechanism interface and shared trailing-stop boilerplate.
+
+:class:`ExitMechanism` (ABC) defines the contract for exit mechanisms
+used in the exit tournament.  It evaluates whether an existing position
+should be exited on each bar, tracking its own internal state.
 
 :class:`TrailingExitBase` manages: ``_stop``, ``_peak``, ``_exit_price``,
 ``_exit_reason``, ``_initialized``, ``_data``, ``_data_offset``.
@@ -14,11 +18,81 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.model.trade import Direction
-from stockdownloader.strategy.exit_mechanism import ExitMechanism
 from stockdownloader.util.big_decimal_math import ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData
+    from stockdownloader.model.tournament_trade import TournamentTrade
+
+
+# =========================================================================
+# ExitMechanism ABC
+# =========================================================================
+
+
+class ExitMechanism(ABC):
+    """Abstract base class for exit mechanisms."""
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Return the display name of this exit mechanism."""
+
+    @abstractmethod
+    def evaluate_bar(
+        self,
+        bar: IntradayPriceData,
+        trade: TournamentTrade,
+        bar_index: int,
+    ) -> bool:
+        """Evaluate whether the trade should be exited at this bar.
+
+        Called once per bar, in chronological order, from entry forward.
+        The mechanism must maintain its own internal state (peak, stop,
+        activation) across calls.
+
+        Args:
+            bar: The current 5-minute bar.
+            trade: The trade being evaluated.
+            bar_index: Ordinal bar index from trade entry (0 = entry bar).
+
+        Returns:
+            ``True`` if the trade should be exited now.
+        """
+
+    @property
+    @abstractmethod
+    def exit_price(self) -> Decimal:
+        """Return the exact exit price after :meth:`evaluate_bar` returns True.
+
+        The exit price may differ from the bar's close (e.g. the stop level
+        rather than the close).
+        """
+
+    @property
+    @abstractmethod
+    def exit_reason(self) -> str:
+        """Return a short string describing why the exit was triggered.
+
+        Examples: ``'trail_stop'``, ``'vwap_cross'``, ``'session_end'``.
+        """
+
+    @abstractmethod
+    def reset(self) -> None:
+        """Reset internal state for a new trade evaluation."""
+
+    @property
+    def peak_favorable(self) -> Decimal:
+        """Return the peak favorable excursion (from entry) seen so far.
+
+        Subclasses should track this internally.  Default returns zero.
+        """
+        return ZERO
+
+
+# =========================================================================
+# TrailingExitBase — shared boilerplate for trailing-stop exits
+# =========================================================================
 
 
 class TrailingExitBase(ExitMechanism, ABC):

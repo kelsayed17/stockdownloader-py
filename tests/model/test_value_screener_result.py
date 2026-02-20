@@ -1,7 +1,7 @@
 """Tests for ValueScreenerResult model."""
 from decimal import Decimal
 
-from stockdownloader.model.value_screener_result import ValueScreenerResult
+from stockdownloader.model.financial_models import ValueScreenerResult
 
 
 class TestValueScreenerResult:

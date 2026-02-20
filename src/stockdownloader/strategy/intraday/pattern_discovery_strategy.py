@@ -24,7 +24,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.analysis.pattern_encoder import BarEncoder, BarFeatures
-from stockdownloader.model.intraday_signal import IntradaySignal
+from stockdownloader.model.trade import IntradaySignal
 from stockdownloader.strategy.intraday.base_config import InfraExitConfig
 from stockdownloader.strategy.intraday.entry_helpers import (
     directional_sl_tp,

@@ -7,7 +7,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.intraday_signal import IntradayAction
+from stockdownloader.model.trade import IntradayAction
 from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapConfig
 from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
 

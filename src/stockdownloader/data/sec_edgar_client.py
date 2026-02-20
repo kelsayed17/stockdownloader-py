@@ -18,7 +18,7 @@ from typing import Sequence
 
 import requests
 
-from stockdownloader.model.sec_filing import SecFiling
+from stockdownloader.model.sec_models import SecFiling
 
 logger = logging.getLogger(__name__)
 

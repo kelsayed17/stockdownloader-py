@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from stockdownloader.data.yahoo_finance_client import YahooFinanceClient
-from stockdownloader.model.quote_data import QuoteData
+from stockdownloader.model.financial_models import QuoteData
 
 
 def _mock_auth() -> MagicMock:

@@ -28,7 +28,7 @@ from stockdownloader.analysis.gme import (
 )
 from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.sec_filing import SecFiling
+from stockdownloader.model.sec_models import SecFiling
 
 _D = Decimal
 

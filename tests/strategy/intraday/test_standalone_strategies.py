@@ -9,7 +9,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.intraday_signal import IntradayAction, HOLD
+from stockdownloader.model.trade import IntradayAction, HOLD
 from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategyConfig, ORBreakoutStrategy
 from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategyConfig, ORReversalStrategy

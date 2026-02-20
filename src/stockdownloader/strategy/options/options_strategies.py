@@ -1,10 +1,12 @@
-"""Options strategy implementations: covered call and protective put.
+"""Options strategy interface and implementations.
 
-Both strategies extend
-:class:`~stockdownloader.strategy.options_strategy.OptionsStrategy` and return
-:class:`~stockdownloader.strategy.options_strategy.OptionsSignal`
-(OPEN / CLOSE / HOLD).
+Interface
+---------
+:class:`OptionsStrategy` (ABC) and :class:`OptionsSignal` (enum) define
+the contract for options-level strategies.
 
+Implementations
+---------------
 Covered call
     Sells OTM calls against a long stock position for premium income while
     capping upside.
@@ -15,15 +17,77 @@ Protective put
 """
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR, ROUND_HALF_UP
+from enum import Enum, auto
 from typing import TYPE_CHECKING
 
 from stockdownloader.model.options import OptionType
-from stockdownloader.strategy.options_strategy import OptionsSignal, OptionsStrategy
 from stockdownloader.util.indicator_hub import IndicatorHub
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import PriceData
+
+
+# ── Interface ────────────────────────────────────────────────────────────
+
+
+class OptionsSignal(Enum):
+    """Signal produced by an options strategy evaluation."""
+    OPEN = auto()
+    CLOSE = auto()
+    HOLD = auto()
+
+
+class OptionsStrategy(ABC):
+    """Abstract base class for options trading strategies."""
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Return the display name of the strategy."""
+
+    @abstractmethod
+    def evaluate(self, data: list[PriceData], current_index: int) -> OptionsSignal:
+        """Evaluate the strategy and return a signal.
+
+        Args:
+            data: Underlying price history.
+            current_index: Current bar index.
+
+        Returns:
+            OPEN to enter a position, CLOSE to exit, HOLD to do nothing.
+        """
+
+    @property
+    @abstractmethod
+    def option_type(self) -> OptionType:
+        """Get the option type this strategy trades."""
+
+    @abstractmethod
+    def is_short(self) -> bool:
+        """Whether this strategy sells options (writes) or buys them."""
+
+    @abstractmethod
+    def get_target_strike(self, current_price: Decimal) -> Decimal:
+        """Calculate the target strike price based on current market conditions.
+
+        Args:
+            current_price: Current underlying price.
+
+        Returns:
+            Target strike price.
+        """
+
+    @property
+    @abstractmethod
+    def target_days_to_expiry(self) -> int:
+        """Get the target days to expiration for new positions."""
+
+    @property
+    @abstractmethod
+    def warmup_period(self) -> int:
+        """Number of warmup bars needed before the strategy can generate signals."""
 
 
 # ── Covered Call ─────────────────────────────────────────────────────────
