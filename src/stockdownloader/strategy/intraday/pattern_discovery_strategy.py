@@ -31,7 +31,7 @@ from stockdownloader.strategy.intraday.entry_helpers import (
     make_entry_signal,
 )
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
-from stockdownloader.strategy.intraday.bar_context import BarContext
+from stockdownloader.strategy.intraday.session_state import BarContext
 from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import VwapRatchetTrail
 from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy

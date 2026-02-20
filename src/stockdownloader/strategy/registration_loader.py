@@ -4,11 +4,18 @@ Reads strategy registrations from JSON config files and registers
 them with :class:`StrategyRegistry`.  Decimal values are encoded
 as strings prefixed with ``D:`` (e.g. ``"D:1.5"``).
 
+Call :func:`ensure_registered` from any entry point that needs the registry
+populated (CLI apps, tests that query by name).  Idempotent -- safe to call
+multiple times.
+
+All strategy defaults, param_space, and factory mappings are defined in
+JSON config files under ``config/strategy/``.
+
 Usage::
 
-    from stockdownloader.strategy.registration_loader import load_registrations
+    from stockdownloader.strategy.registration_loader import ensure_registered
 
-    load_registrations("daily", "config/strategy/daily_registrations.json")
+    ensure_registered()
 """
 
 from __future__ import annotations
@@ -97,3 +104,29 @@ def load_registrations(category: str, config_path: str) -> None:
             default_kwargs=default_kwargs,
             param_space=param_space,
         )
+
+
+# =========================================================================
+# Idempotent entry point (formerly registrations.py)
+# =========================================================================
+
+_registered = False
+
+
+def ensure_registered() -> None:
+    """Populate :class:`StrategyRegistry` with all built-in strategies.
+
+    Loads strategy definitions from JSON config files:
+
+    - ``config/strategy/daily_registrations.json`` (7 daily strategies)
+    - ``config/strategy/options_registrations.json`` (2 options strategies)
+    - ``config/strategy/intraday_registrations.json`` (7 intraday strategies)
+    """
+    global _registered
+    if _registered:
+        return
+    _registered = True
+
+    load_registrations("daily", "config/strategy/daily_registrations.json")
+    load_registrations("options", "config/strategy/options_registrations.json")
+    load_registrations("intraday", "config/strategy/intraday_registrations.json")

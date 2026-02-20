@@ -9,8 +9,10 @@ from stockdownloader.analysis.gme.distribution import (
     compute_price_statistics,
     compute_volume_profile,
 )
-from stockdownloader.analysis.gme.event_study import run_event_study
-from stockdownloader.analysis.gme.filings import correlate_filings_with_price
+from stockdownloader.analysis.gme.event_study import (
+    correlate_filings_with_price,
+    run_event_study,
+)
 from stockdownloader.analysis.gme.models import (
     EventStudyResult,
     FilingImpact,

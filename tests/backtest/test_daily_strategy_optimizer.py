@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from stockdownloader.strategy.registrations import ensure_registered
+from stockdownloader.strategy.registration_loader import ensure_registered
 ensure_registered()
 
 from stockdownloader.backtest.daily_strategy_optimizer import (

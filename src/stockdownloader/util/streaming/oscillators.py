@@ -5,7 +5,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
 from stockdownloader.util.big_decimal_math import HUNDRED, ONE, ZERO
-from stockdownloader.util.streaming._base import _quantize
+from stockdownloader.util.streaming import _quantize
 from stockdownloader.util.streaming.accumulators import StreamingEMA
 
 if TYPE_CHECKING:

@@ -55,7 +55,7 @@ class ConvergenceStage:
         training_result: TrainingStageResult,
     ) -> ConvergenceResult:
         """Run convergence analysis for top models × all daily strategies."""
-        from stockdownloader.strategy.registrations import ensure_registered
+        from stockdownloader.strategy.registration_loader import ensure_registered
         from stockdownloader.strategy.registry import StrategyRegistry
         from stockdownloader.strategy.trading_strategy import TradingStrategy
 

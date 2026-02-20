@@ -79,7 +79,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.list_strategies:
-        from stockdownloader.strategy.registrations import ensure_registered
+        from stockdownloader.strategy.registration_loader import ensure_registered
         from stockdownloader.strategy.registry import StrategyRegistry
         ensure_registered()
         print("Available strategies for optimization:")
@@ -113,7 +113,7 @@ def main() -> None:
         risk = Decimal(str(args.risk))
 
         if args.strategy:
-            from stockdownloader.strategy.registrations import ensure_registered
+            from stockdownloader.strategy.registration_loader import ensure_registered
             from stockdownloader.strategy.registry import StrategyRegistry
             ensure_registered()
             entry = StrategyRegistry.get(args.strategy)

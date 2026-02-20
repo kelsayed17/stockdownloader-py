@@ -35,7 +35,7 @@ from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategyConfig
 
-from stockdownloader.strategy.registrations import ensure_registered
+from stockdownloader.strategy.registration_loader import ensure_registered
 ensure_registered()
 
 from stockdownloader.strategy.registry import StrategyRegistry

@@ -1,7 +1,7 @@
 """PineScript generation utilities."""
 
-from stockdownloader.util.pinescript.generator import PineScriptGenerator
-from stockdownloader.util.pinescript.converters import (
+from stockdownloader.util.pinescript.generator import (
+    PineScriptGenerator,
     mode_to_strategy,
     strategy_to_mode,
 )

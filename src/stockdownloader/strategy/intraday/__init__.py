@@ -28,7 +28,7 @@ Infrastructure
 """
 
 from stockdownloader.strategy.intraday.avwap_pullback_strategy import AVWAPPullbackStrategy
-from stockdownloader.strategy.intraday.bar_context import BarContext
+from stockdownloader.strategy.intraday.session_state import BarContext
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.intraday.day_tracker import DayTracker

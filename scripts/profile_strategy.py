@@ -11,7 +11,7 @@ from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEn
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.registry import StrategyRegistry
 
-from stockdownloader.strategy.registrations import ensure_registered
+from stockdownloader.strategy.registration_loader import ensure_registered
 ensure_registered()
 
 

@@ -43,7 +43,7 @@ from stockdownloader.backtest.walk_forward import WalkForwardResult, WalkForward
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
-from stockdownloader.strategy.registrations import ensure_registered
+from stockdownloader.strategy.registration_loader import ensure_registered
 from stockdownloader.strategy.registry import StrategyRegistry
 from stockdownloader.app.app_helpers import add_intraday_csv_arg, add_log_arg
 from stockdownloader.util.constants import INITIAL_CAPITAL, OPTIONS_COMMISSION, RISK_PER_TRADE

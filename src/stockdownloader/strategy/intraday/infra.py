@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Callable
 
 from stockdownloader.model.intraday_signal import HOLD, IntradayAction, IntradaySignal
 from stockdownloader.model.trade import Direction
-from stockdownloader.strategy.intraday.bar_context import BarContext
+from stockdownloader.strategy.intraday.session_state import BarContext
 from stockdownloader.strategy.intraday.day_tracker import DayTracker
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
 from stockdownloader.strategy.intraday.session_state import SessionState

@@ -44,7 +44,7 @@ def _run_baseline_backtest(
     slippage_pct: Decimal = Decimal("0"),
 ) -> BacktestEntry | None:
     """Run a single baseline backtest (thread target)."""
-    from stockdownloader.strategy.registrations import ensure_registered
+    from stockdownloader.strategy.registration_loader import ensure_registered
     from stockdownloader.strategy.registry import StrategyRegistry
 
     ensure_registered()
@@ -138,7 +138,7 @@ class BacktestStage:
         hybrid_result: HybridStageResult,
     ) -> BacktestStageResult:
         """Backtest all strategies and return ranked results."""
-        from stockdownloader.strategy.registrations import ensure_registered
+        from stockdownloader.strategy.registration_loader import ensure_registered
         from stockdownloader.strategy.registry import StrategyRegistry
 
         ensure_registered()
@@ -471,7 +471,7 @@ class BacktestStage:
             _STRATEGY_CLASS,
         )
         from stockdownloader.ml.trainer import MLTrainer
-        from stockdownloader.strategy.registrations import ensure_registered
+        from stockdownloader.strategy.registration_loader import ensure_registered
         from stockdownloader.strategy.registry import StrategyRegistry
         from stockdownloader.util.indicator_hub import IndicatorHub
 
@@ -644,7 +644,7 @@ class BacktestStage:
         if entry.is_hybrid:
             return None  # Can't recreate hybrids here
         try:
-            from stockdownloader.strategy.registrations import ensure_registered
+            from stockdownloader.strategy.registration_loader import ensure_registered
             from stockdownloader.strategy.registry import StrategyRegistry
 
             ensure_registered()

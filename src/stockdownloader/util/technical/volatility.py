@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from stockdownloader.util.moving_average_calculator import sma as _sma
 from stockdownloader.util.big_decimal_math import ZERO
-from stockdownloader.util.technical._helpers import (
+from stockdownloader.util.technical import (
     SCALE,
     _quantize,
     standard_deviation,

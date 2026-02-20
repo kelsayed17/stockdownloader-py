@@ -2,7 +2,7 @@
 
 import pytest
 
-from stockdownloader.strategy.registrations import ensure_registered
+from stockdownloader.strategy.registration_loader import ensure_registered
 from stockdownloader.strategy.registry import StrategyRegistry, StrategyEntry
 
 ensure_registered()

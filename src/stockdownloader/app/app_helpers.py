@@ -116,7 +116,7 @@ def list_strategies_and_exit(category: str) -> None:
 
     Call this when ``args.list_strategies`` is ``True``.
     """
-    from stockdownloader.strategy.registrations import ensure_registered
+    from stockdownloader.strategy.registration_loader import ensure_registered
     from stockdownloader.strategy.registry import StrategyRegistry
 
     ensure_registered()

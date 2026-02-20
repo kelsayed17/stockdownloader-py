@@ -24,7 +24,7 @@ from stockdownloader.backtest.tournament_engine import (
     TournamentResult,
     apply_cross_timeframe_bonus,
 )
-from stockdownloader.strategy.registrations import ensure_registered
+from stockdownloader.strategy.registration_loader import ensure_registered
 from stockdownloader.util.file_helper import TeeWriter
 
 _MODES = ("all", "roundrobin", "bracket", "portfolio")

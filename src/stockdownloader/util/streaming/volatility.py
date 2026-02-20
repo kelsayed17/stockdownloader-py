@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.util.big_decimal_math import ONE, ZERO
-from stockdownloader.util.streaming._base import _quantize, _true_range
+from stockdownloader.util.streaming import _quantize, _true_range
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
