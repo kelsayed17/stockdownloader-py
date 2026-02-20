@@ -23,7 +23,7 @@ Infrastructure
 - :class:`BarContext` — computed values for the current bar
 - :class:`DayTracker` — day-boundary transitions (daily bars, OR, trend)
 - :class:`SessionState` — per-session mutable state
-- :class:`IntradayExitManager` — exit evaluation with pluggable trail strategies
+- :class:`IntradayExitManager` — exit evaluation with pluggable trail strategies (in ``trade_management``)
 - :class:`TrailStrategy` — ABC for trailing stop strategies
 """
 
@@ -33,14 +33,14 @@ from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.intraday.infra import DayTracker
 from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
-from stockdownloader.strategy.intraday.entry_helpers import (
+from stockdownloader.strategy.intraday.trade_management import (
+    IntradayExitManager,
     clamp_sl_dist,
     detect_reversal_patterns,
     directional_sl_tp,
     make_entry_signal,
     reversal_pattern_label,
 )
-from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
 from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.ml_oversold_strategy import MLOversoldConfig
 from stockdownloader.strategy.intraday.ml_oversold_strategy import MLOversoldStrategy

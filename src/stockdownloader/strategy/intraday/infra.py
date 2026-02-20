@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING, Callable
 
 from stockdownloader.model.trade import HOLD, IntradayAction, IntradaySignal
 from stockdownloader.model.trade import Direction
-from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
+from stockdownloader.strategy.intraday.trade_management import IntradayExitManager
 from stockdownloader.strategy.intraday.session_state import BarContext, SessionState
 from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
 from stockdownloader.util.indicator_hub import IndicatorHub

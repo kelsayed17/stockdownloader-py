@@ -10,7 +10,7 @@ from decimal import Decimal
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.trade import IntradayAction, HOLD
 from stockdownloader.model.trade import Direction
-from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
+from stockdownloader.strategy.intraday.trade_management import IntradayExitManager
 from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
 from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategyConfig

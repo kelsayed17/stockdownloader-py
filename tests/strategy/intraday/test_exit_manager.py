@@ -5,7 +5,7 @@ from decimal import Decimal
 from stockdownloader.model.trade import IntradayAction, HOLD
 from stockdownloader.model.trade import Direction
 from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
-from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
+from stockdownloader.strategy.intraday.trade_management import IntradayExitManager
 from stockdownloader.strategy.intraday.trail_strategy import AtrChandelierTrail, BreakevenTrail, VwapRatchetTrail
 
 from tests.strategy.intraday.conftest import (

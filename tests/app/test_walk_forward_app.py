@@ -1,8 +1,8 @@
 """Smoke tests for the walk-forward validation CLI."""
 
-from stockdownloader.app.walk_forward_app import main
+from stockdownloader.app.optimize_app import main_walk_forward
 
 
 def test_main_callable():
-    """main() is importable and callable."""
-    assert callable(main)
+    """main_walk_forward() is importable and callable."""
+    assert callable(main_walk_forward)

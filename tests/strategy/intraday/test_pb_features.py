@@ -15,7 +15,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.strategy.intraday.entry_helpers import clamp_sl_dist, directional_sl_tp
+from stockdownloader.strategy.intraday.trade_management import clamp_sl_dist, directional_sl_tp
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategyConfig
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
