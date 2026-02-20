@@ -150,7 +150,7 @@ class SelectionStage:
             _BASE_FEATURE_NAMES,
             _HMM_FEATURE_NAMES,
         )
-        from stockdownloader.util.pinescript_generator import PineScriptGenerator
+        from stockdownloader.util.pinescript import PineScriptGenerator
         from stockdownloader.util.pinescript_ml_strategy import (
             DecisionTreeExporter,
             ml_signal_strategy,

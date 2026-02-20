@@ -20,14 +20,14 @@ from stockdownloader.app.pinescript_catalog.strategies import (
     vwap_or_reversal_strategy,
     vwap_pattern_scalp_strategy,
 )
-from stockdownloader.util.pinescript_generator import (
+from stockdownloader.util.pinescript_models import (
     Condition,
     Indicator,
     Input,
     InputType,
-    PineScriptGenerator,
     StrategyDefinition,
 )
+from stockdownloader.util.pinescript import PineScriptGenerator
 
 
 class TestInput:

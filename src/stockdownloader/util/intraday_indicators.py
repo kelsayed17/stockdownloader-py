@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING
 
 from stockdownloader.util.big_decimal_math import ZERO
 from stockdownloader.util.moving_average_calculator import ema as _ema
-from stockdownloader.util.technical_indicators import (
+from stockdownloader.util.technical import (
     _compute_session_vwap_core,
     _find_session_start,
     atr as _atr,

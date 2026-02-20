@@ -10,7 +10,7 @@ between strategy modules and the PineScript generation layer.
 
 from __future__ import annotations
 
-from stockdownloader.util.pinescript_generator import (
+from stockdownloader.util.pinescript_models import (
     Condition,
     Indicator,
     Input,

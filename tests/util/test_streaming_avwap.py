@@ -7,7 +7,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.incremental_indicators import (
+from stockdownloader.util.streaming import (
     StreamingAnchoredVWAP,
     StreamingSessionVWAP,
 )

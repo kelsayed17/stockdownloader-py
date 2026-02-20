@@ -300,7 +300,7 @@ def _export_pinescript(
     """Generate and save Pine Script indicator from training results."""
     from pathlib import Path
 
-    from stockdownloader.util.pinescript_generator import PineScriptGenerator
+    from stockdownloader.util.pinescript import PineScriptGenerator
     from stockdownloader.util.pinescript_ml_strategy import (
         DecisionTreeExporter,
         ml_signal_strategy,

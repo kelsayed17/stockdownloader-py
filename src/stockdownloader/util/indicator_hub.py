@@ -33,10 +33,10 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
 from stockdownloader.util.big_decimal_math import ZERO
-from stockdownloader.util import technical_indicators as ti
+from stockdownloader.util import technical as ti
 from stockdownloader.util import intraday_indicators as ii
 from stockdownloader.util.moving_average_calculator import sma as _sma, ema as _ema
-from stockdownloader.util.incremental_indicators import (
+from stockdownloader.util.streaming import (
     StreamingADX,
     StreamingAnchoredVWAP,
     StreamingATR,
@@ -574,7 +574,7 @@ class IndicatorHub:
         self._ensure_bound(data)
         if key not in self._cache:
             vwap_val, std_val = self._vwap_core(data, index)
-            from stockdownloader.util.technical_indicators import _quantize
+            from stockdownloader.util.technical import _quantize
             if vwap_val == ZERO and std_val == ZERO:
                 self._cache[key] = ti.SessionVWAP(ZERO, ZERO, ZERO, ZERO, ZERO, ZERO)
             else:
@@ -599,7 +599,7 @@ class IndicatorHub:
         self._ensure_bound(data)
         if key not in self._cache:
             vwap_val, std_val = self._vwap_core(data, index)
-            from stockdownloader.util.technical_indicators import _quantize
+            from stockdownloader.util.technical import _quantize
             if vwap_val == ZERO and std_val == ZERO:
                 self._cache[key] = ii._EMPTY_VWAP
             else:
@@ -660,7 +660,7 @@ class IndicatorHub:
             if not acc.valid or avwap_val == ZERO:
                 self._cache[key] = ii._EMPTY_AVWAP
             else:
-                from stockdownloader.util.technical_indicators import _quantize
+                from stockdownloader.util.technical import _quantize
                 from stockdownloader.util.event_calendar import days_since_anchor
 
                 anchor_date = acc.current_anchor
@@ -738,7 +738,7 @@ class IndicatorHub:
                 if denom <= ZERO:
                     self._cache[key] = ZERO
                 else:
-                    from stockdownloader.util.technical_indicators import _quantize
+                    from stockdownloader.util.technical import _quantize
                     self._cache[key] = _quantize(cvd / denom)
         return self._cache[key]
 

@@ -7,7 +7,7 @@ from stockdownloader.util.big_decimal_math import (
     scale2,
 )
 from stockdownloader.util.moving_average_calculator import ema, sma
-from stockdownloader.util.technical_indicators import (
+from stockdownloader.util.technical import (
     ADXResult,
     BollingerBands,
     FibonacciLevels,

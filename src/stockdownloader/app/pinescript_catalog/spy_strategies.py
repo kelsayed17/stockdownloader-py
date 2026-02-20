@@ -27,7 +27,7 @@ Usage::
         spy_macd_obv_strategy,
         spy_macd_obv_strategy_v2,
     )
-    from stockdownloader.util.pinescript_generator import PineScriptGenerator
+    from stockdownloader.util.pinescript import PineScriptGenerator
 
     gen = PineScriptGenerator()
     # Indicator mode

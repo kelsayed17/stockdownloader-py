@@ -9,8 +9,8 @@ import random
 from decimal import Decimal
 
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util import technical_indicators as ti
-from stockdownloader.util.incremental_indicators import (
+from stockdownloader.util import technical as ti
+from stockdownloader.util.streaming import (
     StreamingOBV,
     StreamingSAR,
 )

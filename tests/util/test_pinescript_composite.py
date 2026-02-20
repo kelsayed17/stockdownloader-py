@@ -15,14 +15,16 @@ from stockdownloader.app.pinescript_catalog.strategies import (
     rsi_strategy,
     sma_crossover_strategy,
 )
-from stockdownloader.util.pinescript_generator import (
+from stockdownloader.util.pinescript_models import (
     CompositeStrategyDefinition,
     Condition,
     Indicator,
     Input,
     ModeDefinition,
-    PineScriptGenerator,
     SharedInfrastructure,
+)
+from stockdownloader.util.pinescript import (
+    PineScriptGenerator,
     mode_to_strategy,
     strategy_to_mode,
 )

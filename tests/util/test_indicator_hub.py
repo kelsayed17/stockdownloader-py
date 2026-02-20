@@ -15,9 +15,9 @@ from unittest.mock import patch
 
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.util.indicator_hub import IndicatorHub
-from stockdownloader.util import technical_indicators as ti
+from stockdownloader.util import technical as ti
 from stockdownloader.util.moving_average_calculator import sma as _sma, ema as _ema
-from stockdownloader.util.incremental_indicators import (
+from stockdownloader.util.streaming import (
     StreamingADX,
     StreamingATR,
     StreamingEMA,

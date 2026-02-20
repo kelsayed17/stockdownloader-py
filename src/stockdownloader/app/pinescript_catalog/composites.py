@@ -6,14 +6,14 @@ modes into single indicators, plus the ``COMPOSITE_STRATEGY_CATALOG``.
 
 from __future__ import annotations
 
-from stockdownloader.util.pinescript_generator import (
+from stockdownloader.util.pinescript_models import (
     CompositeStrategyDefinition,
     Condition,
     Indicator,
     Input,
     ModeDefinition,
-    strategy_to_mode,
 )
+from stockdownloader.util.pinescript import strategy_to_mode
 from stockdownloader.util.pinescript_modes import (
     orb_mode as _orb_mode,
     orr_mode as _orr_mode,

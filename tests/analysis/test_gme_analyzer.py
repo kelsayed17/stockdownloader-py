@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.analysis.gme_analyzer import (
+from stockdownloader.analysis.gme import (
     EventStudyResult,
     FilingImpact,
     KeyPeriod,

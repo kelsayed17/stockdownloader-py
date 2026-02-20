@@ -17,7 +17,7 @@ Usage::
     exporter.train_surrogate(dataset, feature_importances, top_n=15)
     strategy = ml_signal_strategy("SPY", exporter)
 
-    from stockdownloader.util.pinescript_generator import PineScriptGenerator
+    from stockdownloader.util.pinescript import PineScriptGenerator
     pine = PineScriptGenerator().generate(strategy)
 """
 

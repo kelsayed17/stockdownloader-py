@@ -4,7 +4,7 @@ import random
 from decimal import Decimal
 
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.technical_indicators import (
+from stockdownloader.util.technical import (
     bollinger_bands,
     bollinger_percent_b,
     stochastic,

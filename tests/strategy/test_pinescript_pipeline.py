@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 
 from stockdownloader.app.pinescript_catalog.strategies import STRATEGY_CATALOG
-from stockdownloader.util.pinescript_generator import PineScriptGenerator
+from stockdownloader.util.pinescript import PineScriptGenerator
 
 
 # ======================================================================
@@ -244,7 +244,7 @@ class TestIntradayModeRoundTrip:
         self.gen = PineScriptGenerator()
 
     def _mode_to_pine(self, mode: "ModeDefinition") -> str:
-        from stockdownloader.util.pinescript_generator import mode_to_strategy
+        from stockdownloader.util.pinescript import mode_to_strategy
         from stockdownloader.util.pinescript_modes import (
             vwap_shared_infrastructure as _vwap_shared_infrastructure,
         )

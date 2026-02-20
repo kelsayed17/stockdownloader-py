@@ -156,7 +156,7 @@ class TestMLSignalStrategy:
 
     def test_strategy_generates_valid_pine(self) -> None:
         """Full pipeline: train → export → generate Pine Script."""
-        from stockdownloader.util.pinescript_generator import PineScriptGenerator
+        from stockdownloader.util.pinescript import PineScriptGenerator
 
         ds = _make_real_feature_dataset(200)
         importances = {n: 1.0 / len(ds.feature_names) for n in ds.feature_names}

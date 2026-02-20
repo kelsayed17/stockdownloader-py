@@ -31,13 +31,13 @@ from stockdownloader.strategy.daily.sma_crossover_strategy import (
     SMACrossoverStrategy,
 )
 from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
-from stockdownloader.util.pinescript_generator import (
+from stockdownloader.util.pinescript_models import (
     Condition,
     Indicator,
     Input,
     StrategyDefinition,
-    mode_to_strategy,
 )
+from stockdownloader.util.pinescript import mode_to_strategy
 from stockdownloader.app.pinescript_catalog.gme_prediction import gme_prediction_strategy
 from stockdownloader.util.pinescript_modes import (
     pb_mode as _pb_mode,
