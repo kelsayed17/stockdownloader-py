@@ -10,6 +10,7 @@ import pytest
 
 from stockdownloader.app.ml_train_app import _build_parser, main
 from stockdownloader.model.price_data import PriceData
+from stockdownloader.util.constants import DEFAULT_MODELS_DIR
 
 
 # ------------------------------------------------------------------
@@ -51,7 +52,7 @@ class TestMLTrainParser:
         assert args.forward_period == 10
         assert args.profit_threshold == 0.005
         assert args.model_type == "gradient_boosting"
-        assert args.output_dir == "output/models/spy"
+        assert args.output_dir == str(DEFAULT_MODELS_DIR / "spy")
 
     def test_custom_args(self) -> None:
         parser = _build_parser()

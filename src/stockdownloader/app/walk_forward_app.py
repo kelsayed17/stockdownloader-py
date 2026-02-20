@@ -23,7 +23,7 @@ from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStr
 from stockdownloader.strategy.intraday.pattern_scalp_strategy import PatternScalpStrategy
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
-from stockdownloader.util.constants import INITIAL_CAPITAL, RISK_PER_TRADE
+from stockdownloader.util.constants import DEFAULT_DATA_FILE, INITIAL_CAPITAL, RISK_PER_TRADE
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ def main() -> None:
         description="Walk-forward validation for intraday strategies",
     )
     parser.add_argument(
-        "--csv", dest="csv_file", default="data/spy/5m_bars.csv",
+        "--csv", dest="csv_file", default=str(DEFAULT_DATA_FILE),
         help="Intraday CSV file path (default: data/spy/5m_bars.csv)",
     )
     parser.add_argument(

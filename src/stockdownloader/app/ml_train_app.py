@@ -23,6 +23,8 @@ import argparse
 import logging
 import sys
 
+from stockdownloader.util.constants import DEFAULT_MODELS_DIR
+
 try:
     from stockdownloader.ml.dataset_builder import DatasetBuilder, LabelConfig
     from stockdownloader.ml.feature_extractor import FeatureExtractor
@@ -85,7 +87,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--output-dir",
         type=str,
-        default="output/models/spy",
+        default=str(DEFAULT_MODELS_DIR / "spy"),
         help="Directory to save trained model (default: output/models/spy)",
     )
     parser.add_argument(

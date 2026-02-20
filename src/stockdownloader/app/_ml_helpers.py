@@ -19,6 +19,8 @@ import argparse
 import sys
 from typing import Any
 
+from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
+
 
 # ======================================================================
 # Dependency guard
@@ -257,7 +259,7 @@ def build_pipeline_config(
         "top_n": args.top_n,
         "export_pine": not args.no_pine,
         "pine_depth": args.pine_depth,
-        "output_dir": getattr(args, "output_dir", "output/ml_pipeline"),
+        "output_dir": getattr(args, "output_dir", str(DEFAULT_ML_PIPELINE_DIR)),
         **(selection_kwargs or {}),
     }
 

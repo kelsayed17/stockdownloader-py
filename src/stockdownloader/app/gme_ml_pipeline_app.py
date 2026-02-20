@@ -25,6 +25,7 @@ from stockdownloader.app._ml_helpers import (
     build_training_config,
     check_ml_deps,
 )
+from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +122,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--ml-threshold", type=float, default=0.6, help="ML threshold (default: 0.6)")
     parser.add_argument("--modes", default="confirmed,weighted,override", help="Hybrid modes")
     parser.add_argument("--pine-top-features", type=int, default=15, help="Features in PineScript (default: 15)")
-    parser.add_argument("--output-dir", default="output/ml_pipeline", help="Output directory")
+    parser.add_argument("--output-dir", default=str(DEFAULT_ML_PIPELINE_DIR), help="Output directory")
     add_common_ml_args(parser)
     args = parser.parse_args(argv)
 

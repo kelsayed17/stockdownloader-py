@@ -34,6 +34,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from stockdownloader.util.constants import DEFAULT_PINESCRIPT_DIR
 from stockdownloader.util.pinescript_composites import COMPOSITE_STRATEGY_CATALOG
 from stockdownloader.util.pinescript_generator import PineScriptGenerator
 from stockdownloader.util.pinescript_strategies import STRATEGY_CATALOG
@@ -130,7 +131,7 @@ def main() -> None:
 
         if args.all:
             out_dir = (Path(args.output_dir) if args.output_dir
-                       else Path("output/pinescript"))
+                       else DEFAULT_PINESCRIPT_DIR)
             out_dir.mkdir(parents=True, exist_ok=True)
 
             for name, factory in sorted(COMPOSITE_STRATEGY_CATALOG.items()):
@@ -190,7 +191,7 @@ def main() -> None:
 
     if args.all:
         out_dir = (Path(args.output_dir) if args.output_dir
-                   else Path("output/pinescript"))
+                   else DEFAULT_PINESCRIPT_DIR)
         out_dir.mkdir(parents=True, exist_ok=True)
 
         for name, factory in sorted(STRATEGY_CATALOG.items()):
@@ -305,7 +306,7 @@ def _handle_ml_signal(args: argparse.Namespace, gen: PineScriptGenerator) -> Non
         out_path.write_text(pine_code)
         print(f"Pine Script written to {out_path}")
     else:
-        out_dir = Path(args.output_dir) if args.output_dir else Path("output/pinescript")
+        out_dir = Path(args.output_dir) if args.output_dir else DEFAULT_PINESCRIPT_DIR
         out_dir.mkdir(parents=True, exist_ok=True)
         out_path = out_dir / f"{symbol.lower()}_ml_signal.pine"
         out_path.write_text(pine_code)

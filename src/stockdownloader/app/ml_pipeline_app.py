@@ -23,6 +23,7 @@ from stockdownloader.app._ml_helpers import (
     build_training_config,
     check_ml_deps,
 )
+from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -61,7 +62,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Number of features in PineScript (default: 15)",
     )
     parser.add_argument(
-        "--output-dir", default="output/ml_pipeline",
+        "--output-dir", default=str(DEFAULT_ML_PIPELINE_DIR),
         help="Output directory (default: output/ml_pipeline)",
     )
     add_common_ml_args(parser)

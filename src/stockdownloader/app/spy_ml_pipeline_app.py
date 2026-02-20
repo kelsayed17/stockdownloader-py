@@ -28,6 +28,7 @@ from stockdownloader.app._ml_helpers import (
     build_training_config,
     check_ml_deps,
 )
+from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
 
 
 @dataclass
@@ -158,7 +159,7 @@ def main(argv: list[str] | None = None) -> None:
     # Hybrid (suppressed — defaults differ from standard pipeline)
     parser.add_argument("--ml-threshold", type=float, default=0.6, help=argparse.SUPPRESS)
     parser.add_argument("--modes", default="confirmed,weighted", help=argparse.SUPPRESS)
-    parser.add_argument("--output-dir", default="output/spy_ml_pipeline", help="Output directory")
+    parser.add_argument("--output-dir", default=str(DEFAULT_ML_PIPELINE_DIR), help="Output directory")
     add_common_ml_args(parser)
     args = parser.parse_args(argv)
 

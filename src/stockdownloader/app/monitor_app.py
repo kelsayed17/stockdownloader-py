@@ -28,6 +28,7 @@ from stockdownloader.analysis.alert_store import AlertStore
 from stockdownloader.analysis.signal_advisor import AdvisorConfig, SignalAdvisor
 from stockdownloader.app.app_helpers import fetch_daily_data
 from stockdownloader.model.signal_advisory import AdvisoryAction, SignalAdvisory
+from stockdownloader.util.constants import DEFAULT_ALERT_HISTORY
 
 logger = logging.getLogger(__name__)
 
@@ -263,7 +264,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--alert-store",
         type=str,
-        default="output/alert_history.json",
+        default=str(DEFAULT_ALERT_HISTORY),
         help="Path to alert history JSON file",
     )
     parser.add_argument(

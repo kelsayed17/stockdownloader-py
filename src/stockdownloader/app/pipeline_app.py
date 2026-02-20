@@ -45,7 +45,7 @@ from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.registrations import ensure_registered
 from stockdownloader.strategy.registry import StrategyRegistry
-from stockdownloader.util.constants import INITIAL_CAPITAL, OPTIONS_COMMISSION, RISK_PER_TRADE
+from stockdownloader.util.constants import DEFAULT_DATA_FILE, INITIAL_CAPITAL, OPTIONS_COMMISSION, RISK_PER_TRADE
 from stockdownloader.util.file_helper import TeeWriter
 
 logger = logging.getLogger(__name__)
@@ -827,7 +827,7 @@ def main() -> None:
         description="Unified strategy pipeline — backtest, optimize, validate",
     )
     parser.add_argument(
-        "--csv", dest="csv_file", default="data/spy/5m_bars.csv",
+        "--csv", dest="csv_file", default=str(DEFAULT_DATA_FILE),
         help="Intraday CSV file path (default: data/spy/5m_bars.csv)",
     )
     parser.add_argument(
