@@ -25,6 +25,7 @@ import csv
 import io
 import json
 import logging
+import re
 import time
 import xml.etree.ElementTree as ET
 import zipfile
@@ -908,6 +909,106 @@ class SecOwnershipClient:
 
             if holdings:
                 break
+
+        return holdings
+
+    # ------------------------------------------------------------------
+    # Legacy text parsing (pre-2013 non-XML fallback)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _parse_13f_text(
+        content: str,
+        cusip: str,
+    ) -> list[InstitutionalHolding]:
+        """Parse a legacy (pre-2013) text infotable for holdings matching *cusip*.
+
+        Pre-2013 13F filings use heterogeneous ASCII formats: tab-separated,
+        comma-separated, or fixed-width.  This parser doesn't attempt full
+        table parsing — it scans for lines containing the CUSIP and extracts
+        integer tokens as (value, shares).
+
+        Parameters
+        ----------
+        content:
+            Raw text content of the information table document.
+        cusip:
+            9-character CUSIP to search for (case-insensitive).
+
+        Returns
+        -------
+        List of :class:`InstitutionalHolding` for rows matching *cusip*.
+        Returns empty list if content looks like XML or CUSIP is absent.
+        """
+        # Skip XML content — that's handled by _parse_13f_xml.
+        stripped = content.lstrip()
+        if stripped.startswith("<?xml") or stripped.startswith("<"):
+            return []
+
+        cusip_upper = cusip.upper().replace(" ", "")
+        holdings: list[InstitutionalHolding] = []
+
+        for line in content.splitlines():
+            # Case-insensitive CUSIP match
+            if cusip_upper not in line.upper().replace(" ", ""):
+                continue
+
+            # Split line into fields.  Detect delimiter: tabs first,
+            # then 2+ whitespace (fixed-width), then commas (CSV).
+            if "\t" in line:
+                fields = line.split("\t")
+            elif re.search(r"\s{2,}", line):
+                fields = re.split(r"\s{2,}", line)
+            else:
+                fields = line.split(",")
+
+            # Skip any field containing the CUSIP so its digits
+            # (e.g. "36467W109" -> "36467","109") don't pollute results.
+            integers: list[int] = []
+            for field in fields:
+                if cusip_upper in field.upper().replace(" ", ""):
+                    continue
+                # Extract numbers (strip commas from comma-formatted ints)
+                for tok in re.findall(r"\d[\d,]*\d|\d+", field):
+                    cleaned = tok.replace(",", "")
+                    if cleaned.isdigit() and int(cleaned) > 0:
+                        integers.append(int(cleaned))
+
+            if len(integers) < 2:
+                logger.debug(
+                    "Skipping line with < 2 numeric tokens: %s",
+                    line[:120],
+                )
+                continue
+
+            # Convention: value is reported in $1000s (smaller number),
+            # shares is the actual count (larger number).
+            # Sort ascending and take the two largest — but value < shares
+            # for any normal holding, so min=value, max=shares.
+            integers.sort()
+            value_usd = integers[-2]  # second largest = value ($1000s)
+            shares = integers[-1]     # largest = shares
+
+            # Sanity: if "value" > "shares", swap — could be reversed cols
+            if value_usd > shares:
+                value_usd, shares = shares, value_usd
+
+            # Extract the issuer/manager name from the first field.
+            name = fields[0].strip() if fields else "Unknown"
+            if not name:
+                name = "Unknown"
+
+            try:
+                holdings.append(InstitutionalHolding(
+                    filing_date="",
+                    manager_name=name,
+                    manager_cik="",
+                    shares=shares,
+                    value_usd=value_usd,
+                    share_class="SH",
+                ))
+            except ValueError:
+                continue
 
         return holdings
 

@@ -737,6 +737,93 @@ class TestCusipAutoResolution:
 
 
 # ------------------------------------------------------------------
+# Tests: Legacy text parsing for pre-2013 13F filings
+# ------------------------------------------------------------------
+
+
+class TestLegacyTextParsing:
+    """Tests for _parse_13f_text() — extracts holdings from non-XML tables."""
+
+    _CUSIP = "36467W109"
+
+    def test_tab_separated_format(self) -> None:
+        """Tab-separated infotable with standard column order."""
+        content = (
+            "NAME OF ISSUER\tTITLE OF CLASS\tCUSIP\tVALUE\tSHRSORPRNAMT\tSH/PRN\n"
+            "GAMESTOP CORP\tCOM\t36467W109\t5000\t200000\tSH\n"
+            "APPLE INC\tCOM\t037833100\t999999\t50000\tSH\n"
+        )
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert len(result) == 1
+        assert result[0].shares == 200000
+        assert result[0].value_usd == 5000
+
+    def test_fixed_width_format(self) -> None:
+        """Fixed-width layout typical of early 2000s filings."""
+        content = (
+            "GAMESTOP CORP NEW       COM        36467W109      3500       150000   SH\n"
+            "MICROSOFT CORP          COM        594918104     99000      1200000   SH\n"
+        )
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert len(result) == 1
+        assert result[0].shares == 150000
+        assert result[0].value_usd == 3500
+
+    def test_comma_separated_format(self) -> None:
+        """CSV-style infotable."""
+        content = (
+            "GAMESTOP CORP,COM,36467W109,7200,300000,SH\n"
+        )
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert len(result) == 1
+        assert result[0].shares == 300000
+        assert result[0].value_usd == 7200
+
+    def test_cusip_not_found_returns_empty(self) -> None:
+        """When the CUSIP doesn't appear, return empty list."""
+        content = "APPLE INC\tCOM\t037833100\t999\t50000\tSH\n"
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert result == []
+
+    def test_empty_content_returns_empty(self) -> None:
+        result = SecOwnershipClient._parse_13f_text("", self._CUSIP)
+        assert result == []
+
+    def test_xml_content_returns_empty(self) -> None:
+        """XML content should not match (handled by _parse_13f_xml)."""
+        content = '<?xml version="1.0"?>\n<root><cusip>36467W109</cusip></root>'
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert result == []
+
+    def test_multiple_holders_same_cusip(self) -> None:
+        """Multiple institutions holding the same CUSIP."""
+        content = (
+            "FUND A\tCOM\t36467W109\t1000\t50000\tSH\n"
+            "FUND B\tCOM\t36467W109\t2000\t80000\tSH\n"
+        )
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert len(result) == 2
+        total = sum(h.shares for h in result)
+        assert total == 130000
+
+    def test_cusip_case_insensitive(self) -> None:
+        """CUSIP matching should be case-insensitive."""
+        content = "GAMESTOP CORP\tCOM\t36467w109\t5000\t200000\tSH\n"
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert len(result) == 1
+
+    def test_value_with_commas_in_number(self) -> None:
+        """Some filings use comma-formatted numbers like 1,500."""
+        content = (
+            "GAMESTOP CORP    COM    36467W109    1,500    50,000    SH\n"
+        )
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert len(result) == 1
+        assert result[0].shares == 50000
+        assert result[0].value_usd == 1500
+
+
+# ------------------------------------------------------------------
 # Tests: Rate limiting
 # ------------------------------------------------------------------
 
