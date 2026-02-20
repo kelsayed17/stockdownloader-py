@@ -23,7 +23,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.model.trade import IntradaySignal
-from stockdownloader.strategy.intraday.base_config import InfraExitConfig
+from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
 from stockdownloader.strategy.intraday.entry_helpers import make_entry_signal
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
 from stockdownloader.strategy.intraday.session_state import BarContext

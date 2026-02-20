@@ -26,7 +26,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.model.trade import HOLD, IntradaySignal
-from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
+from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.regime.regime_detector import (
     MarketRegime,
     MarketRegimeDetector,

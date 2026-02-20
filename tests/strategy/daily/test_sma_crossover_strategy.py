@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
+from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal
 
 

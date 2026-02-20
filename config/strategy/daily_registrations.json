@@ -2,7 +2,7 @@
     "_doc": "Daily strategy registrations. Keys = registry names.",
     "sma": {
         "display_name": "SMA Crossover",
-        "module": "stockdownloader.strategy.daily.sma_crossover_strategy",
+        "module": "stockdownloader.strategy.daily.simple_strategies",
         "class": "SMACrossoverStrategy",
         "default_kwargs": {
             "short_period": 9,
@@ -27,7 +27,7 @@
     },
     "rsi": {
         "display_name": "RSI Strategy",
-        "module": "stockdownloader.strategy.daily.rsi_strategy",
+        "module": "stockdownloader.strategy.daily.simple_strategies",
         "class": "RSIStrategy",
         "default_kwargs": {
             "period": 14,
@@ -57,7 +57,7 @@
     },
     "macd": {
         "display_name": "MACD Strategy",
-        "module": "stockdownloader.strategy.daily.macd_strategy",
+        "module": "stockdownloader.strategy.daily.simple_strategies",
         "class": "MACDStrategy",
         "default_kwargs": {
             "fast_period": 12,

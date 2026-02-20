@@ -17,7 +17,7 @@ import pytest
 from stockdownloader.strategy.intraday.avwap_pullback_strategy import (
     AVWAPPullbackConfig,
 )
-from stockdownloader.strategy.intraday.base_config import InfraExitConfig
+from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
 from stockdownloader.strategy.intraday.or_breakout_strategy import (
     ORBreakoutStrategyConfig,
 )

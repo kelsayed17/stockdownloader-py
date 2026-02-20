@@ -7,7 +7,7 @@ import pytest
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.trade import TradeStatus
-from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
+from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 
 

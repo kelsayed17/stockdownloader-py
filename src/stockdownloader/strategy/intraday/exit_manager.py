@@ -21,7 +21,7 @@ from stockdownloader.util.intraday_indicators import ExtendedSessionVWAP
 from stockdownloader.util.big_decimal_math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.strategy.intraday.base_config import InfraExitConfig
+    from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
 
 # Default trail when none is injected
 _BE_TRAIL = BreakevenTrail()

@@ -133,17 +133,15 @@ def _build_daily_strategies(args):
         BollingerBandRSIStrategy,
     )
     from stockdownloader.strategy.daily.breakout_strategy import BreakoutStrategy
-    from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
+    from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
     from stockdownloader.strategy.daily.momentum_confluence_strategy import (
         MomentumConfluenceStrategy,
     )
     from stockdownloader.strategy.daily.multi_indicator_strategy import (
         MultiIndicatorStrategy,
     )
-    from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
-    from stockdownloader.strategy.daily.sma_crossover_strategy import (
-        SMACrossoverStrategy,
-    )
+    from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
+    from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 
     return [
         SMACrossoverStrategy(50, 200),

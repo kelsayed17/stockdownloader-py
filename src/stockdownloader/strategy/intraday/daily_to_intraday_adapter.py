@@ -11,7 +11,7 @@ stop-loss, take-profit, or risk-per-share.  This adapter bridges the gap by:
 Usage::
 
     from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
-    from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
+    from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 
     daily = RSIStrategy(period=14, oversold=30, overbought=70)
     adapter = DailyToIntradayAdapter(daily)
@@ -27,7 +27,7 @@ from stockdownloader.model.trade import (
     IntradaySignal,
     HOLD,
 )
-from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
+from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 from stockdownloader.util.indicator_hub import IndicatorHub
 from stockdownloader.util.big_decimal_math import ZERO

@@ -10,7 +10,7 @@ import pytest
 
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.trade import IntradayAction, HOLD
-from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
+from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategyConfig, ORBreakoutStrategy
 from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategyConfig, ORReversalStrategy
 from stockdownloader.strategy.intraday.pattern_scalp_strategy import PatternScalpStrategyConfig, PatternScalpStrategy

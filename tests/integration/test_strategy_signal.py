@@ -9,9 +9,9 @@ import pytest
 
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
-from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
+from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
+from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
+from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 
 

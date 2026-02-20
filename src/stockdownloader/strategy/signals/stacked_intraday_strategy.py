@@ -23,7 +23,7 @@ from stockdownloader.model.trade import (
     IntradaySignal,
     HOLD,
 )
-from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
+from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.signals.multi_timeframe_aligner import (
     AlignedSignal,
     MultiTimeframeAligner,

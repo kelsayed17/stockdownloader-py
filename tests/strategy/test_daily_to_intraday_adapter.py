@@ -274,21 +274,21 @@ class TestWrappedDailyStrategies:
     """Verify adapter wraps each real daily strategy without error."""
 
     def test_sma_crossover_wraps(self):
-        from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
+        from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
         strat = SMACrossoverStrategy(short_period=9, long_period=21)
         adapter = DailyToIntradayAdapter(strat)
         assert "SMA" in adapter.name
         assert adapter.warmup_period >= 21
 
     def test_rsi_wraps(self):
-        from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
+        from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
         strat = RSIStrategy(period=14, oversold=30.0, overbought=70.0)
         adapter = DailyToIntradayAdapter(strat)
         assert "RSI" in adapter.name
         assert adapter.warmup_period >= 15
 
     def test_macd_wraps(self):
-        from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
+        from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
         strat = MACDStrategy(fast_period=12, slow_period=26, signal_period=9)
         adapter = DailyToIntradayAdapter(strat)
         assert "MACD" in adapter.name
@@ -505,7 +505,7 @@ class TestIntegration:
         """Run a full backtest with an adapted SMA strategy."""
         from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
         from stockdownloader.backtest.backtest_result import BacktestResult
-        from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
+        from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 
         strat = SMACrossoverStrategy(short_period=9, long_period=21)
         adapter = DailyToIntradayAdapter(strat)
@@ -520,7 +520,7 @@ class TestIntegration:
         """Run a full backtest with an adapted RSI strategy."""
         from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
         from stockdownloader.backtest.backtest_result import BacktestResult
-        from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
+        from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 
         strat = RSIStrategy(period=14, oversold=30.0, overbought=70.0)
         adapter = DailyToIntradayAdapter(strat)

@@ -19,17 +19,15 @@ from stockdownloader.strategy.daily.bollinger_band_rsi_strategy import (
     BollingerBandRSIStrategy,
 )
 from stockdownloader.strategy.daily.breakout_strategy import BreakoutStrategy
-from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
+from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
 from stockdownloader.strategy.daily.momentum_confluence_strategy import (
     MomentumConfluenceStrategy,
 )
 from stockdownloader.strategy.daily.multi_indicator_strategy import (
     MultiIndicatorStrategy,
 )
-from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.daily.sma_crossover_strategy import (
-    SMACrossoverStrategy,
-)
+from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
+from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
 from stockdownloader.util.pinescript_models import (
     Condition,

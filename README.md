@@ -445,7 +445,7 @@ pytest -m live
 
 ```python
 from stockdownloader.data.yahoo_data_client import YahooDataClient
-from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
+from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from decimal import Decimal
 
