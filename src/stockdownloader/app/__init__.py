@@ -8,9 +8,8 @@ in ``pyproject.toml``.  Key apps:
 - **tournament_app** — Strategy tournaments (walk-forward, baseline, greedy)
 - **exit_tournament_app** — Exit mechanism testing
 - **signal_stack_tournament** — Signal combinatorial search
-- **ml_pipeline_app** — Standard end-to-end ML pipeline
+- **spy_ml_pipeline_app** — ML pipelines (generic ``main_generic`` + SPY multi-TF ``main``)
 - **gme_ml_pipeline_app** — GME alt-data ML pipeline
-- **spy_ml_pipeline_app** — SPY multi-timeframe ML pipeline
 - **ml_train_app** — Standalone ML model trainer
 - **generate_pinescript** — Export strategies to TradingView Pine Script v6
 - **pipeline_app** — Full data + backtest orchestration pipeline

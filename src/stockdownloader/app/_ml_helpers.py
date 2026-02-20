@@ -1,7 +1,7 @@
 """Shared helpers for ML pipeline CLI apps.
 
-Extracts the common plumbing that was duplicated across
-``ml_pipeline_app``, ``gme_ml_pipeline_app``, and ``spy_ml_pipeline_app``:
+Extracts the common plumbing shared by
+``spy_ml_pipeline_app`` and ``gme_ml_pipeline_app``:
 
 - ``check_ml_deps`` — guard against missing ``scikit-learn``
 - ``setup_ml_logging`` — configure logging (verbose vs normal)

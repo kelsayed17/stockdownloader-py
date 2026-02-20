@@ -8,7 +8,10 @@ from unittest.mock import patch
 
 import pytest
 
-from stockdownloader.app.ml_pipeline_app import _build_parser, main
+from stockdownloader.app.spy_ml_pipeline_app import (
+    _build_generic_parser as _build_parser,
+    main_generic as main,
+)
 from stockdownloader.model.price_data import PriceData
 
 

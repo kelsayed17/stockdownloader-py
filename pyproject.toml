@@ -40,7 +40,7 @@ multi-timeframe-optimizer = "stockdownloader.app.tournament.cli:main_greedy"
 exit-tournament = "stockdownloader.app.exit_tournament_app:main"
 signal-stack-tournament = "stockdownloader.app.signal_stack_tournament:main"
 # ── ML pipelines ────────────────────────────────────────────────
-ml-pipeline = "stockdownloader.app.ml_pipeline_app:main"
+ml-pipeline = "stockdownloader.app.spy_ml_pipeline_app:main_generic"
 gme-ml-pipeline = "stockdownloader.app.gme_ml_pipeline_app:main"
 spy-ml-pipeline = "stockdownloader.app.spy_ml_pipeline_app:main"
 ml-train = "stockdownloader.app.ml_train_app:main"
