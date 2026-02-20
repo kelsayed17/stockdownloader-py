@@ -489,6 +489,52 @@ class TestFindInfotableUrl:
 
 
 # ------------------------------------------------------------------
+# Tests: EFTS text fallback integration
+# ------------------------------------------------------------------
+
+
+class TestEftsTextFallback:
+    """Verify _fetch_from_efts falls back to text parsing when XML fails."""
+
+    @patch("stockdownloader.data.sec_ownership_client.time")
+    def test_text_fallback_when_xml_empty(
+        self, mock_time: MagicMock, tmp_path: Path,
+    ) -> None:
+        """When XML parsing returns nothing, text parsing should kick in."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+
+        # Simulate EFTS returning one hit
+        fake_hits = [{
+            "_id": "0001234-05-000001:infotable.txt",
+            "_source": {
+                "adsh": "0001234-05-000001",
+                "ciks": ["1234"],
+                "display_names": ["Test Fund"],
+                "file_date": "2005-05-15",
+                "period_ending": "2005-03-31",
+            },
+        }]
+
+        # The downloaded content is plain text, not XML
+        text_content = (
+            "GAMESTOP CORP\tCOM\t36467W109\t5000\t200000\tSH\n"
+        )
+
+        with patch.object(client, "_fetch_efts_page", return_value=fake_hits), \
+             patch.object(client, "_fetch_url_text", return_value=text_content):
+            result = client._fetch_from_efts(
+                "GME", "36467W109", 2005, 1, "2005-03-31",
+            )
+
+        assert result is not None
+        assert result.total_institutional_shares == 200000
+        assert result.num_institutions == 1
+
+
+# ------------------------------------------------------------------
 # Tests: Caching
 # ------------------------------------------------------------------
 

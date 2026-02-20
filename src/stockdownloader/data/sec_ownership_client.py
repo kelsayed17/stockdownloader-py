@@ -254,10 +254,11 @@ class SecOwnershipClient:
         current_quarter = (today.month - 1) // 3 + 1
         current_year = today.year
 
-        # Compute the earliest useful quarter.  SEC bulk 13F data starts
-        # at Q2 2013 — that is the absolute floor.  If the symbol IPO'd
-        # after Q2 2013 we can skip even more.
-        min_year, min_quarter = 2013, 2
+        # Compute the earliest useful quarter.  EFTS full-text search can
+        # find 13F-HR filings back to ~2001, and the legacy text parser
+        # handles pre-2013 non-XML formats.  We use Q1 2003 as the
+        # absolute floor (earlier filings are sparse and unreliable).
+        min_year, min_quarter = 2003, 1
         if _info is not None:
             ipo_y = _info.ipo_date.year
             ipo_q = (_info.ipo_date.month - 1) // 3 + 1
@@ -693,11 +694,14 @@ class SecOwnershipClient:
             if not xml_url:
                 continue
 
-            xml_content = self._fetch_url_text(xml_url)
-            if xml_content is None:
+            doc_content = self._fetch_url_text(xml_url)
+            if doc_content is None:
                 continue
 
-            parsed = self._parse_13f_xml(xml_content, cusip)
+            # Try XML first (post-2013), then text fallback (pre-2013).
+            parsed = self._parse_13f_xml(doc_content, cusip)
+            if not parsed:
+                parsed = self._parse_13f_text(doc_content, cusip)
             for h in parsed:
                 # Override manager name with display name from EFTS
                 try:
