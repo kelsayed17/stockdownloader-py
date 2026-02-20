@@ -30,9 +30,10 @@ import os
 import time
 from dataclasses import asdict, dataclass
 from datetime import date, timedelta
-from pathlib import Path
 
 import requests
+
+from stockdownloader.data.base_client import BaseDataClient
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ class ShortVolumeRecord:
             raise ValueError("symbol must not be empty")
 
 
-class FinraShortVolumeClient:
+class FinraShortVolumeClient(BaseDataClient):
     """Fetches daily Reg SHO short sale volume from FINRA API.
 
     Reuses the same FINRA OAuth2 credentials as the short interest
@@ -88,20 +89,21 @@ class FinraShortVolumeClient:
         client_secret: str | None = None,
         cache_dir: str = "data/cache/short_volume",
     ) -> None:
+        super().__init__(
+            rate_limit_delay=_RATE_LIMIT_DELAY,
+            max_retries=_MAX_RETRIES,
+            cache_dir=cache_dir,
+            default_headers={
+                "User-Agent": "StockDownloader admin@example.com",
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            },
+        )
         self._client_id = client_id or os.environ.get("FINRA_CLIENT_ID", "")
         self._client_secret = client_secret or os.environ.get(
             "FINRA_CLIENT_SECRET", ""
         )
         self._access_token: str | None = None
-        self._session = requests.Session()
-        self._session.headers.update({
-            "User-Agent": "StockDownloader admin@example.com",
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-        })
-        self._last_request_time: float = 0.0
-        self._cache_dir = Path(cache_dir)
-        self._cache_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
     # OAuth2

@@ -33,10 +33,10 @@ import json
 import logging
 import os
 import time
-from pathlib import Path
 
 import requests
 
+from stockdownloader.data.base_client import BaseDataClient
 from stockdownloader.model.dark_pool_record import DarkPoolRecord
 
 logger = logging.getLogger(__name__)
@@ -58,7 +58,7 @@ _FINRA_TOKEN_URL = (
 )
 
 
-class FinraDarkPoolClient:
+class FinraDarkPoolClient(BaseDataClient):
     """Fetches OTC/ATS (dark pool) volume data from FINRA.
 
     Parameters
@@ -77,19 +77,19 @@ class FinraDarkPoolClient:
         client_secret: str | None = None,
         cache_dir: str = "data/cache/dark_pool",
     ) -> None:
+        super().__init__(
+            rate_limit_delay=_RATE_LIMIT_DELAY,
+            max_retries=_MAX_RETRIES,
+            cache_dir=cache_dir,
+            default_headers={
+                "User-Agent": "StockDownloader admin@example.com",
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+            },
+        )
         self._client_id = client_id or os.environ.get("FINRA_CLIENT_ID", "")
         self._client_secret = client_secret or os.environ.get("FINRA_CLIENT_SECRET", "")
         self._access_token: str | None = None
-
-        self._session = requests.Session()
-        self._session.headers.update({
-            "User-Agent": "StockDownloader admin@example.com",
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-        })
-        self._last_request_time: float = 0.0
-        self._cache_dir = Path(cache_dir)
-        self._cache_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
     # OAuth2 authentication
