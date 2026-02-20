@@ -14,12 +14,12 @@ from stockdownloader.model.trade import Trade, Direction, TradeStatus
 from stockdownloader.model.financial_models import QuoteData
 from stockdownloader.model.unified_market_data import HistoricalData, FinancialData, UnifiedMarketData
 from stockdownloader.model.indicator_values import IndicatorValues
-from stockdownloader.model.pattern_result import PatternResult
 from stockdownloader.model.alert_result import (
     AlertResult,
     AlertDirection,
     Action,
     OptionsRecommendation,
+    PatternResult,
 )
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.tournament_trade import TournamentTrade
@@ -30,7 +30,6 @@ from stockdownloader.model.exit_mechanism_result import (
 from stockdownloader.model.trade import IntradaySignal, IntradayAction, HOLD
 from stockdownloader.model.financial_models import DetailedFinancialData
 from stockdownloader.model.financial_models import ValueScreenerResult
-from stockdownloader.model.sec_models import SecFiling
 from stockdownloader.model.signal_advisory import (
     SignalAdvisory,
     AdvisoryAction,
@@ -42,8 +41,7 @@ from stockdownloader.model.regulatory_records import (
     ShortInterestRecord,
     DarkPoolRecord,
     BorrowRateRecord,
-)
-from stockdownloader.model.sec_models import (
+    SecFiling,
     InstitutionalHolding,
     OwnershipSnapshot,
 )

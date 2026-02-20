@@ -14,7 +14,7 @@ from stockdownloader.model.regulatory_records import (
     FtdRecord,
     ShortInterestRecord,
 )
-from stockdownloader.model.sec_models import (
+from stockdownloader.model.regulatory_records import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )

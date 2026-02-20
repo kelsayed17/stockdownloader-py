@@ -40,7 +40,7 @@ if TYPE_CHECKING:
         FtdRecord,
         ShortInterestRecord,
     )
-    from stockdownloader.model.sec_models import OwnershipSnapshot
+    from stockdownloader.model.regulatory_records import OwnershipSnapshot
 
 logger = logging.getLogger(__name__)
 

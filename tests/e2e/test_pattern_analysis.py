@@ -21,7 +21,7 @@ import pytest
 
 from stockdownloader.analysis.pattern_analyzer import analyze, print_results
 from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
-from stockdownloader.model.pattern_result import PatternResult
+from stockdownloader.model.alert_result import PatternResult
 from stockdownloader.model.unified_market_data import HistoricalData
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.util.big_decimal_math import divide, scale2

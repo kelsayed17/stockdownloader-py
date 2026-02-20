@@ -1,4 +1,9 @@
-"""Represents a trading alert generated from multi-indicator analysis."""
+"""Trading alert results and pattern frequency analysis models.
+
+Contains :class:`AlertResult` for multi-indicator trading alerts,
+:class:`OptionsRecommendation` for options-specific guidance,
+and :class:`PatternResult` for pattern frequency analysis results.
+"""
 
 from __future__ import annotations
 
@@ -155,3 +160,30 @@ class AlertResult:
         lines.append("=" * 80)
 
         return "\n".join(lines)
+
+
+# ── Pattern Result ──────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class PatternResult:
+    """Holds the result of a pattern frequency analysis including the pattern,
+    its inverse, offset, frequencies, and associated symbols.
+
+    Ordered by descending pattern_freq (higher frequency first).
+    """
+
+    pattern: str
+    similar: str
+    offset: str
+    pattern_freq: Decimal
+    similar_freq: Decimal
+    offset_freq: Decimal
+    accuracy: Decimal
+    pattern_symbols: frozenset[str]
+    similar_symbols: frozenset[str]
+    offset_symbols: frozenset[str]
+
+    def __lt__(self, other: PatternResult) -> bool:
+        """Sort by descending pattern_freq (higher frequency comes first)."""
+        return other.pattern_freq < self.pattern_freq

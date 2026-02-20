@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.model.sec_models import SecFiling
+from stockdownloader.model.regulatory_records import SecFiling
 
 
 def _make_filing(**overrides) -> SecFiling:

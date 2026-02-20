@@ -33,7 +33,7 @@ from pathlib import Path
 
 import requests
 
-from stockdownloader.model.sec_models import (
+from stockdownloader.model.regulatory_records import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )
