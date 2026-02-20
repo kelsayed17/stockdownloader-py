@@ -804,7 +804,10 @@ class SecOwnershipClient:
         return None
 
     def _find_infotable_url(self, index_url: str) -> str | None:
-        """Given a filing index URL, find the infotable XML document."""
+        """Given a filing index URL, find the infotable document.
+
+        Prefers XML (post-2013) but falls back to TXT (pre-2013).
+        """
         for attempt in range(_MAX_RETRIES):
             try:
                 self._rate_limit()
@@ -813,13 +816,20 @@ class SecOwnershipClient:
                 if resp.status_code == 200:
                     data = resp.json()
                     items = data.get("directory", {}).get("item", [])
+                    # Pass 1: prefer infotable XML
                     for item in items:
                         name = item.get("name", "").lower()
                         if "infotable" in name and name.endswith(".xml"):
                             return index_url.rstrip("/") + "/" + item["name"]
+                    # Pass 2: any XML that isn't the primary doc
                     for item in items:
                         name = item.get("name", "").lower()
                         if name.endswith(".xml") and "primary" not in name:
+                            return index_url.rstrip("/") + "/" + item["name"]
+                    # Pass 3: infotable TXT (pre-2013 fallback)
+                    for item in items:
+                        name = item.get("name", "").lower()
+                        if "infotable" in name and name.endswith(".txt"):
                             return index_url.rstrip("/") + "/" + item["name"]
                     break
             except (

@@ -423,6 +423,70 @@ class TestFindInfotableUrl:
 
         assert url is None
 
+    @patch("stockdownloader.data.sec_ownership_client.time")
+    def test_finds_txt_when_no_xml(
+        self, mock_time: MagicMock, tmp_path: Path,
+    ) -> None:
+        """Pre-2013 filings have infotable as .txt, not .xml."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+
+        index_json = {
+            "directory": {
+                "item": [
+                    {"name": "primary_doc.html", "size": "1234"},
+                    {"name": "infotable.txt", "size": "5678"},
+                ],
+            },
+        }
+
+        with patch.object(client, "_session") as mock_session:
+            mock_resp = MagicMock()
+            mock_resp.status_code = 200
+            mock_resp.json.return_value = index_json
+            mock_session.get.return_value = mock_resp
+
+            result = client._find_infotable_url(
+                "https://www.sec.gov/Archives/edgar/data/12345/0001234/",
+            )
+
+        assert result is not None
+        assert result.endswith("/infotable.txt")
+
+    @patch("stockdownloader.data.sec_ownership_client.time")
+    def test_prefers_xml_over_txt(
+        self, mock_time: MagicMock, tmp_path: Path,
+    ) -> None:
+        """When both .xml and .txt exist, prefer .xml."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+
+        index_json = {
+            "directory": {
+                "item": [
+                    {"name": "infotable.xml", "size": "1234"},
+                    {"name": "infotable.txt", "size": "5678"},
+                ],
+            },
+        }
+
+        with patch.object(client, "_session") as mock_session:
+            mock_resp = MagicMock()
+            mock_resp.status_code = 200
+            mock_resp.json.return_value = index_json
+            mock_session.get.return_value = mock_resp
+
+            result = client._find_infotable_url(
+                "https://www.sec.gov/Archives/edgar/data/12345/0001234/",
+            )
+
+        assert result is not None
+        assert result.endswith("/infotable.xml")
+
 
 # ------------------------------------------------------------------
 # Tests: Caching
