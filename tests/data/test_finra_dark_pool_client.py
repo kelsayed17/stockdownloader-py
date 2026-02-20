@@ -13,7 +13,7 @@ from stockdownloader.data.finra_dark_pool_client import (
     FinraDarkPoolClient,
     _normalize_date,
 )
-from stockdownloader.model.dark_pool_record import DarkPoolRecord
+from stockdownloader.model.regulatory_records import DarkPoolRecord
 
 
 # ------------------------------------------------------------------

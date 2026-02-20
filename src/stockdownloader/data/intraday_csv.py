@@ -17,7 +17,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import BinaryIO
 
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 
 logger = logging.getLogger(__name__)
 

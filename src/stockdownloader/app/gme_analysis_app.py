@@ -51,7 +51,7 @@ from stockdownloader.data.sec_edgar_client import SecEdgarClient
 from stockdownloader.data.yahoo_data_client import YahooDataClient
 from stockdownloader.data.yahoo_options_client import YahooOptionsClient
 from stockdownloader.model.alert_result import AlertResult
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.options import OptionsChain
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.model.sec_filing import SecFiling

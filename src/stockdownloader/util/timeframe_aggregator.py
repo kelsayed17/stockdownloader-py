@@ -273,7 +273,7 @@ class TimeframeAggregator:
         :class:`IntradayBacktestEngine` (which requires the ``trading_date``
         property that plain ``PriceData`` lacks).
         """
-        from stockdownloader.model.intraday_price_data import (
+        from stockdownloader.model.price_data import (
             IntradayPriceData as IPD,
         )
 

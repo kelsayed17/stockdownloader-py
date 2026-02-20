@@ -43,7 +43,7 @@ if TYPE_CHECKING:
         DiscoveredPattern,
         PatternCatalog,
     )
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
 
 
 @dataclass(frozen=True, slots=True)

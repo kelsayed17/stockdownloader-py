@@ -27,7 +27,7 @@ from stockdownloader.model.intraday_signal import IntradaySignal
 from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
 
 if TYPE_CHECKING:
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
     from stockdownloader.strategy.intraday.bar_context import BarContext
     from stockdownloader.strategy.intraday.infra import IntradayInfra
 

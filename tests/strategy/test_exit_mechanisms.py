@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.tournament_trade import TournamentTrade
 from stockdownloader.model.trade import Direction
 from stockdownloader.strategy.exit_mechanisms import (

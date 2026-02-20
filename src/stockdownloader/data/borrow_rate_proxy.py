@@ -21,8 +21,7 @@ from __future__ import annotations
 
 import logging
 
-from stockdownloader.model.borrow_rate_record import BorrowRateRecord
-from stockdownloader.model.short_interest_record import ShortInterestRecord
+from stockdownloader.model.regulatory_records import BorrowRateRecord, ShortInterestRecord
 
 logger = logging.getLogger(__name__)
 

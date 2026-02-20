@@ -28,7 +28,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.price_data import PriceData
 
 logger = logging.getLogger(__name__)

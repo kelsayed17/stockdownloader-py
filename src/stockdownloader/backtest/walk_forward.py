@@ -28,7 +28,7 @@ from stockdownloader.backtest.optimizer_scoring import score_v2
 if TYPE_CHECKING:
     from stockdownloader.backtest.backtest_result import BacktestResult
     from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
     from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
 
 logger = logging.getLogger(__name__)

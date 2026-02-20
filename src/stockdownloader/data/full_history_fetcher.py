@@ -26,7 +26,7 @@ from stockdownloader.data.intraday_csv import (
     write_to_file,
 )
 from stockdownloader.data.intraday_data_accumulator import _merge_bars
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.price_data import PriceData
 
 logger = logging.getLogger(__name__)

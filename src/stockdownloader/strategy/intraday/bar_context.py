@@ -11,7 +11,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
     from stockdownloader.strategy.intraday.session_state import SessionState
     from stockdownloader.util.intraday_indicators import (
         AnchoredVWAPBands,

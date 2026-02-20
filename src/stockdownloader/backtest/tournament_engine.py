@@ -28,7 +28,7 @@ from stockdownloader.backtest.backtest_result import BacktestResult, BaseBacktes
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.optimizer_scoring import score_v2
 from stockdownloader.backtest.walk_forward import WalkForwardResult, WalkForwardValidator
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.regime.regime_detector import MarketRegime
 from stockdownloader.strategy.registrations import ensure_registered

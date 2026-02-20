@@ -13,7 +13,7 @@ from stockdownloader.data.finra_short_interest_client import (
     FinraShortInterestClient,
     _normalize_date,
 )
-from stockdownloader.model.short_interest_record import ShortInterestRecord
+from stockdownloader.model.regulatory_records import ShortInterestRecord
 
 
 # ------------------------------------------------------------------

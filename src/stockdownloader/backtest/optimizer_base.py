@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 
 
 class OptimizerBase:

@@ -21,7 +21,7 @@ from stockdownloader.model.alert_result import (
     Action,
     OptionsRecommendation,
 )
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.tournament_trade import TournamentTrade
 from stockdownloader.model.exit_mechanism_result import (
     ExitMechanismTradeResult,
@@ -37,14 +37,16 @@ from stockdownloader.model.signal_advisory import (
     AdvisoryReasoning,
     OptionsAdvisory,
 )
-from stockdownloader.model.ftd_record import FtdRecord
-from stockdownloader.model.short_interest_record import ShortInterestRecord
-from stockdownloader.model.dark_pool_record import DarkPoolRecord
+from stockdownloader.model.regulatory_records import (
+    FtdRecord,
+    ShortInterestRecord,
+    DarkPoolRecord,
+    BorrowRateRecord,
+)
 from stockdownloader.model.institutional_holding import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )
-from stockdownloader.model.borrow_rate_record import BorrowRateRecord
 
 __all__ = [
     "PriceData",

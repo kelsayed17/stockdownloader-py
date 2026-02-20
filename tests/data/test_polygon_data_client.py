@@ -12,7 +12,7 @@ from stockdownloader.data.polygon_data_client import (
     PolygonDataClient,
     _parse_results,
 )
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 
 
 # ---------------------------------------------------------------

@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.util.technical_indicators import (
     SessionVWAP,
     session_vwap,

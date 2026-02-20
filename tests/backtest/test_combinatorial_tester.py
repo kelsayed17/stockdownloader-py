@@ -14,7 +14,7 @@ from stockdownloader.backtest.combinatorial_tester import (
     ComboResult,
 )
 from stockdownloader.util.file_helper import TeeWriter
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.strategy.signals.signal_generator import (
     AtomicSignalGenerator,
     SignalDirection,

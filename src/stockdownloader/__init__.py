@@ -6,7 +6,7 @@ from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEn
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
 from stockdownloader.data.yahoo_data_client import YahooDataClient
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.trade import Trade
 from stockdownloader.strategy.registry import StrategyRegistry
 

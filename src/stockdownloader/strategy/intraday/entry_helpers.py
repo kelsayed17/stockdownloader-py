@@ -19,7 +19,7 @@ from stockdownloader.util.intraday_indicators import (
 )
 
 if TYPE_CHECKING:
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
 
 # ------------------------------------------------------------------
 # SL / TP helpers

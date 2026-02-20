@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
 from stockdownloader.data.intraday_csv import IntradayCsvLoader, normalize_tz, write_to_file
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 
 logger = logging.getLogger(__name__)
 

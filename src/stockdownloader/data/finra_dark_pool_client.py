@@ -37,7 +37,7 @@ import time
 import requests
 
 from stockdownloader.data.base_client import BaseDataClient
-from stockdownloader.model.dark_pool_record import DarkPoolRecord
+from stockdownloader.model.regulatory_records import DarkPoolRecord
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ import pytest
 
 from stockdownloader.data.intraday_csv import write_to_file
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 
 
 def _make_bar(date: str, close: str = "600.00", volume: int = 1000) -> IntradayPriceData:

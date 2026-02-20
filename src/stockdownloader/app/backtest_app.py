@@ -238,10 +238,8 @@ def _build_options_strategies(args):
             raise SystemExit(1)
         return [StrategyRegistry.create(args.strategy)]
 
-    from stockdownloader.strategy.options.covered_call_strategy import (
+    from stockdownloader.strategy.options.options_strategies import (
         CoveredCallStrategy,
-    )
-    from stockdownloader.strategy.options.protective_put_strategy import (
         ProtectivePutStrategy,
     )
 

@@ -34,7 +34,7 @@ from stockdownloader.strategy.regime.regime_detector import (
 from stockdownloader.util.big_decimal_math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
 
 class DrawdownPositionScaler:
     """Scale position size based on recent equity drawdown.

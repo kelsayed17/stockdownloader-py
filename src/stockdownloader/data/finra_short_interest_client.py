@@ -28,7 +28,7 @@ import time
 import requests
 
 from stockdownloader.data.base_client import BaseDataClient
-from stockdownloader.model.short_interest_record import ShortInterestRecord
+from stockdownloader.model.regulatory_records import ShortInterestRecord
 
 logger = logging.getLogger(__name__)
 

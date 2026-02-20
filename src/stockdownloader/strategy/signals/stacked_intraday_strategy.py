@@ -38,7 +38,7 @@ from stockdownloader.util.timeframe_aggregator import Timeframe, TimeframeAggreg
 from stockdownloader.util.big_decimal_math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
 
 class StackedIntradayStrategy(IntradayTradingStrategy):
     """Full multi-timeframe signal stacking strategy.

@@ -7,8 +7,7 @@ import pytest
 
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.strategy.options.covered_call_strategy import CoveredCallStrategy
-from stockdownloader.strategy.options.protective_put_strategy import ProtectivePutStrategy
+from stockdownloader.strategy.options.options_strategies import CoveredCallStrategy, ProtectivePutStrategy
 
 CAPITAL = Decimal("100000")
 NO_COMMISSION = Decimal("0")

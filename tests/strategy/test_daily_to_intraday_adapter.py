@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.intraday_signal import IntradayAction
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy

@@ -27,7 +27,7 @@ from stockdownloader.util.technical_indicators import (
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
     from stockdownloader.model.price_data import PriceData
 
 SCALE = 10

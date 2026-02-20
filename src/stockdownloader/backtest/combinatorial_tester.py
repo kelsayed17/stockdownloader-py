@@ -45,7 +45,7 @@ from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.util.file_helper import TeeWriter
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.strategy.signals.multi_timeframe_aligner import TimeframeSignalSpec
 from stockdownloader.strategy.signals.signal_registry import (
     SignalGeneratorEntry,

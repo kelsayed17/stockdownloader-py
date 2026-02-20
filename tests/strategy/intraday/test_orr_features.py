@@ -20,7 +20,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.intraday_signal import IntradayAction
 from stockdownloader.model.trade import Direction
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager

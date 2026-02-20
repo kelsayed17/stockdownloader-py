@@ -9,7 +9,7 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.intraday_signal import IntradayAction, IntradaySignal, HOLD
 from stockdownloader.model.trade import Direction
 from stockdownloader.strategy.intraday.session_state import SessionState

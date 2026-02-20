@@ -18,7 +18,7 @@ from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
 from stockdownloader.util.intraday_indicators import daily_atr_prior
 
 if TYPE_CHECKING:
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
     from stockdownloader.model.price_data import PriceData
     from stockdownloader.strategy.intraday.base_config import InfraExitConfig
     from stockdownloader.strategy.intraday.session_state import SessionState

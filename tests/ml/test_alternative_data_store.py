@@ -8,14 +8,16 @@ from stockdownloader.ml.alternative_data_store import (
     AlternativeDataSnapshot,
     AlternativeDataStore,
 )
-from stockdownloader.model.borrow_rate_record import BorrowRateRecord
-from stockdownloader.model.dark_pool_record import DarkPoolRecord
-from stockdownloader.model.ftd_record import FtdRecord
+from stockdownloader.model.regulatory_records import (
+    BorrowRateRecord,
+    DarkPoolRecord,
+    FtdRecord,
+    ShortInterestRecord,
+)
 from stockdownloader.model.institutional_holding import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )
-from stockdownloader.model.short_interest_record import ShortInterestRecord
 
 
 # ------------------------------------------------------------------

@@ -39,7 +39,7 @@ from pathlib import Path
 
 import requests
 
-from stockdownloader.model.ftd_record import FtdRecord
+from stockdownloader.model.regulatory_records import FtdRecord
 
 logger = logging.getLogger(__name__)
 

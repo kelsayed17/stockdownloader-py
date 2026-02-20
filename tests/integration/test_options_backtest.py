@@ -19,9 +19,8 @@ from stockdownloader.model.unified_market_data import (
     HistoricalData,
     UnifiedMarketData,
 )
-from stockdownloader.strategy.options.covered_call_strategy import CoveredCallStrategy
+from stockdownloader.strategy.options.options_strategies import CoveredCallStrategy, ProtectivePutStrategy
 from stockdownloader.strategy.options_strategy import OptionsStrategy
-from stockdownloader.strategy.options.protective_put_strategy import ProtectivePutStrategy
 from stockdownloader.util.black_scholes_calculator import (
     price as bs_price,
     estimate_volatility,

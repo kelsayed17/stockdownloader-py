@@ -36,7 +36,7 @@ from stockdownloader.util.pinescript_models import ModeDefinition
 from stockdownloader.util.pinescript_modes import orb_mode
 
 if TYPE_CHECKING:
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
     from stockdownloader.strategy.intraday.session_state import SessionState
 
 

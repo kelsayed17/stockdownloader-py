@@ -7,7 +7,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.intraday_signal import IntradayAction, IntradaySignal, HOLD
 from stockdownloader.model.trade import Direction, TradeStatus
 from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy

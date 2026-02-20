@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from stockdownloader.model import PriceData
 
 from stockdownloader.backtest.backtest_result import BacktestResult, OptionsBacktestResult
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 
 _TRADING_DAYS_PER_YEAR = 252
 _BARS_PER_DAY = 78  # 5-minute bars in a 6.5-hour session

@@ -19,7 +19,7 @@ from stockdownloader.model.trade import Direction
 from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
     from stockdownloader.model.tournament_trade import TournamentTrade
     from stockdownloader.strategy.exit_mechanism import ExitMechanism
 

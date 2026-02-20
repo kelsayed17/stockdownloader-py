@@ -24,7 +24,7 @@ from stockdownloader.data.json_helpers import get_decimal_at, get_long_at
 from stockdownloader.data.yahoo_base_client import YahooBaseClient
 from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
 from stockdownloader.model import PriceData
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import IntradayPriceData
 
 logger = logging.getLogger(__name__)
 _CHART_URL = (

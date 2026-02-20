@@ -26,7 +26,7 @@ from stockdownloader.util.indicator_hub import IndicatorHub
 from stockdownloader.util.intraday_indicators import compute_sr_score
 
 if TYPE_CHECKING:
-    from stockdownloader.model.intraday_price_data import IntradayPriceData
+    from stockdownloader.model.price_data import IntradayPriceData
     from stockdownloader.strategy.intraday.base_config import InfraExitConfig
 
 
