@@ -441,7 +441,9 @@ class TestCaching:
 
     def test_load_corrupt_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        cache_file = client._cache_dir / "BAD_si.json"
+        sym_dir = client._cache_dir / "BAD"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        cache_file = sym_dir / "si.json"
         cache_file.write_text("not valid json{{{", encoding="utf-8")
         loaded = client._load_cache("BAD")
         assert loaded is None
@@ -459,7 +461,60 @@ class TestCaching:
             ),
         ]
         client._save_cache("AAPL", records)
-        assert (client._cache_dir / "AAPL_si.json").exists()
+        assert (client._cache_dir / "AAPL" / "si.json").exists()
+
+    def test_save_creates_symbol_subdir(self, tmp_path: Path) -> None:
+        client = _make_client(tmp_path)
+        records = [
+            ShortInterestRecord(
+                settlement_date="2024-01-15",
+                symbol="TSLA",
+                short_interest=200,
+                avg_daily_volume=2000,
+                days_to_cover=0.1,
+                short_interest_pct=0.0,
+            ),
+        ]
+        client._save_cache("TSLA", records)
+        sym_dir = client._cache_dir / "TSLA"
+        assert sym_dir.is_dir()
+        assert (sym_dir / "si.json").exists()
+
+    def test_legacy_migration_on_load(self, tmp_path: Path) -> None:
+        client = _make_client(tmp_path)
+        records = [
+            ShortInterestRecord(
+                settlement_date="2024-01-15",
+                symbol="MSFT",
+                short_interest=500,
+                avg_daily_volume=3000,
+                days_to_cover=0.2,
+                short_interest_pct=0.0,
+            ),
+        ]
+        # Write legacy flat file
+        import json as _json
+        legacy_file = client._cache_dir / "MSFT_si.json"
+        legacy_file.write_text(
+            _json.dumps([{
+                "settlement_date": r.settlement_date,
+                "symbol": r.symbol,
+                "short_interest": r.short_interest,
+                "avg_daily_volume": r.avg_daily_volume,
+                "days_to_cover": r.days_to_cover,
+                "short_interest_pct": r.short_interest_pct,
+            } for r in records]),
+            encoding="utf-8",
+        )
+        assert legacy_file.exists()
+
+        loaded = client._load_cache("MSFT")
+        assert loaded is not None
+        assert len(loaded) == 1
+        assert loaded[0].symbol == "MSFT"
+        # Legacy file should have been moved
+        assert not legacy_file.exists()
+        assert (client._cache_dir / "MSFT" / "si.json").exists()
 
 
 # ------------------------------------------------------------------

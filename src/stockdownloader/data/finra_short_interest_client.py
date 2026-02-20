@@ -24,6 +24,7 @@ import json
 import logging
 import os
 import time
+from pathlib import Path
 
 import requests
 
@@ -323,12 +324,27 @@ class FinraShortInterestClient(BaseDataClient):
     # Caching
     # ------------------------------------------------------------------
 
+    def _symbol_cache_dir(self, symbol: str) -> Path:
+        """Return per-symbol cache subdirectory, creating it if needed."""
+        d = self._cache_dir / symbol.upper()
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def _load_cache(self, symbol: str) -> list[ShortInterestRecord] | None:
         """Load cached short interest records for *symbol*.
 
         Returns ``None`` if no cache exists.
         """
-        cache_file = self._cache_dir / f"{symbol}_si.json"
+        sym_dir = self._symbol_cache_dir(symbol)
+        cache_file = sym_dir / "si.json"
+
+        # Legacy migration
+        if not cache_file.exists():
+            legacy = self._cache_dir / f"{symbol}_si.json"
+            if legacy.exists():
+                legacy.rename(cache_file)
+                logger.info("Migrated %s → %s", legacy, cache_file)
+
         if not cache_file.exists():
             return None
 
@@ -357,7 +373,7 @@ class FinraShortInterestClient(BaseDataClient):
         records: list[ShortInterestRecord],
     ) -> None:
         """Persist short interest records to JSON cache."""
-        cache_file = self._cache_dir / f"{symbol}_si.json"
+        cache_file = self._symbol_cache_dir(symbol) / "si.json"
         data = [
             {
                 "settlement_date": r.settlement_date,
