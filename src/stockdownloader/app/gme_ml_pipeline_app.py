@@ -23,7 +23,8 @@ from stockdownloader.app._ml_helpers import (
     add_common_ml_args,
     build_pipeline_config,
     build_training_config,
-    check_ml_deps,
+    init_ml_env,
+    run_ml_pipeline,
 )
 from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
 
@@ -125,15 +126,9 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--output-dir", default=str(DEFAULT_ML_PIPELINE_DIR), help="Output directory")
     add_common_ml_args(parser)
     args = parser.parse_args(argv)
-
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(levelname)s: %(message)s",
-    )
-    check_ml_deps()
+    init_ml_env(args.verbose)
 
     from stockdownloader.ml.pipeline.config import AltDataConfig
-    from stockdownloader.ml.pipeline.orchestrator import MLPipelineOrchestrator
 
     # Set API keys from CLI
     if args.polygon_key:
@@ -228,14 +223,8 @@ def main(argv: list[str] | None = None) -> None:
     print()
 
     start_time = time.time()
-
-    pipeline = MLPipelineOrchestrator(config)
-    result = pipeline.run()
+    result = run_ml_pipeline(config)
     elapsed = time.time() - start_time
-
-    if result.best_strategy is None:
-        print("\nPipeline did not find a viable strategy.", file=sys.stderr)
-        sys.exit(1)
 
     _print_alt_feature_importance(result)
 

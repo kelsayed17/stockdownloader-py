@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import argparse
 import csv as csv_mod
-import logging
 import os
 import sys
 import time
@@ -26,7 +25,7 @@ from pathlib import Path
 from stockdownloader.app._ml_helpers import (
     add_common_ml_args,
     build_training_config,
-    check_ml_deps,
+    init_ml_env,
 )
 from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
 
@@ -162,12 +161,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--output-dir", default=str(DEFAULT_ML_PIPELINE_DIR), help="Output directory")
     add_common_ml_args(parser)
     args = parser.parse_args(argv)
-
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(levelname)s: %(message)s",
-    )
-    check_ml_deps()
+    init_ml_env(args.verbose)
 
     from stockdownloader.ml.pipeline.config import (
         BacktestConfig,

@@ -13,15 +13,14 @@ Usage::
 from __future__ import annotations
 
 import argparse
-import logging
-import sys
 
 from stockdownloader.app._ml_helpers import (
     add_common_ml_args,
     apply_config_defaults,
     build_pipeline_config,
     build_training_config,
-    check_ml_deps,
+    init_ml_env,
+    run_ml_pipeline,
 )
 from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
 
@@ -73,14 +72,7 @@ def main(argv: list[str] | None = None) -> None:
     """``ml-pipeline`` — standard end-to-end ML pipeline."""
     args = _build_parser().parse_args(argv)
     apply_config_defaults(args)
-
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format="%(levelname)s: %(message)s",
-    )
-    check_ml_deps()
-
-    from stockdownloader.ml.pipeline.orchestrator import MLPipelineOrchestrator
+    init_ml_env(args.verbose)
 
     training = build_training_config(args)
     config = build_pipeline_config(
@@ -90,12 +82,7 @@ def main(argv: list[str] | None = None) -> None:
         selection_kwargs={"pine_top_features": args.pine_top_features},
     )
 
-    pipeline = MLPipelineOrchestrator(config)
-    result = pipeline.run()
-
-    if result.best_strategy is None:
-        print("\nPipeline did not find a viable strategy.", file=sys.stderr)
-        sys.exit(1)
+    run_ml_pipeline(config)
 
 
 if __name__ == "__main__":

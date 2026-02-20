@@ -4,6 +4,9 @@ Extracts the common plumbing that was duplicated across
 ``ml_pipeline_app``, ``gme_ml_pipeline_app``, and ``spy_ml_pipeline_app``:
 
 - ``check_ml_deps`` — guard against missing ``scikit-learn``
+- ``setup_ml_logging`` — configure logging (verbose vs normal)
+- ``init_ml_env`` — one-call setup (logging + dep check)
+- ``run_ml_pipeline`` — orchestrate pipeline run + result check
 - ``build_training_config`` — ``TrainingGridConfig`` from parsed CLI args
 - ``add_common_ml_args`` — shared argparse arguments (grid, backtest, pine, output)
 - ``build_pipeline_config`` — assemble a ``PipelineConfig`` from parsed args
@@ -16,6 +19,7 @@ built-in fallbacks.
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 from typing import Any
 
@@ -39,6 +43,63 @@ def check_ml_deps() -> None:
             file=sys.stderr,
         )
         sys.exit(1)
+
+
+def setup_ml_logging(verbose: bool) -> None:
+    """Configure logging for ML pipeline apps.
+
+    Parameters
+    ----------
+    verbose:
+        When *True* use ``DEBUG`` level; otherwise ``INFO``.
+    """
+    logging.basicConfig(
+        level=logging.DEBUG if verbose else logging.INFO,
+        format="%(levelname)s: %(message)s",
+    )
+
+
+def init_ml_env(verbose: bool) -> None:
+    """Set up logging and verify ML dependencies in one call.
+
+    Convenience wrapper combining :func:`setup_ml_logging` and
+    :func:`check_ml_deps`.
+    """
+    setup_ml_logging(verbose)
+    check_ml_deps()
+
+
+def run_ml_pipeline(
+    config: Any,
+    *,
+    hmm_snapshots: Any | None = None,
+) -> Any:
+    """Create an ``MLPipelineOrchestrator``, run it, and return the result.
+
+    Also checks whether a viable strategy was found and exits with an
+    error message if not.
+
+    Parameters
+    ----------
+    config:
+        A ``PipelineConfig`` instance.
+    hmm_snapshots:
+        Optional HMM regime snapshots passed to the orchestrator.
+
+    Returns
+    -------
+    The pipeline result object.
+    """
+    from stockdownloader.ml.pipeline.orchestrator import MLPipelineOrchestrator
+
+    pipeline = MLPipelineOrchestrator(config, hmm_snapshots=hmm_snapshots)
+    result = pipeline.run()
+
+    if result.best_strategy is None:
+        print("\nPipeline did not find a viable strategy.", file=sys.stderr)
+        sys.exit(1)
+
+    return result
 
 
 # ======================================================================
