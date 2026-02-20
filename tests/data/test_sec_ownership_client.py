@@ -596,7 +596,9 @@ class TestOwnershipCaching:
 
     def test_load_corrupt_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        cache_file = client._cache_dir / "BAD_ownership.json"
+        sym_dir = client._cache_dir / "BAD"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        cache_file = sym_dir / "13f.json"
         cache_file.write_text("{{{corrupt json", encoding="utf-8")
         loaded = client._load_cache("BAD")
         assert loaded is None
@@ -623,7 +625,165 @@ class TestOwnershipCaching:
             ),
         ]
         client._save_cache("AAPL", snapshots)
-        assert (client._cache_dir / "AAPL_13f.json").exists()
+        assert (client._cache_dir / "AAPL" / "13f.json").exists()
+
+
+# ------------------------------------------------------------------
+# Tests: Per-symbol cache subdirectory
+# ------------------------------------------------------------------
+
+
+class TestPerSymbolCacheDir:
+    """Tests for per-symbol cache subdirectory layout and legacy migration."""
+
+    def test_symbol_cache_dir_creates_and_uppercases(self, tmp_path: Path) -> None:
+        """_symbol_cache_dir creates the dir and uppercases the symbol."""
+        client = _make_client(tmp_path)
+        d = client._symbol_cache_dir("aapl")
+        assert d == client._cache_dir / "AAPL"
+        assert d.is_dir()
+
+    def test_save_cache_creates_file_in_symbol_subdir(self, tmp_path: Path) -> None:
+        """_save_cache writes to {SYMBOL}/13f.json inside cache_dir."""
+        client = _make_client(tmp_path)
+        snapshots = [
+            OwnershipSnapshot(
+                quarter_end="2024-03-31",
+                symbol="TSLA",
+                total_institutional_shares=1000,
+                num_institutions=1,
+                top_10_concentration=1.0,
+                holdings=(
+                    InstitutionalHolding(
+                        filing_date="2024-05-15",
+                        manager_name="Fund",
+                        manager_cik="999",
+                        shares=1000,
+                        value_usd=100,
+                        share_class="COM",
+                    ),
+                ),
+            ),
+        ]
+        client._save_cache("TSLA", snapshots)
+        expected = client._cache_dir / "TSLA" / "13f.json"
+        assert expected.exists()
+        # The old flat path should NOT exist
+        assert not (client._cache_dir / "TSLA_13f.json").exists()
+
+    def test_legacy_13f_json_migration_on_load(self, tmp_path: Path) -> None:
+        """Legacy {SYMBOL}_13f.json migrates to {SYMBOL}/13f.json on load."""
+        client = _make_client(tmp_path)
+
+        # Write a snapshot using the old flat layout
+        legacy_file = client._cache_dir / "GME_13f.json"
+        data = [
+            {
+                "quarter_end": "2024-03-31",
+                "symbol": "GME",
+                "total_institutional_shares": 5000,
+                "num_institutions": 1,
+                "top_10_concentration": 1.0,
+                "holdings": [
+                    {
+                        "filing_date": "2024-05-15",
+                        "manager_name": "Fund",
+                        "manager_cik": "123",
+                        "shares": 5000,
+                        "value_usd": 100,
+                        "share_class": "COM",
+                    },
+                ],
+            },
+        ]
+        legacy_file.write_text(json.dumps(data), encoding="utf-8")
+
+        loaded = client._load_cache("GME")
+        assert loaded is not None
+        assert len(loaded) == 1
+        assert loaded[0].total_institutional_shares == 5000
+
+        # Legacy file should be gone, new path should exist
+        assert not legacy_file.exists()
+        assert (client._cache_dir / "GME" / "13f.json").exists()
+
+    def test_legacy_ownership_json_migration_on_load(self, tmp_path: Path) -> None:
+        """Legacy {SYMBOL}_ownership.json migrates to {SYMBOL}/13f.json on load."""
+        client = _make_client(tmp_path)
+
+        legacy_file = client._cache_dir / "GME_ownership.json"
+        data = [
+            {
+                "quarter_end": "2024-06-30",
+                "symbol": "GME",
+                "total_institutional_shares": 3000,
+                "num_institutions": 1,
+                "top_10_concentration": 1.0,
+                "holdings": [
+                    {
+                        "filing_date": "2024-08-10",
+                        "manager_name": "OldFund",
+                        "manager_cik": "456",
+                        "shares": 3000,
+                        "value_usd": 50,
+                        "share_class": "SH",
+                    },
+                ],
+            },
+        ]
+        legacy_file.write_text(json.dumps(data), encoding="utf-8")
+
+        loaded = client._load_cache("GME")
+        assert loaded is not None
+        assert len(loaded) == 1
+        assert loaded[0].holdings[0].manager_name == "OldFund"
+
+        # Legacy file gone, new path exists
+        assert not legacy_file.exists()
+        assert (client._cache_dir / "GME" / "13f.json").exists()
+
+    def test_save_load_roundtrip_new_paths(self, tmp_path: Path) -> None:
+        """Save + load roundtrip works with new per-symbol paths."""
+        client = _make_client(tmp_path)
+        holdings = (
+            InstitutionalHolding(
+                filing_date="2024-05-15",
+                manager_name="Vanguard",
+                manager_cik="102909",
+                shares=5_000_000,
+                value_usd=150_000,
+                share_class="COM",
+            ),
+            InstitutionalHolding(
+                filing_date="2024-05-15",
+                manager_name="BlackRock",
+                manager_cik="101234",
+                shares=3_000_000,
+                value_usd=90_000,
+                share_class="COM",
+            ),
+        )
+        snapshots = [
+            OwnershipSnapshot(
+                quarter_end="2024-03-31",
+                symbol="GME",
+                total_institutional_shares=8_000_000,
+                num_institutions=2,
+                top_10_concentration=1.0,
+                holdings=holdings,
+            ),
+        ]
+        client._save_cache("GME", snapshots)
+        loaded = client._load_cache("GME")
+
+        assert loaded is not None
+        assert len(loaded) == 1
+        snap = loaded[0]
+        assert snap.quarter_end == "2024-03-31"
+        assert snap.total_institutional_shares == 8_000_000
+        assert len(snap.holdings) == 2
+        assert snap.holdings[0].manager_name == "Vanguard"
+        assert snap.holdings[1].manager_name == "BlackRock"
 
 
 # ------------------------------------------------------------------

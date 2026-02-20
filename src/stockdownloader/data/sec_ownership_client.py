@@ -1035,20 +1035,31 @@ class SecOwnershipClient:
     # Caching
     # ------------------------------------------------------------------
 
+    def _symbol_cache_dir(self, symbol: str) -> Path:
+        """Return per-symbol cache subdirectory, creating it if needed."""
+        d = self._cache_dir / symbol.upper()
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def _load_cache(self, symbol: str) -> list[OwnershipSnapshot] | None:
         """Load cached ownership snapshots for *symbol*."""
-        cache_file = self._cache_dir / f"{symbol}_13f.json"
-        # Also check legacy filename
-        legacy_file = self._cache_dir / f"{symbol}_ownership.json"
+        sym_dir = self._symbol_cache_dir(symbol)
+        cache_file = sym_dir / "13f.json"
 
-        target = cache_file if cache_file.exists() else (
-            legacy_file if legacy_file.exists() else None
-        )
-        if target is None:
+        # Legacy migration: move old flat files into symbol subdir
+        if not cache_file.exists():
+            for legacy_name in (f"{symbol}_13f.json", f"{symbol}_ownership.json"):
+                legacy = self._cache_dir / legacy_name
+                if legacy.exists():
+                    legacy.rename(cache_file)
+                    logger.info("Migrated %s → %s", legacy, cache_file)
+                    break
+
+        if not cache_file.exists():
             return None
 
         try:
-            data = json.loads(target.read_text(encoding="utf-8"))
+            data = json.loads(cache_file.read_text(encoding="utf-8"))
             snapshots: list[OwnershipSnapshot] = []
             for snap in data:
                 holdings = tuple(
@@ -1086,7 +1097,7 @@ class SecOwnershipClient:
         snapshots: list[OwnershipSnapshot],
     ) -> None:
         """Persist ownership snapshots to JSON cache."""
-        cache_file = self._cache_dir / f"{symbol}_13f.json"
+        cache_file = self._symbol_cache_dir(symbol) / "13f.json"
         data = [
             {
                 "quarter_end": s.quarter_end,
