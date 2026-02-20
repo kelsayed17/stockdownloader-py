@@ -248,6 +248,14 @@ class SecOwnershipClient:
                     symbol_upper, len(cached),
                 )
                 return cached[-num_quarters:]
+        else:
+            # Delete only the merged 13f.json; preserve per-quarter snapshots
+            merged = self._symbol_cache_dir(symbol_upper) / "13f.json"
+            if merged.exists():
+                merged.unlink()
+                logger.info(
+                    "force_refresh: deleted merged cache %s", merged,
+                )
 
         # Determine quarter range to fetch
         today = date.today()
@@ -623,6 +631,15 @@ class SecOwnershipClient:
 
         Uses date-range windowing to stay under the 10,000-hit limit.
         """
+        # Check per-quarter cache first
+        cached = self._load_quarter_snapshot(symbol, year, quarter)
+        if cached is not None:
+            logger.info(
+                "Using cached EFTS quarter snapshot for %s %dQ%d",
+                symbol, year, quarter,
+            )
+            return cached
+
         # 13F filings for a quarter are filed 0-45 days after quarter end.
         _, q_end = _quarter_range(year, quarter)
         search_start = q_end + timedelta(days=1)
@@ -726,7 +743,7 @@ class SecOwnershipClient:
         top10_conc = top10 / total_shares if total_shares > 0 else 0.0
 
         try:
-            return OwnershipSnapshot(
+            snapshot = OwnershipSnapshot(
                 quarter_end=quarter_end,
                 symbol=symbol,
                 total_institutional_shares=total_shares,
@@ -736,6 +753,9 @@ class SecOwnershipClient:
             )
         except ValueError:
             return None
+
+        self._save_quarter_snapshot(symbol, year, quarter, snapshot)
+        return snapshot
 
     # ------------------------------------------------------------------
     # HTTP helpers
@@ -1127,6 +1147,83 @@ class SecOwnershipClient:
             logger.warning(
                 "Failed to save ownership cache for %s: %s", symbol, exc,
             )
+
+    def _save_quarter_snapshot(
+        self,
+        symbol: str,
+        year: int,
+        quarter: int,
+        snapshot: OwnershipSnapshot,
+    ) -> None:
+        """Persist a single quarter snapshot as ``{SYMBOL}/{YYYY}Q{Q}.json``."""
+        cache_file = self._symbol_cache_dir(symbol) / f"{year}Q{quarter}.json"
+        data = {
+            "quarter_end": snapshot.quarter_end,
+            "symbol": snapshot.symbol,
+            "total_institutional_shares": snapshot.total_institutional_shares,
+            "num_institutions": snapshot.num_institutions,
+            "top_10_concentration": snapshot.top_10_concentration,
+            "holdings": [
+                {
+                    "filing_date": h.filing_date,
+                    "manager_name": h.manager_name,
+                    "manager_cik": h.manager_cik,
+                    "shares": h.shares,
+                    "value_usd": h.value_usd,
+                    "share_class": h.share_class,
+                }
+                for h in snapshot.holdings
+            ],
+        }
+        try:
+            cache_file.write_text(
+                json.dumps(data, indent=2), encoding="utf-8",
+            )
+        except OSError as exc:
+            logger.warning(
+                "Failed to save quarter snapshot %dQ%d for %s: %s",
+                year, quarter, symbol, exc,
+            )
+
+    def _load_quarter_snapshot(
+        self,
+        symbol: str,
+        year: int,
+        quarter: int,
+    ) -> OwnershipSnapshot | None:
+        """Load a single quarter snapshot from ``{SYMBOL}/{YYYY}Q{Q}.json``."""
+        cache_file = self._symbol_cache_dir(symbol) / f"{year}Q{quarter}.json"
+        if not cache_file.exists():
+            return None
+        try:
+            snap = json.loads(cache_file.read_text(encoding="utf-8"))
+            holdings = tuple(
+                InstitutionalHolding(
+                    filing_date=h["filing_date"],
+                    manager_name=h["manager_name"],
+                    manager_cik=h["manager_cik"],
+                    shares=h["shares"],
+                    value_usd=h["value_usd"],
+                    share_class=h["share_class"],
+                )
+                for h in snap.get("holdings", [])
+            )
+            return OwnershipSnapshot(
+                quarter_end=snap["quarter_end"],
+                symbol=snap["symbol"],
+                total_institutional_shares=snap[
+                    "total_institutional_shares"
+                ],
+                num_institutions=snap["num_institutions"],
+                top_10_concentration=snap["top_10_concentration"],
+                holdings=holdings,
+            )
+        except (json.JSONDecodeError, KeyError, ValueError) as exc:
+            logger.warning(
+                "Failed to load quarter snapshot %dQ%d for %s: %s",
+                year, quarter, symbol, exc,
+            )
+            return None
 
     # ------------------------------------------------------------------
     # Rate limiting

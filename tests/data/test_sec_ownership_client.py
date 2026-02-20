@@ -1118,6 +1118,145 @@ class TestLegacyTextParsing:
 
 
 # ------------------------------------------------------------------
+# Tests: Per-quarter EFTS snapshot caching
+# ------------------------------------------------------------------
+
+
+class TestEftsQuarterSnapshotCache:
+    """Tests for per-quarter EFTS snapshot save/load."""
+
+    @staticmethod
+    def _make_snapshot(
+        symbol: str = "GME",
+        quarter_end: str = "2024-03-31",
+    ) -> OwnershipSnapshot:
+        return OwnershipSnapshot(
+            quarter_end=quarter_end,
+            symbol=symbol,
+            total_institutional_shares=5000,
+            num_institutions=1,
+            top_10_concentration=1.0,
+            holdings=(
+                InstitutionalHolding(
+                    filing_date=quarter_end,
+                    manager_name="TestFund",
+                    manager_cik="999",
+                    shares=5000,
+                    value_usd=150,
+                    share_class="COM",
+                ),
+            ),
+        )
+
+    def test_save_creates_correct_file(self, tmp_path: Path) -> None:
+        """_save_quarter_snapshot writes {SYMBOL}/{YYYY}Q{Q}.json."""
+        client = _make_client(tmp_path)
+        snap = self._make_snapshot()
+        client._save_quarter_snapshot("GME", 2024, 1, snap)
+        expected = client._cache_dir / "GME" / "2024Q1.json"
+        assert expected.exists()
+        data = json.loads(expected.read_text(encoding="utf-8"))
+        assert data["quarter_end"] == "2024-03-31"
+        assert data["total_institutional_shares"] == 5000
+
+    def test_load_roundtrip(self, tmp_path: Path) -> None:
+        """Save then load returns equivalent snapshot."""
+        client = _make_client(tmp_path)
+        snap = self._make_snapshot()
+        client._save_quarter_snapshot("GME", 2024, 1, snap)
+        loaded = client._load_quarter_snapshot("GME", 2024, 1)
+        assert loaded is not None
+        assert loaded.quarter_end == "2024-03-31"
+        assert loaded.total_institutional_shares == 5000
+        assert len(loaded.holdings) == 1
+        assert loaded.holdings[0].manager_name == "TestFund"
+
+    def test_load_missing_returns_none(self, tmp_path: Path) -> None:
+        """Loading a non-existent quarter returns None."""
+        client = _make_client(tmp_path)
+        loaded = client._load_quarter_snapshot("GME", 2099, 4)
+        assert loaded is None
+
+    def test_load_corrupt_returns_none(self, tmp_path: Path) -> None:
+        """Loading a corrupt quarter file returns None."""
+        client = _make_client(tmp_path)
+        sym_dir = client._symbol_cache_dir("GME")
+        corrupt = sym_dir / "2024Q1.json"
+        corrupt.write_text("{{{bad json", encoding="utf-8")
+        loaded = client._load_quarter_snapshot("GME", 2024, 1)
+        assert loaded is None
+
+    def test_force_refresh_preserves_quarter_snapshots(
+        self, tmp_path: Path,
+    ) -> None:
+        """force_refresh=True deletes merged 13f.json but keeps quarter files."""
+        client = _make_client(tmp_path)
+        snap = self._make_snapshot()
+
+        # Save a quarter snapshot and a merged cache
+        client._save_quarter_snapshot("GME", 2024, 1, snap)
+        client._save_cache("GME", [snap])
+
+        merged = client._symbol_cache_dir("GME") / "13f.json"
+        quarter = client._symbol_cache_dir("GME") / "2024Q1.json"
+        assert merged.exists()
+        assert quarter.exists()
+
+        # Mock the network calls to return nothing (we just want
+        # to test that force_refresh preserves quarter files)
+        with patch.object(client, "_fetch_from_bulk", return_value=None), \
+             patch.object(client, "_fetch_from_efts", return_value=None):
+            client.fetch_ownership_snapshots(
+                "GME", cusip="36467W109", num_quarters=1,
+                force_refresh=True,
+            )
+
+        # Merged file should be deleted (or recreated empty if no data)
+        # Quarter snapshot should still be on disk
+        assert quarter.exists()
+
+
+class TestEftsSnapshotIntegration:
+    """Integration tests: per-quarter cache prevents HTTP requests."""
+
+    def test_cached_quarter_skips_http(self, tmp_path: Path) -> None:
+        """When a quarter snapshot exists, _fetch_from_efts returns it
+        without making any HTTP requests."""
+        client = _make_client(tmp_path)
+
+        snap = OwnershipSnapshot(
+            quarter_end="2024-03-31",
+            symbol="GME",
+            total_institutional_shares=5000,
+            num_institutions=1,
+            top_10_concentration=1.0,
+            holdings=(
+                InstitutionalHolding(
+                    filing_date="2024-03-31",
+                    manager_name="CachedFund",
+                    manager_cik="111",
+                    shares=5000,
+                    value_usd=100,
+                    share_class="COM",
+                ),
+            ),
+        )
+        client._save_quarter_snapshot("GME", 2024, 1, snap)
+
+        with patch.object(
+            client, "_fetch_efts_page",
+            side_effect=AssertionError("Should not be called"),
+        ):
+            result = client._fetch_from_efts(
+                "GME", "36467W109", 2024, 1, "2024-03-31",
+            )
+
+        assert result is not None
+        assert result.total_institutional_shares == 5000
+        assert result.holdings[0].manager_name == "CachedFund"
+
+
+# ------------------------------------------------------------------
 # Tests: Rate limiting
 # ------------------------------------------------------------------
 
