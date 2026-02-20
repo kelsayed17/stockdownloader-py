@@ -11,16 +11,11 @@ import pytest
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.model.intraday_signal import IntradayAction, HOLD
 from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
-from stockdownloader.strategy.intraday.or_breakout_config import ORBreakoutStrategyConfig
-from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategy
-from stockdownloader.strategy.intraday.or_reversal_config import ORReversalStrategyConfig
-from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy
-from stockdownloader.strategy.intraday.pattern_scalp_config import PatternScalpStrategyConfig
-from stockdownloader.strategy.intraday.pattern_scalp_strategy import PatternScalpStrategy
-from stockdownloader.strategy.intraday.pullback_config import PullbackStrategyConfig
-from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
-from stockdownloader.strategy.intraday.reversal_config import ReversalStrategyConfig
-from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
+from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategyConfig, ORBreakoutStrategy
+from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategyConfig, ORReversalStrategy
+from stockdownloader.strategy.intraday.pattern_scalp_strategy import PatternScalpStrategyConfig, PatternScalpStrategy
+from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategyConfig, PullbackStrategy
+from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategyConfig, ReversalStrategy
 
 
 # -- Helpers --

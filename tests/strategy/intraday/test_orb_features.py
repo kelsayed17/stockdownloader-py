@@ -13,7 +13,7 @@ from stockdownloader.model.trade import Direction
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
 from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
-from stockdownloader.strategy.intraday.or_breakout_config import ORBreakoutStrategyConfig
+from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategyConfig
 from stockdownloader.strategy.intraday.trail_strategy import AtrChandelierTrail
 
 from tests.strategy.intraday.conftest import (

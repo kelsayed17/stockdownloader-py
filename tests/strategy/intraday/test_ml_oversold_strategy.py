@@ -125,7 +125,7 @@ class TestInstantiation:
         assert strategy.warmup_period > 0
 
     def test_custom_config(self) -> None:
-        from stockdownloader.strategy.intraday.ml_oversold_config import (
+        from stockdownloader.strategy.intraday.ml_oversold_strategy import (
             MLOversoldConfig,
         )
 
@@ -181,7 +181,7 @@ class TestDayTradeLimit:
 
     def test_day_trade_limit(self) -> None:
         """After exhausting max_day entries, strategy should HOLD."""
-        from stockdownloader.strategy.intraday.ml_oversold_config import (
+        from stockdownloader.strategy.intraday.ml_oversold_strategy import (
             MLOversoldConfig,
         )
 
@@ -241,7 +241,7 @@ class TestRiskRewardFilter:
         at entry price (bad R:R).  We verify by checking that any entry
         signal that does appear has a reasonable TP distance.
         """
-        from stockdownloader.strategy.intraday.ml_oversold_config import (
+        from stockdownloader.strategy.intraday.ml_oversold_strategy import (
             MLOversoldConfig,
         )
 

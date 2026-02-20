@@ -317,7 +317,7 @@ class TestDmiVwapToPine:
         assert "ta.dmi" in exprs
 
     def test_custom_config(self):
-        from stockdownloader.strategy.intraday.dmi_vwap_config import DmiVwapConfig
+        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapConfig
         from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
         from decimal import Decimal
         cfg = DmiVwapConfig(dmi_period=10, adx_threshold=Decimal("30"))

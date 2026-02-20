@@ -42,7 +42,7 @@ from stockdownloader.strategy.intraday.entry_helpers import (
 )
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
 from stockdownloader.strategy.intraday.infra import IntradayInfra
-from stockdownloader.strategy.intraday.ml_oversold_config import MLOversoldConfig
+from stockdownloader.strategy.intraday.ml_oversold_strategy import MLOversoldConfig
 from stockdownloader.strategy.intraday.ml_oversold_strategy import MLOversoldStrategy
 from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategy
 from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy

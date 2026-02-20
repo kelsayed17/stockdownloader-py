@@ -12,11 +12,13 @@ SL/TP are ATR-based risk management, the only non-ML component.
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.ml.predictor import MLPredictor
 from stockdownloader.model.intraday_signal import IntradaySignal
+from stockdownloader.strategy.intraday.base_config import InfraExitConfig
 from stockdownloader.strategy.intraday.entry_helpers import (
     clamp_sl_dist,
     directional_sl_tp,
@@ -25,7 +27,6 @@ from stockdownloader.strategy.intraday.entry_helpers import (
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
 from stockdownloader.strategy.intraday.bar_context import BarContext
 from stockdownloader.strategy.intraday.infra import IntradayInfra
-from stockdownloader.strategy.intraday.ml_oversold_config import MLOversoldConfig
 from stockdownloader.strategy.intraday.trail_strategy import BreakevenTrail
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.util.big_decimal_math import ZERO
@@ -34,6 +35,34 @@ from stockdownloader.util.pinescript_modes import ml_oversold_mode
 
 if TYPE_CHECKING:
     from stockdownloader.model.intraday_price_data import IntradayPriceData
+
+
+@dataclass(frozen=True, slots=True)
+class MLOversoldConfig(InfraExitConfig):
+    """Config for :class:`MLOversoldStrategy`.
+
+    The ML model decides *when* to trade; these fields control
+    *how much* to risk and basic session limits.
+    """
+
+    # ── ML model ──────────────────────────────────────────────────────
+    model_path: str = "output/models/spy/gradient_boosting_latest.joblib"
+
+    # Probability threshold — model must be at least this confident.
+    ml_threshold: Decimal = Decimal("0.60")
+
+    # ── SL / TP (standard risk management) ────────────────────────────
+    ml_sl_atr: Decimal = Decimal("1.5")
+    ml_sl_cap: Decimal = Decimal("2.50")
+    ml_tp_mode: str = "vwap"          # "vwap" or "rr"
+    ml_rr: Decimal = Decimal("1.5")   # R:R multiplier (rr mode)
+    ml_min_rr: Decimal = Decimal("0.5")
+
+    # ── Session limits ────────────────────────────────────────────────
+    # Long-only: SPY mean-reversion bias.
+    allow_shorts: bool = False
+    max_day: int = 2
+    spacing: int = 8
 
 logger = logging.getLogger(__name__)
 

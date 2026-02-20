@@ -9,10 +9,12 @@ This strategy does **not** use VWAP for entry decisions.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.model.intraday_signal import IntradaySignal
+from stockdownloader.strategy.intraday.base_config import InfraExitConfig
 from stockdownloader.strategy.intraday.entry_helpers import (
     clamp_sl_dist,
     detect_reversal_patterns,
@@ -31,7 +33,31 @@ from stockdownloader.util.pinescript_modes import ps_mode
 
 if TYPE_CHECKING:
     from stockdownloader.model.intraday_price_data import IntradayPriceData
-    from stockdownloader.strategy.intraday.pattern_scalp_config import PatternScalpStrategyConfig
+
+
+@dataclass(frozen=True, slots=True)
+class PatternScalpStrategyConfig(InfraExitConfig):
+    """All configurable parameters for the Pattern Scalp strategy.
+
+    Inherits infrastructure / exit / trail fields from
+    :class:`InfraExitConfig`.
+    """
+
+    # ── PS entry ────────────────────────────────────────────────────────
+    ps_enable: bool = True
+    ps_atr_pct: Decimal = Decimal("20.0")      # 20% of daily ATR → more manipulation days
+    ps_window: int = 35                        # Wider window for more setups
+    ps_engulf: Decimal = Decimal("0.25")       # 25% body-to-range (research minimum)
+    ps_rvol: Decimal = Decimal("1.5")          # Require above-average volume
+    ps_sma_filter: bool = True                 # Require SMA alignment
+    ps_sl_mode: str = "ATR-Based"
+    ps_sl_atr: Decimal = Decimal("1.3")        # Tighter SL
+    ps_sl_cap: Decimal = Decimal("1.50")       # Tighter cap
+    ps_tp_pct: Decimal = Decimal("75.0")
+    ps_min_rr: Decimal = Decimal("1.5")        # Higher R:R to protect against losses
+    ps_htf_align: bool = True
+
+    # allow_longs, allow_shorts, w_sr inherited from base
 
 
 class PatternScalpStrategy(BaseIntradayStrategy):
@@ -43,8 +69,6 @@ class PatternScalpStrategy(BaseIntradayStrategy):
     """
 
     def __init__(self, config: PatternScalpStrategyConfig | None = None) -> None:
-        from stockdownloader.strategy.intraday.pattern_scalp_config import PatternScalpStrategyConfig
-
         c = config or PatternScalpStrategyConfig()
         self._c = c
         self._infra = IntradayInfra(c, IntradayExitManager(BreakevenTrail()))

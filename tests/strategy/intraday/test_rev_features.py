@@ -18,7 +18,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.strategy.intraday.reversal_config import ReversalStrategyConfig
+from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategyConfig
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
 from stockdownloader.util.pinescript_modes import rev_mode as _rev_mode

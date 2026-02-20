@@ -31,9 +31,9 @@ from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.model.intraday_signal import HOLD, IntradayAction, IntradaySignal
 from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
-from stockdownloader.strategy.intraday.pullback_config import PullbackStrategyConfig
+from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategyConfig
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
-from stockdownloader.strategy.intraday.reversal_config import ReversalStrategyConfig
+from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategyConfig
 
 from stockdownloader.strategy.registrations import ensure_registered
 ensure_registered()
@@ -399,7 +399,7 @@ def phase2_variants(
 
     # Variant D: OR Reversal Long-Only (best baseline was ORR)
     from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy
-    from stockdownloader.strategy.intraday.or_reversal_config import ORReversalStrategyConfig
+    from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategyConfig
     cfg_d = ORReversalStrategyConfig(
         allow_shorts=False,       # long-only
         max_day=2,
@@ -524,7 +524,7 @@ def phase2_variants(
 
     # Variant L: Pine ORB with RVOL >= 2.0 gate (75% WR in Pine)
     from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategy
-    from stockdownloader.strategy.intraday.or_breakout_config import ORBreakoutStrategyConfig
+    from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategyConfig
     cfg_l = ORBreakoutStrategyConfig(
         allow_shorts=False,
         max_day=2,

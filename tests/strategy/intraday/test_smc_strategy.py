@@ -7,7 +7,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.strategy.intraday.smc_structure_config import SMCStructureConfig
+from stockdownloader.strategy.intraday.smc_structure_strategy import SMCStructureConfig
 from stockdownloader.strategy.intraday.smc_structure_strategy import SMCStructureStrategy
 from stockdownloader.strategy.intraday.base_config import InfraExitConfig
 

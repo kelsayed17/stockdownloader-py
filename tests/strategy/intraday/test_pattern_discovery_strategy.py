@@ -10,10 +10,8 @@ from stockdownloader.analysis.pattern_discovery import DiscoveredPattern, Patter
 from stockdownloader.analysis.pattern_encoder import BarFeatures
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.model.intraday_signal import IntradayAction, HOLD
-from stockdownloader.strategy.intraday.pattern_discovery_config import (
-    PatternDiscoveryConfig,
-)
 from stockdownloader.strategy.intraday.pattern_discovery_strategy import (
+    PatternDiscoveryConfig,
     PatternDiscoveryStrategy,
 )
 

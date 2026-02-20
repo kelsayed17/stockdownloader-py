@@ -24,7 +24,7 @@ from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.model.intraday_signal import IntradayAction
 from stockdownloader.model.trade import Direction
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
-from stockdownloader.strategy.intraday.or_reversal_config import ORReversalStrategyConfig
+from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategyConfig
 from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
 from stockdownloader.util.pinescript_modes import orr_mode as _orr_mode

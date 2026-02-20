@@ -14,22 +14,22 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.strategy.intraday.avwap_pullback_config import (
+from stockdownloader.strategy.intraday.avwap_pullback_strategy import (
     AVWAPPullbackConfig,
 )
 from stockdownloader.strategy.intraday.base_config import InfraExitConfig
-from stockdownloader.strategy.intraday.or_breakout_config import (
+from stockdownloader.strategy.intraday.or_breakout_strategy import (
     ORBreakoutStrategyConfig,
 )
-from stockdownloader.strategy.intraday.or_reversal_config import (
+from stockdownloader.strategy.intraday.or_reversal_strategy import (
     ORReversalStrategyConfig,
 )
-from stockdownloader.strategy.intraday.pattern_scalp_config import (
+from stockdownloader.strategy.intraday.pattern_scalp_strategy import (
     PatternScalpStrategyConfig,
 )
-from stockdownloader.strategy.intraday.pullback_config import PullbackStrategyConfig
-from stockdownloader.strategy.intraday.reversal_config import ReversalStrategyConfig
-from stockdownloader.strategy.intraday.smc_structure_config import SMCStructureConfig
+from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategyConfig
+from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategyConfig
+from stockdownloader.strategy.intraday.smc_structure_strategy import SMCStructureConfig
 
 _D = Decimal
 
