@@ -338,10 +338,11 @@ class SecOwnershipClient:
     ) -> OwnershipSnapshot | None:
         """Parse a bulk 13F ZIP file and extract holdings for *cusip*.
 
-        The ZIP contains:
+        The ZIP contains (linked by ACCESSION_NUMBER):
+
         - INFOTABLE.tsv: one row per holding (CUSIP, shares, value, etc.)
-        - SUBMISSION.tsv: one row per filing (manager name, CIK, etc.)
-        Linked by ACCESSION_NUMBER.
+        - SUBMISSION.tsv: one row per filing (CIK, filing date)
+        - COVERPAGE.tsv: one row per filing (FILINGMANAGER_NAME, address)
         """
         cusip_upper = cusip.upper().replace(" ", "")
 
@@ -355,6 +356,7 @@ class SecOwnershipClient:
             names = zf.namelist()
             infotable_name = None
             submission_name = None
+            coverpage_name = None
 
             for name in names:
                 lower = name.lower()
@@ -362,6 +364,8 @@ class SecOwnershipClient:
                     infotable_name = name
                 elif "submission" in lower and lower.endswith(".tsv"):
                     submission_name = name
+                elif "coverpage" in lower and lower.endswith(".tsv"):
+                    coverpage_name = name
 
             if not infotable_name:
                 logger.warning(
@@ -369,8 +373,13 @@ class SecOwnershipClient:
                 )
                 return None
 
-            # Parse SUBMISSION.tsv for manager names and CIKs
+            # Build accession -> (manager_name, cik) from both
+            # COVERPAGE.tsv (has FILINGMANAGER_NAME) and
+            # SUBMISSION.tsv (has CIK).
             managers: dict[str, tuple[str, str]] = {}  # accession -> (name, cik)
+
+            # Step 1: Read CIKs from SUBMISSION.tsv
+            cik_map: dict[str, str] = {}  # accession -> cik
             if submission_name:
                 try:
                     sub_data = zf.read(submission_name).decode(
@@ -381,14 +390,40 @@ class SecOwnershipClient:
                     )
                     for row in sub_reader:
                         acc = row.get("ACCESSION_NUMBER", "").strip()
-                        mgr_name = row.get("FILINGMANAGER_NAME", "").strip()
                         cik = row.get("CIK", "").strip()
-                        if acc and mgr_name:
-                            managers[acc] = (mgr_name, cik)
+                        if acc:
+                            cik_map[acc] = cik
                 except Exception as exc:
                     logger.warning(
                         "Failed to parse SUBMISSION.tsv: %s", exc,
                     )
+
+            # Step 2: Read manager names from COVERPAGE.tsv
+            if coverpage_name:
+                try:
+                    cp_data = zf.read(coverpage_name).decode(
+                        "utf-8", errors="replace",
+                    )
+                    cp_reader = csv.DictReader(
+                        io.StringIO(cp_data), delimiter="\t",
+                    )
+                    for row in cp_reader:
+                        acc = row.get("ACCESSION_NUMBER", "").strip()
+                        mgr_name = row.get(
+                            "FILINGMANAGER_NAME", "",
+                        ).strip()
+                        if acc:
+                            cik = cik_map.get(acc, "")
+                            managers[acc] = (mgr_name or "Unknown", cik)
+                except Exception as exc:
+                    logger.warning(
+                        "Failed to parse COVERPAGE.tsv: %s", exc,
+                    )
+
+            # Fallback: if COVERPAGE was missing, use CIK as identifier
+            if not managers and cik_map:
+                for acc, cik in cik_map.items():
+                    managers[acc] = (f"CIK-{cik}", cik)
 
             # Parse INFOTABLE.tsv and filter by CUSIP
             holdings: list[InstitutionalHolding] = []
@@ -433,7 +468,7 @@ class SecOwnershipClient:
                     if shares <= 0:
                         continue
 
-                    # Look up manager from SUBMISSION
+                    # Look up manager from COVERPAGE + SUBMISSION
                     mgr_name, mgr_cik = managers.get(
                         accession, ("Unknown", ""),
                     )
@@ -934,6 +969,37 @@ def _get_xml_text(element: ET.Element, tag: str) -> str | None:
     if child is not None and child.text:
         return child.text.strip()
     return None
+
+
+def _filing_date_to_quarter_end(filing_date: str) -> str:
+    """Map a 13F filing date to its reporting quarter-end date.
+
+    13F filings report holdings as of a quarter-end date, but are filed
+    during a window after that date:
+
+    * Jan-Feb filings  → Q4 of prior year (Dec 31)
+    * Mar-May filings  → Q1 (Mar 31)
+    * Jun-Aug filings  → Q2 (Jun 30)
+    * Sep-Nov filings  → Q3 (Sep 30)
+    * Dec filings      → Q4 (Dec 31)
+    """
+    if not filing_date or len(filing_date) < 7:
+        return filing_date
+    try:
+        month = int(filing_date[5:7])
+        year = int(filing_date[:4])
+    except (ValueError, IndexError):
+        return filing_date
+
+    if month <= 2:
+        return f"{year - 1}-12-31"
+    if month <= 5:
+        return f"{year}-03-31"
+    if month <= 8:
+        return f"{year}-06-30"
+    if month <= 11:
+        return f"{year}-09-30"
+    return f"{year}-12-31"
 
 
 def _prev_quarter(year: int, quarter: int) -> tuple[int, int]:

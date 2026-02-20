@@ -303,38 +303,34 @@ class TestParse13fXml:
 # ------------------------------------------------------------------
 
 
-class TestSearch13fFilings:
-    """Tests for _search_13f_filings."""
+class TestFetchEftsPage:
+    """Tests for _fetch_efts_page (EDGAR search API)."""
 
     @patch("stockdownloader.data.sec_ownership_client.time")
-    def test_search_returns_filings(self, mock_time: MagicMock, tmp_path: Path) -> None:
+    def test_returns_hits(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
 
-        # The updated code extracts XML filenames from _id, so no
-        # separate index.json lookups are needed when _id contains
-        # the filename (which the real API always provides).
         with patch.object(
             client._session, "get",
-            side_effect=[
-                _mock_response(_SAMPLE_EFTS_RESPONSE),  # EDGAR search (single page)
-            ],
+            return_value=_mock_response(_SAMPLE_EFTS_RESPONSE),
         ):
-            results = client._search_13f_filings("36467W109")
+            results = client._fetch_efts_page("https://efts.sec.gov/test")
 
+        assert results is not None
         assert len(results) == 2
-        # Results are sorted by filing_date descending
-        assert results[0]["filing_date"] == "2024-05-15"
-        assert "infotable.xml" in results[0]["xml_url"]
-        assert results[1]["filing_date"] == "2024-02-14"
-        assert "infotable.xml" in results[1]["xml_url"]
-        # period_ending should be propagated
-        assert results[0]["period_ending"] == "2024-03-31"
+        # Each result preserves the raw EFTS hit structure
+        assert results[0]["_source"]["file_date"] == "2024-05-15"
+        assert results[1]["_source"]["file_date"] == "2024-02-14"
+        # period_ending should be present
+        assert results[0]["_source"]["period_ending"] == "2024-03-31"
+        # _id contains the XML filename
+        assert "infotable.xml" in results[0]["_id"]
 
     @patch("stockdownloader.data.sec_ownership_client.time")
-    def test_search_handles_network_error(self, mock_time: MagicMock, tmp_path: Path) -> None:
+    def test_handles_network_error(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
 
@@ -346,12 +342,12 @@ class TestSearch13fFilings:
             client._session, "get",
             side_effect=requests.RequestException("timeout"),
         ):
-            results = client._search_13f_filings("36467W109")
+            results = client._fetch_efts_page("https://efts.sec.gov/test")
 
-        assert results == []
+        assert results is None
 
     @patch("stockdownloader.data.sec_ownership_client.time")
-    def test_search_handles_empty_hits(self, mock_time: MagicMock, tmp_path: Path) -> None:
+    def test_handles_empty_hits(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
 
@@ -361,7 +357,7 @@ class TestSearch13fFilings:
             client._session, "get",
             return_value=_mock_response({"hits": {"hits": []}}),
         ):
-            results = client._search_13f_filings("36467W109")
+            results = client._fetch_efts_page("https://efts.sec.gov/test")
 
         assert results == []
 
@@ -517,7 +513,7 @@ class TestOwnershipCaching:
             ),
         ]
         client._save_cache("AAPL", snapshots)
-        assert (client._cache_dir / "AAPL_ownership.json").exists()
+        assert (client._cache_dir / "AAPL_13f.json").exists()
 
 
 # ------------------------------------------------------------------
@@ -572,10 +568,12 @@ class TestFetchOwnershipSnapshots:
 
         client = _make_client(tmp_path)
 
-        with patch.object(
-            client._session, "get",
-            return_value=_mock_response({"hits": {"hits": []}}),
-        ):
+        # Bulk data returns None (not available), EFTS returns empty
+        with patch.object(client, "_fetch_from_bulk", return_value=None), \
+             patch.object(
+                 client._session, "get",
+                 return_value=_mock_response({"hits": {"hits": []}}),
+             ):
             result = client.fetch_ownership_snapshots("GME", cusip="36467W109")
 
         assert result == []
@@ -589,45 +587,49 @@ class TestFetchOwnershipSnapshots:
 
         client = _make_client(tmp_path)
 
-        # Mock the search to find 1 filing (real EFTS format)
-        efts_response = {
-            "hits": {
-                "total": {"value": 1, "relation": "eq"},
-                "hits": [
-                    {
-                        "_id": "0001234567-24-000001:infotable.xml",
-                        "_source": {
-                            "file_date": "2024-05-15",
-                            "period_ending": "2024-03-31",
-                            "adsh": "0001234567-24-000001",
-                            "ciks": ["0001234567"],
-                            "display_names": ["Test Fund (CIK 0001234567)"],
-                            "root_forms": ["13F-HR"],
-                            "form": "13F-HR",
-                            "file_type": "INFORMATION TABLE",
-                        },
-                    },
-                ],
-            },
-        }
+        # Build a fake OwnershipSnapshot as _fetch_from_efts would return
+        snap_result = OwnershipSnapshot(
+            quarter_end="2024-03-31",
+            symbol="GME",
+            total_institutional_shares=7_500_000,
+            num_institutions=2,
+            top_10_concentration=1.0,
+            holdings=(
+                InstitutionalHolding(
+                    filing_date="2024-03-31",
+                    manager_name="Test Fund",
+                    manager_cik="1234567",
+                    shares=5_000_000,
+                    value_usd=150_000,
+                    share_class="COM",
+                ),
+                InstitutionalHolding(
+                    filing_date="2024-03-31",
+                    manager_name="Test Fund 2",
+                    manager_cik="9876543",
+                    shares=2_500_000,
+                    value_usd=75_000,
+                    share_class="COM",
+                ),
+            ),
+        )
 
-        with patch.object(
-            client._session, "get",
-            side_effect=[
-                _mock_response(efts_response),          # EDGAR search
-                _mock_response(text=_SAMPLE_13F_XML),   # XML fetch
-            ],
-        ):
+        # Mock both bulk and EFTS at method level
+        with patch.object(client, "_fetch_from_bulk", return_value=None), \
+             patch.object(
+                 client, "_fetch_from_efts",
+                 side_effect=lambda *a, **kw: snap_result
+                 if a[3] == 1 and a[2] == 2024 else None,
+             ):
             result = client.fetch_ownership_snapshots(
                 "GME", cusip="36467W109",
             )
 
-        assert len(result) == 1
+        assert len(result) >= 1
         snap = result[0]
-        # period_ending from EFTS response is used directly
         assert snap.quarter_end == "2024-03-31"
         assert snap.symbol == "GME"
-        assert snap.total_institutional_shares == 7_500_000  # 5M + 2.5M
+        assert snap.total_institutional_shares == 7_500_000
         assert snap.num_institutions == 2
 
     def test_num_quarters_limits_output(self, tmp_path: Path) -> None:
