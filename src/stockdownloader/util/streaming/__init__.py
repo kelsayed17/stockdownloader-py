@@ -32,11 +32,14 @@ def _true_range(data: Sequence[PriceData], index: int) -> Decimal:
     return max(high - low, abs(high - prev_close), abs(low - prev_close))
 
 
-from stockdownloader.util.streaming.accumulators import StreamingEMA, StreamingOBV
+from stockdownloader.util.streaming.accumulators import (
+    StreamingATR,
+    StreamingEMA,
+    StreamingHTFResample,
+    StreamingOBV,
+)
 from stockdownloader.util.streaming.oscillators import StreamingMACD, StreamingRSI
-from stockdownloader.util.streaming.resampling import StreamingHTFResample
 from stockdownloader.util.streaming.trend import ADXState, StreamingADX, StreamingSAR
-from stockdownloader.util.streaming.volatility import StreamingATR
 from stockdownloader.util.streaming.volume import (
     StreamingAnchoredVWAP,
     StreamingCVD,
