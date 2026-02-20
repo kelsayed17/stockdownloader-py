@@ -288,6 +288,20 @@ class SecOwnershipClient:
                 year, quarter = _prev_quarter(year, quarter)
                 continue
 
+            # Check per-quarter cache first (covers both bulk and EFTS)
+            snap = self._load_quarter_snapshot(symbol_upper, year, quarter)
+            if snap is not None:
+                logger.info(
+                    "Using cached snapshot for %s Q%d %d",
+                    symbol_upper, quarter, year,
+                )
+                snapshots.append(snap)
+                quarters_fetched += 1
+                year, quarter = _prev_quarter(year, quarter)
+                if year < min_year or (year == min_year and quarter < min_quarter):
+                    break
+                continue
+
             logger.info(
                 "Fetching 13F data for %s Q%d %d (%s)",
                 symbol_upper, quarter, year, quarter_end_str,
@@ -310,6 +324,11 @@ class SecOwnershipClient:
 
             if snap is not None:
                 snapshots.append(snap)
+                # Save per-quarter snapshot so both bulk and EFTS results
+                # are cached individually in the symbol subdir.
+                self._save_quarter_snapshot(
+                    symbol_upper, year, quarter, snap,
+                )
 
             quarters_fetched += 1
             year, quarter = _prev_quarter(year, quarter)
