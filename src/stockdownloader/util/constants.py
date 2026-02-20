@@ -31,6 +31,21 @@ DEFAULT_DATA_FILE: Path = PROJECT_ROOT / "data" / "spy" / "5m_bars.csv"
 #: Default output directory for logs and reports.
 DEFAULT_OUTPUT_DIR: Path = PROJECT_ROOT / "output"
 
+#: Default models directory.
+DEFAULT_MODELS_DIR: Path = DEFAULT_OUTPUT_DIR / "models"
+
+#: Default PineScript output directory.
+DEFAULT_PINESCRIPT_DIR: Path = DEFAULT_OUTPUT_DIR / "pinescript"
+
+#: Default ML pipeline output directory.
+DEFAULT_ML_PIPELINE_DIR: Path = DEFAULT_OUTPUT_DIR / "ml_pipeline"
+
+#: Default alert history file.
+DEFAULT_ALERT_HISTORY: Path = DEFAULT_OUTPUT_DIR / "alert_history.json"
+
+#: Default pattern catalog directory.
+DEFAULT_PATTERNS_DIR: Path = DEFAULT_OUTPUT_DIR / "patterns"
+
 # ======================================================================
 # Walk-forward defaults
 # ======================================================================
