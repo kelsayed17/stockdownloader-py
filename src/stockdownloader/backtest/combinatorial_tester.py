@@ -286,7 +286,7 @@ class CombinatorialTester:
         if self._tee:
             self._tee.write(msg + "\n")
         else:
-            print(msg)
+            logger.info("%s", msg)
 
     def run(self, workers: int = 1) -> list[ComboResult]:
         """Run the exhaustive combinatorial search.

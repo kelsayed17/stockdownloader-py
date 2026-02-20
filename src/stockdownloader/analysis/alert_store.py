@@ -20,10 +20,11 @@ from pathlib import Path
 from typing import Any
 
 from stockdownloader.model.signal_advisory import SignalAdvisory
+from stockdownloader.util.constants import DEFAULT_ALERT_HISTORY
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_PATH = Path("output/alert_history.json")
+_DEFAULT_PATH = DEFAULT_ALERT_HISTORY
 
 
 class AlertStore:

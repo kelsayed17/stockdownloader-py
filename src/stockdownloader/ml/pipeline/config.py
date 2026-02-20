@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
+
 
 # ------------------------------------------------------------------
 # Alternative data configuration
@@ -129,7 +131,7 @@ class SelectionConfig:
     top_n: int = 5
     pine_depth: int = 6
     pine_top_features: int = 15
-    output_dir: str = "output/ml_pipeline"
+    output_dir: str = str(DEFAULT_ML_PIPELINE_DIR)
     export_pine: bool = True
 
 

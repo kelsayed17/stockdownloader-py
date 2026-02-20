@@ -21,6 +21,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from stockdownloader.util.constants import DEFAULT_MODELS_DIR
+
 try:
     import joblib
 
@@ -94,7 +96,7 @@ class ModelStore:
         Root directory for model files.
     """
 
-    def __init__(self, base_dir: str | Path = "output/models") -> None:
+    def __init__(self, base_dir: str | Path = DEFAULT_MODELS_DIR) -> None:
         if not _HAS_JOBLIB:  # pragma: no cover
             raise ImportError(
                 "joblib is required for model persistence. "

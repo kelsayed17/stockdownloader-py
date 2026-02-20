@@ -7,9 +7,12 @@ result tracking, logging, and comparison output used by both
 """
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from decimal import Decimal
 from typing import Any, TextIO
+
+logger = logging.getLogger(__name__)
 
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
@@ -61,7 +64,7 @@ class OptimizerBase:
 
     def _print(self, msg: str = "") -> None:
         if self._verbose:
-            print(msg, flush=True)
+            logger.info("%s", msg)
             if self._log_file is not None:
                 self._log_file.write(msg + "\n")
                 self._log_file.flush()
