@@ -65,7 +65,7 @@ class MLOversoldStrategy(BaseIntradayStrategy):
         except FileNotFoundError:
             logger.warning(
                 "ML model not found at %s — strategy will not generate signals. "
-                "Run scripts/spy_ml_train.py first.",
+                "Run `ml-train` CLI command first.",
                 path,
             )
             self._predictor = None  # type: ignore[assignment]
