@@ -24,6 +24,9 @@ from decimal import Decimal
 
 from stockdownloader.backtest.strategy_optimizer import StrategyOptimizer
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
+from stockdownloader.util.constants import DEFAULT_DATA_FILE
+
+logger = logging.getLogger(__name__)
 
 
 def main() -> None:
@@ -45,7 +48,7 @@ def main() -> None:
     parser.add_argument(
         "--csv",
         dest="csv_file",
-        default="data/spy/5m_bars.csv",
+        default=str(DEFAULT_DATA_FILE),
         help="Intraday CSV file path (default: data/spy/5m_bars.csv)",
     )
     parser.add_argument(
@@ -106,16 +109,15 @@ def main() -> None:
         log_fh = open(args.log_file, "w", encoding="utf-8")
 
     try:
-        print("Loading data...", flush=True)
+        logger.info("Loading data...")
         data = IntradayCsvLoader.load_from_file(args.csv_file)
         if not data:
-            print(f"ERROR: No data loaded from {args.csv_file}", flush=True)
+            logger.error("No data loaded from %s", args.csv_file)
             return
 
         trading_days = len({bar.date[:10] for bar in data})
-        print(f"Loaded {len(data):,} bars across {trading_days} trading days", flush=True)
-        print(f"Date range: {data[0].date[:10]} to {data[-1].date[:10]}", flush=True)
-        print(flush=True)
+        logger.info("Loaded %s bars across %d trading days", f"{len(data):,}", trading_days)
+        logger.info("Date range: %s to %s", data[0].date[:10], data[-1].date[:10])
 
         capital = Decimal(str(args.capital))
         risk = Decimal(str(args.risk))
