@@ -4,11 +4,16 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.util.pinescript_composites import (
+from stockdownloader.app.pinescript_catalog.composites import (
     COMPOSITE_STRATEGY_CATALOG,
     full_composite_strategy,
     signal_stack_composite_strategy,
     vwap_composite_strategy,
+)
+from stockdownloader.app.pinescript_catalog.strategies import (
+    macd_strategy,
+    rsi_strategy,
+    sma_crossover_strategy,
 )
 from stockdownloader.util.pinescript_generator import (
     CompositeStrategyDefinition,
@@ -28,11 +33,6 @@ from stockdownloader.util.pinescript_modes import (
     ps_mode as _ps_mode,
     rev_mode as _rev_mode,
     vwap_shared_infrastructure as _vwap_shared_infrastructure,
-)
-from stockdownloader.util.pinescript_strategies import (
-    macd_strategy,
-    rsi_strategy,
-    sma_crossover_strategy,
 )
 
 

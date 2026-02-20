@@ -38,7 +38,7 @@ from stockdownloader.util.pinescript_generator import (
     StrategyDefinition,
     mode_to_strategy,
 )
-from stockdownloader.util.pinescript_gme_prediction import gme_prediction_strategy
+from stockdownloader.app.pinescript_catalog.gme_prediction import gme_prediction_strategy
 from stockdownloader.util.pinescript_modes import (
     pb_mode as _pb_mode,
     rev_mode as _rev_mode,
@@ -47,7 +47,7 @@ from stockdownloader.util.pinescript_modes import (
     ps_mode as _ps_mode,
     vwap_shared_infrastructure as _vwap_shared_infrastructure,
 )
-from stockdownloader.util.pinescript_spy_strategies import (
+from stockdownloader.app.pinescript_catalog.spy_strategies import (
     spy_macd_obv_strategy,
     spy_macd_obv_strategy_v2,
     spy_macd_optimized_strategy,

@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import pytest
 
+from stockdownloader.app.pinescript_catalog.strategies import STRATEGY_CATALOG
 from stockdownloader.util.pinescript_generator import PineScriptGenerator
-from stockdownloader.util.pinescript_strategies import STRATEGY_CATALOG
 
 
 # ======================================================================
@@ -152,7 +152,7 @@ class TestPipelineWrapperConsistency:
 
     def test_sma_wrapper_params_match_python(self):
         """SMA wrapper defaults match Python strategy defaults."""
-        from stockdownloader.util.pinescript_strategies import sma_crossover_strategy
+        from stockdownloader.app.pinescript_catalog.strategies import sma_crossover_strategy
         defn = sma_crossover_strategy()
         defaults = {i.name: i.default for i in defn.inputs}
         # These match SMACrossoverStrategy(9, 21) defaults
@@ -161,14 +161,14 @@ class TestPipelineWrapperConsistency:
 
     def test_sma_wrapper_custom_params(self):
         """SMA wrapper passes custom params through to Python strategy."""
-        from stockdownloader.util.pinescript_strategies import sma_crossover_strategy
+        from stockdownloader.app.pinescript_catalog.strategies import sma_crossover_strategy
         defn = sma_crossover_strategy(short_period=20, long_period=50)
         defaults = {i.name: i.default for i in defn.inputs}
         assert defaults["fastPeriod"] == 20
         assert defaults["slowPeriod"] == 50
 
     def test_rsi_wrapper_params(self):
-        from stockdownloader.util.pinescript_strategies import rsi_strategy
+        from stockdownloader.app.pinescript_catalog.strategies import rsi_strategy
         defn = rsi_strategy(period=7, oversold=35.0, overbought=65.0)
         defaults = {i.name: i.default for i in defn.inputs}
         assert defaults["rsiPeriod"] == 7
@@ -176,7 +176,7 @@ class TestPipelineWrapperConsistency:
         assert defaults["overbought"] == 65.0
 
     def test_macd_wrapper_params(self):
-        from stockdownloader.util.pinescript_strategies import macd_strategy
+        from stockdownloader.app.pinescript_catalog.strategies import macd_strategy
         defn = macd_strategy(fast=8, slow=21, signal=5)
         defaults = {i.name: i.default for i in defn.inputs}
         assert defaults["macdFast"] == 8
@@ -184,31 +184,31 @@ class TestPipelineWrapperConsistency:
         assert defaults["macdSignal"] == 5
 
     def test_bollinger_wrapper_no_params(self):
-        from stockdownloader.util.pinescript_strategies import bollinger_rsi_strategy
+        from stockdownloader.app.pinescript_catalog.strategies import bollinger_rsi_strategy
         defn = bollinger_rsi_strategy()
         assert defn.short_name == "BB-RSI"
 
     def test_dmi_vwap_wrapper(self):
-        from stockdownloader.util.pinescript_strategies import dmi_vwap_strategy
+        from stockdownloader.app.pinescript_catalog.strategies import dmi_vwap_strategy
         defn = dmi_vwap_strategy()
         assert defn.use_session_filter is True
         assert defn.long_label == "Buy Call"
         assert defn.short_label == "Buy Put"
 
     def test_momentum_wrapper(self):
-        from stockdownloader.util.pinescript_strategies import (
+        from stockdownloader.app.pinescript_catalog.strategies import (
             momentum_confluence_strategy,
         )
         defn = momentum_confluence_strategy()
         assert defn.short_name == "MOM-CONF"
 
     def test_breakout_wrapper(self):
-        from stockdownloader.util.pinescript_strategies import breakout_strategy
+        from stockdownloader.app.pinescript_catalog.strategies import breakout_strategy
         defn = breakout_strategy()
         assert defn.short_name == "BRKOUT"
 
     def test_multi_indicator_wrapper(self):
-        from stockdownloader.util.pinescript_strategies import (
+        from stockdownloader.app.pinescript_catalog.strategies import (
             multi_indicator_strategy,
         )
         defn = multi_indicator_strategy()
@@ -216,7 +216,7 @@ class TestPipelineWrapperConsistency:
         assert defn.extra_code is not None
 
     def test_multi_indicator_wrapper_custom_params(self):
-        from stockdownloader.util.pinescript_strategies import (
+        from stockdownloader.app.pinescript_catalog.strategies import (
             multi_indicator_strategy,
         )
         defn = multi_indicator_strategy(buy_threshold=6, sell_threshold=5)
@@ -226,7 +226,7 @@ class TestPipelineWrapperConsistency:
 
     def test_macd_obv_stays_handwritten(self):
         """MACD+OBV has no Python counterpart — stays hand-written."""
-        from stockdownloader.util.pinescript_strategies import macd_obv_strategy
+        from stockdownloader.app.pinescript_catalog.strategies import macd_obv_strategy
         defn = macd_obv_strategy()
         assert defn.name == "MACD + OBV"
         assert "Walk-forward" in defn.description

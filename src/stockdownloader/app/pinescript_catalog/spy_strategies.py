@@ -23,7 +23,7 @@ Two variants are provided for each strategy:
 
 Usage::
 
-    from stockdownloader.util.pinescript_spy_strategies import (
+    from stockdownloader.app.pinescript_catalog.spy_strategies import (
         spy_macd_obv_strategy,
         spy_macd_obv_strategy_v2,
     )

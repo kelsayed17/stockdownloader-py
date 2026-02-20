@@ -24,7 +24,7 @@ from stockdownloader.util.pinescript_modes import (
     vwap_shared_indicators as _vwap_shared_indicators,
     vwap_shared_inputs as _vwap_shared_inputs,
 )
-from stockdownloader.util.pinescript_strategies import (
+from stockdownloader.app.pinescript_catalog.strategies import (
     macd_strategy,
     rsi_strategy,
     sma_crossover_strategy,

@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.util.pinescript_generator import PineScriptGenerator
-from stockdownloader.util.pinescript_spy_strategies import (
+from stockdownloader.app.pinescript_catalog.spy_strategies import (
     _tp_sl_extra_plots,
     _tp_sl_indicators,
     _tp_sl_inputs,
@@ -13,7 +12,8 @@ from stockdownloader.util.pinescript_spy_strategies import (
     spy_macd_optimized_strategy,
     spy_sma_crossover_strategy,
 )
-from stockdownloader.util.pinescript_strategies import STRATEGY_CATALOG
+from stockdownloader.app.pinescript_catalog.strategies import STRATEGY_CATALOG
+from stockdownloader.util.pinescript_generator import PineScriptGenerator
 
 
 # ======================================================================

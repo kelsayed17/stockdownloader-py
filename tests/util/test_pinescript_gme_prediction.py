@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
+from stockdownloader.app.pinescript_catalog.gme_prediction import gme_prediction_strategy
+from stockdownloader.app.pinescript_catalog.strategies import STRATEGY_CATALOG
 from stockdownloader.util.pinescript_generator import PineScriptGenerator
-from stockdownloader.util.pinescript_gme_prediction import gme_prediction_strategy
-from stockdownloader.util.pinescript_strategies import STRATEGY_CATALOG
 
 
 class TestGmePredictionStrategyDefinition:

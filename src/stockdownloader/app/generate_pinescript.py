@@ -35,9 +35,9 @@ import sys
 from pathlib import Path
 
 from stockdownloader.util.constants import DEFAULT_PINESCRIPT_DIR
-from stockdownloader.util.pinescript_composites import COMPOSITE_STRATEGY_CATALOG
+from stockdownloader.app.pinescript_catalog.composites import COMPOSITE_STRATEGY_CATALOG
+from stockdownloader.app.pinescript_catalog.strategies import STRATEGY_CATALOG
 from stockdownloader.util.pinescript_generator import PineScriptGenerator
-from stockdownloader.util.pinescript_strategies import STRATEGY_CATALOG
 
 
 def main() -> None:

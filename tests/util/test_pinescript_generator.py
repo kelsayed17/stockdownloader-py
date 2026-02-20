@@ -4,15 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.util.pinescript_generator import (
-    Condition,
-    Indicator,
-    Input,
-    InputType,
-    PineScriptGenerator,
-    StrategyDefinition,
-)
-from stockdownloader.util.pinescript_strategies import (
+from stockdownloader.app.pinescript_catalog.strategies import (
     STRATEGY_CATALOG,
     bollinger_rsi_strategy,
     breakout_strategy,
@@ -27,6 +19,14 @@ from stockdownloader.util.pinescript_strategies import (
     vwap_or_breakout_strategy,
     vwap_or_reversal_strategy,
     vwap_pattern_scalp_strategy,
+)
+from stockdownloader.util.pinescript_generator import (
+    Condition,
+    Indicator,
+    Input,
+    InputType,
+    PineScriptGenerator,
+    StrategyDefinition,
 )
 
 
