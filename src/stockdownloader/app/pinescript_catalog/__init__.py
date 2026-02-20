@@ -12,10 +12,10 @@ Public API::
     )
 """
 
-from stockdownloader.app.pinescript_catalog.composites import (
+from stockdownloader.app.pinescript_catalog.catalogs import (
     COMPOSITE_STRATEGY_CATALOG,
+    STRATEGY_CATALOG,
 )
-from stockdownloader.app.pinescript_catalog.strategies import STRATEGY_CATALOG
 
 __all__ = [
     "COMPOSITE_STRATEGY_CATALOG",

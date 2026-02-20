@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.app.pinescript_catalog.strategies import (
+from stockdownloader.app.pinescript_catalog.catalogs import (
     STRATEGY_CATALOG,
     bollinger_rsi_strategy,
     breakout_strategy,

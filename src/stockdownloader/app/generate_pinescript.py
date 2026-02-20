@@ -35,8 +35,10 @@ import sys
 from pathlib import Path
 
 from stockdownloader.util.config_loader import DEFAULT_PINESCRIPT_DIR
-from stockdownloader.app.pinescript_catalog.composites import COMPOSITE_STRATEGY_CATALOG
-from stockdownloader.app.pinescript_catalog.strategies import STRATEGY_CATALOG
+from stockdownloader.app.pinescript_catalog.catalogs import (
+    COMPOSITE_STRATEGY_CATALOG,
+    STRATEGY_CATALOG,
+)
 from stockdownloader.util.pinescript import PineScriptGenerator
 
 

@@ -27,7 +27,7 @@ from stockdownloader.app.pinescript_catalog.spy_strategies import (
     spy_sma_crossover_strategy,
     spy_sma_crossover_strategy_v2,
 )
-from stockdownloader.app.pinescript_catalog.strategies import STRATEGY_CATALOG
+from stockdownloader.app.pinescript_catalog.catalogs import STRATEGY_CATALOG
 from stockdownloader.util.pinescript import PineScriptGenerator
 
 
