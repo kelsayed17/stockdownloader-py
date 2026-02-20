@@ -271,7 +271,7 @@ src/stockdownloader/
     spy_backtest_app.py                   # Equity backtest runner
     options_backtest_app.py               # Options backtest runner
     intraday_backtest_app.py              # Intraday backtest runner
-    intraday_accumulate_app.py            # Intraday data downloader
+    # intraday_accumulate_app.py merged into backtest_app.py (main_accumulate)
     symbol_analysis_app.py                # Full analysis with confluence alerts
     trend_analysis_app.py                 # Stock universe pattern scanner
     optimize_app.py                       # Strategy parameter optimizer

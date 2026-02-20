@@ -17,7 +17,7 @@ in ``pyproject.toml``.  Key apps:
 - **monitor_app** — Signal advisory / monitoring
 - **pattern_discovery_app** — Pattern mining
 - **value_screener_app** — Deep-value screener
-- **intraday_accumulate_app** — Intraday data accumulation
+- **backtest_app.main_accumulate** — Intraday data accumulation
 
 Shared helpers:
 
