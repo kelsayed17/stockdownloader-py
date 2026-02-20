@@ -660,7 +660,7 @@ class SecOwnershipClient:
             len(all_hits), cusip, quarter, year,
         )
 
-        # Download and parse each filing's XML
+        # Download and parse each filing's infotable (XML or text)
         holdings: list[InstitutionalHolding] = []
 
         for hit in all_hits:
@@ -959,7 +959,8 @@ class SecOwnershipClient:
         # tags like <DOCUMENT> or <SEC-HEADER> are expected wrappers
         # around text tables in pre-2013 EDGAR filings.
         stripped = content.lstrip()
-        if stripped.startswith("<?xml") or stripped.startswith("<html"):
+        lower_prefix = stripped[:10].lower()
+        if lower_prefix.startswith("<?xml") or lower_prefix.startswith("<html"):
             return []
 
         cusip_upper = cusip.upper().replace(" ", "")
@@ -1002,6 +1003,11 @@ class SecOwnershipClient:
             # shares is the actual count (larger number).
             # Sort ascending and take the two largest: second-largest is
             # value ($1000s), largest is shares.
+            #
+            # Limitation: this heuristic inverts value/shares for expensive
+            # securities with tiny share counts (e.g. 50 shares of BRK.A
+            # worth $25,000k).  Acceptable for GME-focused scope where
+            # shares always vastly outnumber value-in-$1000s.
             integers.sort()
             value_usd = integers[-2]  # second largest = value ($1000s)
             shares = integers[-1]     # largest = shares

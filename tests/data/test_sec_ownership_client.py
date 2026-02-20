@@ -911,6 +911,12 @@ class TestLegacyTextParsing:
         result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
         assert result == []
 
+    def test_html_uppercase_returns_empty(self) -> None:
+        """Uppercase <HTML> (common in early EDGAR filings) should be rejected."""
+        content = "<HTML><BODY>36467W109\t5000\t200000</BODY></HTML>"
+        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        assert result == []
+
     def test_sgml_wrapped_content_is_accepted(self) -> None:
         """Pre-2013 SGML container tags like <DOCUMENT> should NOT be rejected."""
         content = (
