@@ -18,9 +18,12 @@ Usage::
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass, field
 from operator import attrgetter
 from typing import Any, Callable, ClassVar, Generic, TypeVar
+
+logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound="RegistryEntry")
 
@@ -113,6 +116,63 @@ class BaseRegistry(Generic[T]):
     def list_names(cls, category: str | None = None) -> list[str]:
         """Return sorted list of registered names."""
         return [e.name for e in cls.all_entries(category)]
+
+    @classmethod
+    def apply_config_overrides(cls, config_path: str | None = None) -> int:
+        """Override ``default_kwargs`` for registered entries from a JSON config.
+
+        The JSON file should have strategy names as top-level keys mapping
+        to dicts of parameter overrides::
+
+            {
+                "sma": {"short_period": 12, "long_period": 50},
+                "rsi": {"period": 10, "oversold": 25.0}
+            }
+
+        Only keys present in the JSON will be overridden — others keep their
+        built-in defaults.  This enables users to customize strategy defaults
+        without modifying Python code.
+
+        Parameters
+        ----------
+        config_path:
+            Path to a JSON config file.  Resolved via
+            :func:`~stockdownloader.util.config_loader.load_config`.
+
+        Returns
+        -------
+        int
+            Number of entries that were updated.
+        """
+        if not config_path:
+            return 0
+
+        from stockdownloader.util.config_loader import load_config
+
+        cfg = load_config(config_path)
+        count = 0
+
+        for name, entry in list(cls._entries.items()):
+            overrides = cfg.get(name)
+            if overrides and isinstance(overrides, dict):
+                merged = entry.default_kwargs | overrides
+                # Replace the frozen entry with updated defaults
+                cls._entries[name] = cls._entry_cls(
+                    name=entry.name,
+                    display_name=entry.display_name,
+                    category=entry.category,
+                    factory=entry.factory,
+                    default_kwargs=merged,
+                    param_space=entry.param_space,
+                )
+                count += 1
+                logger.debug(
+                    "Applied config overrides for %s: %s", name, overrides
+                )
+
+        if count:
+            logger.info("Applied config overrides to %d %s(s)", count, cls._label)
+        return count
 
     @classmethod
     def clear(cls) -> None:

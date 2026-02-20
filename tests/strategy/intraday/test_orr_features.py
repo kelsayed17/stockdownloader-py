@@ -27,7 +27,7 @@ from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
 from stockdownloader.strategy.intraday.or_reversal_config import ORReversalStrategyConfig
 from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
-from stockdownloader.util.pinescript_strategies import _orr_mode
+from stockdownloader.util.pinescript_modes import orr_mode as _orr_mode
 
 from .conftest import make_bar, make_long_position_state, make_short_position_state, make_vwap_bands
 
@@ -161,7 +161,7 @@ class TestVwapDisagreeFilter:
         assert config.orr_vwap_disagree is True
 
     def test_vwap_disagree_disabled_by_default(self) -> None:
-        """Default config has vwap disagree off."""
+        """Default config has vwap disagree off (too restrictive for SPY)."""
         config = ORReversalStrategyConfig()
         assert config.orr_vwap_disagree is False
 
@@ -173,9 +173,9 @@ class TestVwapDisagreeFilter:
 class TestGapFadeFilter:
     """Gap fade filter blocks ORR entries aligned with gap direction."""
 
-    def test_gap_filter_disabled_by_default(self) -> None:
+    def test_gap_filter_enabled_by_default(self) -> None:
         config = ORReversalStrategyConfig()
-        assert config.orr_gap_filter is False
+        assert config.orr_gap_filter is True
 
     def test_gap_filter_enabled(self) -> None:
         config = ORReversalStrategyConfig(orr_gap_filter=True)
@@ -189,9 +189,9 @@ class TestGapFadeFilter:
 class TestAdxFilter:
     """ADX filter blocks ORR in trending markets (high ADX)."""
 
-    def test_adx_filter_disabled_by_default(self) -> None:
+    def test_adx_filter_enabled_by_default(self) -> None:
         config = ORReversalStrategyConfig()
-        assert config.orr_adx_filter is False
+        assert config.orr_adx_filter is True
 
     def test_adx_filter_enabled(self) -> None:
         config = ORReversalStrategyConfig(orr_adx_filter=True)
@@ -241,13 +241,13 @@ class TestOROppositeTP:
 class TestRequireBreak:
     """Require-breakout mode blocks entries without prior OR break."""
 
-    def test_require_break_disabled_by_default(self) -> None:
+    def test_require_break_enabled_by_default(self) -> None:
         config = ORReversalStrategyConfig()
-        assert config.orr_require_break is False
-
-    def test_require_break_enabled(self) -> None:
-        config = ORReversalStrategyConfig(orr_require_break=True)
         assert config.orr_require_break is True
+
+    def test_require_break_disabled(self) -> None:
+        config = ORReversalStrategyConfig(orr_require_break=False)
+        assert config.orr_require_break is False
 
     def test_orr_break_flags_reset(self) -> None:
         """orr_break_above/below reset at session start."""
@@ -281,7 +281,7 @@ class TestORRScoring:
 
     @staticmethod
     def _make_config(**overrides: object) -> SimpleNamespace:
-        defaults = dict(adx_thresh=_D("21"), w_sr=2)
+        defaults = dict(orr_adx_max=_D("30"), w_sr=2)
         defaults.update(overrides)
         return SimpleNamespace(**defaults)
 
@@ -291,44 +291,44 @@ class TestORRScoring:
         state = SimpleNamespace(gap_dir=0)
         config = self._make_config()
         score, _ = ORReversalStrategy._compute_score(ctx, True, False, state, config)
-        # 3 (vol) + 0 (vwap: close 498 < vwap 500 for long) + 0 (gap) + 1 (adx < 21) + 0 (sr)
+        # 3 (vol) + 0 (vwap: close 498 < vwap 500 for long) + 0 (gap) + 1 (adx < 30) + 0 (sr)
         assert score >= 3
 
     def test_low_adx_gives_point(self) -> None:
-        """ADX below threshold gives 1 point."""
+        """ADX below orr_adx_max gives 1 point."""
         ctx = self._make_ctx(adx_val=_D("15"))
         state = SimpleNamespace(gap_dir=0)
-        config = self._make_config(adx_thresh=_D("21"))
+        config = self._make_config(orr_adx_max=_D("30"))
         score, _ = ORReversalStrategy._compute_score(ctx, True, False, state, config)
-        # adx 15 < 21 → 1 point
+        # adx 15 < 30 → 1 point
         # Total should include adx point
         assert score >= 1
 
     def test_high_adx_no_point(self) -> None:
-        """ADX above threshold gives 0 points."""
-        ctx = self._make_ctx(adx_val=_D("25"), rel_vol=_D("0.5"))
+        """ADX above orr_adx_max gives 0 points."""
+        ctx = self._make_ctx(adx_val=_D("35"), rel_vol=_D("0.5"))
         state = SimpleNamespace(gap_dir=0)
-        config = self._make_config(adx_thresh=_D("21"))
+        config = self._make_config(orr_adx_max=_D("30"))
         score, _ = ORReversalStrategy._compute_score(ctx, True, False, state, config)
-        # 0 (vol < 1) + 0 (vwap) + 0 (gap) + 0 (adx >= 21) + 0 (sr)
+        # 0 (vol < 1) + 0 (vwap) + 0 (gap) + 0 (adx >= 30) + 0 (sr)
         assert score == 0
 
     def test_gap_fade_gives_point_long(self) -> None:
         """Gap-down day + long ORR → 1 gap point."""
-        ctx = self._make_ctx(rel_vol=_D("0.5"), adx_val=_D("25"))
+        ctx = self._make_ctx(rel_vol=_D("0.5"), adx_val=_D("35"))
         state = SimpleNamespace(gap_dir=-1)
         config = self._make_config()
         score, _ = ORReversalStrategy._compute_score(ctx, True, False, state, config)
-        # 0 (vol) + 0 (vwap) + 1 (gap -1 + long) + 0 (adx) + 0 (sr)
+        # 0 (vol) + 0 (vwap) + 1 (gap -1 + long) + 0 (adx >= 30) + 0 (sr)
         assert score == 1
 
     def test_gap_fade_gives_point_short(self) -> None:
         """Gap-up day + short ORR → 1 gap point."""
-        ctx = self._make_ctx(rel_vol=_D("0.5"), adx_val=_D("25"))
+        ctx = self._make_ctx(rel_vol=_D("0.5"), adx_val=_D("35"))
         state = SimpleNamespace(gap_dir=1)
         config = self._make_config()
         score, _ = ORReversalStrategy._compute_score(ctx, False, True, state, config)
-        # 0 (vol) + 0 (vwap: close 498 > vwap 500 for short? No 498 < 500) + 1 (gap) + 0 (adx) + 0 (sr)
+        # 0 (vol) + 0 (vwap: close 498 < vwap 500 for short) + 1 (gap) + 0 (adx >= 30) + 0 (sr)
         assert score >= 1
 
     def test_vwap_alignment_gives_point(self) -> None:
@@ -337,12 +337,12 @@ class TestORRScoring:
             bar=SimpleNamespace(close=_D("502")),
             vwap_bands=SimpleNamespace(vwap=_D("500")),
             rel_vol=_D("0.5"),
-            adx_val=_D("25"),
+            adx_val=_D("35"),
         )
         state = SimpleNamespace(gap_dir=0)
         config = self._make_config()
         score, _ = ORReversalStrategy._compute_score(ctx, True, False, state, config)
-        # 0 (vol) + 1 (vwap: 502 > 500 for long) + 0 (gap) + 0 (adx) + 0 (sr)
+        # 0 (vol) + 1 (vwap: 502 > 500 for long) + 0 (gap) + 0 (adx >= 30) + 0 (sr)
         assert score == 1
 
     def test_max_score(self) -> None:
@@ -362,13 +362,14 @@ class TestORRConfig:
     """Config and protocol satisfaction tests."""
 
     def test_backward_compat_defaults(self) -> None:
-        """All new ORR params default to off/disabled."""
+        """ORR quality filters default to on; vwap_disagree off."""
         config = ORReversalStrategyConfig()
         assert config.orr_vwap_disagree is False
-        assert config.orr_gap_filter is False
-        assert config.orr_adx_filter is False
+        assert config.orr_gap_filter is True
+        assert config.orr_adx_filter is True
+        assert config.orr_adx_max == Decimal("30")
         assert config.orr_rebreak_exit is False
-        assert config.orr_require_break is False
+        assert config.orr_require_break is True
 
     def test_factory_accepts_new_params(self) -> None:
         """for_or_reversal() factory accepts all new params."""

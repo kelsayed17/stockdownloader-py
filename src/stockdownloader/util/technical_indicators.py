@@ -511,9 +511,7 @@ def vwap(
     sum_vol = ZERO
 
     for i in range(start_idx, end_index + 1):
-        tp = _quantize(
-            (data[i].high + data[i].low + data[i].close) / Decimal('3')
-        )
+        tp = (data[i].high + data[i].low + data[i].close) / Decimal('3')
         vol = Decimal(str(data[i].volume))
         sum_tpv += tp * vol
         sum_vol += vol

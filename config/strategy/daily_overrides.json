@@ -1,0 +1,17 @@
+{
+    "_doc": "Override default parameters for daily strategies. Keys = registry names.",
+    "sma": {
+        "short_period": 9,
+        "long_period": 21
+    },
+    "rsi": {
+        "period": 14,
+        "oversold": 30.0,
+        "overbought": 70.0
+    },
+    "macd": {
+        "fast_period": 12,
+        "slow_period": 26,
+        "signal_period": 9
+    }
+}

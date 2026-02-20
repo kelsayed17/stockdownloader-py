@@ -18,21 +18,20 @@ class ORBreakoutStrategyConfig(InfraExitConfig):
 
     # ── ORB entry ───────────────────────────────────────────────────────
     orb_enable: bool = True
-    orb_window: int = 60
-    orb_rvol: Decimal = Decimal("0.8")
-    orb_sl_mode: str = "OR Opposite"
+    orb_window: int = 30                            # 30-min OR (research-backed)
+    orb_rvol: Decimal = Decimal("2.0")             # Higher volume requirement
+    orb_sl_mode: str = "OR Midpoint"               # Tighter SL using OR midpoint
     orb_sl_atr: Decimal = Decimal("1.5")
-    orb_sl_cap: Decimal = Decimal("2.50")
-    orb_vwap_align: bool = False
-    orb_body_min: Decimal = Decimal("0.10")
+    orb_sl_cap: Decimal = Decimal("2.00")          # Tighter cap
+    orb_vwap_align: bool = True
+    orb_body_min: Decimal = Decimal("0.25")        # Stronger breakout candle
     orb_entry_mode: str = "aggressive"
     orb_retest_bars: int = 5
-    orb_tp_mode: str = "trail_only"
-    orb_gap_filter: bool = False
-    orb_adx_filter: bool = False
+    orb_tp_mode: str = "2x_or_range"               # Larger TP target
+    orb_gap_filter: bool = True
+    orb_adx_filter: bool = True
+    orb_nr7_filter: bool = False
+    orb_htf_align: bool = True                     # Require HTF alignment
 
-    # ── Shared with entry logic ─────────────────────────────────────────
-    allow_longs: bool = True
-    allow_shorts: bool = True
-    w_sr: int = 2
-    adx_thresh: Decimal = Decimal("21")
+    # ── Overrides (base provides allow_longs, allow_shorts, w_sr) ────────
+    adx_thresh: Decimal = Decimal("25")            # Higher for trend-following (base: 22)

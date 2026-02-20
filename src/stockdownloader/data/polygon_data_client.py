@@ -1,13 +1,15 @@
-"""Fetches historical intraday OHLCV data from Polygon.io (now Massive.com).
+"""Fetches historical OHLCV data from Polygon.io (now Massive.com).
 
-Polygon's free tier provides 2 years of minute-level data at 5 API calls
-per minute.  This client handles rate limiting, pagination, and chunking
-to fetch arbitrarily long date ranges of 5-minute bar data.
+Polygon's free tier provides 2 years of minute-level data and full
+daily history at 5 API calls per minute.  This client handles rate
+limiting, pagination, and chunking to fetch arbitrarily long date
+ranges of bar data.
 
 Usage::
 
     client = PolygonDataClient(api_key="YOUR_KEY")
     bars = client.fetch_intraday_history("SPY", total_days=730)
+    daily = client.fetch_daily_history("GME")
 
 Set the API key via:
   - Constructor parameter: ``PolygonDataClient(api_key="...")``
@@ -27,6 +29,7 @@ from zoneinfo import ZoneInfo
 import requests
 
 from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.model.price_data import PriceData
 
 logger = logging.getLogger(__name__)
 
@@ -187,6 +190,110 @@ class PolygonDataClient:
 
         return all_bars
 
+    def fetch_daily_history(
+        self,
+        symbol: str,
+        from_date: str | date | None = None,
+        to_date: str | date | None = None,
+    ) -> list[PriceData]:
+        """Fetch full daily OHLCV history from Polygon.
+
+        Polygon free tier provides the complete daily history for US
+        equities.  The data is split-adjusted by default.
+
+        Parameters
+        ----------
+        symbol:
+            Ticker symbol (e.g. ``"GME"``).
+        from_date:
+            Start date.  Defaults to ``2000-01-01`` to capture all
+            available history for most equities.
+        to_date:
+            End date.  Defaults to today.
+
+        Returns
+        -------
+        list[PriceData]
+            Daily bars sorted chronologically.
+        """
+        if from_date is None:
+            from_date = date(2000, 1, 1)
+        if to_date is None:
+            to_date = date.today()
+
+        from_str = str(from_date)
+        to_str = str(to_date)
+
+        url = _BASE_URL.format(
+            ticker=symbol.upper(),
+            multiplier=1,
+            timespan="day",
+            from_date=from_str,
+            to_date=to_str,
+        )
+
+        params = {
+            "adjusted": "true",
+            "sort": "asc",
+            "limit": _LIMIT,
+        }
+
+        all_bars: list[PriceData] = []
+
+        try:
+            resp = self._session.get(url, params=params, timeout=30)
+            resp.raise_for_status()
+            data = resp.json()
+
+            if data.get("status") == "ERROR":
+                logger.warning(
+                    "Polygon API error for %s daily: %s",
+                    symbol,
+                    data.get("error", "unknown"),
+                )
+                return []
+
+            results = data.get("results", [])
+            if not results:
+                logger.debug(
+                    "No daily results for %s from %s to %s",
+                    symbol, from_str, to_str,
+                )
+                return []
+
+            all_bars = _parse_daily_results(results)
+
+            # Handle pagination
+            next_url = data.get("next_url")
+            while next_url:
+                _time.sleep(self._delay)
+                from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+
+                parsed = urlparse(next_url)
+                qs = parse_qs(parsed.query, keep_blank_values=True)
+                qs.pop("apiKey", None)
+                clean_query = urlencode(qs, doseq=True)
+                next_url = urlunparse(parsed._replace(query=clean_query))
+                resp = self._session.get(next_url, timeout=30)
+                resp.raise_for_status()
+                data = resp.json()
+                results = data.get("results", [])
+                if results:
+                    all_bars.extend(_parse_daily_results(results))
+                next_url = data.get("next_url")
+
+            logger.info(
+                "Fetched %d daily bars for %s (%s to %s)",
+                len(all_bars), symbol, from_str, to_str,
+            )
+
+        except requests.RequestException as exc:
+            logger.warning("Polygon daily request failed for %s: %s", symbol, exc)
+        except (json.JSONDecodeError, KeyError) as exc:
+            logger.warning("Polygon daily parse error for %s: %s", symbol, exc)
+
+        return all_bars
+
     def fetch_intraday_history(
         self,
         symbol: str,
@@ -271,6 +378,43 @@ class PolygonDataClient:
             total_days,
         )
         return result
+
+
+def _parse_daily_results(results: list[dict]) -> list[PriceData]:
+    """Parse Polygon API result objects into daily PriceData.
+
+    No market-hours filtering is needed for daily bars.
+    """
+    bars: list[PriceData] = []
+
+    for r in results:
+        try:
+            ts_ms = r["t"]
+            dt = datetime.fromtimestamp(ts_ms / 1000, tz=_NY)
+            date_str = dt.strftime("%Y-%m-%d")
+
+            open_ = Decimal(str(r["o"]))
+            high = Decimal(str(r["h"]))
+            low = Decimal(str(r["l"]))
+            close = Decimal(str(r["c"]))
+            volume = int(r.get("v", 0))
+
+            bars.append(
+                PriceData(
+                    date=date_str,
+                    open=open_,
+                    high=high,
+                    low=low,
+                    close=close,
+                    adj_close=close,  # Polygon returns adjusted data by default
+                    volume=volume,
+                )
+            )
+        except (KeyError, ValueError, TypeError) as exc:
+            logger.debug("Skipping malformed Polygon daily bar: %s", exc)
+            continue
+
+    return bars
 
 
 def _parse_results(results: list[dict]) -> list[IntradayPriceData]:

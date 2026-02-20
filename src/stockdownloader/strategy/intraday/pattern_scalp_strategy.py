@@ -21,19 +21,20 @@ from stockdownloader.strategy.intraday.entry_helpers import (
     reversal_pattern_label,
 )
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
-from stockdownloader.strategy.intraday.infra import BarContext, IntradayInfra
+from stockdownloader.strategy.intraday.bar_context import BarContext
+from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import BreakevenTrail
-from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
+from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
 from stockdownloader.util.pinescript_models import ModeDefinition
-from stockdownloader.util.pinescript_strategies import _ps_mode
+from stockdownloader.util.pinescript_modes import ps_mode
 
 if TYPE_CHECKING:
     from stockdownloader.model.intraday_price_data import IntradayPriceData
     from stockdownloader.strategy.intraday.pattern_scalp_config import PatternScalpStrategyConfig
 
 
-class PatternScalpStrategy(IntradayTradingStrategy):
+class PatternScalpStrategy(BaseIntradayStrategy):
     """Standalone Pattern Scalp strategy.
 
     Fades opening-range manipulation: fires when OR range >= daily ATR
@@ -53,27 +54,11 @@ class PatternScalpStrategy(IntradayTradingStrategy):
     @staticmethod
     def pinescript_mode() -> ModeDefinition:
         """Return the PineScript mode definition for Pattern Scalp."""
-        return _ps_mode()
+        return ps_mode()
 
     @property
     def name(self) -> str:
         return "Pattern Scalp"
-
-    @property
-    def warmup_period(self) -> int:
-        return self._infra.warmup_period
-
-    def on_session_start(self, trading_date: str) -> None:
-        self._infra.on_session_start(trading_date)
-
-    def on_position_opened(self, is_long: bool) -> None:
-        self._infra.confirm_position_opened(is_long)
-
-    def on_position_closed(self) -> None:
-        self._infra.confirm_position_closed()
-
-    def evaluate(self, data: list[IntradayPriceData], current_index: int) -> IntradaySignal:
-        return self._infra.run_bar(data, current_index, self._evaluate_entry, self._ENTRY_FLAGS)
 
     def _evaluate_entry(self, ctx: BarContext) -> IntradaySignal | None:
         c = self._c
@@ -88,6 +73,10 @@ class PatternScalpStrategy(IntradayTradingStrategy):
 
         # -- Window check --
         if ctx.bar_of_day < 4 or ctx.bar_of_day > c.ps_window:
+            return None
+
+        # -- Time-of-day gate: skip lunch chop --
+        if not ctx.is_good_time:
             return None
 
         # -- Pattern detection --
@@ -120,6 +109,15 @@ class PatternScalpStrategy(IntradayTradingStrategy):
             if not sma_ok:
                 return None
 
+        # -- HTF trend alignment --
+        if c.ps_htf_align:
+            if go_long and ctx.htf_trend < 0:
+                go_long = False
+            if go_short and ctx.htf_trend > 0:
+                go_short = False
+            if not go_long and not go_short:
+                return None
+
         # -- SL calculation --
         if c.ps_sl_mode == "Day Extreme":
             if go_long:
@@ -135,6 +133,10 @@ class PatternScalpStrategy(IntradayTradingStrategy):
 
         # -- TP calculation --
         tp_dist = state.or_range * (c.ps_tp_pct / HUNDRED)
+
+        # -- Minimum R:R check --
+        if sl_dist > ZERO and tp_dist / sl_dist < c.ps_min_rr:
+            return None
 
         sl_price, tp_price = directional_sl_tp(go_long, ctx.bar.close, sl_dist, tp_dist)
 

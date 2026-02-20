@@ -1,0 +1,38 @@
+{
+    "training": {
+        "forward_periods": [
+            5,
+            10,
+            20
+        ],
+        "profit_thresholds": [
+            0.003,
+            0.005,
+            0.01
+        ],
+        "model_types": [
+            "gradient_boosting",
+            "logistic_regression"
+        ],
+        "n_estimators": 200,
+        "max_depth": 4
+    },
+    "hybrid": {
+        "modes": [
+            "confirmed",
+            "weighted",
+            "override"
+        ],
+        "ml_threshold": 0.6
+    },
+    "backtest": {
+        "initial_capital": 100000.0,
+        "commission": 10.0
+    },
+    "selection": {
+        "top_n": 5,
+        "export_pine": true,
+        "pine_depth": 6,
+        "pine_top_features": 15
+    }
+}

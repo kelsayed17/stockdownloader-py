@@ -24,13 +24,14 @@ from typing import TYPE_CHECKING
 from stockdownloader.model.intraday_signal import IntradaySignal
 from stockdownloader.strategy.intraday.entry_helpers import make_entry_signal
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
-from stockdownloader.strategy.intraday.infra import BarContext, IntradayInfra
+from stockdownloader.strategy.intraday.bar_context import BarContext
+from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import AtrChandelierTrail
-from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
+from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.util.intraday_indicators import candle_strength
 from stockdownloader.util.big_decimal_math import ZERO
 from stockdownloader.util.pinescript_models import ModeDefinition
-from stockdownloader.util.pinescript_strategies import _orb_mode
+from stockdownloader.util.pinescript_modes import orb_mode
 
 if TYPE_CHECKING:
     from stockdownloader.model.intraday_price_data import IntradayPriceData
@@ -41,7 +42,7 @@ _TWO = Decimal("2")
 _ONE_HALF = Decimal("1.5")
 
 
-class ORBreakoutStrategy(IntradayTradingStrategy):
+class ORBreakoutStrategy(BaseIntradayStrategy):
     """Standalone OR Breakout strategy.
 
     Momentum continuation: enters when a candle closes beyond the
@@ -62,27 +63,11 @@ class ORBreakoutStrategy(IntradayTradingStrategy):
     @staticmethod
     def pinescript_mode() -> ModeDefinition:
         """Return the PineScript mode definition for OR Breakout."""
-        return _orb_mode()
+        return orb_mode()
 
     @property
     def name(self) -> str:
         return "OR Breakout"
-
-    @property
-    def warmup_period(self) -> int:
-        return self._infra.warmup_period
-
-    def on_session_start(self, trading_date: str) -> None:
-        self._infra.on_session_start(trading_date)
-
-    def on_position_opened(self, is_long: bool) -> None:
-        self._infra.confirm_position_opened(is_long)
-
-    def on_position_closed(self) -> None:
-        self._infra.confirm_position_closed()
-
-    def evaluate(self, data: list[IntradayPriceData], current_index: int) -> IntradaySignal:
-        return self._infra.run_bar(data, current_index, self._evaluate_entry, self._ENTRY_FLAGS)
 
     def _evaluate_entry(self, ctx: BarContext) -> IntradaySignal | None:
         c = self._c
@@ -95,12 +80,20 @@ class ORBreakoutStrategy(IntradayTradingStrategy):
         if not state.or_done:
             return None
 
+        # -- NR7 compression filter --
+        if c.orb_nr7_filter and not state.is_nr7:
+            return None
+
         # -- Retest mode: check for pending retest first --
         if c.orb_entry_mode == "retest" and state.orb_breakout_pending:
             return self._check_retest(ctx)
 
         # -- Window check --
         if ctx.bar_of_day <= c.or_bars or ctx.bar_of_day > c.orb_window:
+            return None
+
+        # -- Time-of-day gate: skip lunch chop --
+        if not ctx.is_good_time:
             return None
 
         # -- Close beyond OR extreme --
@@ -145,6 +138,15 @@ class ORBreakoutStrategy(IntradayTradingStrategy):
         # -- ADX filter --
         if c.orb_adx_filter and ctx.adx_val < c.adx_thresh:
             return None
+
+        # -- HTF trend alignment --
+        if c.orb_htf_align:
+            if go_long and ctx.htf_trend < 0:
+                go_long = False
+            if go_short and ctx.htf_trend > 0:
+                go_short = False
+            if not go_long and not go_short:
+                return None
 
         # -- SL calculation --
         sl_dist = self._compute_sl_dist(go_long, bar.close, state, ctx.atr_val, c)

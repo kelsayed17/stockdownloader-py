@@ -340,4 +340,4 @@ class TestIndependence:
             assert sig is not None
 
         # After 3 sessions, daily bars should be aggregated
-        assert len(strategy._infra._daily_bars) >= 2
+        assert len(strategy._infra.daily_bars) >= 2

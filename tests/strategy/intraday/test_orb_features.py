@@ -233,7 +233,7 @@ class TestMidpointSL:
         )
 
         assert sl_dist is not None
-        assert sl_dist == Decimal("2.25")  # min(3, 2.25) = 2.25
+        assert sl_dist == Decimal("2.00")  # min(3, 2.25) = 2.25, capped at 2.00
 
     def test_midpoint_sl_short(self):
         """OR Midpoint SL short: stop at midpoint above entry."""
@@ -241,7 +241,7 @@ class TestMidpointSL:
         from stockdownloader.strategy.intraday.session_state import SessionState
 
         # or_high=504, or_low=500 → midpoint=502
-        # close=499 → sl_dist = min(502-499, 1.5*1.5) = min(3, 2.25) = 2.25
+        # close=499 → sl_dist = min(502-499, 1.5*1.5) = min(3, 2.25) = 2.25, capped at 2.00
         state = SessionState()
         state.or_high = Decimal("504")
         state.or_low = Decimal("500")
@@ -257,7 +257,7 @@ class TestMidpointSL:
         )
 
         assert sl_dist is not None
-        assert sl_dist == Decimal("2.25")
+        assert sl_dist == Decimal("2.00")  # capped at sl_cap=2.00
 
     def test_or_opposite_sl_unchanged(self):
         """OR Opposite SL behavior is unchanged (backward compat)."""
@@ -281,7 +281,7 @@ class TestMidpointSL:
         )
 
         assert sl_dist is not None
-        assert sl_dist == Decimal("2.25")  # min(5, 2.25) = 2.25
+        assert sl_dist == Decimal("2.00")  # min(5, 2.25) = 2.25, capped at 2.00
 
 
 # ======================================================================
@@ -331,10 +331,10 @@ class TestORRangeTP:
         )
         assert tp == _ZERO
 
-    def test_default_tp_mode_is_trail_only(self):
-        """Default config uses trail_only (backward compat)."""
+    def test_default_tp_mode_is_2x_or_range(self):
+        """Default config uses 2x_or_range (larger TP target)."""
         c = ORBreakoutStrategyConfig()
-        assert c.orb_tp_mode == "trail_only"
+        assert c.orb_tp_mode == "2x_or_range"
 
 
 # ======================================================================
@@ -374,14 +374,14 @@ class TestGapDetection:
 class TestORBConfig:
 
     def test_new_params_have_backward_compat_defaults(self):
-        """All new ORB params default to off/disabled state."""
+        """ORB quality filters default to on; optional params default to off."""
         c = ORBreakoutStrategyConfig()
         assert c.orb_entry_mode == "aggressive"
         assert c.orb_retest_bars == 5
-        assert c.orb_tp_mode == "trail_only"
+        assert c.orb_tp_mode == "2x_or_range"
         assert c.orb_reentry_exit is False
-        assert c.orb_gap_filter is False
-        assert c.orb_adx_filter is False
+        assert c.orb_gap_filter is True
+        assert c.orb_adx_filter is True
         assert c.orb_time_exit == 0
 
     def test_for_or_breakout_accepts_new_params(self):
@@ -424,7 +424,7 @@ class TestORBScoring:
 
         score, max_score = ORBreakoutStrategy._compute_score(ctx, True, state, c)
 
-        # vol=3, adx=1 (25>=21), gap=0, sr=0
+        # vol=3, adx=1 (25>=25), gap=0, sr=0
         assert score == 4
         assert max_score == 3 + 1 + 1 + 1 + c.w_sr
 
@@ -548,7 +548,12 @@ class TestFiredTodayReset:
         bars.append(make_bar(date="2025-01-16 10:25:00-05:00", open_=D("505"), high=D("510"), low=D("505"), close=D("509"), volume=500_000))
         bars.append(make_bar(date="2025-01-16 10:30:00-05:00", open_=D("509"), high=D("510"), low=D("508"), close=D("508"), volume=200_000))
 
-        strat = ORBreakoutStrategy()
+        # Use relaxed config to focus on fired_today reset — not filter logic
+        config = ORBreakoutStrategyConfig(
+            orb_gap_filter=False,
+            orb_adx_filter=False,
+        )
+        strat = ORBreakoutStrategy(config=config)
         entries = 0
         for i in range(len(bars)):
             sig = strat.evaluate(bars, i)

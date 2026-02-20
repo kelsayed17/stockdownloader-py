@@ -28,9 +28,8 @@ from typing import Any, TextIO
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.optimizer_base import OptimizerBase
-from stockdownloader.backtest.optimizer_scoring import score as _score
 from stockdownloader.model.intraday_price_data import IntradayPriceData
-from stockdownloader.strategy.daily_to_intraday_adapter import DailyToIntradayAdapter
+from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.registry import StrategyRegistry, StrategyEntry
 
 
@@ -113,10 +112,7 @@ class DailyStrategyOptimizer(OptimizerBase):
         """
         start = time.time()
 
-        self._print("=" * 70)
-        self._print(f"  DAILY STRATEGY OPTIMIZER: {self._entry.display_name}")
-        self._print("=" * 70)
-        self._print()
+        self._print_banner(f"DAILY STRATEGY OPTIMIZER: {self._entry.display_name}")
 
         # Baseline
         baseline_result = self._build_and_run(
@@ -126,17 +122,7 @@ class DailyStrategyOptimizer(OptimizerBase):
             self._print("ERROR: Baseline config produced no result.")
             raise RuntimeError("Cannot optimize — baseline config is invalid.")
 
-        baseline_score = _score(baseline_result, trading_days=self._trading_days)
-        self._best_result = baseline_result
-        self._best_score = baseline_score
-        self._run_count += 1
-
-        self._print(
-            f"  Baseline: P/L: ${baseline_result.total_pnl:>9,.2f}  "
-            f"WR: {baseline_result.win_rate:>5.1f}%  "
-            f"Trades: {baseline_result.total_trades:>3d}  "
-            f"Score: {baseline_score:>7.2f}"
-        )
+        self._set_baseline(baseline_result)
         self._print()
 
         # Phase 1: Strategy-specific params
@@ -169,15 +155,7 @@ class DailyStrategyOptimizer(OptimizerBase):
         if winners:
             self._best_adapter_kwargs = self._best_adapter_kwargs | winners
 
-        elapsed = time.time() - start
-
-        self._print()
-        self._print("=" * 70)
-        self._print("  OPTIMIZATION COMPLETE")
-        self._print("=" * 70)
-        self._print(f"  Total configurations tested: {self._run_count}")
-        self._print(f"  Time elapsed: {elapsed:.1f}s")
-        self._print()
+        self._print_summary(time.time() - start)
 
         self._print_comparison(baseline_result, self._best_result)
         self._print_param_diff(self._entry.default_kwargs, self._best_strategy_kwargs, "Strategy")

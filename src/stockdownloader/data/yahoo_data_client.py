@@ -21,20 +21,19 @@ from zoneinfo import ZoneInfo
 import requests
 
 from stockdownloader.data.json_helpers import get_decimal_at, get_long_at
+from stockdownloader.data.yahoo_base_client import YahooBaseClient
 from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
 from stockdownloader.model import PriceData
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 
 logger = logging.getLogger(__name__)
-
-_MAX_RETRIES = 3
 _CHART_URL = (
     "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
     "?range={range}&interval={interval}"
 )
 _PERIOD_URL = (
     "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-    "?period1={start}&period2={end}&interval=1d"
+    "?period1={start}&period2={end}&interval={interval}"
 )
 _INTRADAY_URL = (
     "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
@@ -47,13 +46,10 @@ _NY_TZ = ZoneInfo("America/New_York")
 _WINDOW_DAYS = 55  # stay under Yahoo's ~60-day intraday limit
 
 
-class YahooDataClient:
+class YahooDataClient(YahooBaseClient):
     """Facade client that fetches historical OHLCV price data from Yahoo
     Finance and returns ``list[PriceData]``.
     """
-
-    def __init__(self, auth: YahooAuthHelper | None = None) -> None:
-        self._auth = auth or YahooAuthHelper()
 
     # ------------------------------------------------------------------
     # Public API
@@ -82,8 +78,19 @@ class YahooDataClient:
         list[PriceData]
             Sorted by date ascending; empty if the fetch fails.
         """
-        if self._auth.crumb is None:
-            self._auth.authenticate()
+        self._ensure_authenticated()
+
+        if range_ == "max":
+            # Yahoo's v8 API is unreliable with ``range=max`` -- it often
+            # returns only a few hundred bars instead of the full history.
+            # Use explicit epoch timestamps (period1=0 means earliest
+            # available data, period2=now) which reliably returns full
+            # history (e.g. 5000+ bars for GME back to 2002).
+            end_epoch = int(datetime.now(tz=timezone.utc).timestamp())
+            return self.fetch_price_data_by_epoch(
+                symbol, start_epoch=0, end_epoch=end_epoch,
+                interval=interval,
+            )
 
         url = (
             _CHART_URL.format(
@@ -100,18 +107,31 @@ class YahooDataClient:
         symbol: str,
         start_epoch: int,
         end_epoch: int,
+        interval: str = "1d",
     ) -> list[PriceData]:
         """Fetch price data using explicit epoch timestamps for precise date
         ranges.
+
+        Parameters
+        ----------
+        symbol:
+            Ticker symbol.
+        start_epoch:
+            Start time as Unix epoch seconds (``0`` for earliest available).
+        end_epoch:
+            End time as Unix epoch seconds.
+        interval:
+            Data interval -- ``"1d"``, ``"1wk"``, or ``"1mo"``
+            (default ``"1d"``).
         """
-        if self._auth.crumb is None:
-            self._auth.authenticate()
+        self._ensure_authenticated()
 
         url = (
             _PERIOD_URL.format(
                 symbol=symbol.upper(),
                 start=start_epoch,
                 end=end_epoch,
+                interval=interval,
             )
             + f"&crumb={self._auth.crumb}"
         )
@@ -129,8 +149,7 @@ class YahooDataClient:
         Yahoo limits intraday data to ~60 calendar days per request.
         Use :meth:`fetch_intraday_history` for longer periods.
         """
-        if self._auth.crumb is None:
-            self._auth.authenticate()
+        self._ensure_authenticated()
 
         url = (
             _INTRADAY_URL.format(
@@ -194,48 +213,19 @@ class YahooDataClient:
         return all_bars
 
     # ------------------------------------------------------------------
-    # Properties
-    # ------------------------------------------------------------------
-
-    @property
-    def auth(self) -> YahooAuthHelper:
-        """Return the shared auth helper."""
-        return self._auth
-
-    # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
 
     def _fetch_and_parse_intraday(
         self, url: str, symbol: str
     ) -> list[IntradayPriceData]:
-        result: list[IntradayPriceData] = []
-        last_exc: Exception | None = None
-
-        for attempt in range(_MAX_RETRIES + 1):
-            try:
-                resp = self._auth.session.get(url, timeout=30)
-                result.extend(
-                    self._parse_intraday_chart_response(resp.text, symbol)
-                )
-                return result
-            except (requests.RequestException, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
-                last_exc = exc
-                if attempt < _MAX_RETRIES:
-                    logger.debug(
-                        "Retrying intraday fetch for %s, attempt %d",
-                        symbol,
-                        attempt + 1,
-                    )
-                else:
-                    logger.warning(
-                        "Failed intraday fetch for %s after %d retries: %s",
-                        symbol,
-                        _MAX_RETRIES,
-                        last_exc,
-                    )
-
-        return result
+        result = self._fetch_with_retry(
+            url,
+            lambda text: self._parse_intraday_chart_response(text, symbol),
+            f"intraday fetch for {symbol}",
+            timeout=30,
+        )
+        return result if result is not None else []
 
     @staticmethod
     def _parse_intraday_chart_response(
@@ -324,31 +314,12 @@ class YahooDataClient:
         return data
 
     def _fetch_and_parse(self, url: str, symbol: str) -> list[PriceData]:
-        result: list[PriceData] = []
-        last_exc: Exception | None = None
-
-        for attempt in range(_MAX_RETRIES + 1):
-            try:
-                resp = self._auth.session.get(url, timeout=15)
-                result.extend(self._parse_chart_response(resp.text, symbol))
-                return result
-            except (requests.RequestException, json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
-                last_exc = exc
-                if attempt < _MAX_RETRIES:
-                    logger.debug(
-                        "Retrying price data fetch for %s, attempt %d",
-                        symbol,
-                        attempt + 1,
-                    )
-                else:
-                    logger.warning(
-                        "Failed price data fetch for %s after %d retries: %s",
-                        symbol,
-                        _MAX_RETRIES,
-                        last_exc,
-                    )
-
-        return result
+        result = self._fetch_with_retry(
+            url,
+            lambda text: self._parse_chart_response(text, symbol),
+            f"price data fetch for {symbol}",
+        )
+        return result if result is not None else []
 
     @staticmethod
     def _parse_chart_response(raw: str, symbol: str) -> list[PriceData]:

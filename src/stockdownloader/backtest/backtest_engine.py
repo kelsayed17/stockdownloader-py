@@ -17,15 +17,33 @@ from stockdownloader.strategy.trading_strategy import TradingStrategy, Signal
 
 class BacktestEngine:
     """Runs a trading strategy against historical price data and returns a
-    :class:`BacktestResult` containing the trade log and equity curve."""
+    :class:`BacktestResult` containing the trade log and equity curve.
 
-    def __init__(self, initial_capital: Decimal, commission: Decimal) -> None:
+    Parameters
+    ----------
+    initial_capital:
+        Starting cash.
+    commission:
+        Flat commission per trade (entry or exit).
+    slippage_pct:
+        Proportional slippage applied to the fill price.  E.g. ``0.001``
+        means the buy price is 0.1 % *above* the bar close and the sell
+        price is 0.1 % *below*.  Models bid-ask spread + market impact.
+    """
+
+    def __init__(
+        self,
+        initial_capital: Decimal,
+        commission: Decimal,
+        slippage_pct: Decimal | float = 0,
+    ) -> None:
         if initial_capital is None:
             raise ValueError("initial_capital must not be None")
         if commission is None:
             raise ValueError("commission must not be None")
         self._initial_capital = initial_capital
         self._commission = commission
+        self._slippage_pct = Decimal(str(slippage_pct))
 
     # ------------------------------------------------------------------
     # Public API
@@ -49,19 +67,23 @@ class BacktestEngine:
         for i, bar in enumerate(data):
             signal = strategy.evaluate(data, i)
 
+            # Slippage: buys fill above close, sells fill below close.
+            buy_price = bar.close * (1 + self._slippage_pct)
+            sell_price = bar.close * (1 - self._slippage_pct)
+
             # Process signal first, then compute equity at bar close
             if signal == Signal.BUY and current_trade is None:
                 shares = int(
-                    (cash - self._commission) / bar.close
+                    (cash - self._commission) / buy_price
                 )
 
                 if shares > 0:
-                    cost = bar.close * Decimal(str(shares)) + self._commission
+                    cost = buy_price * Decimal(str(shares)) + self._commission
                     cash = cash - cost
                     current_trade = Trade(
                         direction=Direction.LONG,
                         entry_date=bar.date,
-                        entry_price=bar.close,
+                        entry_price=buy_price,
                         shares=shares,
                     )
 
@@ -100,6 +122,7 @@ class BacktestEngine:
     # ------------------------------------------------------------------
 
     def _close_position(self, trade: Trade, bar: PriceData, cash: Decimal) -> Decimal:
-        proceeds = bar.close * Decimal(str(trade.shares)) - self._commission
-        trade.close(bar.date, bar.close)
+        sell_price = bar.close * (1 - self._slippage_pct)
+        proceeds = sell_price * Decimal(str(trade.shares)) - self._commission
+        trade.close(bar.date, sell_price)
         return cash + proceeds

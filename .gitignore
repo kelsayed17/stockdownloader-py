@@ -36,3 +36,6 @@ Thumbs.db
 
 # Misc
 *.log
+
+# Data cache (regenerable)
+data/cache/

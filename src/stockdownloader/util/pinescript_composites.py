@@ -14,15 +14,17 @@ from stockdownloader.util.pinescript_generator import (
     ModeDefinition,
     strategy_to_mode,
 )
+from stockdownloader.util.pinescript_modes import (
+    orb_mode as _orb_mode,
+    orr_mode as _orr_mode,
+    pb_mode as _pb_mode,
+    ps_mode as _ps_mode,
+    rev_mode as _rev_mode,
+    vwap_shared_code as _vwap_shared_code,
+    vwap_shared_indicators as _vwap_shared_indicators,
+    vwap_shared_inputs as _vwap_shared_inputs,
+)
 from stockdownloader.util.pinescript_strategies import (
-    _orb_mode,
-    _orr_mode,
-    _pb_mode,
-    _ps_mode,
-    _rev_mode,
-    _vwap_shared_code,
-    _vwap_shared_indicators,
-    _vwap_shared_inputs,
     macd_strategy,
     rsi_strategy,
     sma_crossover_strategy,

@@ -12,12 +12,11 @@ from decimal import Decimal, ROUND_CEILING
 
 import requests
 
+from stockdownloader.data.yahoo_base_client import YahooBaseClient
 from stockdownloader.data.yahoo_auth_helper import YahooAuthHelper
 from stockdownloader.model import HistoricalData
 
 logger = logging.getLogger(__name__)
-
-_MAX_RETRIES = 3
 _PATTERN_DAYS = 7
 _CHART_URL = (
     "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
@@ -25,11 +24,8 @@ _CHART_URL = (
 )
 
 
-class YahooHistoricalClient:
+class YahooHistoricalClient(YahooBaseClient):
     """Fetches historical price data and computes movement patterns."""
-
-    def __init__(self, auth: YahooAuthHelper | None = None) -> None:
-        self._auth = auth or YahooAuthHelper()
 
     # ------------------------------------------------------------------
     # Public API
@@ -40,37 +36,17 @@ class YahooHistoricalClient:
         up/down patterns.
         """
         data = HistoricalData(ticker)
+        self._ensure_authenticated()
 
-        if self._auth.crumb is None:
-            self._auth.authenticate()
+        def _parse(text: str) -> HistoricalData:
+            self._parse_chart_json(text, data)
+            return data
 
-        last_exc: Exception | None = None
-        for attempt in range(_MAX_RETRIES + 1):
-            try:
-                url = (
-                    _CHART_URL.format(symbol=ticker)
-                    + f"&crumb={self._auth.crumb}"
-                )
-                resp = self._auth.session.get(url, timeout=15)
-                self._parse_chart_json(resp.text, data)
-                return data
-            except (requests.RequestException, json.JSONDecodeError, KeyError, ValueError) as exc:
-                last_exc = exc
-                if attempt < _MAX_RETRIES:
-                    logger.debug(
-                        "Retrying historical download for %s, attempt %d",
-                        ticker,
-                        attempt + 1,
-                    )
-                else:
-                    logger.warning(
-                        "Failed historical download for %s after %d retries: %s",
-                        ticker,
-                        _MAX_RETRIES,
-                        last_exc,
-                    )
-
-        return data
+        url = _CHART_URL.format(symbol=ticker) + f"&crumb={self._auth.crumb}"
+        result = self._fetch_with_retry(
+            url, _parse, f"historical download for {ticker}",
+        )
+        return result if result is not None else data
 
     # ------------------------------------------------------------------
     # Internal helpers

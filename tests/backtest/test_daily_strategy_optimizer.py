@@ -20,18 +20,18 @@ from stockdownloader.backtest.daily_strategy_optimizer import (
 )
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.optimizer_scoring import score as _score
-from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
+from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.strategy.registry import StrategyRegistry
 
 # Real data file
-_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy_5m_bars.csv"
+_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy" / "5m_bars.csv"
 
 
 @pytest.fixture(scope="module")
 def sample_data():
     """Load a small slice of real data for testing (first 2000 bars ≈ 25 days)."""
     if not _DATA_FILE.exists():
-        pytest.skip("data/spy_5m_bars.csv not found")
+        pytest.skip("data/spy/5m_bars.csv not found")
     data = IntradayCsvLoader.load_from_file(_DATA_FILE)
     if len(data) < 2000:
         pytest.skip("Not enough data for optimizer tests")

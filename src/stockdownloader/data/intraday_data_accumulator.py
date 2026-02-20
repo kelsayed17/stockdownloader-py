@@ -12,7 +12,7 @@ Typical usage::
 
     client = PolygonDataClient(api_key="YOUR_KEY")
     acc = IntradayDataAccumulator(client=client, fetch_days=730)
-    bars = acc.accumulate("SPY", "data/spy_5m_bars.csv")
+    bars = acc.accumulate("SPY", "data/spy/5m_bars.csv")
     print(f"Total bars on disk: {len(bars)}")
 
 Or from the CLI::
@@ -23,13 +23,11 @@ Or from the CLI::
 from __future__ import annotations
 
 import logging
-import re
 from operator import attrgetter
 from pathlib import Path
 from typing import Any, Protocol, runtime_checkable
 
-from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
-from stockdownloader.data.intraday_csv_writer import write_to_file
+from stockdownloader.data.intraday_csv import IntradayCsvLoader, normalize_tz, write_to_file
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 
 logger = logging.getLogger(__name__)
@@ -52,7 +50,7 @@ class IntradayClient(Protocol):
 
 def default_csv_path(symbol: str) -> Path:
     """Return the default CSV path for *symbol*."""
-    return _DEFAULT_DIR / f"{symbol.lower()}_5m_bars.csv"
+    return _DEFAULT_DIR / symbol.lower() / "5m_bars.csv"
 
 
 class IntradayDataAccumulator:
@@ -147,22 +145,9 @@ class IntradayDataAccumulator:
         return merged
 
 
-def _normalize_tz(dt_str: str) -> str:
-    """Ensure the timezone offset contains a colon (ISO-8601).
-
-    Yahoo's ``strftime("%z")`` produces ``-0500``; Polygon uses ``-05:00``.
-    Normalising to ``-05:00`` prevents duplicate keys during merge.
-    """
-    # Match trailing +/- followed by 4 digits with no colon
-    m = re.search(r'([+-])(\d{2})(\d{2})$', dt_str)
-    if m and ':' not in dt_str[-6:]:
-        return dt_str[:-4] + m.group(2) + ':' + m.group(3)
-    return dt_str
-
-
 def _normalize_bar(bar: IntradayPriceData) -> IntradayPriceData:
     """Return a copy of *bar* with a normalised datetime string."""
-    normed = _normalize_tz(bar.date)
+    normed = normalize_tz(bar.date)
     if normed == bar.date:
         return bar
     return IntradayPriceData(

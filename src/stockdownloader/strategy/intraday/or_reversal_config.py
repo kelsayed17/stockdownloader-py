@@ -18,22 +18,21 @@ class ORReversalStrategyConfig(InfraExitConfig):
 
     # ── ORR entry ───────────────────────────────────────────────────────
     orr_enable: bool = True
-    orr_window: int = 60
-    orr_prox: Decimal = Decimal("0.8")
+    orr_window: int = 78
+    orr_prox: Decimal = Decimal("0.6")
     orr_sl_atr: Decimal = Decimal("0.5")
     orr_sl_cap: Decimal = Decimal("2.00")
-    orr_tp_mode: str = "VWAP"
-    orr_min_rr: Decimal = Decimal("0.3")
+    orr_tp_mode: str = "OR Mid"
+    orr_min_rr: Decimal = Decimal("0.5")
     orr_max_rr: Decimal = Decimal("3.0")
-    orr_rvol: Decimal = Decimal("0.8")
+    orr_rvol: Decimal = Decimal("1.0")
     orr_vwap_disagree: bool = False
-    orr_gap_filter: bool = False
-    orr_adx_filter: bool = False
-    orr_require_break: bool = False
+    orr_gap_filter: bool = True
+    orr_adx_filter: bool = True
+    orr_adx_max: Decimal = Decimal("30")   # Block ORR when ADX >= this (strongly trending)
+    orr_require_break: bool = True
 
-    # ── Shared with entry logic ─────────────────────────────────────────
-    ps_engulf: Decimal = Decimal("0.25")       # Pattern detection threshold
-    allow_longs: bool = True
-    allow_shorts: bool = True
-    w_sr: int = 2
-    adx_thresh: Decimal = Decimal("21")
+    # ── Overrides (base provides allow_longs, w_sr, be_trigger) ──────────
+    ps_engulf: Decimal = Decimal("0.30")       # 30% body-to-range for quality patterns
+    allow_shorts: bool = True                  # ORR trades both sides (base: False)
+    adx_thresh: Decimal = Decimal("21")        # Lower for mean-reversion (base: 22)

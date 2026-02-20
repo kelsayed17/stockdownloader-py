@@ -14,14 +14,14 @@ import pytest
 
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.model.intraday_signal import IntradayAction
-from stockdownloader.strategy.daily_to_intraday_adapter import DailyToIntradayAdapter
+from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import PriceData
 
 # Real data file for integration tests
-_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy_5m_bars.csv"
+_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy" / "5m_bars.csv"
 
 
 # ---------------------------------------------------------------------------
@@ -494,8 +494,8 @@ class TestIntegration:
     @pytest.fixture(scope="class")
     def real_data(self):
         if not _DATA_FILE.exists():
-            pytest.skip("data/spy_5m_bars.csv not found")
-        from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
+            pytest.skip("data/spy/5m_bars.csv not found")
+        from stockdownloader.data.intraday_csv import IntradayCsvLoader
         data = IntradayCsvLoader.load_from_file(_DATA_FILE)
         if len(data) < 500:
             pytest.skip("Not enough data for integration tests")

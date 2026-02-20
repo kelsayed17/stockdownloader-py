@@ -14,7 +14,7 @@ from stockdownloader.data.intraday_data_accumulator import (
     _merge_bars,
     default_csv_path,
 )
-from stockdownloader.data.intraday_csv_writer import write_to_file
+from stockdownloader.data.intraday_csv import write_to_file
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 
 
@@ -33,13 +33,13 @@ def _bar(date: str, close: str = "600.00") -> IntradayPriceData:
 class TestDefaultCsvPath:
 
     def test_spy(self):
-        assert default_csv_path("SPY") == Path("data/spy_5m_bars.csv")
+        assert default_csv_path("SPY") == Path("data/spy/5m_bars.csv")
 
     def test_aapl(self):
-        assert default_csv_path("AAPL") == Path("data/aapl_5m_bars.csv")
+        assert default_csv_path("AAPL") == Path("data/aapl/5m_bars.csv")
 
     def test_lowercase_input(self):
-        assert default_csv_path("aapl") == Path("data/aapl_5m_bars.csv")
+        assert default_csv_path("aapl") == Path("data/aapl/5m_bars.csv")
 
 
 class TestMergeBars:
@@ -156,7 +156,7 @@ class TestAccumulator:
         assert len(result) == 3  # not 4
 
     def test_accumulate_uses_default_path(self, tmp_path, monkeypatch):
-        """When no path is given, uses data/<symbol>_5m_bars.csv."""
+        """When no path is given, uses data/<symbol>/5m_bars.csv."""
         monkeypatch.chdir(tmp_path)
         mock_client = MagicMock()
         mock_client.fetch_intraday_history.return_value = [
@@ -166,7 +166,7 @@ class TestAccumulator:
         acc = IntradayDataAccumulator(client=mock_client)
         result = acc.accumulate("AAPL")
 
-        expected_path = tmp_path / "data" / "aapl_5m_bars.csv"
+        expected_path = tmp_path / "data" / "aapl" / "5m_bars.csv"
         assert expected_path.exists()
         assert len(result) == 1
 

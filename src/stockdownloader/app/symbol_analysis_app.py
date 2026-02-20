@@ -20,11 +20,15 @@ import logging
 import sys
 from decimal import Decimal, ROUND_HALF_UP
 
+from stockdownloader.app.app_helpers import (
+    INITIAL_CAPITAL,
+    OPTIONS_COMMISSION,
+    fetch_daily_data,
+)
 from stockdownloader.analysis.signal_generator import generate_alert
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.backtest import report_formatter
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.data.yahoo_data_client import YahooDataClient
 from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
 from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
 from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
@@ -37,9 +41,7 @@ from stockdownloader.strategy.options.protective_put_strategy import ProtectiveP
 
 logger = logging.getLogger(__name__)
 
-INITIAL_CAPITAL = Decimal("100000.00")
 EQUITY_COMMISSION = Decimal("0")
-OPTIONS_COMMISSION = Decimal("0.65")
 
 
 def _print_summary(
@@ -154,9 +156,7 @@ def main() -> None:
     print()
 
     # === PHASE 1: Fetch Data ===
-    print(f"Fetching {symbol} data from Yahoo Finance (range: {data_range})...")
-    client = YahooDataClient()
-    data = client.fetch_price_data(symbol, data_range, "1d")
+    data = fetch_daily_data(symbol, period=data_range)
 
     if not data:
         print(f"ERROR: Could not fetch data for symbol '{symbol}'.")

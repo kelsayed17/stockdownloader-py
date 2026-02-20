@@ -1,0 +1,223 @@
+"""JSON-based configuration loader.
+
+Provides a lightweight, generic config system that replaces hardcoded
+defaults throughout the codebase.  Configs are plain JSON files loaded
+from disk (or a dict passed in-memory for testing).
+
+Design principles:
+
+- **Generic** — works for any subsystem (backtest, ML pipeline, strategy, etc.)
+- **Layered** — base defaults → JSON preset → CLI overrides
+- **Simple** — just JSON, no YAML/TOML dependencies
+- **Optional** — everything works without config files (built-in defaults apply)
+
+Usage::
+
+    from stockdownloader.util.config_loader import load_config
+
+    # Load a named preset from the config directory
+    cfg = load_config("backtest/spy_daily.json")
+
+    # Or load with explicit path
+    cfg = load_config("/path/to/config.json")
+
+    # Access nested values with dot notation
+    capital = cfg.get("backtest.initial_capital", 100000.0)
+
+    # Merge CLI overrides on top
+    cfg = load_config("ml/standard.json", overrides={"quick": True})
+
+Config file search order:
+
+1. Absolute path (if path starts with ``/``)
+2. ``$PROJECT_ROOT/config/<path>``
+3. ``$PROJECT_ROOT/<path>``
+
+Example JSON config::
+
+    {
+        "backtest": {
+            "initial_capital": 100000.0,
+            "risk_per_trade": 0.01,
+            "commission": 0.0
+        },
+        "training": {
+            "forward_periods": [5, 10, 20],
+            "profit_thresholds": [0.003, 0.005, 0.01],
+            "model_types": ["gradient_boosting", "logistic_regression"],
+            "n_estimators": 200,
+            "max_depth": 4
+        }
+    }
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+from pathlib import Path
+from typing import Any
+
+from stockdownloader.util.constants import PROJECT_ROOT
+
+logger = logging.getLogger(__name__)
+
+#: Default config directory (project root / config /).
+CONFIG_DIR: Path = PROJECT_ROOT / "config"
+
+
+class Config:
+    """Lightweight config wrapper with dot-notation access.
+
+    Supports nested key access via ``get("a.b.c", default)`` and
+    dict-style ``cfg["key"]`` access.
+    """
+
+    __slots__ = ("_data",)
+
+    def __init__(self, data: dict[str, Any] | None = None) -> None:
+        self._data: dict[str, Any] = data or {}
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get a value using dot-notation (e.g. ``"backtest.capital"``).
+
+        Parameters
+        ----------
+        key:
+            Dot-separated path to the value.
+        default:
+            Fallback if the key is missing at any level.
+        """
+        parts = key.split(".")
+        current: Any = self._data
+        for part in parts:
+            if isinstance(current, dict) and part in current:
+                current = current[part]
+            else:
+                return default
+        return current
+
+    def __getitem__(self, key: str) -> Any:
+        val = self.get(key)
+        if val is None:
+            raise KeyError(key)
+        return val
+
+    def __contains__(self, key: str) -> bool:
+        return self.get(key) is not None
+
+    @property
+    def data(self) -> dict[str, Any]:
+        """Raw config dictionary."""
+        return self._data
+
+    def section(self, key: str) -> Config:
+        """Return a sub-config for a nested section.
+
+        >>> cfg = Config({"backtest": {"capital": 100000}})
+        >>> cfg.section("backtest").get("capital")
+        100000
+        """
+        val = self.get(key, {})
+        if isinstance(val, dict):
+            return Config(val)
+        return Config({})
+
+    def merge(self, overrides: dict[str, Any]) -> Config:
+        """Return a new Config with *overrides* merged on top.
+
+        Performs a shallow merge at each nesting level.
+        """
+        return Config(_deep_merge(self._data, overrides))
+
+    def __repr__(self) -> str:
+        return f"Config({self._data!r})"
+
+
+def _deep_merge(base: dict, override: dict) -> dict:
+    """Recursively merge *override* into *base* (non-destructive)."""
+    result = dict(base)
+    for k, v in override.items():
+        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
+            result[k] = _deep_merge(result[k], v)
+        else:
+            result[k] = v
+    return result
+
+
+def load_config(
+    path: str | Path | None = None,
+    *,
+    overrides: dict[str, Any] | None = None,
+    data: dict[str, Any] | None = None,
+) -> Config:
+    """Load a JSON config file and optionally merge overrides.
+
+    Parameters
+    ----------
+    path:
+        Path to a JSON file.  Resolved against ``config/`` then project root.
+        If ``None``, returns an empty config (or just *overrides*).
+    overrides:
+        Dict to merge on top of the loaded config (e.g. CLI args).
+    data:
+        Direct dict to use instead of reading from disk (for testing).
+
+    Returns
+    -------
+    Config
+        Loaded and merged config.
+    """
+    if data is not None:
+        cfg = Config(data)
+    elif path is not None:
+        resolved = _resolve_path(path)
+        if resolved is None:
+            logger.warning("Config file not found: %s", path)
+            cfg = Config({})
+        else:
+            logger.debug("Loading config from %s", resolved)
+            with open(resolved) as f:
+                cfg = Config(json.load(f))
+    else:
+        cfg = Config({})
+
+    if overrides:
+        cfg = cfg.merge(overrides)
+
+    return cfg
+
+
+def _resolve_path(path: str | Path) -> Path | None:
+    """Resolve a config path against known directories."""
+    p = Path(path)
+
+    # Absolute path
+    if p.is_absolute():
+        return p if p.exists() else None
+
+    # Try config/ directory first
+    candidate = CONFIG_DIR / p
+    if candidate.exists():
+        return candidate
+
+    # Try project root
+    candidate = PROJECT_ROOT / p
+    if candidate.exists():
+        return candidate
+
+    return None
+
+
+def list_configs(subdir: str = "") -> list[str]:
+    """List available config files under ``config/<subdir>/``.
+
+    Returns relative paths (e.g. ``["backtest/spy.json", "ml/standard.json"]``).
+    """
+    search = CONFIG_DIR / subdir
+    if not search.is_dir():
+        return []
+    return sorted(
+        str(p.relative_to(CONFIG_DIR))
+        for p in search.rglob("*.json")
+    )

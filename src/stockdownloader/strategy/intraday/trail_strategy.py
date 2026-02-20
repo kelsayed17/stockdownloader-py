@@ -191,11 +191,23 @@ class VwapRatchetTrail(TrailStrategy):
 
 
 class BreakevenTrail(TrailStrategy):
-    """Simple breakeven stop — used by REV and PS trades.
+    """Step-wise profit-locking trail — used by REV and PS trades.
 
     When breakeven is triggered, moves stop to entry +/- buffer.
-    No further ratcheting.
+    Then ratchets the stop as profit grows in R-multiple steps:
+      - After 1.0R MFE → stop to entry + 0.5R
+      - After 1.5R MFE → stop to entry + 1.0R
+      - After 2.0R MFE → stop to entry + 1.5R
+    The stop never retreats — only ratchets favorably.
+    Returns True when the bar breaches the ratcheted stop.
     """
+
+    # (mfe_threshold_R, lock_level_R)
+    _STEPS: list[tuple[Decimal, Decimal]] = [
+        (Decimal("2.0"), Decimal("1.5")),
+        (Decimal("1.5"), Decimal("1.0")),
+        (Decimal("1.0"), Decimal("0.5")),
+    ]
 
     def activate(
         self,
@@ -221,9 +233,34 @@ class BreakevenTrail(TrailStrategy):
         vwap_bands: ExtendedSessionVWAP,
         config: InfraExitConfig,
     ) -> bool:
-        # Simple breakeven has no per-bar ratcheting.
-        # The hard SL check in the exit manager handles the stop.
-        return False
+        risk = state.risk_amount
+        if risk <= ZERO:
+            return False
+
+        # Compute MFE in R-multiples from peak favorable excursion
+        if is_long:
+            mfe_r = (state.orb_extreme - entry) / risk
+        else:
+            mfe_r = (entry - state.orb_extreme) / risk
+
+        # Walk the step table (highest threshold first) and lock profit
+        for threshold_r, lock_r in self._STEPS:
+            if mfe_r >= threshold_r:
+                if is_long:
+                    new_sl = entry + risk * lock_r
+                    if new_sl > state.stop_loss:
+                        state.stop_loss = new_sl
+                else:
+                    new_sl = entry - risk * lock_r
+                    if new_sl < state.stop_loss:
+                        state.stop_loss = new_sl
+                break
+
+        # Check if bar breaches the ratcheted stop
+        if is_long:
+            return bar.low <= state.stop_loss
+        else:
+            return bar.high >= state.stop_loss
 
     @property
     def exit_reason(self) -> str:

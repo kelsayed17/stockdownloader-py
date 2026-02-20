@@ -285,24 +285,24 @@ class TestDmiVwapToPine:
     """DmiVwapStrategy.to_pinescript()."""
 
     def test_returns_strategy_definition(self):
-        from stockdownloader.strategy.dmi_vwap_strategy import DmiVwapStrategy
+        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
         defn = DmiVwapStrategy().to_pinescript()
         assert isinstance(defn, StrategyDefinition)
         assert defn.name == "DMI + VWAP"
 
     def test_session_filter_enabled(self):
-        from stockdownloader.strategy.dmi_vwap_strategy import DmiVwapStrategy
+        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
         defn = DmiVwapStrategy().to_pinescript()
         assert defn.use_session_filter is True
 
     def test_option_labels(self):
-        from stockdownloader.strategy.dmi_vwap_strategy import DmiVwapStrategy
+        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
         defn = DmiVwapStrategy().to_pinescript()
         assert defn.long_label == "Buy Call"
         assert defn.short_label == "Buy Put"
 
     def test_has_session_vwap(self):
-        from stockdownloader.strategy.dmi_vwap_strategy import DmiVwapStrategy
+        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
         defn = DmiVwapStrategy().to_pinescript()
         exprs = [ind.code for ind in defn.indicators]
         assert any("cumTPV" in e or "session_vwap" in e.lower()
@@ -311,15 +311,14 @@ class TestDmiVwapToPine:
         )
 
     def test_has_dmi(self):
-        from stockdownloader.strategy.dmi_vwap_strategy import DmiVwapStrategy
+        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
         defn = DmiVwapStrategy().to_pinescript()
         exprs = " ".join(ind.code for ind in defn.indicators)
         assert "ta.dmi" in exprs
 
     def test_custom_config(self):
-        from stockdownloader.strategy.dmi_vwap_strategy import (
-            DmiVwapConfig, DmiVwapStrategy,
-        )
+        from stockdownloader.strategy.intraday.dmi_vwap_config import DmiVwapConfig
+        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
         from decimal import Decimal
         cfg = DmiVwapConfig(dmi_period=10, adx_threshold=Decimal("30"))
         defn = DmiVwapStrategy(cfg).to_pinescript()

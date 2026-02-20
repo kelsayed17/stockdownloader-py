@@ -28,6 +28,23 @@ from stockdownloader.model.exit_mechanism_result import (
     ExitMechanismSummary,
 )
 from stockdownloader.model.intraday_signal import IntradaySignal, IntradayAction
+from stockdownloader.model.detailed_financial_data import DetailedFinancialData
+from stockdownloader.model.value_screener_result import ValueScreenerResult
+from stockdownloader.model.sec_filing import SecFiling
+from stockdownloader.model.signal_advisory import (
+    SignalAdvisory,
+    AdvisoryAction,
+    AdvisoryReasoning,
+    OptionsAdvisory,
+)
+from stockdownloader.model.ftd_record import FtdRecord
+from stockdownloader.model.short_interest_record import ShortInterestRecord
+from stockdownloader.model.dark_pool_record import DarkPoolRecord
+from stockdownloader.model.institutional_holding import (
+    InstitutionalHolding,
+    OwnershipSnapshot,
+)
+from stockdownloader.model.borrow_rate_record import BorrowRateRecord
 
 __all__ = [
     "PriceData",
@@ -57,4 +74,17 @@ __all__ = [
     "ExitMechanismSummary",
     "IntradaySignal",
     "IntradayAction",
+    "DetailedFinancialData",
+    "ValueScreenerResult",
+    "SecFiling",
+    "SignalAdvisory",
+    "AdvisoryAction",
+    "AdvisoryReasoning",
+    "OptionsAdvisory",
+    "FtdRecord",
+    "ShortInterestRecord",
+    "DarkPoolRecord",
+    "InstitutionalHolding",
+    "OwnershipSnapshot",
+    "BorrowRateRecord",
 ]

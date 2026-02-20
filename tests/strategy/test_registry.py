@@ -95,11 +95,12 @@ class TestRegistryEnumeration:
 
     def test_all_entries_intraday(self):
         entries = StrategyRegistry.all_entries(category="intraday")
-        assert len(entries) == 5
+        assert len(entries) == 8
         names = {e.name for e in entries}
         assert names == {
             "vwap-pullback", "vwap-reversal", "vwap-orb",
-            "vwap-orr", "vwap-ps",
+            "vwap-orr", "vwap-ps", "avwap-pullback",
+            "smc-structure", "ml-oversold",
         }
 
     def test_all_entries_options(self):

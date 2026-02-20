@@ -5,8 +5,8 @@ reports the best configuration along with before/after comparison.
 
 Usage::
 
-    strategy-optimize                                  # data/spy_5m_bars.csv
-    strategy-optimize --csv data/spy_5m_bars.csv       # explicit CSV
+    strategy-optimize                                  # data/spy/5m_bars.csv
+    strategy-optimize --csv data/spy/5m_bars.csv       # explicit CSV
     strategy-optimize --csv data/aapl_5m_bars.csv      # different symbol
     strategy-optimize --log opt.log                    # tailable log file
     strategy-optimize --all-strategies                 # compare all 8 strategies
@@ -23,7 +23,7 @@ import logging
 from decimal import Decimal
 
 from stockdownloader.backtest.strategy_optimizer import StrategyOptimizer
-from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
+from stockdownloader.data.intraday_csv import IntradayCsvLoader
 
 
 def main() -> None:
@@ -36,7 +36,7 @@ def main() -> None:
         epilog=(
             "Examples:\n"
             "  strategy-optimize                            # default SPY CSV\n"
-            "  strategy-optimize --csv data/spy_5m_bars.csv\n"
+            "  strategy-optimize --csv data/spy/5m_bars.csv\n"
             "  strategy-optimize --capital 50000\n"
             "  strategy-optimize --log opt.log              # tail -f opt.log\n"
             "  strategy-optimize --all-strategies           # compare all strategies\n"
@@ -45,8 +45,8 @@ def main() -> None:
     parser.add_argument(
         "--csv",
         dest="csv_file",
-        default="data/spy_5m_bars.csv",
-        help="Intraday CSV file path (default: data/spy_5m_bars.csv)",
+        default="data/spy/5m_bars.csv",
+        help="Intraday CSV file path (default: data/spy/5m_bars.csv)",
     )
     parser.add_argument(
         "--capital",

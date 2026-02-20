@@ -15,11 +15,11 @@ from stockdownloader.model.intraday_signal import (
     IntradayAction,
     IntradaySignal,
 )
-from stockdownloader.strategy.ensemble_strategy import (
+from stockdownloader.strategy.regime.ensemble_strategy import (
     DrawdownPositionScaler,
     EnsembleIntradayStrategy,
 )
-from stockdownloader.strategy.regime_detector import (
+from stockdownloader.strategy.regime.regime_detector import (
     MarketRegime,
     MarketRegimeDetector,
     RegimeClassification,

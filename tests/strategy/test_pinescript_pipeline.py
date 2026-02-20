@@ -90,7 +90,7 @@ class TestDailyRoundTrip:
         assert "sellScore" in pine
 
     def test_dmi_vwap(self):
-        from stockdownloader.strategy.dmi_vwap_strategy import DmiVwapStrategy
+        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
         defn = DmiVwapStrategy().to_pinescript()
         pine = self.gen.generate(defn)
         self._validate_pine(pine, "DMI+VWAP")
@@ -113,7 +113,7 @@ class TestStrategyCatalog:
 
     def test_catalog_count(self):
         """Catalog has the expected number of strategies."""
-        assert len(STRATEGY_CATALOG) == 13
+        assert len(STRATEGY_CATALOG) == 21
 
     def test_all_catalog_entries_generate(self):
         """Every factory in the catalog produces valid Pine Script."""
@@ -121,7 +121,9 @@ class TestStrategyCatalog:
             defn = factory()
             pine = self.gen.generate(defn)
             assert pine, f"{name}: empty output"
-            assert "indicator(" in pine, f"{name}: missing indicator()"
+            assert ("indicator(" in pine or "strategy(" in pine), (
+                f"{name}: missing indicator() or strategy()"
+            )
             assert len(pine) > 200, f"{name}: output too short ({len(pine)})"
             assert len(pine.splitlines()) > 20, f"{name}: too few lines"
 
@@ -130,8 +132,12 @@ class TestStrategyCatalog:
         expected = {
             "sma_crossover", "rsi", "macd", "macd_obv",
             "bollinger_rsi", "dmi_vwap", "momentum_confluence",
-            "breakout", "vwap_pullback", "vwap_reversal",
+            "breakout", "multi_indicator",
+            "vwap_pullback", "vwap_reversal",
             "vwap_or_breakout", "vwap_or_reversal", "vwap_pattern_scalp",
+            "gme_prediction",
+            "spy_macd_obv", "spy_sma_crossover", "spy_macd_optimized",
+            "spy_macd_obv_v2", "spy_sma_crossover_v2", "spy_macd_optimized_v2",
         }
         assert set(STRATEGY_CATALOG.keys()) == expected
 
@@ -201,6 +207,23 @@ class TestPipelineWrapperConsistency:
         defn = breakout_strategy()
         assert defn.short_name == "BRKOUT"
 
+    def test_multi_indicator_wrapper(self):
+        from stockdownloader.util.pinescript_strategies import (
+            multi_indicator_strategy,
+        )
+        defn = multi_indicator_strategy()
+        assert defn.short_name == "MULTI"
+        assert defn.extra_code is not None
+
+    def test_multi_indicator_wrapper_custom_params(self):
+        from stockdownloader.util.pinescript_strategies import (
+            multi_indicator_strategy,
+        )
+        defn = multi_indicator_strategy(buy_threshold=6, sell_threshold=5)
+        defaults = {i.name: i.default for i in defn.inputs}
+        assert defaults["buyThreshold"] == 6
+        assert defaults["sellThreshold"] == 5
+
     def test_macd_obv_stays_handwritten(self):
         """MACD+OBV has no Python counterpart — stays hand-written."""
         from stockdownloader.util.pinescript_strategies import macd_obv_strategy
@@ -222,8 +245,8 @@ class TestIntradayModeRoundTrip:
 
     def _mode_to_pine(self, mode: "ModeDefinition") -> str:
         from stockdownloader.util.pinescript_generator import mode_to_strategy
-        from stockdownloader.util.pinescript_strategies import (
-            _vwap_shared_infrastructure,
+        from stockdownloader.util.pinescript_modes import (
+            vwap_shared_infrastructure as _vwap_shared_infrastructure,
         )
         defn = mode_to_strategy(
             mode, shared=_vwap_shared_infrastructure(),

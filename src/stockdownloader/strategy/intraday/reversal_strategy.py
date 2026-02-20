@@ -15,20 +15,21 @@ from stockdownloader.strategy.intraday.entry_helpers import (
     make_entry_signal,
 )
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
-from stockdownloader.strategy.intraday.infra import BarContext, IntradayInfra
+from stockdownloader.strategy.intraday.bar_context import BarContext
+from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import BreakevenTrail
-from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
+from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.util.intraday_indicators import candle_strength
 from stockdownloader.util.big_decimal_math import ZERO
 from stockdownloader.util.pinescript_models import ModeDefinition
-from stockdownloader.util.pinescript_strategies import _rev_mode
+from stockdownloader.util.pinescript_modes import rev_mode
 
 if TYPE_CHECKING:
     from stockdownloader.model.intraday_price_data import IntradayPriceData
     from stockdownloader.strategy.intraday.reversal_config import ReversalStrategyConfig
 
 
-class ReversalStrategy(IntradayTradingStrategy):
+class ReversalStrategy(BaseIntradayStrategy):
     """Standalone VWAP Reversal strategy.
 
     Mean-reversion entry: ADX low (sideways market), VWAP flat,
@@ -47,27 +48,11 @@ class ReversalStrategy(IntradayTradingStrategy):
     @staticmethod
     def pinescript_mode() -> ModeDefinition:
         """Return the PineScript mode definition for VWAP Reversal."""
-        return _rev_mode()
+        return rev_mode()
 
     @property
     def name(self) -> str:
         return "VWAP Reversal"
-
-    @property
-    def warmup_period(self) -> int:
-        return self._infra.warmup_period
-
-    def on_session_start(self, trading_date: str) -> None:
-        self._infra.on_session_start(trading_date)
-
-    def on_position_opened(self, is_long: bool) -> None:
-        self._infra.confirm_position_opened(is_long)
-
-    def on_position_closed(self) -> None:
-        self._infra.confirm_position_closed()
-
-    def evaluate(self, data: list[IntradayPriceData], current_index: int) -> IntradaySignal:
-        return self._infra.run_bar(data, current_index, self._evaluate_entry, self._ENTRY_FLAGS)
 
     def _evaluate_entry(self, ctx: BarContext) -> IntradaySignal | None:
         c = self._c
@@ -90,7 +75,7 @@ class ReversalStrategy(IntradayTradingStrategy):
         is_sideways = (
             not is_trending
             and ctx.atr_val > ZERO
-            and abs(ctx.vwap_delta) <= ctx.atr_val * Decimal("0.05")
+            and abs(ctx.vwap_delta) <= ctx.atr_val * c.rev_vwap_flat_tol
         )
         if not is_sideways:
             return None
@@ -150,15 +135,16 @@ class ReversalStrategy(IntradayTradingStrategy):
             return None
 
         # -- Scoring (lighter than PB) --
-        pts_vol = c.w_vol if ctx.tod_rvol < Decimal("1") else (1 if ctx.tod_rvol < Decimal("2") else 0)
+        # Reversal is mean-reversion: moderate vol is ideal (not too high, not too low)
+        pts_vol = c.w_vol if Decimal("0.7") <= ctx.tod_rvol <= Decimal("1.5") else 0
         pts_sr = c.w_sr if ctx.sr_score_count > 0 else 0
         pts_sr2 = 1 if ctx.sr_score_count >= 2 else 0
         pts_time = c.w_time if ctx.is_good_time else 0
 
         if go_long:
-            pts_rsi = c.w_rsi if ctx.rsi_val <= Decimal("35") else 0
+            pts_rsi = c.w_rsi if ctx.rsi_val <= Decimal("30") else 0
         else:
-            pts_rsi = c.w_rsi if ctx.rsi_val >= Decimal("65") else 0
+            pts_rsi = c.w_rsi if ctx.rsi_val >= Decimal("70") else 0
 
         score = pts_vol + pts_sr + pts_sr2 + pts_rsi + pts_time
         max_score = c.w_vol + c.w_sr + 1 + c.w_rsi + c.w_time

@@ -12,7 +12,7 @@ from decimal import Decimal
 from typing import Any, TextIO
 
 from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.backtest.optimizer_scoring import score as _score
+from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 
 
@@ -137,6 +137,41 @@ class OptimizerBase:
 
         if not changed:
             self._print("  (no changes — defaults are already optimal)")
+        self._print()
+
+    # ------------------------------------------------------------------
+    # Optimization lifecycle helpers
+    # ------------------------------------------------------------------
+
+    def _print_banner(self, title: str) -> None:
+        """Print standard optimizer banner."""
+        self._print("=" * 70)
+        self._print(f"  {title}")
+        self._print("=" * 70)
+        self._print()
+
+    def _set_baseline(self, result: BacktestResult) -> float:
+        """Score *result*, set it as the best, print summary, return score."""
+        score = _score(result, trading_days=self._trading_days)
+        self._best_result = result
+        self._best_score = score
+        self._run_count += 1
+        self._print(
+            f"  Baseline: P/L: ${result.total_pnl:>9,.2f}  "
+            f"WR: {result.win_rate:>5.1f}%  "
+            f"Trades: {result.total_trades:>3d}  "
+            f"Score: {score:>7.2f}"
+        )
+        return score
+
+    def _print_summary(self, elapsed: float) -> None:
+        """Print standard optimization-complete footer."""
+        self._print()
+        self._print("=" * 70)
+        self._print("  OPTIMIZATION COMPLETE")
+        self._print("=" * 70)
+        self._print(f"  Total configurations tested: {self._run_count}")
+        self._print(f"  Time elapsed: {elapsed:.1f}s")
         self._print()
 
     # ------------------------------------------------------------------

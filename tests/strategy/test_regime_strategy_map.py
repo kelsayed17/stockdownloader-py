@@ -6,8 +6,8 @@ performance matrix, and edge cases.
 
 import pytest
 
-from stockdownloader.strategy.regime_detector import MarketRegime
-from stockdownloader.strategy.regime_strategy_map import (
+from stockdownloader.strategy.regime.regime_detector import MarketRegime
+from stockdownloader.strategy.regime.regime_strategy_map import (
     RegimePerformance,
     RegimeStrategyMapper,
 )

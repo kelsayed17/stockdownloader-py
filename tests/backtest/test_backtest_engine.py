@@ -154,3 +154,50 @@ def test_open_position_closed_at_end():
     assert result.total_trades == 1
     for t in result.trades:
         assert t.status == TradeStatus.CLOSED
+
+
+def test_slippage_reduces_profit():
+    """Slippage should worsen the fill price and reduce final capital."""
+    strategy = _TestStrategy("Buy-Sell", 2)
+    data = [
+        _make_price_data("d1", 50),
+        _make_price_data("d2", 50),
+        _make_price_data("d3", 50),  # BUY
+        _make_price_data("d4", 60),  # SELL
+        _make_price_data("d5", 60),
+    ]
+
+    engine_no_slip = BacktestEngine(Decimal("10000"), Decimal("0"), slippage_pct=0)
+    engine_with_slip = BacktestEngine(
+        Decimal("10000"), Decimal("0"), slippage_pct=Decimal("0.01"),
+    )
+
+    result_no_slip = engine_no_slip.run(strategy, data)
+    result_with_slip = engine_with_slip.run(strategy, data)
+
+    assert result_no_slip.final_capital > result_with_slip.final_capital, (
+        "Slippage should reduce final capital"
+    )
+
+
+def test_slippage_affects_entry_price():
+    """Buy price should be higher than bar close when slippage is applied."""
+    strategy = _TestStrategy("Buy-Sell", 0)  # warmup=0 → BUY at 1, SELL at 2
+    data = [
+        _make_price_data("d1", 100),
+        _make_price_data("d2", 100),  # BUY at 100 * (1 + 0.01) = 101
+        _make_price_data("d3", 110),  # SELL at 110 * (1 - 0.01) = 108.9
+        _make_price_data("d4", 110),
+    ]
+
+    engine = BacktestEngine(
+        Decimal("10000"), Decimal("0"), slippage_pct=Decimal("0.01"),
+    )
+    result = engine.run(strategy, data)
+
+    assert result.total_trades == 1
+    trade = result.trades[0]
+    # Entry price should be 101 (100 * 1.01), not 100
+    assert trade.entry_price == Decimal("101.00")
+    # Exit price should be 108.9 (110 * 0.99), not 110
+    assert trade.exit_price == Decimal("108.90")

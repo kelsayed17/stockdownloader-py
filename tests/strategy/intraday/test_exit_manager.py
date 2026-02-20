@@ -217,8 +217,9 @@ class TestBEAndTrail:
             take_profit=Decimal("510"),
             risk_amount=Decimal("2"),
         )
+        # Bar stays above BE level (500.05) so ratchet doesn't trigger exit
         bar = make_bar(
-            close=Decimal("501.50"), high=Decimal("501.50"), low=Decimal("499"),
+            close=Decimal("501.50"), high=Decimal("501.50"), low=Decimal("500.50"),
         )
         bands = make_vwap_bands()
 
@@ -228,6 +229,218 @@ class TestBEAndTrail:
         assert state.trailing_vwap is False
         assert state.trailing_atr is False
         assert state.stop_loss == Decimal("500.05")  # entry + BE_BUF
+
+
+class TestBreakevenTrailRatchet:
+    """Tests for step-wise profit locking in BreakevenTrail."""
+
+    def test_ratchet_at_1r_mfe_long(self):
+        """After 1R MFE, stop moves to entry + 0.5R."""
+        mgr = IntradayExitManager(BreakevenTrail())
+        config = InfraExitConfig(be_trigger=Decimal("0.5"))
+        state = make_long_position_state(
+            entry_price=Decimal("500"),
+            stop_loss=Decimal("500.05"),  # already at BE
+            take_profit=Decimal("510"),
+            risk_amount=Decimal("2"),
+        )
+        state.be_triggered = True
+        # MFE = 502 → (502 - 500) / 2 = 1.0R
+        state.orb_extreme = Decimal("502")
+
+        # Bar stays above the ratcheted stop (501.00)
+        bar = make_bar(
+            close=Decimal("501.50"), high=Decimal("502"), low=Decimal("501.10"),
+        )
+        bands = make_vwap_bands()
+
+        sig = mgr.evaluate(bar, state, config, bands, Decimal("1.5"), 20)
+
+        assert sig == HOLD
+        # entry(500) + 0.5R(1.0) = 501.00
+        assert state.stop_loss == Decimal("501")
+
+    def test_ratchet_at_1_5r_mfe_long(self):
+        """After 1.5R MFE, stop moves to entry + 1.0R."""
+        mgr = IntradayExitManager(BreakevenTrail())
+        config = InfraExitConfig(be_trigger=Decimal("0.5"))
+        state = make_long_position_state(
+            entry_price=Decimal("500"),
+            stop_loss=Decimal("501"),  # already at 0.5R from previous ratchet
+            take_profit=Decimal("510"),
+            risk_amount=Decimal("2"),
+        )
+        state.be_triggered = True
+        # MFE = 503 → (503 - 500) / 2 = 1.5R
+        state.orb_extreme = Decimal("503")
+
+        # Bar stays above ratcheted stop (502.00)
+        bar = make_bar(
+            close=Decimal("502.50"), high=Decimal("503"), low=Decimal("502.10"),
+        )
+        bands = make_vwap_bands()
+
+        sig = mgr.evaluate(bar, state, config, bands, Decimal("1.5"), 20)
+
+        assert sig == HOLD
+        # entry(500) + 1.0R(2.0) = 502.00
+        assert state.stop_loss == Decimal("502")
+
+    def test_ratchet_at_2r_mfe_long(self):
+        """After 2R MFE, stop moves to entry + 1.5R."""
+        mgr = IntradayExitManager(BreakevenTrail())
+        config = InfraExitConfig(be_trigger=Decimal("0.5"))
+        state = make_long_position_state(
+            entry_price=Decimal("500"),
+            stop_loss=Decimal("502"),  # already at 1.0R from previous ratchet
+            take_profit=Decimal("510"),
+            risk_amount=Decimal("2"),
+        )
+        state.be_triggered = True
+        # MFE = 504 → (504 - 500) / 2 = 2.0R
+        state.orb_extreme = Decimal("504")
+
+        # Bar stays above ratcheted stop (503.00)
+        bar = make_bar(
+            close=Decimal("503.50"), high=Decimal("504"), low=Decimal("503.10"),
+        )
+        bands = make_vwap_bands()
+
+        sig = mgr.evaluate(bar, state, config, bands, Decimal("1.5"), 20)
+
+        assert sig == HOLD
+        # entry(500) + 1.5R(3.0) = 503.00
+        assert state.stop_loss == Decimal("503")
+
+    def test_ratchet_at_1r_mfe_short(self):
+        """Short mirror: after 1R MFE, stop moves to entry - 0.5R."""
+        mgr = IntradayExitManager(BreakevenTrail())
+        config = InfraExitConfig(be_trigger=Decimal("0.5"))
+        state = make_short_position_state(
+            entry_price=Decimal("500"),
+            stop_loss=Decimal("499.95"),  # already at BE
+            take_profit=Decimal("490"),
+            risk_amount=Decimal("2"),
+        )
+        state.be_triggered = True
+        # MFE = 498 → (500 - 498) / 2 = 1.0R
+        state.orb_extreme = Decimal("498")
+
+        # Bar stays below ratcheted stop (499.00)
+        bar = make_bar(
+            close=Decimal("498.50"), high=Decimal("498.90"), low=Decimal("498"),
+        )
+        bands = make_vwap_bands()
+
+        sig = mgr.evaluate(bar, state, config, bands, Decimal("1.5"), 20)
+
+        assert sig == HOLD
+        # entry(500) - 0.5R(1.0) = 499.00
+        assert state.stop_loss == Decimal("499")
+
+    def test_stop_never_retreats_long(self):
+        """Once stop has ratcheted up, it should never move back down."""
+        mgr = IntradayExitManager(BreakevenTrail())
+        config = InfraExitConfig(be_trigger=Decimal("0.5"))
+        state = make_long_position_state(
+            entry_price=Decimal("500"),
+            stop_loss=Decimal("502"),  # at 1.0R lock
+            take_profit=Decimal("510"),
+            risk_amount=Decimal("2"),
+        )
+        state.be_triggered = True
+        # MFE falls back below 1.5R — still at 1.0R level
+        state.orb_extreme = Decimal("502.50")  # 1.25R, between 1R and 1.5R
+
+        # Bar stays above the locked stop (502)
+        bar = make_bar(
+            close=Decimal("502.20"), high=Decimal("502.50"), low=Decimal("502.10"),
+        )
+        bands = make_vwap_bands()
+
+        sig = mgr.evaluate(bar, state, config, bands, Decimal("1.5"), 20)
+
+        assert sig == HOLD
+        # 1.25R triggers the 1R step (lock at 0.5R = 501.00), but current SL
+        # is 502 which is higher — so stop should stay at 502.
+        assert state.stop_loss == Decimal("502")
+
+    def test_breach_exit_long(self):
+        """Bar low touching ratcheted stop triggers exit (hard_stop catches it)."""
+        mgr = IntradayExitManager(BreakevenTrail())
+        config = InfraExitConfig(be_trigger=Decimal("0.5"))
+        state = make_long_position_state(
+            entry_price=Decimal("500"),
+            stop_loss=Decimal("500.05"),  # at BE level
+            take_profit=Decimal("510"),
+            risk_amount=Decimal("2"),
+        )
+        state.be_triggered = True
+        state.orb_extreme = Decimal("502")  # 1.0R MFE → ratchets to 501
+
+        # Bar low below the *newly ratcheted* stop at 501 but above the
+        # pre-ratchet stop (500.05).  The ratchet runs and moves stop to 501,
+        # then checks bar.low <= 501 → exits.
+        bar = make_bar(
+            close=Decimal("500.80"), high=Decimal("501.50"), low=Decimal("500.90"),
+        )
+        bands = make_vwap_bands()
+
+        sig = mgr.evaluate(bar, state, config, bands, Decimal("1.5"), 20)
+
+        assert sig.action == IntradayAction.EXIT
+        assert sig.reason == "breakeven"
+        assert state.in_position is False
+
+    def test_breach_exit_short(self):
+        """Short: bar high above newly ratcheted stop triggers exit via ratchet."""
+        mgr = IntradayExitManager(BreakevenTrail())
+        config = InfraExitConfig(be_trigger=Decimal("0.5"))
+        state = make_short_position_state(
+            entry_price=Decimal("500"),
+            stop_loss=Decimal("499.95"),  # at BE level
+            take_profit=Decimal("490"),
+            risk_amount=Decimal("2"),
+        )
+        state.be_triggered = True
+        state.orb_extreme = Decimal("498")  # 1.0R MFE → ratchets to 499
+
+        # Bar high above the newly ratcheted stop (499) but below pre-ratchet (499.95)
+        bar = make_bar(
+            close=Decimal("499.20"), high=Decimal("499.10"), low=Decimal("498.50"),
+        )
+        bands = make_vwap_bands()
+
+        sig = mgr.evaluate(bar, state, config, bands, Decimal("1.5"), 20)
+
+        assert sig.action == IntradayAction.EXIT
+        assert sig.reason == "breakeven"
+        assert state.in_position is False
+
+    def test_no_ratchet_below_1r(self):
+        """Below 1R MFE, stop stays at BE level (entry + buffer)."""
+        mgr = IntradayExitManager(BreakevenTrail())
+        config = InfraExitConfig(be_trigger=Decimal("0.5"))
+        state = make_long_position_state(
+            entry_price=Decimal("500"),
+            stop_loss=Decimal("500.05"),  # BE level
+            take_profit=Decimal("510"),
+            risk_amount=Decimal("2"),
+        )
+        state.be_triggered = True
+        # MFE = 501.50 → (501.50 - 500) / 2 = 0.75R — below 1R threshold
+        state.orb_extreme = Decimal("501.50")
+
+        bar = make_bar(
+            close=Decimal("501"), high=Decimal("501.50"), low=Decimal("500.50"),
+        )
+        bands = make_vwap_bands()
+
+        sig = mgr.evaluate(bar, state, config, bands, Decimal("1.5"), 20)
+
+        assert sig == HOLD
+        # Stop should remain at BE level
+        assert state.stop_loss == Decimal("500.05")
 
 
 class TestVwapTrailStop:
@@ -290,8 +503,9 @@ class TestEOD:
             stop_loss=Decimal("490"),
             take_profit=Decimal("520"),
         )
+        # Bar stays safely above entry so ratchet doesn't trigger exit
         bar = make_bar(
-            close=Decimal("505"), high=Decimal("505"), low=Decimal("499"),
+            close=Decimal("505"), high=Decimal("505"), low=Decimal("504"),
         )
         bands = make_vwap_bands()
 
@@ -308,8 +522,9 @@ class TestEOD:
             stop_loss=Decimal("490"),
             take_profit=Decimal("520"),
         )
+        # Bar stays above entry so ratcheted stop doesn't trigger exit
         bar = make_bar(
-            close=Decimal("505"), high=Decimal("505"), low=Decimal("499"),
+            close=Decimal("505"), high=Decimal("505"), low=Decimal("504"),
         )
         bands = make_vwap_bands()
 

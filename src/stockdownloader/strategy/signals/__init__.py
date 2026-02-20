@@ -19,3 +19,44 @@ stacked_signal_strategy
 generators
     17 atomic signal generator implementations.
 """
+
+from stockdownloader.strategy.signals.signal_generator import (
+    AtomicSignalGenerator,
+    SignalDirection,
+    SignalResult,
+)
+from stockdownloader.strategy.signals.signal_registry import SignalGeneratorRegistry
+from stockdownloader.strategy.signals.multi_timeframe_aligner import (
+    AlignedSignal,
+    MultiTimeframeAligner,
+    TimeframeSignalSpec,
+)
+from stockdownloader.strategy.signals.stacked_signal_engine import (
+    AggregationMode,
+    StackConfig,
+    StackedSignalEngine,
+    StackResult,
+)
+from stockdownloader.strategy.signals.stacked_daily_strategy import StackedDailyStrategy
+from stockdownloader.strategy.signals.stacked_intraday_strategy import StackedIntradayStrategy
+
+__all__ = [
+    # Core abstractions
+    "AtomicSignalGenerator",
+    "SignalDirection",
+    "SignalResult",
+    # Registry
+    "SignalGeneratorRegistry",
+    # Multi-timeframe
+    "AlignedSignal",
+    "MultiTimeframeAligner",
+    "TimeframeSignalSpec",
+    # Stacked engine
+    "AggregationMode",
+    "StackConfig",
+    "StackedSignalEngine",
+    "StackResult",
+    # Strategy wrappers
+    "StackedDailyStrategy",
+    "StackedIntradayStrategy",
+]

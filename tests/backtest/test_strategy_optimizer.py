@@ -17,19 +17,19 @@ from stockdownloader.backtest.strategy_optimizer import (
 )
 from stockdownloader.backtest.optimizer_scoring import score as _score, MIN_TRADES as _MIN_TRADES
 from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
+from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
 from stockdownloader.strategy.intraday.pullback_config import PullbackStrategyConfig
 
 # Real data file
-_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy_5m_bars.csv"
+_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy" / "5m_bars.csv"
 
 
 @pytest.fixture(scope="module")
 def sample_data():
     """Load a small slice of real data for testing (first 2000 bars ~ 25 days)."""
     if not _DATA_FILE.exists():
-        pytest.skip("data/spy_5m_bars.csv not found")
+        pytest.skip("data/spy/5m_bars.csv not found")
     data = IntradayCsvLoader.load_from_file(_DATA_FILE)
     if len(data) < 2000:
         pytest.skip("Not enough data for optimizer tests")
@@ -101,23 +101,23 @@ class TestScoreFunction:
         r1 = BacktestResult("a", Decimal("100000"))
         r1.final_capital = Decimal("101000")
         r1.equity_curve = [Decimal("100000"), Decimal("101000")]
-        # No trades = heavy penalty (80 * 3 = 240 pts)
-        assert _score(r1) < -100
+        # No trades = penalty (20 * 1 = 20 pts)
+        assert _score(r1) < -10
 
     def test_min_trades_threshold(self):
-        """Results below _MIN_TRADES get heavily penalized."""
-        assert _MIN_TRADES == 80
+        """Results below _MIN_TRADES get penalized."""
+        assert _MIN_TRADES == 20
 
-        r_few = _make_result_with_trades("few", Decimal("5000"), 50, win_pct=0.6)
-        r_many = _make_result_with_trades("many", Decimal("5000"), 100, win_pct=0.6)
+        r_few = _make_result_with_trades("few", Decimal("5000"), 10, win_pct=0.6)
+        r_many = _make_result_with_trades("many", Decimal("5000"), 30, win_pct=0.6)
 
         score_few = _score(r_few)
         score_many = _score(r_many)
 
-        # Same P&L/WR, but 50 < 80 trades -> penalized
+        # Same P&L/WR, but 10 < 20 trades -> penalized
         assert score_many > score_few
-        # Penalty should be significant: (80-50) * 3 = 90 pts
-        assert score_many - score_few > 50
+        # Penalty: (20-10) * 1 = 10 pts
+        assert score_many - score_few > 0
 
     def test_100_trades_beats_50_trades(self):
         """More trades (above threshold) gives bonus, not just avoids penalty."""

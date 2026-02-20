@@ -129,6 +129,78 @@ def theta(
     )
 
 
+def gamma(
+    spot: Decimal,
+    strike: Decimal,
+    time_to_expiry: Decimal,
+    risk_free_rate: Decimal,
+    volatility: Decimal,
+) -> Decimal:
+    """Calculate gamma: rate of change of delta w.r.t. underlying price.
+
+    Gamma is the same for both calls and puts.  It measures how quickly
+    delta changes as the underlying moves — high gamma means delta is
+    unstable and market makers must rebalance hedges frequently.
+
+    Returns:
+        Gamma as a ``Decimal`` rounded to 6 decimal places.
+    """
+    if time_to_expiry <= Decimal('0') or volatility <= Decimal('0'):
+        return Decimal('0')
+
+    S = float(spot)
+    K = float(strike)
+    T = float(time_to_expiry)
+    r = float(risk_free_rate)
+    sigma = float(volatility)
+
+    sqrt_t = math.sqrt(T)
+    d1 = (math.log(S / K) + (r + sigma * sigma / 2.0) * T) / (sigma * sqrt_t)
+
+    # N'(d1) = standard normal PDF at d1
+    nd1_prime = math.exp(-d1 * d1 / 2.0) / math.sqrt(2 * math.pi)
+
+    g = nd1_prime / (S * sigma * sqrt_t)
+
+    return Decimal(str(g)).quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
+
+
+def vega(
+    spot: Decimal,
+    strike: Decimal,
+    time_to_expiry: Decimal,
+    risk_free_rate: Decimal,
+    volatility: Decimal,
+) -> Decimal:
+    """Calculate vega: sensitivity of option price to a 1% change in IV.
+
+    Vega is the same for both calls and puts.  Returns the change in
+    option price for a 1 percentage-point increase in implied volatility.
+
+    Returns:
+        Vega as a ``Decimal`` rounded to 6 decimal places.
+        Expressed per 1% IV move (i.e. divided by 100).
+    """
+    if time_to_expiry <= Decimal('0') or volatility <= Decimal('0'):
+        return Decimal('0')
+
+    S = float(spot)
+    K = float(strike)
+    T = float(time_to_expiry)
+    r = float(risk_free_rate)
+    sigma = float(volatility)
+
+    sqrt_t = math.sqrt(T)
+    d1 = (math.log(S / K) + (r + sigma * sigma / 2.0) * T) / (sigma * sqrt_t)
+
+    nd1_prime = math.exp(-d1 * d1 / 2.0) / math.sqrt(2 * math.pi)
+
+    # Vega per 1% move = S * N'(d1) * sqrt(T) / 100
+    v = S * nd1_prime * sqrt_t / 100.0
+
+    return Decimal(str(v)).quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP)
+
+
 def estimate_volatility(
     close_prices: list[Decimal], lookback: int
 ) -> Decimal:

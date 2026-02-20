@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from stockdownloader.data.intraday_csv_writer import write_to_file
-from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
+from stockdownloader.data.intraday_csv import write_to_file
+from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 
 

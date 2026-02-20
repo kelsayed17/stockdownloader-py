@@ -23,6 +23,7 @@ from __future__ import annotations
 import dataclasses
 import logging
 import time
+from collections.abc import Callable
 from decimal import Decimal
 from operator import itemgetter
 from typing import Any, TextIO
@@ -30,7 +31,7 @@ from typing import Any, TextIO
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.optimizer_base import OptimizerBase
-from stockdownloader.backtest.optimizer_scoring import score as _score
+from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.strategy.registrations import ensure_registered
 from stockdownloader.strategy.registry import StrategyRegistry
@@ -45,7 +46,10 @@ def _run_backtest(
     risk_per_trade: Decimal,
 ) -> BacktestResult:
     """Run a single backtest with an already-constructed strategy."""
-    engine = IntradayBacktestEngine(initial_capital, risk_per_trade)
+    engine = IntradayBacktestEngine(
+        initial_capital, risk_per_trade,
+        vol_scale=False, dd_throttle=True,
+    )
     return engine.run(strategy, data)
 
 
@@ -81,6 +85,50 @@ class StrategyOptimizer(OptimizerBase):
         ensure_registered()
         self._history: list[dict[str, Any]] = []
 
+    def _make_run_fn(
+        self,
+        default_config: Any,
+        strategy_name: str,
+    ) -> Callable[[dict[str, Any]], BacktestResult | None]:
+        """Build a ``run_fn`` callback for :meth:`_greedy_search`.
+
+        The returned callable constructs a strategy by replacing fields on
+        *default_config* with the trial overrides, runs a backtest, and
+        records the trial to ``self._history``.
+        """
+        # Capture *entry* from the calling scope via *default_config*.
+        # We need a stable reference to self._data, self._capital, etc.
+        # but those are instance attributes so ``self`` suffices.
+        registry_entry = next(
+            e for e in StrategyRegistry.all_entries(category="intraday")
+            if e.display_name == strategy_name
+        )
+
+        def run_fn(overrides: dict[str, Any]) -> BacktestResult | None:
+            try:
+                trial_config = dataclasses.replace(default_config, **overrides)
+                strategy = registry_entry.factory(config=trial_config)
+            except (TypeError, ValueError, AttributeError) as exc:
+                logger.debug("Invalid config for %s: %s", strategy_name, exc)
+                return None
+            result = _run_backtest(
+                strategy, self._data, self._capital, self._risk,
+            )
+            # Record to optimisation history
+            score = _score(result, trading_days=self._trading_days)
+            for param, val in overrides.items():
+                self._history.append({
+                    "run": self._run_count,
+                    "strategy": strategy_name,
+                    "param": param,
+                    "value": val,
+                    "score": score,
+                    "pnl": float(result.total_pnl),
+                })
+            return result
+
+        return run_fn
+
     def optimize(
         self,
     ) -> list[tuple[str, BacktestResult, float]]:
@@ -94,10 +142,7 @@ class StrategyOptimizer(OptimizerBase):
         """
         start = time.time()
 
-        self._print("=" * 70)
-        self._print("  STRATEGY OPTIMIZER — per-strategy mode")
-        self._print("=" * 70)
-        self._print()
+        self._print_banner("STRATEGY OPTIMIZER — per-strategy mode")
 
         results: list[tuple[str, BacktestResult, float]] = []
 
@@ -124,122 +169,30 @@ class StrategyOptimizer(OptimizerBase):
             self._print(f"  Optimising: {entry.display_name}")
             self._print("-" * 70)
 
-            # Baseline
+            # Baseline — sets _best_score / _best_result
             baseline_strategy = entry.factory(**entry.default_kwargs)
             baseline_result = _run_backtest(
                 baseline_strategy, self._data, self._capital, self._risk,
             )
-            baseline_score = _score(baseline_result, trading_days=self._trading_days)
-            self._run_count += 1
+            self._set_baseline(baseline_result)
 
-            self._print(
-                f"  Baseline: P/L: ${baseline_result.total_pnl:>9,.2f}  "
-                f"WR: {baseline_result.win_rate:>5.1f}%  "
-                f"Trades: {baseline_result.total_trades:>3d}  "
-                f"Score: {baseline_score:>7.2f}"
+            # Build run_fn that constructs strategy via config replacement
+            default_config = entry.factory()._infra._c
+            run_fn = self._make_run_fn(default_config, entry.display_name)
+
+            # Delegate to base class greedy search
+            self._greedy_search(
+                param_space=entry.param_space,
+                current_best={},
+                run_fn=run_fn,
+                phase_label=entry.display_name,
             )
-
-            # Reset best tracking for this strategy
-            self._best_score = baseline_score
-            self._best_result = baseline_result
-            best_overrides: dict[str, Any] = {}
-
-            # Greedy sequential search
-            for param, values in entry.param_space.items():
-                param_best_score = self._best_score
-                param_best_val = None  # current default
-
-                for val in values:
-                    trial_overrides = best_overrides | {param: val}
-                    try:
-                        default_strategy = entry.factory()
-                        default_config = default_strategy._infra._c
-                        trial_config = dataclasses.replace(
-                            default_config, **trial_overrides,
-                        )
-                        strategy = entry.factory(config=trial_config)
-                    except (TypeError, ValueError, AttributeError) as exc:
-                        logger.debug(
-                            "Skipping %s=%s for %s: %s",
-                            param, val, entry.display_name, exc,
-                        )
-                        continue
-
-                    result = _run_backtest(
-                        strategy, self._data, self._capital, self._risk,
-                    )
-                    self._run_count += 1
-                    score = _score(result, trading_days=self._trading_days)
-
-                    improved = ""
-                    if score > param_best_score:
-                        param_best_score = score
-                        param_best_val = val
-                        improved = " *"
-
-                    pnl = result.total_pnl
-                    sign = "+" if pnl >= 0 else ""
-                    self._print(
-                        f"    {param}={str(val):<15s} "
-                        f"P/L: {sign}${pnl:>9,.2f}  WR: {result.win_rate:>5.1f}%  "
-                        f"Trades: {result.total_trades:>3d}  "
-                        f"Score: {score:>7.2f}{improved}"
-                    )
-
-                    self._history.append({
-                        "run": self._run_count,
-                        "strategy": entry.display_name,
-                        "param": param,
-                        "value": val,
-                        "score": score,
-                        "pnl": float(pnl),
-                    })
-
-                if param_best_val is not None:
-                    best_overrides[param] = param_best_val
-                    self._print(f"    >>> Winner: {param}={param_best_val}")
-
-            # Apply combined winners
-            if best_overrides:
-                try:
-                    default_strategy = entry.factory()
-                    default_config = default_strategy._infra._c
-                    combined_config = dataclasses.replace(
-                        default_config, **best_overrides,
-                    )
-                    combined_strategy = entry.factory(config=combined_config)
-                    combined_result = _run_backtest(
-                        combined_strategy, self._data, self._capital, self._risk,
-                    )
-                    combined_score = _score(
-                        combined_result, trading_days=self._trading_days,
-                    )
-                    self._run_count += 1
-
-                    if combined_score >= self._best_score:
-                        self._best_score = combined_score
-                        self._best_result = combined_result
-                        self._print(f"  >>> Combined improved: {best_overrides}")
-                    else:
-                        self._print(
-                            f"  Combined ({combined_score:.2f}) did not beat "
-                            f"baseline ({self._best_score:.2f})"
-                        )
-                except (TypeError, ValueError) as exc:
-                    self._print(f"  Combined config failed: {exc}")
 
             self._print_comparison(baseline_result, self._best_result)
             results.append((entry.display_name, self._best_result, self._best_score))
             self._print()
 
-        elapsed = time.time() - start
-
-        self._print("=" * 70)
-        self._print("  OPTIMISATION COMPLETE")
-        self._print("=" * 70)
-        self._print(f"  Total configurations tested: {self._run_count}")
-        self._print(f"  Time elapsed: {elapsed:.1f}s")
-        self._print()
+        self._print_summary(time.time() - start)
 
         results.sort(key=itemgetter(2), reverse=True)
         return results
@@ -258,7 +211,7 @@ class StrategyOptimizer(OptimizerBase):
         list[tuple[str, BacktestResult, float]]
             ``(strategy_name, result, score)`` sorted best-first.
         """
-        from stockdownloader.strategy.daily_to_intraday_adapter import (
+        from stockdownloader.strategy.intraday.daily_to_intraday_adapter import (
             DailyToIntradayAdapter,
         )
 
@@ -272,7 +225,10 @@ class StrategyOptimizer(OptimizerBase):
         self._print("=" * 70)
         self._print()
 
-        engine = IntradayBacktestEngine(self._capital, self._risk)
+        engine = IntradayBacktestEngine(
+            self._capital, self._risk,
+            vol_scale=False, dd_throttle=True,
+        )
 
         for entry in StrategyRegistry.all_entries(category="daily"):
             name = entry.display_name

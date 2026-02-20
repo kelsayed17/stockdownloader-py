@@ -82,6 +82,37 @@ _EMPTY_VWAP = ExtendedSessionVWAP(
     ZERO, ZERO, ZERO, ZERO, ZERO, ZERO,
 )
 
+
+# =========================================================================
+# ANCHORED VWAP BANDS
+# =========================================================================
+
+
+@dataclass(frozen=True, slots=True)
+class AnchoredVWAPBands:
+    """Anchored VWAP with sigma bands and event metadata.
+
+    Unlike :class:`ExtendedSessionVWAP`, this persists across trading days
+    and tracks the anchor event that initiated the accumulation.
+    """
+
+    avwap: Decimal
+    std_dev: Decimal
+    upper_1: Decimal          # +1σ
+    lower_1: Decimal          # -1σ
+    upper_2: Decimal          # +2σ
+    lower_2: Decimal          # -2σ
+    anchor_date: str          # The anchor date this AVWAP started from
+    days_since_anchor: int    # Calendar days since anchor
+    valid: bool               # False before first anchor
+
+
+_EMPTY_AVWAP = AnchoredVWAPBands(
+    ZERO, ZERO, ZERO, ZERO, ZERO, ZERO,
+    "", 0, False,
+)
+
+
 def extended_session_vwap_bands(
     data: Sequence[PriceData], end_index: int
 ) -> ExtendedSessionVWAP:
@@ -657,12 +688,14 @@ def compute_sr_score(
     pw_high: Decimal = ZERO,
     pw_low: Decimal = ZERO,
     prev_vwap: Decimal = ZERO,
+    avwap: Decimal = ZERO,
     proximity_pct: Decimal = Decimal("0.35"),
     sr_pdhlc: bool = True,
     sr_round: bool = True,
     sr_or: bool = True,
     sr_week_hl: bool = False,
     sr_prev_vwap: bool = False,
+    sr_avwap: bool = False,
 ) -> tuple[bool, int]:
     """Check S/R proximity and return (any_near, count_for_scoring).
 
@@ -671,7 +704,7 @@ def compute_sr_score(
     """
     score_count = 0
 
-    # Scoring levels (PDL, OR H/L, PW H/L, prev VWAP)
+    # Scoring levels (PDL, OR H/L, PW H/L, prev VWAP, AVWAP)
     if sr_pdhlc and near_level(close, pd_low, proximity_pct):
         score_count += 1
     if sr_or and near_level(close, or_high, proximity_pct):
@@ -683,6 +716,8 @@ def compute_sr_score(
     if sr_week_hl and near_level(close, pw_low, proximity_pct):
         score_count += 1
     if sr_prev_vwap and near_level(close, prev_vwap, proximity_pct):
+        score_count += 1
+    if sr_avwap and near_level(close, avwap, proximity_pct):
         score_count += 1
 
     # Display-only levels (PDH, PDC, round $5)

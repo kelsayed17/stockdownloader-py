@@ -21,7 +21,7 @@ import pytest
 from stockdownloader.strategy.intraday.reversal_config import ReversalStrategyConfig
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
-from stockdownloader.util.pinescript_strategies import _rev_mode
+from stockdownloader.util.pinescript_modes import rev_mode as _rev_mode
 
 _ZERO = Decimal("0")
 _D = Decimal
@@ -34,10 +34,10 @@ _D = Decimal
 class TestREVTradeWindow:
     """Separate trade window for REV entries."""
 
-    def test_default_is_zero(self) -> None:
-        """Default rev_can_trade_bar is 0 (use shared can_trade_bar)."""
+    def test_default_is_eight(self) -> None:
+        """Default rev_can_trade_bar is 8 (skip first 40 min volatility)."""
         config = ReversalStrategyConfig()
-        assert config.rev_can_trade_bar == 0
+        assert config.rev_can_trade_bar == 8
 
     def test_custom_trade_bar(self) -> None:
         config = ReversalStrategyConfig(rev_can_trade_bar=13)
@@ -57,9 +57,9 @@ class TestREVTradeWindow:
 class TestREVBandTouches:
     """Band touch filter blocks entries without sufficient band touches."""
 
-    def test_default_is_zero_disabled(self) -> None:
+    def test_default_min_touches(self) -> None:
         config = ReversalStrategyConfig()
-        assert config.rev_min_touches == 0
+        assert config.rev_min_touches == 1
 
     def test_custom_min_touches(self) -> None:
         config = ReversalStrategyConfig(rev_min_touches=2)
@@ -84,10 +84,10 @@ class TestREVBandTouches:
 class TestREVHugLimit:
     """Configurable hugging limit replaces hardcoded 20."""
 
-    def test_default_matches_old_value(self) -> None:
-        """Default rev_hug_limit = 20 matches the old hardcoded value."""
+    def test_default_matches_optimized_value(self) -> None:
+        """Default rev_hug_limit = 30 (wider for more setups)."""
         config = ReversalStrategyConfig()
-        assert config.rev_hug_limit == 20
+        assert config.rev_hug_limit == 30
 
     def test_custom_hug_limit(self) -> None:
         config = ReversalStrategyConfig(rev_hug_limit=15)
@@ -149,9 +149,9 @@ class TestREVTPMode:
 class TestREVRequireSR:
     """S/R hard filter blocks REV entries without S/R proximity."""
 
-    def test_disabled_by_default(self) -> None:
+    def test_enabled_by_default(self) -> None:
         config = ReversalStrategyConfig()
-        assert config.rev_require_sr is False
+        assert config.rev_require_sr is True
 
     def test_enabled(self) -> None:
         config = ReversalStrategyConfig(rev_require_sr=True)
@@ -166,14 +166,15 @@ class TestREVConfig:
     """Config and protocol satisfaction tests."""
 
     def test_backward_compat_defaults(self) -> None:
-        """All new REV params default to off/disabled."""
+        """REV params have correct defaults."""
         config = ReversalStrategyConfig()
-        assert config.rev_can_trade_bar == 0
-        assert config.rev_min_touches == 0
-        assert config.rev_hug_limit == 20
+        assert config.rev_can_trade_bar == 8
+        assert config.rev_min_touches == 1
+        assert config.rev_hug_limit == 30
         assert config.rev_tp_mode == "vwap"
         assert config.rev_rr == _D("1.0")
-        assert config.rev_require_sr is False
+        assert config.rev_require_sr is True
+        assert config.rev_vwap_flat_tol == _D("0.10")
 
     def test_factory_accepts_new_params(self) -> None:
         """for_reversal() factory accepts all new params."""

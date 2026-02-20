@@ -28,20 +28,22 @@ from stockdownloader.backtest.combinatorial_tester import (
     CombinatorialConfig,
     CombinatorialTester,
 )
-from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
+from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.strategy.signals.signal_registry import SignalGeneratorRegistry
 from stockdownloader.strategy.signals.stacked_signal_engine import AggregationMode
 from stockdownloader.util.file_helper import TeeWriter
 from stockdownloader.util.timeframe_aggregator import Timeframe
 
+from stockdownloader.util.constants import (
+    DEFAULT_DATA_FILE as _DATA_FILE,
+    DEFAULT_OUTPUT_DIR as _OUTPUT_DIR,
+    INITIAL_CAPITAL as _INITIAL_CAPITAL,
+    RISK_PER_TRADE as _RISK_PER_TRADE,
+)
+
 logger = logging.getLogger(__name__)
 
-_DATA_FILE = Path(__file__).resolve().parents[3] / "data" / "spy_5m_bars.csv"
-_OUTPUT_DIR = Path(__file__).resolve().parents[3] / "output"
 _LOG_FILE = _OUTPUT_DIR / "signal_stack_tournament.log"
-
-_INITIAL_CAPITAL = Decimal("100000")
-_RISK_PER_TRADE = Decimal("0.01")
 
 
 def _build_config(mode: str) -> CombinatorialConfig:
@@ -234,7 +236,7 @@ if __name__ == "__main__":
         "--file",
         type=str,
         default=None,
-        help="Custom data file path (default: data/spy_5m_bars.csv)",
+        help="Custom data file path (default: data/spy/5m_bars.csv)",
     )
     args = parser.parse_args()
     log_path = Path(args.log_file) if args.log_file else None

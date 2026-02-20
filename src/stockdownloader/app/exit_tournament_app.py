@@ -5,11 +5,11 @@ intraday bar data.
 
 Usage:
     python -m stockdownloader.app.exit_tournament_app \\
-        --bars data/spy_5m_bars.csv \\
+        --bars data/spy/5m_bars.csv \\
         --trades trades.csv
 
     python -m stockdownloader.app.exit_tournament_app \\
-        --bars data/spy_5m_bars.csv \\
+        --bars data/spy/5m_bars.csv \\
         --trades trades.csv \\
         --stop-distance 0.96
 """
@@ -22,7 +22,7 @@ from decimal import Decimal
 
 from stockdownloader.backtest.exit_tournament_engine import ExitTournamentEngine
 from stockdownloader.backtest import exit_tournament_report_formatter
-from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
+from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.data.tradingview_trade_loader import TradingViewTradeLoader
 from stockdownloader.strategy.exit_mechanisms import (
     AtrTrailExit,
@@ -43,8 +43,8 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
-            "  exit_tournament_app --bars data/spy_5m_bars.csv --trades trades.csv\n"
-            "  exit_tournament_app --bars data/spy_5m_bars.csv --trades trades.csv "
+            "  exit_tournament_app --bars data/spy/5m_bars.csv --trades trades.csv\n"
+            "  exit_tournament_app --bars data/spy/5m_bars.csv --trades trades.csv "
             "--stop-distance 0.96\n"
         ),
     )

@@ -1,0 +1,276 @@
+// This Pine Script(tm) v6 indicator is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+//
+// GME Quant Regime Prediction
+//
+// Quantitative regime-adaptive indicator for GME.
+// Encodes statistically validated patterns:
+// - 4 volatility regimes (Low/Normal/High/Extreme)
+// - Volume anomaly detection (z-score breakouts)
+// - OBV divergence detection
+// - Volatility clustering (big moves follow big moves)
+// - ATR-scaled dynamic stops
+// 
+// Based on: 132% annual vol, Student-t df=1.95,
+// VaR 99% = -18.4%, lag-1 |return| ACF = 0.45
+//
+// Entry Logic:
+//   Long  - Normal/High regime + volume anomaly + OBV rising + RSI not overbought + (cluster starting OR regime rising)
+//   Short - Normal/High regime + volume anomaly + OBV falling + RSI not oversold + (cluster starting OR regime falling)
+
+//@version=6
+indicator("GME Quant Regime Prediction", shorttitle="GME-QRP", overlay=true, max_labels_count=500)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INPUTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+
+// --- Volatility Regime ---
+int    volWindow        = input.int(20, title="Volatility Window", minval=5)
+int    volAnnFactor     = input.int(252, title="Annualization Factor", minval=1)
+float  regimeHighMult   = input.float(1.5, title="High Regime Threshold (x median)", minval=0.5, step=0.1)
+float  regimeExtremeMult = input.float(2.5, title="Extreme Regime Threshold (x median)", minval=1.0, step=0.1)
+
+// --- Volume Anomaly ---
+int    volAnomalyWindow = input.int(60, title="Volume Anomaly Lookback", minval=10)
+float  volAnomalyZ      = input.float(3.0, title="Volume Z-Score Threshold", minval=1.0, step=0.5)
+
+// --- OBV Divergence ---
+int    obvDivLookback   = input.int(14, title="OBV Divergence Lookback", minval=5)
+
+// --- Volatility Clustering ---
+float  clusterThreshold = input.float(2.0, title="Cluster Threshold (x avg |return|)", minval=1.0, step=0.25)
+int    clusterCount     = input.int(2, title="Min Consecutive Large Moves", minval=1)
+
+// --- Risk Management ---
+int    atrLen           = input.int(14, title="ATR Length", minval=1)
+int    rsiLen           = input.int(14, title="RSI Length", minval=2)
+float  stopMult         = input.float(2.0, title="ATR Stop Multiplier", minval=0.5, step=0.25)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INDICATORS
+// ─────────────────────────────────────────────────────────────────────────────
+
+float rsiVal = ta.rsi(close, rsiLen)
+plot(rsiVal, title="RSI", color=color.new(color.gray, 100), display=display.data_window)
+float atrVal = ta.atr(atrLen)
+plot(atrVal, title="ATR", color=color.new(color.gray, 100), display=display.data_window)
+float obvRaw = ta.obv
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXTRA COMPUTATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ═══════════════════════════════════════════════════════════════
+// ROLLING REALIZED VOLATILITY
+// ═══════════════════════════════════════════════════════════════
+
+// Daily log returns
+float logRet = math.log(close / close[1])
+
+// Rolling realized vol (annualized)
+float realizedVol = ta.stdev(logRet, volWindow) * math.sqrt(volAnnFactor)
+
+// Historical median vol approximation (200-bar percentile)
+float medianVol = ta.percentile_nearest_rank(realizedVol, 200, 50)
+
+// ═══════════════════════════════════════════════════════════════
+// VOLATILITY REGIME CLASSIFICATION
+// 0 = Low, 1 = Normal, 2 = High, 3 = Extreme
+// ═══════════════════════════════════════════════════════════════
+
+float highThreshold = medianVol * regimeHighMult
+float extremeThreshold = medianVol * regimeExtremeMult
+float lowThreshold = medianVol * 0.5
+
+int regime = realizedVol >= extremeThreshold ? 3 : realizedVol >= highThreshold ? 2 : realizedVol <= lowThreshold ? 0 : 1
+
+// Regime transitions
+bool regimeUp = regime > regime[1] and regime[1] != 0
+bool regimeDown = regime < regime[1] and regime[1] != 0
+
+// ═══════════════════════════════════════════════════════════════
+// VOLUME ANOMALY DETECTION (Z-Score)
+// ═══════════════════════════════════════════════════════════════
+
+float volMean = ta.sma(volume, volAnomalyWindow)
+float volStd = ta.stdev(volume, volAnomalyWindow)
+float volZScore = volStd > 0 ? (volume - volMean) / volStd : 0
+bool volAnomaly = volZScore > volAnomalyZ
+
+// ═══════════════════════════════════════════════════════════════
+// OBV DIVERGENCE DETECTION
+// ═══════════════════════════════════════════════════════════════
+
+// Smoothed OBV for trend
+float obvSmooth = ta.ema(obvRaw, 5)
+float obvTrend = obvSmooth - obvSmooth[1]
+
+// Price making new high but OBV not confirming = bearish divergence
+float priceHigh = ta.highest(high, obvDivLookback)
+float obvHigh = ta.highest(obvRaw, obvDivLookback)
+bool obvBearDiv = high >= priceHigh and obvRaw < obvHigh * 0.95
+
+// Price making new low but OBV not confirming = bullish divergence
+float priceLow = ta.lowest(low, obvDivLookback)
+float obvLow = ta.lowest(obvRaw, obvDivLookback)
+bool obvBullDiv = low <= priceLow and obvRaw > obvLow * 1.05
+
+// ═══════════════════════════════════════════════════════════════
+// VOLATILITY CLUSTERING
+// Big moves follow big moves (ACF = 0.45)
+// ═══════════════════════════════════════════════════════════════
+
+float absRet = math.abs(logRet)
+float avgAbsRet = ta.sma(absRet, 20)
+bool largeMove = absRet > avgAbsRet * clusterThreshold
+
+// Count consecutive large moves
+var int clusterLen = 0
+if largeMove
+    clusterLen += 1
+else
+    clusterLen := 0
+
+bool clusterActive = clusterLen >= clusterCount
+
+// ═══════════════════════════════════════════════════════════════
+// DYNAMIC STOP LEVELS (ATR-scaled by regime)
+// ═══════════════════════════════════════════════════════════════
+
+// Wider stops in high-vol regimes (GME has Student-t df=1.95)
+float regimeStopScale = regime == 3 ? 3.0 : regime == 2 ? 2.0 : regime == 0 ? 1.0 : 1.5
+float dynamicStop = atrVal * stopMult * regimeStopScale
+
+// Stop price levels
+float longStopPrice = close - dynamicStop
+float shortStopPrice = close + dynamicStop
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SIGNAL LOGIC
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool longCondition = (regime == 1 or regime == 2) and volAnomaly and obvTrend > 0 and rsiVal < 70 and (clusterActive or regimeUp)
+bool shortCondition = (regime == 1 or regime == 2) and volAnomaly and obvTrend < 0 and rsiVal > 30 and (clusterActive or regimeDown)
+
+// Position state: +1 = long, -1 = short, 0 = flat
+var int posState = 0
+
+bool buySignal      = longCondition and posState != 1
+bool sellSignal     = shortCondition and posState != -1
+bool exitLongSignal  = posState == 1 and (regime == 3 or obvBearDiv or rsiVal > 80)
+bool exitShortSignal = posState == -1 and (regime == 3 or obvBullDiv or rsiVal < 20)
+
+// Update position state
+if buySignal
+    posState := 1
+else if sellSignal
+    posState := -1
+else if exitLongSignal or exitShortSignal
+    posState := 0
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LABELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+if true
+    if buySignal
+        label.new(bar_index, low, "Regime Buy",
+             style=label.style_label_up,
+             color=color.green,
+             textcolor=color.white,
+             size=size.small)
+    if sellSignal
+        label.new(bar_index, high, "Regime Sell",
+             style=label.style_label_down,
+             color=color.red,
+             textcolor=color.white,
+             size=size.small)
+    if exitLongSignal
+        label.new(bar_index, high, "Exit Long",
+             style=label.style_label_down,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+    if exitShortSignal
+        label.new(bar_index, low, "Exit Short",
+             style=label.style_label_up,
+             color=color.orange,
+             textcolor=color.white,
+             size=size.small)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BACKGROUND
+// ─────────────────────────────────────────────────────────────────────────────
+
+color bgColor = na
+
+if true
+    if posState == 1
+        bgColor := color.new(color.green, 90)
+    else if posState == -1
+        bgColor := color.new(color.red, 90)
+
+bgcolor(bgColor, title="Position Zone")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALERTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+alertcondition(buySignal,
+     title="Regime Buy",
+     message="GME Quant Regime Prediction: Regime Buy signal triggered.")
+alertcondition(sellSignal,
+     title="Regime Sell",
+     message="GME Quant Regime Prediction: Regime Sell signal triggered.")
+alertcondition(exitLongSignal,
+     title="Exit Long",
+     message="GME Quant Regime Prediction: Exit Long signal.")
+alertcondition(exitShortSignal,
+     title="Exit Short",
+     message="GME Quant Regime Prediction: Exit Short signal.")
+alertcondition((buySignal or sellSignal or exitLongSignal or exitShortSignal),
+     title="Any Signal",
+     message="GME Quant Regime Prediction: Signal triggered. Check chart.")
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADDITIONAL PLOTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ═══════════════════════════════════════════════════════════════
+// REGIME BACKGROUND COLORING
+// ═══════════════════════════════════════════════════════════════
+
+color regimeBg = regime == 3 ? color.new(color.red, 80) : regime == 2 ? color.new(color.orange, 85) : regime == 0 ? color.new(color.green, 90) : na
+bgcolor(regimeBg, title="Volatility Regime")
+
+// ═══════════════════════════════════════════════════════════════
+// VOLUME ANOMALY MARKERS
+// ═══════════════════════════════════════════════════════════════
+
+plotshape(volAnomaly, title="Volume Anomaly", style=shape.diamond, location=location.abovebar, color=color.new(color.yellow, 0), size=size.tiny)
+
+// ═══════════════════════════════════════════════════════════════
+// OBV DIVERGENCE MARKERS
+// ═══════════════════════════════════════════════════════════════
+
+plotshape(obvBearDiv, title="OBV Bear Divergence", style=shape.triangledown, location=location.abovebar, color=color.new(color.red, 20), size=size.tiny)
+plotshape(obvBullDiv, title="OBV Bull Divergence", style=shape.triangleup, location=location.belowbar, color=color.new(color.green, 20), size=size.tiny)
+
+// ═══════════════════════════════════════════════════════════════
+// DYNAMIC STOP LEVELS
+// ═══════════════════════════════════════════════════════════════
+
+plot(posState == 1 ? longStopPrice : na, title="Long Stop", color=color.new(color.red, 40), style=plot.style_linebr, linewidth=1)
+plot(posState == -1 ? shortStopPrice : na, title="Short Stop", color=color.new(color.green, 40), style=plot.style_linebr, linewidth=1)
+
+// ═══════════════════════════════════════════════════════════════
+// DATA WINDOW: Key metrics
+// ═══════════════════════════════════════════════════════════════
+
+plot(realizedVol * 100, title="Realized Vol %", color=color.new(color.gray, 100), display=display.data_window)
+plot(regime, title="Vol Regime (0-3)", color=color.new(color.gray, 100), display=display.data_window)
+plot(volZScore, title="Volume Z-Score", color=color.new(color.gray, 100), display=display.data_window)
+plot(clusterLen, title="Cluster Length", color=color.new(color.gray, 100), display=display.data_window)
+plot(dynamicStop, title="Dynamic Stop Width", color=color.new(color.gray, 100), display=display.data_window)

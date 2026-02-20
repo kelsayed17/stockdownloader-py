@@ -78,9 +78,40 @@ def main() -> None:
         default=[],
         help="Override parameter: --param key=value",
     )
+    # ML signal mode
+    parser.add_argument(
+        "--ml-signal",
+        dest="ml_signal",
+        metavar="SYMBOL",
+        help="Generate ML signal Pine Script for SYMBOL (fetches data & trains)",
+    )
+    parser.add_argument(
+        "--ml-model",
+        dest="ml_model",
+        metavar="PATH",
+        help="Path to trained model (for --ml-signal mode)",
+    )
+    parser.add_argument(
+        "--pine-depth",
+        type=int,
+        default=6,
+        help="Surrogate tree depth for --ml-signal (default: 6)",
+    )
+    parser.add_argument(
+        "--pine-top-features",
+        type=int,
+        default=15,
+        dest="pine_top_features",
+        help="Number of features for --ml-signal (default: 15)",
+    )
     args = parser.parse_args()
 
     gen = PineScriptGenerator()
+
+    # ---- ML signal mode ----
+    if args.ml_signal:
+        _handle_ml_signal(args, gen)
+        return
 
     # ---- Composite mode ----
     if args.composite:
@@ -211,6 +242,74 @@ def main() -> None:
         print(f"Written to {out_path}")
     else:
         print(pine)
+
+
+def _handle_ml_signal(args: argparse.Namespace, gen: PineScriptGenerator) -> None:
+    """Generate ML signal Pine Script from trained model or fresh training."""
+    try:
+        from stockdownloader.ml.dataset_builder import DatasetBuilder, LabelConfig
+        from stockdownloader.ml.feature_extractor import FeatureExtractor
+        from stockdownloader.ml.trainer import MLModelConfig, MLTrainer
+        from stockdownloader.util.pinescript_ml_strategy import (
+            DecisionTreeExporter,
+            ml_signal_strategy,
+        )
+    except ImportError:
+        print(
+            "ERROR: ML dependencies not installed.\n"
+            "Install ML extras: pip install -e '.[ml]'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    symbol = args.ml_signal.upper()
+
+    # Fetch data and build dataset
+    from stockdownloader.app.app_helpers import fetch_daily_data
+
+    print(f"Fetching {symbol} data...")
+    data = fetch_daily_data(symbol, period="5y")
+    if not data:
+        print(f"ERROR: Could not fetch data for {symbol}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Building dataset from {len(data)} bars...")
+    extractor = FeatureExtractor()
+    builder = DatasetBuilder(extractor)
+    dataset = builder.build(data)
+
+    # Get feature importances (train quick model or load existing)
+    print("Training model for feature importances...")
+    cfg = MLModelConfig(n_estimators=100, max_depth=4)
+    trainer = MLTrainer(cfg)
+    result = trainer.train(dataset)
+
+    print(f"Model accuracy: {result.oos_accuracy:.3f}")
+
+    # Train surrogate and export
+    exporter = DecisionTreeExporter(
+        max_depth=args.pine_depth,
+        min_samples_leaf=20,
+    )
+    exporter.train_surrogate(
+        dataset, result.feature_importances,
+        top_n=args.pine_top_features,
+    )
+
+    strategy = ml_signal_strategy(symbol, exporter)
+    pine_code = gen.generate(strategy)
+
+    if args.output:
+        out_path = Path(args.output)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(pine_code)
+        print(f"Pine Script written to {out_path}")
+    else:
+        out_dir = Path(args.output_dir) if args.output_dir else Path("output/pinescript")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"{symbol.lower()}_ml_signal.pine"
+        out_path.write_text(pine_code)
+        print(f"Pine Script written to {out_path}")
 
 
 if __name__ == "__main__":

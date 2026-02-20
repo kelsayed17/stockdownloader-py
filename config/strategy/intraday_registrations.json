@@ -1,0 +1,397 @@
+{
+    "_doc": "Intraday strategy registrations. Decimal values stored as strings prefixed with D: (e.g. \"D:1.5\").",
+    "vwap-pullback": {
+        "display_name": "VWAP Pullback",
+        "module": "stockdownloader.strategy.intraday.pullback_strategy",
+        "class": "PullbackStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "rr": [
+                "D:1.4",
+                "D:1.6",
+                "D:1.8",
+                "D:2.0"
+            ],
+            "sl_atr": [
+                "D:1.0",
+                "D:1.3",
+                "D:1.5"
+            ],
+            "sl_cap": [
+                "D:1.50",
+                "D:2.00",
+                "D:2.50"
+            ],
+            "be_trigger": [
+                "D:0.3",
+                "D:0.5",
+                "D:0.7"
+            ],
+            "min_score": [
+                3,
+                4,
+                5
+            ],
+            "adx_thresh": [
+                "D:18",
+                "D:20",
+                "D:22"
+            ],
+            "pb_zone": [
+                "D:0.3",
+                "D:0.5",
+                "D:0.7"
+            ],
+            "pb_body": [
+                "D:0.15",
+                "D:0.20",
+                "D:0.25"
+            ],
+            "trail_buf": [
+                "D:0.10",
+                "D:0.15",
+                "D:0.20"
+            ],
+            "pb_tp_mode": [
+                "rr",
+                "vwap"
+            ]
+        }
+    },
+    "vwap-reversal": {
+        "display_name": "VWAP Reversal",
+        "module": "stockdownloader.strategy.intraday.reversal_strategy",
+        "class": "ReversalStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "rev_body": [
+                "D:0.10",
+                "D:0.15",
+                "D:0.20",
+                "D:0.25"
+            ],
+            "rev_sl_atr": [
+                "D:0.8",
+                "D:1.0",
+                "D:1.3"
+            ],
+            "rev_min_rr": [
+                "D:0.2",
+                "D:0.3",
+                "D:0.5"
+            ],
+            "rev_hug_limit": [
+                15,
+                20,
+                30,
+                40
+            ],
+            "rev_shorts": [
+                true,
+                false
+            ],
+            "adx_thresh": [
+                "D:21",
+                "D:25",
+                "D:30"
+            ],
+            "be_trigger": [
+                "D:0.3",
+                "D:0.5",
+                "D:0.7"
+            ],
+            "rev_band": [
+                "1\u03c3",
+                "1.5\u03c3",
+                "2\u03c3"
+            ],
+            "rev_tp_mode": [
+                "vwap",
+                "rr"
+            ],
+            "rev_rr": [
+                "D:0.8",
+                "D:1.0",
+                "D:1.5"
+            ],
+            "max_day": [
+                2,
+                3,
+                4
+            ],
+            "rev_vwap_flat_tol": [
+                "D:0.10",
+                "D:0.15",
+                "D:0.20"
+            ]
+        }
+    },
+    "vwap-orb": {
+        "display_name": "OR Breakout",
+        "module": "stockdownloader.strategy.intraday.or_breakout_strategy",
+        "class": "ORBreakoutStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "orb_window": [
+                20,
+                30,
+                45
+            ],
+            "orb_rvol": [
+                "D:1.5",
+                "D:2.0",
+                "D:2.5"
+            ],
+            "orb_body_min": [
+                "D:0.20",
+                "D:0.25",
+                "D:0.30"
+            ],
+            "orb_trail_atr": [
+                "D:0.5",
+                "D:0.8",
+                "D:1.0"
+            ],
+            "orb_sl_mode": [
+                "OR Midpoint",
+                "ATR-Based"
+            ],
+            "orb_entry_mode": [
+                "aggressive",
+                "retest"
+            ],
+            "orb_tp_mode": [
+                "or_range",
+                "2x_or_range"
+            ],
+            "be_trigger": [
+                "D:0.3",
+                "D:0.5",
+                "D:0.7"
+            ]
+        }
+    },
+    "vwap-orr": {
+        "display_name": "OR Reversal",
+        "module": "stockdownloader.strategy.intraday.or_reversal_strategy",
+        "class": "ORReversalStrategy",
+        "default_kwargs": {},
+        "param_space": {}
+    },
+    "vwap-ps": {
+        "display_name": "Pattern Scalp",
+        "module": "stockdownloader.strategy.intraday.pattern_scalp_strategy",
+        "class": "PatternScalpStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "ps_atr_pct": [
+                "D:15.0",
+                "D:20.0",
+                "D:25.0"
+            ],
+            "ps_window": [
+                20,
+                35,
+                50
+            ],
+            "ps_tp_pct": [
+                "D:50.0",
+                "D:75.0",
+                "D:100.0"
+            ],
+            "ps_rvol": [
+                "D:1.0",
+                "D:1.5",
+                "D:2.0"
+            ],
+            "ps_engulf": [
+                "D:0.15",
+                "D:0.20",
+                "D:0.25"
+            ],
+            "ps_min_rr": [
+                "D:1.2",
+                "D:1.5",
+                "D:2.0"
+            ],
+            "ps_sl_atr": [
+                "D:1.0",
+                "D:1.3",
+                "D:1.5"
+            ],
+            "ps_sl_mode": [
+                "Day Extreme",
+                "ATR-Based"
+            ],
+            "be_trigger": [
+                "D:0.3",
+                "D:0.5",
+                "D:0.7"
+            ]
+        }
+    },
+    "avwap-pullback": {
+        "display_name": "AVWAP Pullback",
+        "module": "stockdownloader.strategy.intraday.avwap_pullback_strategy",
+        "class": "AVWAPPullbackStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "avwap_zone_atr": [
+                "D:0.5",
+                "D:0.8",
+                "D:1.0",
+                "D:1.5",
+                "D:2.0"
+            ],
+            "avwap_min_days": [
+                1,
+                2,
+                3,
+                5
+            ],
+            "avwap_max_days": [
+                30,
+                45,
+                60,
+                90
+            ],
+            "avwap_body_min": [
+                "D:0.10",
+                "D:0.15",
+                "D:0.20"
+            ],
+            "avwap_sl_atr": [
+                "D:1.0",
+                "D:1.3",
+                "D:1.5",
+                "D:2.0"
+            ],
+            "avwap_rr": [
+                "D:1.0",
+                "D:1.2",
+                "D:1.5",
+                "D:2.0"
+            ],
+            "avwap_tp_mode": [
+                "rr",
+                "session_vwap",
+                "avwap_band"
+            ],
+            "avwap_session_vwap_agree": [
+                true,
+                false
+            ],
+            "avwap_trend_bars": [
+                0,
+                2,
+                3,
+                5
+            ],
+            "avwap_htf_align": [
+                true,
+                false
+            ],
+            "be_trigger": [
+                "D:0.3",
+                "D:0.5",
+                "D:0.7"
+            ],
+            "spacing": [
+                2,
+                3,
+                5
+            ],
+            "max_day": [
+                1,
+                2,
+                3
+            ]
+        }
+    },
+    "ml-oversold": {
+        "display_name": "ML Oversold Reversion",
+        "module": "stockdownloader.strategy.intraday.ml_oversold_strategy",
+        "class": "MLOversoldStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "ml_threshold": [
+                "D:0.55",
+                "D:0.60",
+                "D:0.65",
+                "D:0.70"
+            ],
+            "ml_sl_atr": [
+                "D:1.0",
+                "D:1.5",
+                "D:2.0"
+            ],
+            "ml_sl_cap": [
+                "D:2.00",
+                "D:2.50",
+                "D:3.00"
+            ],
+            "spacing": [
+                5,
+                8,
+                12
+            ],
+            "max_day": [
+                1,
+                2,
+                3
+            ]
+        }
+    },
+    "smc-structure": {
+        "display_name": "SMC Structure",
+        "module": "stockdownloader.strategy.intraday.smc_structure_strategy",
+        "class": "SMCStructureStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "smc_swing_lookback": [
+                5,
+                7,
+                10
+            ],
+            "smc_min_impulse_atr": [
+                "D:2.0",
+                "D:2.5",
+                "D:3.0"
+            ],
+            "smc_zone_atr": [
+                "D:0.5",
+                "D:0.8",
+                "D:1.0"
+            ],
+            "smc_body_min": [
+                "D:0.15",
+                "D:0.20",
+                "D:0.25"
+            ],
+            "smc_sl_atr": [
+                "D:1.0",
+                "D:1.3",
+                "D:1.5"
+            ],
+            "smc_rr": [
+                "D:1.5",
+                "D:2.0",
+                "D:2.5"
+            ],
+            "smc_tp_mode": [
+                "rr",
+                "swing"
+            ],
+            "smc_min_age": [
+                10,
+                15,
+                20
+            ],
+            "be_trigger": [
+                "D:0.3",
+                "D:0.5",
+                "D:0.7"
+            ]
+        }
+    }
+}

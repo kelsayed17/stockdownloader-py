@@ -114,6 +114,32 @@ def get_raw_string(obj: dict, field: str) -> str:
     return str(val)
 
 
+def get_raw_decimal(obj: dict, field: str) -> Decimal:
+    """Extract a Decimal from a Yahoo Finance JSON field.
+
+    Handles the ``{"raw": ..., "fmt": "..."}`` wrapper format as well
+    as direct numeric values.  Returns ``Decimal(0)`` on failure.
+    """
+    val = obj.get(field)
+    if val is None:
+        return Decimal(0)
+
+    # Yahoo Finance wraps numeric values in {"raw": ..., "fmt": ...}
+    if isinstance(val, dict):
+        raw = val.get("raw")
+        if raw is not None:
+            try:
+                return Decimal(str(raw))
+            except (InvalidOperation, ValueError, TypeError):
+                return Decimal(0)
+
+    # Direct numeric value
+    try:
+        return Decimal(str(val))
+    except (InvalidOperation, ValueError, TypeError):
+        return Decimal(0)
+
+
 def format_market_cap(market_cap: int) -> str:
     """Format a market cap integer as a human-readable string."""
     if market_cap >= 1_000_000_000:

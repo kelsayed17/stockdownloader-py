@@ -19,7 +19,7 @@ from stockdownloader.strategy.intraday.entry_helpers import clamp_sl_dist, direc
 from stockdownloader.strategy.intraday.pullback_config import PullbackStrategyConfig
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
-from stockdownloader.util.pinescript_strategies import _pb_mode
+from stockdownloader.util.pinescript_modes import pb_mode as _pb_mode
 
 _ZERO = Decimal("0")
 _D = Decimal
@@ -32,13 +32,13 @@ _D = Decimal
 class TestPBVwapBias:
     """VWAP session bias filter blocks entries without VWAP-side dominance."""
 
-    def test_disabled_by_default(self) -> None:
+    def test_enabled_by_default(self) -> None:
         config = PullbackStrategyConfig()
-        assert config.pb_vwap_bias is False
+        assert config.pb_vwap_bias is True
 
     def test_default_bias_pct(self) -> None:
         config = PullbackStrategyConfig()
-        assert config.pb_vwap_bias_pct == _D("0.7")
+        assert config.pb_vwap_bias_pct == _D("0.6")
 
     def test_bias_enabled(self) -> None:
         config = PullbackStrategyConfig(pb_vwap_bias=True)
@@ -134,10 +134,10 @@ class TestPBConfig:
     """Config and protocol satisfaction tests."""
 
     def test_backward_compat_defaults(self) -> None:
-        """All new PB params default to off/disabled."""
+        """PB config default values."""
         config = PullbackStrategyConfig()
-        assert config.pb_vwap_bias is False
-        assert config.pb_vwap_bias_pct == _D("0.7")
+        assert config.pb_vwap_bias is True
+        assert config.pb_vwap_bias_pct == _D("0.6")
         assert config.pb_require_sr is False
         assert config.pb_tp_mode == "rr"
 

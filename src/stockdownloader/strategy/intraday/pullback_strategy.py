@@ -18,20 +18,21 @@ from stockdownloader.strategy.intraday.entry_helpers import (
     make_entry_signal,
 )
 from stockdownloader.strategy.intraday.exit_manager import IntradayExitManager
-from stockdownloader.strategy.intraday.infra import BarContext, IntradayInfra
+from stockdownloader.strategy.intraday.bar_context import BarContext
+from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import VwapRatchetTrail
-from stockdownloader.strategy.intraday_trading_strategy import IntradayTradingStrategy
+from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.util.intraday_indicators import candle_strength
 from stockdownloader.util.big_decimal_math import ZERO
 from stockdownloader.util.pinescript_models import ModeDefinition
-from stockdownloader.util.pinescript_strategies import _pb_mode
+from stockdownloader.util.pinescript_modes import pb_mode
 
 if TYPE_CHECKING:
     from stockdownloader.model.intraday_price_data import IntradayPriceData
     from stockdownloader.strategy.intraday.pullback_config import PullbackStrategyConfig
 
 
-class PullbackStrategy(IntradayTradingStrategy):
+class PullbackStrategy(BaseIntradayStrategy):
     """Standalone VWAP Pullback strategy.
 
     Trend-following entry: ADX confirms trending market, EMA aligned,
@@ -50,27 +51,11 @@ class PullbackStrategy(IntradayTradingStrategy):
     @staticmethod
     def pinescript_mode() -> ModeDefinition:
         """Return the PineScript mode definition for VWAP Pullback."""
-        return _pb_mode()
+        return pb_mode()
 
     @property
     def name(self) -> str:
         return "VWAP Pullback"
-
-    @property
-    def warmup_period(self) -> int:
-        return self._infra.warmup_period
-
-    def on_session_start(self, trading_date: str) -> None:
-        self._infra.on_session_start(trading_date)
-
-    def on_position_opened(self, is_long: bool) -> None:
-        self._infra.confirm_position_opened(is_long)
-
-    def on_position_closed(self) -> None:
-        self._infra.confirm_position_closed()
-
-    def evaluate(self, data: list[IntradayPriceData], current_index: int) -> IntradaySignal:
-        return self._infra.run_bar(data, current_index, self._evaluate_entry, self._ENTRY_FLAGS)
 
     def _evaluate_entry(self, ctx: BarContext) -> IntradaySignal | None:
         c = self._c
@@ -189,7 +174,7 @@ class PullbackStrategy(IntradayTradingStrategy):
             return None
 
         # -- Confluence scoring --
-        pts_vol = c.w_vol if ctx.tod_rvol < Decimal("1") else (1 if ctx.tod_rvol < Decimal("2") else 0)
+        pts_vol = c.w_vol if ctx.tod_rvol >= Decimal("1.0") else 0
         pts_sr = c.w_sr if ctx.sr_score_count > 0 else 0
         pts_sr2 = 1 if ctx.sr_score_count >= 2 else 0
         pts_time = c.w_time if ctx.is_good_time else 0

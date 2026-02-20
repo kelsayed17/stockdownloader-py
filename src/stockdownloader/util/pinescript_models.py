@@ -54,10 +54,11 @@ class Input:
 
     @staticmethod
     def float_(name: str, default: float, title: str,
-               min_val: float = 0.0, step: float = 0.5,
-               group: str = "") -> Input:
+               min_val: float = 0.0, max_val: float | None = None,
+               step: float = 0.5, group: str = "") -> Input:
         return Input(name, InputType.FLOAT, default, title,
-                     min_val=min_val, step=step, group=group)
+                     min_val=min_val, max_val=max_val,
+                     step=step, group=group)
 
     @staticmethod
     def bool_(name: str, default: bool, title: str,
@@ -316,6 +317,34 @@ class StrategyDefinition:
 
     # Description comment
     description: str = ""
+
+    # ------------------------------------------------------------------
+    # Strategy mode (when True, emit strategy() instead of indicator())
+    # ------------------------------------------------------------------
+    strategy_mode: bool = False
+
+    # Strategy infrastructure (only used when strategy_mode=True)
+    initial_capital: float = 100000.0
+    commission_per_order: float = 1.0   # $ per order (cash_per_order)
+    slippage: int = 1                   # ticks
+
+    # Position sizing
+    risk_per_trade_pct: float = 1.0     # % of capital risked per trade
+    use_fixed_capital: bool = True      # True = size from initial_capital
+
+    # Exit management
+    sl_atr_mult: float = 1.5           # SL = ATR × this
+    sl_cap_dollars: float = 2.0        # hard dollar cap on SL
+    rr_ratio: float = 1.5             # TP = SL × this
+    be_trigger: float = 0.5           # move SL to BE at this fraction of risk
+
+    # Risk management
+    max_trades_per_day: int = 4
+    min_bars_between: int = 3
+    circuit_breaker_losses: int = 3
+    daily_loss_limit_pct: float = 3.0
+    close_eod: bool = True
+    barstate_confirmed: bool = True
 
 
 @dataclass(slots=True)

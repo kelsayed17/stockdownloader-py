@@ -922,10 +922,10 @@ class TestSlippage:
         assert result.trades[0].shares == 50
         assert result.final_capital == _d(11000)
 
-    def test_default_slippage_is_5_bps(self):
-        """Default slippage should be 5 bps (0.0005)."""
+    def test_default_slippage_is_2_bps(self):
+        """Default slippage should be 2 bps (0.0002)."""
         engine = IntradayBacktestEngine(initial_capital=_d(10000))
-        assert engine._slippage_pct == _d("0.0005")
+        assert engine._slippage_pct == _d("0.0002")
 
     def test_slippage_exact_long_final_capital(self):
         """Verify exact P/L with known slippage on a long trade.

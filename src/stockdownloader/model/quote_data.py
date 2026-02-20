@@ -25,6 +25,10 @@ class QuoteData:
     days_low: Decimal = field(default_factory=lambda: Decimal("0"))
     volume: Decimal = field(default_factory=lambda: Decimal("0"))
     year_range: str = ""
+    trailing_pe: Decimal = field(default_factory=lambda: Decimal("0"))
+    forward_pe: Decimal = field(default_factory=lambda: Decimal("0"))
+    price_to_book: Decimal = field(default_factory=lambda: Decimal("0"))
+    book_value: Decimal = field(default_factory=lambda: Decimal("0"))
     market_capitalization_str: str = ""
     market_capitalization: int = 0
     incomplete: bool = False

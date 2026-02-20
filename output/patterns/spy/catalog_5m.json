@@ -1,0 +1,338 @@
+{
+  "patterns": [
+    {
+      "key": [
+        {
+          "body_type": "bull",
+          "body_strength": "moderate",
+          "wick_signal": "no_wick",
+          "relative_size": "normal",
+          "volume_profile": "low"
+        },
+        {
+          "body_type": "bull",
+          "body_strength": "strong",
+          "wick_signal": "no_wick",
+          "relative_size": "normal",
+          "volume_profile": "normal"
+        }
+      ],
+      "direction": "long",
+      "best_horizon": 20,
+      "avg_return": 0.12203171156983851,
+      "win_rate": 0.9,
+      "occurrences": 23,
+      "t_stat": 3.116753100128239,
+      "p_value": 0.005678940415753403,
+      "avg_mae": -0.1334914864855744,
+      "avg_mfe": 0.23020654872117255,
+      "risk_reward": 1.7245035978084604,
+      "walk_forward_stable": false,
+      "human_label": "2-bar: bull-moderate / bull-strong \u2192 LONG 20b",
+      "confirmation": {
+        "vwap_position": "at"
+      },
+      "timeframe": "5m",
+      "effect_size": 0.6969271800969952,
+      "dominant_regime": "weak_trend",
+      "regime_breakdown": {
+        "weak_trend": 11,
+        "high_volatility": 7,
+        "mean_reverting": 5
+      }
+    },
+    {
+      "key": [
+        {
+          "body_type": "doji",
+          "body_strength": "weak",
+          "wick_signal": "both_wick",
+          "relative_size": "small",
+          "volume_profile": "normal"
+        },
+        {
+          "body_type": "bear",
+          "body_strength": "strong",
+          "wick_signal": "no_wick",
+          "relative_size": "normal",
+          "volume_profile": "normal"
+        }
+      ],
+      "direction": "long",
+      "best_horizon": 1,
+      "avg_return": 0.050685090027971655,
+      "win_rate": 0.6363636363636364,
+      "occurrences": 22,
+      "t_stat": 2.996298633083936,
+      "p_value": 0.006879766222954065,
+      "avg_mae": -0.24482283743717162,
+      "avg_mfe": 0.26725157628887913,
+      "risk_reward": 1.091612118732442,
+      "walk_forward_stable": false,
+      "human_label": "2-bar: doji+bothwick / bear-strong \u2192 LONG 1b",
+      "confirmation": {
+        "vwap_position": "below",
+        "rsi_zone": "neutral"
+      },
+      "timeframe": "5m",
+      "effect_size": 0.6388130149888315,
+      "dominant_regime": "weak_trend",
+      "regime_breakdown": {
+        "high_volatility": 4,
+        "mean_reverting": 6,
+        "weak_trend": 12
+      }
+    },
+    {
+      "key": [
+        {
+          "body_type": "doji",
+          "body_strength": "weak",
+          "wick_signal": "both_wick",
+          "relative_size": "small",
+          "volume_profile": "normal"
+        },
+        {
+          "body_type": "bull",
+          "body_strength": "moderate",
+          "wick_signal": "no_wick",
+          "relative_size": "small",
+          "volume_profile": "normal"
+        }
+      ],
+      "direction": "long",
+      "best_horizon": 10,
+      "avg_return": 0.09780726171728499,
+      "win_rate": 0.7083333333333334,
+      "occurrences": 25,
+      "t_stat": 2.5233845535618586,
+      "p_value": 0.018987235252255964,
+      "avg_mae": -0.15777132353040105,
+      "avg_mfe": 0.22106749522608798,
+      "risk_reward": 1.4011893307308814,
+      "walk_forward_stable": false,
+      "human_label": "2-bar: doji+bothwick / bull-moderate \u2192 LONG 10b",
+      "confirmation": {
+        "vwap_position": "above"
+      },
+      "timeframe": "5m",
+      "effect_size": 0.5150837150872736,
+      "dominant_regime": "weak_trend",
+      "regime_breakdown": {
+        "weak_trend": 15,
+        "high_volatility": 3,
+        "mean_reverting": 7
+      }
+    },
+    {
+      "key": [
+        {
+          "body_type": "bear",
+          "body_strength": "strong",
+          "wick_signal": "no_wick",
+          "relative_size": "large",
+          "volume_profile": "normal"
+        },
+        {
+          "body_type": "bear",
+          "body_strength": "moderate",
+          "wick_signal": "no_wick",
+          "relative_size": "normal",
+          "volume_profile": "normal"
+        }
+      ],
+      "direction": "long",
+      "best_horizon": 5,
+      "avg_return": 0.10704149714383394,
+      "win_rate": 0.7352941176470589,
+      "occurrences": 35,
+      "t_stat": 2.241300217892253,
+      "p_value": 0.03185163169083023,
+      "avg_mae": -0.2196416191013354,
+      "avg_mfe": 0.30664969612177145,
+      "risk_reward": 1.3961365672700372,
+      "walk_forward_stable": true,
+      "human_label": "2-bar: bear-strong+large / bear-moderate \u2192 LONG 5b",
+      "confirmation": {
+        "vwap_position": "below",
+        "macd_signal": "bearish"
+      },
+      "timeframe": "5m",
+      "effect_size": 0.3843798162481181,
+      "dominant_regime": "weak_trend",
+      "regime_breakdown": {
+        "weak_trend": 20,
+        "mean_reverting": 7,
+        "high_volatility": 8
+      }
+    },
+    {
+      "key": [
+        {
+          "body_type": "bear",
+          "body_strength": "strong",
+          "wick_signal": "no_wick",
+          "relative_size": "large",
+          "volume_profile": "normal"
+        },
+        {
+          "body_type": "bear",
+          "body_strength": "strong",
+          "wick_signal": "no_wick",
+          "relative_size": "normal",
+          "volume_profile": "normal"
+        }
+      ],
+      "direction": "long",
+      "best_horizon": 3,
+      "avg_return": 0.05332014610632295,
+      "win_rate": 0.625,
+      "occurrences": 24,
+      "t_stat": 2.2305399290181214,
+      "p_value": 0.03575370543877663,
+      "avg_mae": -0.23962160285281017,
+      "avg_mfe": 0.26877792505220677,
+      "risk_reward": 1.12167651769405,
+      "walk_forward_stable": false,
+      "human_label": "2-bar: bear-strong+large / bear-strong \u2192 LONG 3b",
+      "confirmation": null,
+      "timeframe": "5m",
+      "effect_size": 0.4553070564165172,
+      "dominant_regime": "weak_trend",
+      "regime_breakdown": {
+        "high_volatility": 9,
+        "weak_trend": 11,
+        "mean_reverting": 4
+      }
+    },
+    {
+      "key": [
+        {
+          "body_type": "bull",
+          "body_strength": "moderate",
+          "wick_signal": "no_wick",
+          "relative_size": "small",
+          "volume_profile": "normal"
+        },
+        {
+          "body_type": "bull",
+          "body_strength": "strong",
+          "wick_signal": "no_wick",
+          "relative_size": "normal",
+          "volume_profile": "normal"
+        }
+      ],
+      "direction": "long",
+      "best_horizon": 3,
+      "avg_return": 0.032035091805295526,
+      "win_rate": 0.7428571428571429,
+      "occurrences": 35,
+      "t_stat": 2.1812026767048005,
+      "p_value": 0.03617971322137586,
+      "avg_mae": -0.15410437774751531,
+      "avg_mfe": 0.2648731085878221,
+      "risk_reward": 1.7187902930427474,
+      "walk_forward_stable": false,
+      "human_label": "2-bar: bull-moderate / bull-strong \u2192 LONG 3b",
+      "confirmation": {
+        "adx_level": "weak",
+        "trend_dir": "1"
+      },
+      "timeframe": "5m",
+      "effect_size": 0.3686905445284582,
+      "dominant_regime": "weak_trend",
+      "regime_breakdown": {
+        "mean_reverting": 8,
+        "high_volatility": 6,
+        "weak_trend": 21
+      }
+    },
+    {
+      "key": [
+        {
+          "body_type": "bear",
+          "body_strength": "strong",
+          "wick_signal": "no_wick",
+          "relative_size": "large",
+          "volume_profile": "normal"
+        },
+        {
+          "body_type": "bear",
+          "body_strength": "strong",
+          "wick_signal": "no_wick",
+          "relative_size": "large",
+          "volume_profile": "normal"
+        }
+      ],
+      "direction": "long",
+      "best_horizon": 5,
+      "avg_return": 0.06525944249242722,
+      "win_rate": 0.5813953488372093,
+      "occurrences": 44,
+      "t_stat": 2.107105018922685,
+      "p_value": 0.041120913569630595,
+      "avg_mae": -0.2320862897526519,
+      "avg_mfe": 0.28806729812971976,
+      "risk_reward": 1.2412077354363764,
+      "walk_forward_stable": false,
+      "human_label": "2-bar: bear-strong+large / bear-strong+large \u2192 LONG 5b",
+      "confirmation": {
+        "adx_level": "strong",
+        "trend_dir": "-1"
+      },
+      "timeframe": "5m",
+      "effect_size": 0.32133050292636534,
+      "dominant_regime": "high_volatility",
+      "regime_breakdown": {
+        "high_volatility": 22,
+        "weak_trend": 18,
+        "mean_reverting": 4
+      }
+    },
+    {
+      "key": [
+        {
+          "body_type": "doji",
+          "body_strength": "weak",
+          "wick_signal": "both_wick",
+          "relative_size": "normal",
+          "volume_profile": "normal"
+        },
+        {
+          "body_type": "bull",
+          "body_strength": "moderate",
+          "wick_signal": "no_wick",
+          "relative_size": "normal",
+          "volume_profile": "normal"
+        }
+      ],
+      "direction": "long",
+      "best_horizon": 1,
+      "avg_return": 0.0309632020925463,
+      "win_rate": 0.76,
+      "occurrences": 25,
+      "t_stat": 2.068199891904505,
+      "p_value": 0.0495610998513401,
+      "avg_mae": -0.2701514871371118,
+      "avg_mfe": 0.2666755879432045,
+      "risk_reward": 0.9871335181947634,
+      "walk_forward_stable": true,
+      "human_label": "2-bar: doji+bothwick / bull-moderate \u2192 LONG 1b",
+      "confirmation": {
+        "adx_level": "moderate"
+      },
+      "timeframe": "5m",
+      "effect_size": 0.413639978380901,
+      "dominant_regime": "weak_trend",
+      "regime_breakdown": {
+        "weak_trend": 13,
+        "mean_reverting": 7,
+        "high_volatility": 5
+      }
+    }
+  ],
+  "discovery_date": "2026-02-19T20:46:04",
+  "data_range": "2024-02-20 to 2025-05-01",
+  "total_bars_scanned": 23316,
+  "total_patterns_tested": 28025
+}

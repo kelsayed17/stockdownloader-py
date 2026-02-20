@@ -297,10 +297,10 @@ def test_sortino_capped_at_3():
 
 
 def test_score_v2_zero_trades_heavily_penalised():
-    """Zero trades should get (MIN_TRADES * 3) penalty = 240 points."""
+    """Zero trades should get 100-point disqualification penalty."""
     r = _result(equity=["100000", "100000", "100000"])
     s = score_v2(r)
-    assert s < -200  # 80 * 3 = 240 point penalty
+    assert s < -90  # 100 point disqualification for < 5 trades
 
 
 def test_score_v2_monotonic_with_pnl_for_losers():

@@ -38,6 +38,7 @@ class StockListDownloader:
         self._zacks_list: set[str] = set()
         self._earnings_list: set[str] = set()
         self._incomplete_list: set[str] = set()
+        self._ticker_metadata: dict[str, dict[str, str]] = {}
 
     # ------------------------------------------------------------------
     # Download methods
@@ -192,12 +193,19 @@ class StockListDownloader:
     def incomplete_list(self) -> Set[str]:
         return frozenset(self._incomplete_list)
 
+    @property
+    def ticker_metadata(self) -> dict[str, dict[str, str]]:
+        """Return per-ticker metadata (sector, industry, market_cap) from
+        the Nasdaq screener API.  Only populated after :meth:`download_nasdaq`
+        or :meth:`download_others` has been called.
+        """
+        return dict(self._ticker_metadata)
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def _download_from_nasdaq_api(exchange: str) -> set[str]:
+    def _download_from_nasdaq_api(self, exchange: str) -> set[str]:
         """Download stock tickers from the Nasdaq screener API."""
         tickers: set[str] = set()
         url = (
@@ -218,7 +226,12 @@ class StockListDownloader:
         if data is None:
             return tickers
 
+        # Response may have rows at data.rows or data.table.rows
         rows = data.get("rows")
+        if rows is None:
+            table = data.get("table")
+            if table is not None:
+                rows = table.get("rows")
         if rows is None:
             return tickers
 
@@ -228,6 +241,16 @@ class StockListDownloader:
                 ticker = symbol.strip()
                 if ticker:
                     tickers.add(ticker)
+                    # Extract metadata when available
+                    sector = row.get("sector", "")
+                    industry = row.get("industry", "")
+                    market_cap_str = row.get("marketCap", "")
+                    if sector or industry or market_cap_str:
+                        self._ticker_metadata[ticker] = {
+                            "sector": str(sector).strip() if sector else "",
+                            "industry": str(industry).strip() if industry else "",
+                            "market_cap": str(market_cap_str).strip() if market_cap_str else "",
+                        }
 
         return tickers
 

@@ -18,16 +18,16 @@ class PatternScalpStrategyConfig(InfraExitConfig):
 
     # ── PS entry ────────────────────────────────────────────────────────
     ps_enable: bool = True
-    ps_window: int = 50
-    ps_engulf: Decimal = Decimal("0.15")
-    ps_rvol: Decimal = Decimal("0.8")
-    ps_sma_filter: bool = False
-    ps_sl_mode: str = "Day Extreme"
-    ps_sl_atr: Decimal = Decimal("1.5")
-    ps_sl_cap: Decimal = Decimal("2.50")
+    ps_atr_pct: Decimal = Decimal("20.0")      # 20% of daily ATR → more manipulation days
+    ps_window: int = 35                        # Wider window for more setups
+    ps_engulf: Decimal = Decimal("0.25")       # 25% body-to-range (research minimum)
+    ps_rvol: Decimal = Decimal("1.5")          # Require above-average volume
+    ps_sma_filter: bool = True                 # Require SMA alignment
+    ps_sl_mode: str = "ATR-Based"
+    ps_sl_atr: Decimal = Decimal("1.3")        # Tighter SL
+    ps_sl_cap: Decimal = Decimal("1.50")       # Tighter cap
     ps_tp_pct: Decimal = Decimal("75.0")
+    ps_min_rr: Decimal = Decimal("1.5")        # Higher R:R to protect against losses
+    ps_htf_align: bool = True
 
-    # ── Shared with entry logic ─────────────────────────────────────────
-    allow_longs: bool = True
-    allow_shorts: bool = True
-    w_sr: int = 2
+    # allow_longs, allow_shorts, w_sr inherited from base

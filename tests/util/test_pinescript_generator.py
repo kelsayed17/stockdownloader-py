@@ -417,9 +417,18 @@ class TestPrebuiltStrategies:
     def _validate_pine(self, pine: str, name: str):
         """Basic validation that generated Pine Script is well-formed."""
         assert '//@version=6' in pine, f"{name}: missing version"
-        assert 'indicator(' in pine, f"{name}: missing indicator()"
-        assert 'alertcondition(' in pine, f"{name}: missing alerts"
-        assert 'posState' in pine, f"{name}: missing position state"
+        # Strategy mode uses strategy(), indicator mode uses indicator()
+        assert ('indicator(' in pine or 'strategy(' in pine), (
+            f"{name}: missing indicator() or strategy()"
+        )
+        # Strategy mode uses inline alert(), indicator mode uses alertcondition()
+        assert ('alertcondition(' in pine or 'alert(' in pine), (
+            f"{name}: missing alerts"
+        )
+        # Strategy mode uses strategy.position_size, indicator mode uses posState
+        assert ('posState' in pine or 'strategy.position_size' in pine), (
+            f"{name}: missing position state"
+        )
         # Check balanced braces aren't wildly off
         # (Pine uses indentation, not braces, so just check for common errors)
         assert pine.count('if ') >= 1, f"{name}: no if statements"
@@ -638,8 +647,8 @@ class TestStandaloneVwapStrategies:
             assert 'enablePS' not in pine
 
     def test_catalog_count(self):
-        """Catalog should have 13 strategies (8 original + 5 VWAP)."""
-        assert len(STRATEGY_CATALOG) == 13
+        """Catalog should have 21 strategies (9 + 5 VWAP + GME + 3 SPY + 3 SPY v2)."""
+        assert len(STRATEGY_CATALOG) == 21
 
 
 # ------------------------------------------------------------------

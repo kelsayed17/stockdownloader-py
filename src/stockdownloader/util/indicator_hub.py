@@ -38,6 +38,7 @@ from stockdownloader.util import intraday_indicators as ii
 from stockdownloader.util.moving_average_calculator import sma as _sma, ema as _ema
 from stockdownloader.util.incremental_indicators import (
     StreamingADX,
+    StreamingAnchoredVWAP,
     StreamingATR,
     StreamingCVD,
     StreamingEMA,
@@ -48,6 +49,7 @@ from stockdownloader.util.incremental_indicators import (
     StreamingSAR,
     StreamingSessionVWAP,
 )
+from stockdownloader.util.streaming_structure import StreamingStructureTracker
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -80,8 +82,10 @@ class IndicatorHub:
         "_s_adx",      # dict[period, StreamingADX]
         "_s_macd",     # dict[(fast, slow, signal), StreamingMACD]
         "_s_vwap",     # StreamingSessionVWAP (session VWAP resets per day)
+        "_s_avwap",    # dict[anchor_type, StreamingAnchoredVWAP]
         "_s_cvd",      # StreamingCVD (session CVD resets per day)
         "_s_htf",      # dict[factor, StreamingHTFResample]
+        "_s_structure", # dict[params_tuple, StreamingStructureTracker]
     )
 
     def __init__(self) -> None:
@@ -96,8 +100,10 @@ class IndicatorHub:
         self._s_adx: dict[int, StreamingADX] = {}
         self._s_macd: dict[tuple, StreamingMACD] = {}
         self._s_vwap: StreamingSessionVWAP | None = None
+        self._s_avwap: dict[str, StreamingAnchoredVWAP] = {}
         self._s_cvd: StreamingCVD | None = None
         self._s_htf: dict[int, StreamingHTFResample] = {}
+        self._s_structure: dict[tuple, StreamingStructureTracker] = {}
 
     # ------------------------------------------------------------------
     # Cache internals
@@ -121,8 +127,10 @@ class IndicatorHub:
         self._s_adx.clear()
         self._s_macd.clear()
         self._s_vwap = None
+        self._s_avwap.clear()
         self._s_cvd = None
         self._s_htf.clear()
+        self._s_structure.clear()
 
     def _get(self, key: tuple, data: Sequence[PriceData], fn, *args, **kwargs) -> Any:
         """Cache-through: return cached value or compute and store."""
@@ -616,6 +624,68 @@ class IndicatorHub:
         return self._cache[key]
 
     # ==================================================================
+    # Anchored VWAP (event-anchored, persists across sessions)
+    # ==================================================================
+
+    def _avwap_core(
+        self,
+        data: Sequence[PriceData],
+        index: int,
+        anchor_type: str = "fomc",
+    ) -> tuple[Decimal, Decimal]:
+        """Streaming anchored VWAP core — returns ``(avwap, std_dev)``."""
+        self._ensure_bound(data)
+        if anchor_type not in self._s_avwap:
+            self._s_avwap[anchor_type] = StreamingAnchoredVWAP(anchor_type)
+        return self._s_avwap[anchor_type].update(data, index)
+
+    def anchored_vwap_bands(
+        self,
+        data: Sequence[PriceData],
+        index: int,
+        anchor_type: str = "fomc",
+    ) -> ii.AnchoredVWAPBands:
+        """Anchored VWAP with +-1σ and +-2σ bands (streaming).
+
+        Returns :data:`~intraday_indicators._EMPTY_AVWAP` when no anchor
+        has been reached yet.
+        """
+        key = ("anchored_vwap_bands", index, anchor_type)
+        self._ensure_bound(data)
+        if key not in self._cache:
+            avwap_val, std_val = self._avwap_core(data, index, anchor_type)
+
+            # Get metadata from the streaming accumulator
+            acc = self._s_avwap[anchor_type]
+            if not acc.valid or avwap_val == ZERO:
+                self._cache[key] = ii._EMPTY_AVWAP
+            else:
+                from stockdownloader.util.technical_indicators import _quantize
+                from stockdownloader.util.event_calendar import days_since_anchor
+
+                anchor_date = acc.current_anchor
+                trading_date = data[index].date[:10]
+                days = days_since_anchor(trading_date, anchor_type)
+                if days is None:
+                    days = 0
+
+                s1 = std_val
+                s2 = _quantize(std_val * Decimal("2"))
+
+                self._cache[key] = ii.AnchoredVWAPBands(
+                    avwap=avwap_val,
+                    std_dev=std_val,
+                    upper_1=_quantize(avwap_val + s1),
+                    lower_1=_quantize(avwap_val - s1),
+                    upper_2=_quantize(avwap_val + s2),
+                    lower_2=_quantize(avwap_val - s2),
+                    anchor_date=anchor_date,
+                    days_since_anchor=days,
+                    valid=True,
+                )
+        return self._cache[key]
+
+    # ==================================================================
     # Intraday indicators
     # ==================================================================
 
@@ -780,3 +850,38 @@ class IndicatorHub:
             ("rel_vol", index, period),
             data, ii.rel_vol, data, index, period,
         )
+
+    # ==================================================================
+    # Market Structure (SMC)
+    # ==================================================================
+
+    def structure_state(
+        self,
+        data: Sequence[PriceData],
+        index: int,
+        atr_val: Decimal,
+        lookback: int = 5,
+        min_impulse: float = 2.0,
+        zone_bars: int = 2,
+    ):
+        """Market structure state (streaming).
+
+        Returns a :class:`~smc_indicators.StructureState` with swing levels,
+        BoS flags, and supply/demand zones.
+        """
+        from stockdownloader.util.smc_indicators import StructureState
+
+        key = ("structure_state", index, lookback, min_impulse, zone_bars)
+        self._ensure_bound(data)
+        if key not in self._cache:
+            params = (lookback, min_impulse, zone_bars)
+            if params not in self._s_structure:
+                self._s_structure[params] = StreamingStructureTracker(
+                    lookback=lookback,
+                    min_impulse_atr=min_impulse,
+                    zone_bars=zone_bars,
+                )
+            self._cache[key] = self._s_structure[params].update(
+                data, index, atr_val,
+            )
+        return self._cache[key]

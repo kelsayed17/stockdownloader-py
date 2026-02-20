@@ -93,6 +93,8 @@ class SessionState:
         "cum_bars_below_vwap",
         # REV band touch tracking
         "rev_band_touches",
+        # NR7 compression detection
+        "is_nr7",
     )
 
     def __init__(self) -> None:
@@ -184,3 +186,6 @@ class SessionState:
 
         # REV band touch tracking
         self.rev_band_touches = 0
+
+        # NR7 compression detection
+        self.is_nr7 = False
