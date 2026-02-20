@@ -9,9 +9,8 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.moving_average_calculator import ema as _ema
 from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
-from stockdownloader.util.technical import _quantize
+from stockdownloader.util.technical import _quantize, ema as _ema
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence

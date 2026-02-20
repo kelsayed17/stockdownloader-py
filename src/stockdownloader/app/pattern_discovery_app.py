@@ -44,7 +44,7 @@ from stockdownloader.backtest.tournament_engine import (
 from stockdownloader.backtest.tournament_engine import classify_timeframe_bars
 from stockdownloader.backtest.walk_forward import WalkForwardValidator
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.util.file_helper import TeeWriter
+from stockdownloader.util.io_helpers import TeeWriter
 from stockdownloader.util.indicator_hub import IndicatorHub
 from stockdownloader.util.timeframe_aggregator import Timeframe, TimeframeAggregator
 

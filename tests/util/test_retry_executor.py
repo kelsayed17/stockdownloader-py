@@ -2,7 +2,7 @@
 
 import logging
 
-from stockdownloader.util.retry_executor import execute, execute_with_result
+from stockdownloader.util.io_helpers import execute, execute_with_result
 
 LOGGER = logging.getLogger(__name__)
 

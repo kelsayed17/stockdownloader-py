@@ -13,7 +13,7 @@ from stockdownloader.backtest.combinatorial_tester import (
     CombinatorialTester,
     ComboResult,
 )
-from stockdownloader.util.file_helper import TeeWriter
+from stockdownloader.util.io_helpers import TeeWriter
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.strategy.signals.signal_generator import (
     AtomicSignalGenerator,

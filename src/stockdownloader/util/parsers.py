@@ -1,10 +1,21 @@
-"""Date utility providing market-aware date calculations and multiple format support.
+"""Parsing utilities: CSV parsing and market-aware date calculations.
 
-Uses :mod:`datetime` exclusively for all date operations.
+CSV parsing provides a context-manager-compatible parser for reading
+delimited data, with support for quoted fields and configurable separators.
+
+Date helpers provide market-aware date calculations (Mon-Fri adjustments)
+and multiple format support using :mod:`datetime` exclusively.
 """
 from __future__ import annotations
 
+import csv
+import io
 from datetime import date, timedelta
+from typing import TextIO
+
+# =========================================================================
+# Date formats and constants (formerly date_helper.py)
+# =========================================================================
 
 STANDARD_FORMAT = '%m/%d/%Y'
 YAHOO_FORMAT = '%Y-%m-%d'
@@ -14,6 +25,11 @@ MORNINGSTAR_FORMAT = '%Y-%m'
 _MONTH_FMT = '%m'
 _DAY_FMT = '%d'
 _YEAR_FMT = '%Y'
+
+
+# =========================================================================
+# DateHelper class
+# =========================================================================
 
 
 class DateHelper:
@@ -113,7 +129,7 @@ class DateHelper:
 
 
 # =========================================================================
-# Module-level helpers
+# Date module-level helpers
 # =========================================================================
 
 
@@ -155,3 +171,86 @@ def _subtract_months(d: date, months: int) -> date:
     max_day = calendar.monthrange(year, month)[1]
     day = min(d.day, max_day)
     return date(year, month, day)
+
+
+# =========================================================================
+# CsvParser class (formerly csv_parser.py)
+# =========================================================================
+
+
+class CsvParser:
+    """A thin wrapper around Python's :mod:`csv` reader that mirrors the Java
+    ``CsvParser`` API.
+
+    Supports reading from any text stream (file, ``StringIO``, etc.) and can
+    be used as a context manager.
+
+    Args:
+        source: A file-like text stream to read from.
+        separator: The field delimiter character (default ``','``).
+    """
+
+    def __init__(self, source: TextIO, separator: str = ',') -> None:
+        self._source = source
+        self._reader = csv.reader(source, delimiter=separator, quotechar='"')
+
+    # ------------------------------------------------------------------
+    # Alternate constructors
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def from_bytes(cls, data: bytes, separator: str = ',') -> CsvParser:
+        """Create a parser from raw bytes (decoded as UTF-8)."""
+        return cls(io.TextIOWrapper(io.BytesIO(data), encoding='utf-8'), separator)
+
+    @classmethod
+    def from_string(cls, text: str, separator: str = ',') -> CsvParser:
+        """Create a parser from an in-memory string."""
+        return cls(io.StringIO(text), separator)
+
+    # ------------------------------------------------------------------
+    # Reading
+    # ------------------------------------------------------------------
+
+    def read_next(self) -> list[str] | None:
+        """Read and return the next row as a list of strings.
+
+        Returns ``None`` when there are no more rows.
+        """
+        try:
+            row = next(self._reader)
+            return [field.strip() for field in row]
+        except StopIteration:
+            return None
+
+    def read_all(self) -> list[list[str]]:
+        """Read all remaining rows and return them as a list of lists."""
+        result: list[list[str]] = []
+        while True:
+            row = self.read_next()
+            if row is None:
+                break
+            result.append(row)
+        return result
+
+    def skip_lines(self, count: int) -> None:
+        """Skip *count* lines from the underlying stream."""
+        for _ in range(count):
+            try:
+                next(self._reader)
+            except StopIteration:
+                break
+
+    # ------------------------------------------------------------------
+    # Context manager
+    # ------------------------------------------------------------------
+
+    def close(self) -> None:
+        """Close the underlying source stream."""
+        self._source.close()
+
+    def __enter__(self) -> CsvParser:
+        return self
+
+    def __exit__(self, exc_type: object, exc_val: object, exc_tb: object) -> None:
+        self.close()

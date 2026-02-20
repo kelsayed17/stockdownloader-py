@@ -28,8 +28,8 @@ from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
 from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
 from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal
-from stockdownloader.util.csv_parser import CsvParser
-from stockdownloader.util.moving_average_calculator import sma, ema
+from stockdownloader.util.parsers import CsvParser
+from stockdownloader.util.technical import sma, ema
 
 
 @pytest.fixture(scope="module")

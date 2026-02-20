@@ -42,7 +42,7 @@ from pathlib import Path
 from typing import TextIO
 
 from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.util.file_helper import TeeWriter
+from stockdownloader.util.io_helpers import TeeWriter
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
 from stockdownloader.model.price_data import IntradayPriceData

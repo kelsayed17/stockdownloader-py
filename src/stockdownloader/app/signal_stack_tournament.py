@@ -31,7 +31,7 @@ from stockdownloader.backtest.combinatorial_tester import (
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
 from stockdownloader.strategy.signals.stacked_signal_engine import AggregationMode
-from stockdownloader.util.file_helper import TeeWriter
+from stockdownloader.util.io_helpers import TeeWriter
 from stockdownloader.util.timeframe_aggregator import Timeframe
 
 from stockdownloader.util.config_loader import (

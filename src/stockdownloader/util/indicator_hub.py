@@ -35,7 +35,7 @@ from typing import TYPE_CHECKING, Any
 from stockdownloader.util.big_decimal_math import ZERO
 from stockdownloader.util import technical as ti
 from stockdownloader.util import intraday_indicators as ii
-from stockdownloader.util.moving_average_calculator import sma as _sma, ema as _ema
+from stockdownloader.util.technical import sma as _sma, ema as _ema
 from stockdownloader.util.streaming import (
     StreamingADX,
     StreamingAnchoredVWAP,
@@ -827,7 +827,7 @@ class IndicatorHub:
             if len(htf_bars) < slow_period + 1:
                 self._cache[key] = 0
             else:
-                from stockdownloader.util.moving_average_calculator import ema as _raw_ema
+                from stockdownloader.util.technical import ema as _raw_ema
                 htf_idx = len(htf_bars) - 1
                 fast_val = _raw_ema(htf_bars, htf_idx, fast_period)
                 slow_val = _raw_ema(htf_bars, htf_idx, slow_period)
