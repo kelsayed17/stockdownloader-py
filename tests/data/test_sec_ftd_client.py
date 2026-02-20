@@ -4,14 +4,22 @@ from __future__ import annotations
 
 import io
 import zipfile
+from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from stockdownloader.data.sec_ftd_client import SecFtdClient
+from stockdownloader.data.sec_ftd_client import SecFtdClient, SplitAdjustment
 from stockdownloader.model.ftd_record import FtdRecord
+
+# Reusable split adjustment matching the well-known GME 4:1 split.
+_GME_SPLIT = SplitAdjustment(
+    symbol="GME",
+    split_date=date(2022, 7, 22),
+    split_ratio=Decimal("4"),
+)
 
 
 # ------------------------------------------------------------------
@@ -155,11 +163,11 @@ class TestParseFtdFile:
 
 
 class TestSplitAdjustment:
-    """Tests for GME 4:1 split adjustment (effective 2022-07-22)."""
+    """Tests for generic split adjustment via SplitAdjustment dataclass."""
 
     def test_pre_split_quantity_multiplied(self) -> None:
         records = SecFtdClient._parse_ftd_file(
-            _FTD_ROWS_PRE_SPLIT, "GME", split_adjust=True,
+            _FTD_ROWS_PRE_SPLIT, "GME", split=_GME_SPLIT,
         )
         # Pre-split dates: quantity * 4
         assert records[0].settlement_date == "2022-01-01"
@@ -170,26 +178,45 @@ class TestSplitAdjustment:
 
     def test_pre_split_price_divided(self) -> None:
         records = SecFtdClient._parse_ftd_file(
-            _FTD_ROWS_PRE_SPLIT, "GME", split_adjust=True,
+            _FTD_ROWS_PRE_SPLIT, "GME", split=_GME_SPLIT,
         )
         assert records[0].price == Decimal("120.00") / 4  # 30.00
         assert records[1].price == Decimal("140.00") / 4  # 35.00
 
     def test_post_split_no_adjustment(self) -> None:
         records = SecFtdClient._parse_ftd_file(
-            _FTD_ROWS_POST_SPLIT, "GME", split_adjust=True,
+            _FTD_ROWS_POST_SPLIT, "GME", split=_GME_SPLIT,
         )
         # Post-split dates: no adjustment
         assert records[0].quantity == 100000
         assert records[0].price == Decimal("35.00")
 
-    def test_no_adjustment_when_disabled(self) -> None:
+    def test_no_adjustment_when_no_split(self) -> None:
         records = SecFtdClient._parse_ftd_file(
-            _FTD_ROWS_PRE_SPLIT, "GME", split_adjust=False,
+            _FTD_ROWS_PRE_SPLIT, "GME",
         )
-        # No split adjustment
+        # No split adjustment when split=None (default)
         assert records[0].quantity == 25000
         assert records[0].price == Decimal("120.00")
+
+    def test_custom_split_via_extra_splits(self, tmp_path: Path) -> None:
+        """Verify that extra_splits parameter injects a custom split."""
+        custom_split = SplitAdjustment(
+            symbol="TSLA",
+            split_date=date(2022, 8, 25),
+            split_ratio=Decimal("3"),
+        )
+        # Fabricate FTD content for TSLA before the custom split date
+        content = (
+            "SETTLEMENT DATE|CUSIP|SYMBOL|QUANTITY (FAILS)|DESCRIPTION|PRICE\n"
+            "20220101|88160R101|TSLA|9000|TESLA INC|900.00\n"
+        )
+        records = SecFtdClient._parse_ftd_file(
+            content, "TSLA", split=custom_split,
+        )
+        assert len(records) == 1
+        assert records[0].quantity == 9000 * 3
+        assert records[0].price == Decimal("900.00") / 3
 
 
 # ------------------------------------------------------------------

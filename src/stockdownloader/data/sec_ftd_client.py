@@ -32,7 +32,8 @@ import io
 import logging
 import time
 import zipfile
-from datetime import datetime
+from dataclasses import dataclass
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
@@ -105,9 +106,44 @@ def _ftd_url(year: int, month: int, half: str) -> str:
         url = url.replace(".zip", f"{suffix}.zip")
     return url
 
-# GME 4:1 stock split effective date
-_GME_SPLIT_DATE = "2022-07-22"
-_GME_SPLIT_FACTOR = 4
+
+# ---------------------------------------------------------------------------
+# Generic split-adjustment support
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class SplitAdjustment:
+    """Stock split event for adjusting historical FTD data.
+
+    Attributes
+    ----------
+    symbol:
+        Upper-cased ticker symbol (e.g. ``"GME"``).
+    split_date:
+        Effective date of the split.  Records *before* this date are
+        adjusted.
+    split_ratio:
+        The split multiplier.  For a 4-for-1 split use ``Decimal("4")``.
+        Pre-split quantities are **multiplied** and prices **divided**
+        by this value.
+    """
+
+    symbol: str
+    split_date: date
+    split_ratio: Decimal
+
+
+# Registry of well-known stock splits that affect FTD data.  Callers can
+# extend this at runtime via the *extra_splits* parameter on
+# :meth:`SecFtdClient.fetch_ftd_data`.
+_KNOWN_SPLITS: list[SplitAdjustment] = [
+    SplitAdjustment(
+        symbol="GME",
+        split_date=date(2022, 7, 22),
+        split_ratio=Decimal("4"),
+    ),
+]
 
 
 class SecFtdClient:
@@ -136,14 +172,16 @@ class SecFtdClient:
         symbol: str,
         start_year: int = 2004,
         end_year: int | None = None,
+        extra_splits: list[SplitAdjustment] | None = None,
     ) -> list[FtdRecord]:
         """Fetch FTD records for *symbol* across the given year range.
 
         Downloads and caches zip files from SEC, parses pipe-delimited
         contents, and filters by *symbol* (case-insensitive).
 
-        Handles the GME 4:1 stock split on 2022-07-22 by adjusting
-        quantity and price for records before the split date.
+        Any known stock splits (see :data:`_KNOWN_SPLITS`) are applied
+        automatically.  Pass *extra_splits* to supply additional split
+        events without modifying the module-level registry.
 
         Returns records sorted by ``settlement_date`` ascending.
         """
@@ -151,7 +189,12 @@ class SecFtdClient:
             end_year = datetime.now().year
 
         symbol_upper = symbol.upper()
-        split_adjust = symbol_upper == "GME"
+
+        # Build the combined splits list and look up the one for this symbol.
+        all_splits = _KNOWN_SPLITS + (extra_splits or [])
+        split = next(
+            (s for s in all_splits if s.symbol == symbol_upper), None,
+        )
         all_records: list[FtdRecord] = []
 
         for year in range(start_year, end_year + 1):
@@ -174,7 +217,7 @@ class SecFtdClient:
                         continue
 
                     records = self._parse_ftd_file(
-                        content, symbol_upper, split_adjust=split_adjust,
+                        content, symbol_upper, split=split,
                     )
                     all_records.extend(records)
 
@@ -260,7 +303,7 @@ class SecFtdClient:
         content: str,
         symbol: str,
         *,
-        split_adjust: bool = False,
+        split: SplitAdjustment | None = None,
     ) -> list[FtdRecord]:
         """Parse pipe-delimited FTD text and filter by *symbol*.
 
@@ -270,9 +313,10 @@ class SecFtdClient:
             Raw pipe-delimited text from the SEC zip file.
         symbol:
             Ticker to filter for (already upper-cased).
-        split_adjust:
-            If ``True``, apply GME 4:1 split adjustment for records
-            before 2022-07-22.
+        split:
+            Optional :class:`SplitAdjustment` to apply.  Records with a
+            settlement date **before** the split date will have their
+            quantity multiplied and price divided by the split ratio.
 
         Returns
         -------
@@ -280,6 +324,10 @@ class SecFtdClient:
         """
         records: list[FtdRecord] = []
         lines = content.splitlines()
+
+        # Pre-format the split date for fast string comparison (dates in
+        # ISO format are comparable as strings).
+        split_date_str = split.split_date.isoformat() if split else None
 
         for line in lines:
             # Skip header and blank lines
@@ -321,11 +369,11 @@ class SecFtdClient:
             except InvalidOperation:
                 price = Decimal("0")
 
-            # Apply GME 4:1 split adjustment for dates before 2022-07-22
-            if split_adjust and settlement_date < _GME_SPLIT_DATE:
-                quantity = quantity * _GME_SPLIT_FACTOR
+            # Apply split adjustment for records before the split date
+            if split_date_str and settlement_date < split_date_str:
+                quantity = int(Decimal(quantity) * split.split_ratio)
                 if price > 0:
-                    price = price / _GME_SPLIT_FACTOR
+                    price = price / split.split_ratio
 
             try:
                 records.append(FtdRecord(
