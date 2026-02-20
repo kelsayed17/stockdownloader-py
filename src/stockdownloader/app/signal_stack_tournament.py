@@ -34,7 +34,7 @@ from stockdownloader.strategy.signals.stacked_signal_engine import AggregationMo
 from stockdownloader.util.file_helper import TeeWriter
 from stockdownloader.util.timeframe_aggregator import Timeframe
 
-from stockdownloader.util.constants import (
+from stockdownloader.util.config_loader import (
     DEFAULT_DATA_FILE as _DATA_FILE,
     DEFAULT_OUTPUT_DIR as _OUTPUT_DIR,
     INITIAL_CAPITAL as _INITIAL_CAPITAL,

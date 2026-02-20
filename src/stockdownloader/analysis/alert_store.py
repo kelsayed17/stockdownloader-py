@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from stockdownloader.model.signal_advisory import SignalAdvisory
-from stockdownloader.util.constants import DEFAULT_ALERT_HISTORY
+from stockdownloader.util.config_loader import DEFAULT_ALERT_HISTORY
 
 logger = logging.getLogger(__name__)
 

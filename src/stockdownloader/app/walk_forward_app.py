@@ -24,7 +24,7 @@ from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStr
 from stockdownloader.strategy.intraday.pattern_scalp_strategy import PatternScalpStrategy
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
-from stockdownloader.util.constants import INITIAL_CAPITAL, RISK_PER_TRADE
+from stockdownloader.util.config_loader import INITIAL_CAPITAL, RISK_PER_TRADE
 
 logger = logging.getLogger(__name__)
 

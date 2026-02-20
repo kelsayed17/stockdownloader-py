@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
+from stockdownloader.util.config_loader import DEFAULT_ML_PIPELINE_DIR
 
 
 # ------------------------------------------------------------------

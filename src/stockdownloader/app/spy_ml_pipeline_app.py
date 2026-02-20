@@ -27,7 +27,7 @@ from stockdownloader.app._ml_helpers import (
     build_training_config,
     init_ml_env,
 )
-from stockdownloader.util.constants import DEFAULT_ML_PIPELINE_DIR
+from stockdownloader.util.config_loader import DEFAULT_ML_PIPELINE_DIR
 
 
 @dataclass

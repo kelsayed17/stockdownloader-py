@@ -1,6 +1,10 @@
-"""JSON-based configuration loader.
+"""Project-wide constants and JSON-based configuration loader.
 
-Provides a lightweight, generic config system that replaces hardcoded
+Single source of truth for default values used across the codebase.
+These can be overridden at runtime via CLI arguments or config files,
+but these values serve as sensible defaults.
+
+Also provides a lightweight, generic config system that replaces hardcoded
 defaults throughout the codebase.  Configs are plain JSON files loaded
 from disk (or a dict passed in-memory for testing).
 
@@ -55,10 +59,54 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from stockdownloader.util.constants import PROJECT_ROOT
+# ======================================================================
+# Capital & risk
+# ======================================================================
+
+INITIAL_CAPITAL = Decimal("100000.00")
+RISK_PER_TRADE = Decimal("0.01")  # 1 % of capital per trade
+OPTIONS_COMMISSION = Decimal("0.65")  # Per-contract options commission
+
+# ======================================================================
+# Project paths (relative to project root)
+# ======================================================================
+
+#: Project root (3 levels up from this file: util → stockdownloader → src → root).
+PROJECT_ROOT: Path = Path(__file__).resolve().parents[3]
+
+#: Default path to the SPY 5-minute bar CSV.
+DEFAULT_DATA_FILE: Path = PROJECT_ROOT / "data" / "spy" / "5m_bars.csv"
+
+#: Default output directory for logs and reports.
+DEFAULT_OUTPUT_DIR: Path = PROJECT_ROOT / "output"
+
+#: Default models directory.
+DEFAULT_MODELS_DIR: Path = DEFAULT_OUTPUT_DIR / "models"
+
+#: Default PineScript output directory.
+DEFAULT_PINESCRIPT_DIR: Path = DEFAULT_OUTPUT_DIR / "pinescript"
+
+#: Default ML pipeline output directory.
+DEFAULT_ML_PIPELINE_DIR: Path = DEFAULT_OUTPUT_DIR / "ml_pipeline"
+
+#: Default alert history file.
+DEFAULT_ALERT_HISTORY: Path = DEFAULT_OUTPUT_DIR / "alert_history.json"
+
+#: Default pattern catalog directory.
+DEFAULT_PATTERNS_DIR: Path = DEFAULT_OUTPUT_DIR / "patterns"
+
+# ======================================================================
+# Walk-forward defaults
+# ======================================================================
+
+WF_WINDOWS = 5
+WF_IS_RATIO = 0.7  # 70 % in-sample, 30 % out-of-sample
 
 logger = logging.getLogger(__name__)
 
@@ -221,3 +269,63 @@ def list_configs(subdir: str = "") -> list[str]:
         str(p.relative_to(CONFIG_DIR))
         for p in search.rglob("*.json")
     )
+
+
+# ======================================================================
+# Application configuration (env-var based)
+# ======================================================================
+
+
+@dataclass(frozen=True)
+class AppConfig:
+    """Application-wide configuration read from environment.
+
+    All fields default to empty strings so callers can check
+    ``if config.polygon_api_key:`` without worrying about None.
+
+    Preferred construction is via :meth:`from_env`, which reads
+    environment variables once and stores the results immutably.
+    """
+
+    # -- Polygon.io ----------------------------------------------------------
+    polygon_api_key: str = ""
+
+    # -- FINRA (short interest, dark pool, reg-SHO) --------------------------
+    finra_client_id: str = ""
+    finra_client_secret: str = ""
+
+    # -- Tradier (options chain data) ----------------------------------------
+    tradier_api_token: str = ""
+    tradier_sandbox_token: str = ""
+
+    @classmethod
+    def from_env(cls, **overrides: str) -> AppConfig:
+        """Load configuration from environment variables.
+
+        Any keyword argument overrides the corresponding env-var value,
+        making it easy to merge CLI flags::
+
+            config = AppConfig.from_env(polygon_api_key=args.polygon_key)
+
+        Parameters
+        ----------
+        **overrides:
+            Field-name / value pairs that take priority over the
+            environment.  Empty-string or ``None`` overrides are ignored
+            so that ``args.polygon_key or ""`` never clobbers a real
+            env-var value.
+        """
+
+        def _get(field: str, env_var: str) -> str:
+            override = overrides.get(field)
+            if override:               # non-empty string wins
+                return override
+            return os.environ.get(env_var, "")
+
+        return cls(
+            polygon_api_key=_get("polygon_api_key", "POLYGON_API_KEY"),
+            finra_client_id=_get("finra_client_id", "FINRA_CLIENT_ID"),
+            finra_client_secret=_get("finra_client_secret", "FINRA_CLIENT_SECRET"),
+            tradier_api_token=_get("tradier_api_token", "TRADIER_API_TOKEN"),
+            tradier_sandbox_token=_get("tradier_sandbox_token", "TRADIER_SANDBOX_TOKEN"),
+        )

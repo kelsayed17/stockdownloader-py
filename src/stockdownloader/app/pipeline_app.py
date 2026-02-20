@@ -46,7 +46,7 @@ from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToI
 from stockdownloader.strategy.registration_loader import ensure_registered
 from stockdownloader.strategy.base_registry import StrategyRegistry
 from stockdownloader.app.app_helpers import add_intraday_csv_arg, add_log_arg
-from stockdownloader.util.constants import INITIAL_CAPITAL, OPTIONS_COMMISSION, RISK_PER_TRADE
+from stockdownloader.util.config_loader import INITIAL_CAPITAL, OPTIONS_COMMISSION, RISK_PER_TRADE
 from stockdownloader.util.file_helper import TeeWriter
 
 logger = logging.getLogger(__name__)
