@@ -239,7 +239,7 @@ class TestAutoAuth:
 
 
 class TestQueryApi:
-    """Tests for the _query_api method."""
+    """Tests for the _query_api method (paginated domainFilter query)."""
 
     @patch("stockdownloader.data.finra_short_interest_client.time")
     def test_successful_query(self, mock_time: MagicMock, tmp_path: Path) -> None:
@@ -247,20 +247,10 @@ class TestQueryApi:
         mock_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
-        # Return sample data on the first call, then empty for subsequent
-        # settlement-date iterations so records don't accumulate.
-        call_count = 0
-
-        def _single_page_response(*args: object, **kwargs: object) -> MagicMock:
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                return _mock_response(_SAMPLE_SI_RESPONSE)
-            return _mock_response([])
-
+        # Single page response (fewer than page_size records)
         with patch.object(
             client._session, "post",
-            side_effect=_single_page_response,
+            return_value=_mock_response(_SAMPLE_SI_RESPONSE),
         ):
             raw = client._query_api("GME")
 
@@ -268,26 +258,41 @@ class TestQueryApi:
         assert len(raw) == 2
 
     @patch("stockdownloader.data.finra_short_interest_client.time")
+    def test_query_uses_domain_filters(self, mock_time: MagicMock, tmp_path: Path) -> None:
+        """Verify payload uses domainFilters with symbolCode."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+        with patch.object(
+            client._session, "post",
+            return_value=_mock_response([]),
+        ) as mock_post:
+            client._query_api("GME")
+
+        call_kwargs = mock_post.call_args
+        payload = call_kwargs.kwargs.get("json") or call_kwargs[1].get("json")
+        filters = payload["domainFilters"]
+        assert len(filters) == 1
+        assert filters[0]["fieldName"] == "symbolCode"
+        assert filters[0]["values"] == ["GME"]
+        # No compareFilters should be present
+        assert "compareFilters" not in payload
+
+    @patch("stockdownloader.data.finra_short_interest_client.time")
     def test_query_retries_on_failure(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
-        # Two failures followed by one success, then empty for remaining dates.
-        call_count = 0
-
-        def _retry_then_succeed(*args: object, **kwargs: object) -> MagicMock:
-            nonlocal call_count
-            call_count += 1
-            if call_count <= 2:
-                return _mock_response(None, status_code=500, text="Server Error")
-            if call_count == 3:
-                return _mock_response(_SAMPLE_SI_RESPONSE)
-            return _mock_response([])
-
+        # Two failures followed by one success
         with patch.object(
             client._session, "post",
-            side_effect=_retry_then_succeed,
+            side_effect=[
+                _mock_response(None, status_code=500, text="Server Error"),
+                _mock_response(None, status_code=500, text="Server Error"),
+                _mock_response(_SAMPLE_SI_RESPONSE),
+            ],
         ):
             raw = client._query_api("GME")
 
@@ -327,6 +332,24 @@ class TestQueryApi:
             raw = client._query_api("GME")
 
         assert raw is None
+
+    @patch("stockdownloader.data.finra_short_interest_client.time")
+    def test_pagination_stops_on_empty(self, mock_time: MagicMock, tmp_path: Path) -> None:
+        """Verify pagination stops when API returns fewer than page_size."""
+        mock_time.monotonic.return_value = 100.0
+        mock_time.sleep = MagicMock()
+
+        client = _make_client(tmp_path)
+        with patch.object(
+            client._session, "post",
+            return_value=_mock_response(_SAMPLE_SI_RESPONSE),
+        ) as mock_post:
+            raw = client._query_api("GME")
+
+        assert raw is not None
+        assert len(raw) == 2
+        # 2 < 5000 (page_size), so only 1 call needed
+        assert mock_post.call_count == 1
 
 
 # ------------------------------------------------------------------

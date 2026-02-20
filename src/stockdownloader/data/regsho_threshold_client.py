@@ -1,4 +1,4 @@
-"""Fetches Reg SHO threshold list data from FINRA and major exchanges.
+"""Fetches Reg SHO threshold list data from Nasdaq.
 
 The **Regulation SHO threshold list** contains securities where aggregate
 failures to deliver (FTDs) have reached or exceeded 10,000 shares and
@@ -9,8 +9,6 @@ Being on the threshold list signals extreme short-selling pressure and
 may trigger mandatory close-out requirements (forced buy-ins).
 
 Sources:
-- **FINRA**: ``https://api.finra.org/data/group/otcMarket/name/regShoThresholdList``
-- **NYSE**: ``https://www.nyse.com/regulation/threshold-securities`` (web page)
 - **Nasdaq**: ``https://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{MMDDYYYY}.txt``
 
 Usage::
@@ -22,13 +20,11 @@ Usage::
 
 from __future__ import annotations
 
-import base64
 import json
 import logging
-import os
 import time
 from dataclasses import asdict, dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from pathlib import Path
 
 import requests
@@ -36,15 +32,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 _MAX_RETRIES = 3
-_RATE_LIMIT_DELAY = 0.5
-
-_FINRA_URL = (
-    "https://api.finra.org/data/group/otcMarket/name/regShoThresholdList"
-)
-_FINRA_TOKEN_URL = (
-    "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token"
-    "?grant_type=client_credentials"
-)
+_RATE_LIMIT_DELAY = 0.2
 
 # Nasdaq publishes daily threshold lists
 _NASDAQ_URL_TEMPLATE = (
@@ -70,17 +58,17 @@ class ThresholdRecord:
 
 
 class RegShoThresholdClient:
-    """Fetches Reg SHO threshold list data.
+    """Fetches Reg SHO threshold list data from Nasdaq text files.
 
-    Primary source: FINRA API (requires OAuth2 credentials).
-    Fallback: Nasdaq daily text files (no auth needed).
+    The FINRA ``regShoThresholdList`` dataset is not available via the
+    FINRA API, so this client relies solely on Nasdaq daily text files.
 
     Parameters
     ----------
     client_id:
-        FINRA API client ID.  Falls back to ``FINRA_CLIENT_ID`` env var.
+        Reserved for future use (FINRA credentials).  Not required.
     client_secret:
-        FINRA API client secret.  Falls back to ``FINRA_CLIENT_SECRET``.
+        Reserved for future use (FINRA credentials).  Not required.
     cache_dir:
         Directory for JSON cache files.
     """
@@ -91,69 +79,25 @@ class RegShoThresholdClient:
         client_secret: str | None = None,
         cache_dir: str = "data/cache/regsho",
     ) -> None:
-        self._client_id = client_id or os.environ.get("FINRA_CLIENT_ID", "")
-        self._client_secret = client_secret or os.environ.get(
-            "FINRA_CLIENT_SECRET", ""
-        )
-        self._access_token: str | None = None
         self._session = requests.Session()
         self._session.headers.update({
             "User-Agent": "StockDownloader admin@example.com",
-            "Accept": "application/json",
-            "Content-Type": "application/json",
+            "Accept": "text/plain",
         })
         self._last_request_time: float = 0.0
         self._cache_dir = Path(cache_dir)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
-    # OAuth2 (reuses FINRA pattern from dark pool / SI clients)
-    # ------------------------------------------------------------------
-
-    def _authenticate(self) -> bool:
-        if not self._client_id or not self._client_secret:
-            logger.info(
-                "FINRA credentials not configured for Reg SHO — "
-                "will try Nasdaq fallback"
-            )
-            return False
-
-        credentials = f"{self._client_id}:{self._client_secret}"
-        encoded = base64.b64encode(credentials.encode()).decode()
-
-        try:
-            resp = requests.post(
-                _FINRA_TOKEN_URL,
-                headers={"Authorization": f"Basic {encoded}"},
-                timeout=15,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                self._access_token = data.get("access_token")
-                if self._access_token:
-                    self._session.headers["Authorization"] = (
-                        f"Bearer {self._access_token}"
-                    )
-                    logger.info("FINRA OAuth2 authentication successful (Reg SHO)")
-                    return True
-            logger.warning(
-                "FINRA OAuth2 failed for Reg SHO: %d", resp.status_code,
-            )
-        except Exception as exc:
-            logger.warning("FINRA OAuth2 error: %s", exc)
-        return False
-
-    # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
 
     def fetch_threshold_status(
-        self, symbol: str, lookback_days: int = 365
+        self, symbol: str, lookback_days: int = 1825
     ) -> list[ThresholdRecord]:
         """Fetch all dates where *symbol* appeared on the Reg SHO threshold list.
 
-        Tries FINRA API first, falls back to Nasdaq text files,
-        then to cache.
+        Queries Nasdaq daily text files, then falls back to cache.
 
         Parameters
         ----------
@@ -167,25 +111,9 @@ class RegShoThresholdClient:
         List of :class:`ThresholdRecord` sorted by date ascending.
         """
         symbol_upper = symbol.upper()
-        records: list[ThresholdRecord] = []
 
-        # Try FINRA API
-        if self._access_token is None:
-            self._authenticate()
-
-        if self._access_token:
-            finra_records = self._query_finra(symbol_upper, lookback_days)
-            if finra_records:
-                records.extend(finra_records)
-
-        # Also try Nasdaq (no auth needed) for recent data
-        nasdaq_records = self._query_nasdaq(symbol_upper, lookback_days=30)
-        if nasdaq_records:
-            # Merge without duplicates
-            existing_dates = {r.date for r in records}
-            for nr in nasdaq_records:
-                if nr.date not in existing_dates:
-                    records.append(nr)
+        # Query Nasdaq text files
+        records = self._query_nasdaq(symbol_upper, lookback_days=lookback_days)
 
         if records:
             records.sort(key=lambda r: r.date)
@@ -218,96 +146,11 @@ class RegShoThresholdClient:
         return len(recent) > 0
 
     # ------------------------------------------------------------------
-    # FINRA API query
-    # ------------------------------------------------------------------
-
-    def _query_finra(
-        self, symbol: str, lookback_days: int
-    ) -> list[ThresholdRecord]:
-        """Query FINRA Reg SHO threshold list API."""
-        end_date = date.today()
-        start_date = end_date - timedelta(days=lookback_days)
-
-        all_rows: list[dict] = []
-        offset = 0
-        page_size = 5000
-        failures = 0
-
-        while failures < _MAX_RETRIES:
-            payload = {
-                "domainFilters": [
-                    {
-                        "fieldName": "symbolCode",
-                        "values": [symbol],
-                    },
-                ],
-                "dateRangeFilters": [
-                    {
-                        "fieldName": "thresholdListPublishDate",
-                        "startDate": start_date.isoformat(),
-                        "endDate": end_date.isoformat(),
-                    },
-                ],
-                "limit": page_size,
-                "offset": offset,
-            }
-
-            try:
-                self._rate_limit()
-                resp = self._session.post(
-                    _FINRA_URL, json=payload, timeout=30,
-                )
-                if resp.status_code == 200:
-                    data = resp.json()
-                    if not data:
-                        break
-                    all_rows.extend(data)
-                    failures = 0
-                    if len(data) < page_size:
-                        break
-                    offset += page_size
-                elif resp.status_code == 404:
-                    break
-                else:
-                    failures += 1
-                    logger.debug(
-                        "FINRA Reg SHO returned %d: %s",
-                        resp.status_code, resp.text[:200],
-                    )
-            except (requests.RequestException, json.JSONDecodeError) as exc:
-                failures += 1
-                logger.debug("FINRA Reg SHO request failed: %s", exc)
-
-        records: list[ThresholdRecord] = []
-        for row in all_rows:
-            try:
-                raw_date = row.get("thresholdListPublishDate", "")
-                dt = _normalize_date(raw_date)
-                if dt:
-                    records.append(ThresholdRecord(
-                        date=dt,
-                        symbol=symbol,
-                        market="FINRA",
-                        threshold_shares=int(
-                            row.get("thresholdListShareQuantity", 0)
-                        ),
-                        consecutive_days=0,
-                    ))
-            except (ValueError, TypeError):
-                continue
-
-        logger.info(
-            "FINRA Reg SHO: %d threshold records for %s",
-            len(records), symbol,
-        )
-        return records
-
-    # ------------------------------------------------------------------
-    # Nasdaq text file fallback
+    # Nasdaq text file query
     # ------------------------------------------------------------------
 
     def _query_nasdaq(
-        self, symbol: str, lookback_days: int = 30
+        self, symbol: str, lookback_days: int = 1825
     ) -> list[ThresholdRecord]:
         """Check Nasdaq daily threshold list text files."""
         records: list[ThresholdRecord] = []
@@ -319,12 +162,13 @@ class RegShoThresholdClient:
             if check_date.weekday() >= 5:
                 continue
 
-            date_str = check_date.strftime("%m%d%Y")
+            date_str = check_date.strftime("%Y%m%d")
             url = _NASDAQ_URL_TEMPLATE.format(date=date_str)
 
             try:
-                resp = requests.get(url, timeout=10)
-                if resp.status_code == 200:
+                self._rate_limit()
+                resp = self._session.get(url, timeout=10)
+                if resp.status_code == 200 and "text/plain" in resp.headers.get("Content-Type", ""):
                     for line in resp.text.splitlines():
                         parts = line.split("|")
                         if len(parts) >= 2 and parts[0].strip() == symbol:
@@ -338,9 +182,6 @@ class RegShoThresholdClient:
                             break
             except requests.RequestException:
                 continue
-
-            # Be gentle with Nasdaq servers
-            time.sleep(0.2)
 
         if records:
             logger.info(
@@ -368,7 +209,7 @@ class RegShoThresholdClient:
             legacy = self._cache_dir / f"{symbol}_threshold.json"
             if legacy.exists():
                 legacy.rename(cache_file)
-                logger.info("Migrated %s → %s", legacy, cache_file)
+                logger.info("Migrated %s -> %s", legacy, cache_file)
 
         if not cache_file.exists():
             return None

@@ -173,68 +173,27 @@ class FinraShortInterestClient(BaseDataClient):
     def _query_api(self, symbol: str) -> list[dict] | None:
         """Query FINRA consolidated short interest API for *symbol*.
 
-        The ``consolidatedShortInterest`` dataset requires ``settlementDate``
-        as a partition key.  Short interest is reported bi-monthly (~15th and
-        last day of each month), so we iterate over candidate dates for the
-        last 5 years.
+        The ``consolidatedShortInterest`` dataset supports querying by
+        ``symbolCode`` domain filter without a partition key, returning
+        all available records in a single paginated request.
 
         Returns raw JSON response rows, or ``None`` on failure.
         """
-        from datetime import date, timedelta
-        import calendar
-
         all_rows: list[dict] = []
-        today = date.today()
-
-        # Generate bi-monthly settlement dates for ~5 years
-        settlement_dates: list[str] = []
-        for year_offset in range(5):
-            year = today.year - year_offset
-            for month in range(1, 13):
-                # Mid-month (~15th)
-                settlement_dates.append(f"{year:04d}-{month:02d}-15")
-                # End of month
-                last_day = calendar.monthrange(year, month)[1]
-                settlement_dates.append(f"{year:04d}-{month:02d}-{last_day:02d}")
-
-        # Filter to past dates only, sort descending
-        settlement_dates = [
-            d for d in settlement_dates if d <= str(today)
-        ]
-        settlement_dates.sort(reverse=True)
-
+        offset = 0
+        page_size = 5000
         failures = 0
-        for settle_date in settlement_dates:
-            if failures >= _MAX_RETRIES:
-                logger.warning(
-                    "Too many consecutive failures querying FINRA SI, stopping"
-                )
-                break
 
+        while failures < _MAX_RETRIES:
             payload = {
-                "fields": [
-                    "settlementDate",
-                    "issueName",
-                    "symbolCode",
-                    "currentShortPositionQuantity",
-                    "previousShortPositionQuantity",
-                    "averageDailyVolumeQuantity",
-                    "daysToCoverQuantity",
-                ],
-                "compareFilters": [
+                "domainFilters": [
                     {
                         "fieldName": "symbolCode",
-                        "fieldValue": symbol,
-                        "compareType": "EQUAL",
-                    },
-                    {
-                        "fieldName": "settlementDate",
-                        "fieldValue": settle_date,
-                        "compareType": "EQUAL",
+                        "values": [symbol],
                     },
                 ],
-                "limit": 10,
-                "offset": 0,
+                "limit": page_size,
+                "offset": offset,
             }
 
             try:
@@ -242,34 +201,42 @@ class FinraShortInterestClient(BaseDataClient):
                 resp = self._session.post(
                     _FINRA_SI_URL,
                     json=payload,
-                    timeout=15,
+                    timeout=30,
                 )
                 if resp.status_code == 200:
                     data = resp.json()
-                    if data:
-                        all_rows.extend(data)
-                        failures = 0
-                    # 200 with empty = no data for that date (normal)
+                    if not data:
+                        break  # No more data
+                    all_rows.extend(data)
+                    failures = 0
+                    if len(data) < page_size:
+                        break  # Last page
+                    offset += page_size
                 elif resp.status_code == 404:
-                    # Dataset not found = no data for date (normal)
-                    pass
+                    break
                 else:
                     failures += 1
                     logger.debug(
-                        "FINRA SI returned %d for %s on %s",
-                        resp.status_code, symbol, settle_date,
+                        "FINRA SI returned %d for %s: %s",
+                        resp.status_code, symbol, resp.text[:200],
                     )
             except (requests.RequestException, json.JSONDecodeError, OSError) as exc:
                 failures += 1
                 logger.debug(
-                    "FINRA SI request failed for %s on %s: %s",
-                    symbol, settle_date, exc,
+                    "FINRA SI request failed for %s: %s",
+                    symbol, exc,
                 )
+
+        if failures >= _MAX_RETRIES:
+            logger.warning(
+                "Too many consecutive failures querying FINRA SI for %s",
+                symbol,
+            )
 
         if all_rows:
             logger.info(
-                "FINRA SI: fetched %d records for %s across %d dates queried",
-                len(all_rows), symbol, len(settlement_dates),
+                "FINRA SI: fetched %d records for %s",
+                len(all_rows), symbol,
             )
             return all_rows
 

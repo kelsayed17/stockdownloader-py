@@ -244,32 +244,55 @@ class FinraShortVolumeClient(BaseDataClient):
     def _query_api(
         self, symbol: str, lookback_days: int
     ) -> list[dict] | None:
+        """Query FINRA regShoDaily API for *symbol*.
+
+        The ``regShoDaily`` dataset uses ``tradeReportDate`` as a
+        partition key, which requires an EQUAL CompareFilter — date
+        range filters do not work.  We therefore iterate over each
+        business day in the lookback window, issuing one request per
+        date.
+
+        Returns raw JSON response rows, or ``None`` on failure.
+        """
         end_date = date.today()
         start_date = end_date - timedelta(days=lookback_days)
 
-        all_rows: list[dict] = []
-        offset = 0
-        page_size = 5000
-        failures = 0
+        # Generate business days (skip weekends)
+        query_dates: list[date] = []
+        current = start_date
+        while current <= end_date:
+            if current.weekday() < 5:  # Mon-Fri
+                query_dates.append(current)
+            current += timedelta(days=1)
 
-        while failures < _MAX_RETRIES:
+        all_rows: list[dict] = []
+        consecutive_failures = 0
+
+        for query_date in query_dates:
+            if consecutive_failures >= _MAX_RETRIES:
+                logger.warning(
+                    "Too many consecutive failures querying FINRA "
+                    "short volume for %s, stopping",
+                    symbol,
+                )
+                break
+
             payload = {
+                "compareFilters": [
+                    {
+                        "fieldName": "tradeReportDate",
+                        "fieldValue": query_date.isoformat(),
+                        "compareType": "EQUAL",
+                    },
+                ],
                 "domainFilters": [
                     {
-                        "fieldName": "symbolCode",
+                        "fieldName":
+                            "securitiesInformationProcessorSymbolIdentifier",
                         "values": [symbol],
                     },
                 ],
-                "dateRangeFilters": [
-                    {
-                        "fieldName": "tradeReportDate",
-                        "startDate": start_date.isoformat(),
-                        "endDate": end_date.isoformat(),
-                    },
-                ],
-                "limit": page_size,
-                "offset": offset,
-                "sortFields": ["-tradeReportDate"],
+                "limit": 50,
             }
 
             try:
@@ -279,29 +302,31 @@ class FinraShortVolumeClient(BaseDataClient):
                 )
                 if resp.status_code == 200:
                     data = resp.json()
-                    if not data:
-                        break
-                    all_rows.extend(data)
-                    failures = 0
-                    if len(data) < page_size:
-                        break
-                    offset += page_size
-                elif resp.status_code == 404:
-                    break
+                    if data:
+                        all_rows.extend(data)
+                    consecutive_failures = 0
+                elif resp.status_code == 204:
+                    # No data for this date — normal
+                    consecutive_failures = 0
                 else:
-                    failures += 1
+                    consecutive_failures += 1
                     logger.debug(
-                        "FINRA short volume returned %d: %s",
-                        resp.status_code, resp.text[:200],
+                        "FINRA short volume returned %d for %s on %s: %s",
+                        resp.status_code, symbol,
+                        query_date.isoformat(), resp.text[:200],
                     )
             except (requests.RequestException, json.JSONDecodeError) as exc:
-                failures += 1
-                logger.debug("FINRA short volume request failed: %s", exc)
+                consecutive_failures += 1
+                logger.debug(
+                    "FINRA short volume request failed for %s on %s: %s",
+                    symbol, query_date.isoformat(), exc,
+                )
 
         if all_rows:
             logger.info(
-                "FINRA short volume: fetched %d records for %s",
-                len(all_rows), symbol,
+                "FINRA short volume: fetched %d records for %s "
+                "across %d business days",
+                len(all_rows), symbol, len(query_dates),
             )
             return all_rows
         return None
