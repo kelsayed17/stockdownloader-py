@@ -1,4 +1,4 @@
-"""Fetches Reg SHO threshold list data from Nasdaq.
+"""Fetches Reg SHO threshold list data from Nasdaq and NYSE.
 
 The **Regulation SHO threshold list** contains securities where aggregate
 failures to deliver (FTDs) have reached or exceeded 10,000 shares and
@@ -9,7 +9,8 @@ Being on the threshold list signals extreme short-selling pressure and
 may trigger mandatory close-out requirements (forced buy-ins).
 
 Sources:
-- **Nasdaq**: ``https://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{MMDDYYYY}.txt``
+- **NYSE**: ``https://www.nyse.com/api/regulatory/threshold-securities/download``
+- **Nasdaq**: ``https://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{YYYYMMDD}.txt``
 
 Usage::
 
@@ -32,11 +33,17 @@ import requests
 logger = logging.getLogger(__name__)
 
 _MAX_RETRIES = 3
-_RATE_LIMIT_DELAY = 0.2
+_RATE_LIMIT_DELAY = 0.3
+_NYSE_RATE_LIMIT_DELAY = 1.0  # NYSE Cloudflare is aggressive
 
-# Nasdaq publishes daily threshold lists
+# Nasdaq publishes daily threshold lists (YYYYMMDD format)
 _NASDAQ_URL_TEMPLATE = (
     "https://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{date}.txt"
+)
+# NYSE threshold list API (date as YYYY-MM-DD query param)
+_NYSE_URL_TEMPLATE = (
+    "https://www.nyse.com/api/regulatory/threshold-securities/"
+    "download?selectedDate={date}"
 )
 
 
@@ -58,10 +65,11 @@ class ThresholdRecord:
 
 
 class RegShoThresholdClient:
-    """Fetches Reg SHO threshold list data from Nasdaq text files.
+    """Fetches Reg SHO threshold list data from NYSE and Nasdaq.
 
     The FINRA ``regShoThresholdList`` dataset is not available via the
-    FINRA API, so this client relies solely on Nasdaq daily text files.
+    FINRA API.  This client queries NYSE (for NYSE-listed securities) and
+    Nasdaq (for Nasdaq-listed securities) daily text files.
 
     Parameters
     ----------
@@ -85,6 +93,7 @@ class RegShoThresholdClient:
             "Accept": "text/plain",
         })
         self._last_request_time: float = 0.0
+        self._last_nyse_request_time: float = 0.0
         self._cache_dir = Path(cache_dir)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
 
@@ -111,14 +120,32 @@ class RegShoThresholdClient:
         List of :class:`ThresholdRecord` sorted by date ascending.
         """
         symbol_upper = symbol.upper()
+        records: list[ThresholdRecord] = []
 
-        # Query Nasdaq text files
-        records = self._query_nasdaq(symbol_upper, lookback_days=lookback_days)
+        # Query NYSE (covers NYSE-listed securities like GME)
+        nyse_records = self._query_nyse(symbol_upper, lookback_days)
+        records.extend(nyse_records)
+
+        # Query Nasdaq (covers Nasdaq-listed securities)
+        nasdaq_records = self._query_nasdaq(symbol_upper, lookback_days)
+        # Merge without duplicates
+        existing_dates = {(r.date, r.market) for r in records}
+        for nr in nasdaq_records:
+            if (nr.date, nr.market) not in existing_dates:
+                records.append(nr)
 
         if records:
             records.sort(key=lambda r: r.date)
-            self._save_cache(symbol_upper, records)
-            return records
+            # Merge with cache (preserves historical data)
+            cached = self._load_cache(symbol_upper) or []
+            by_key: dict[tuple[str, str], ThresholdRecord] = {}
+            for r in cached:
+                by_key[(r.date, r.market)] = r
+            for r in records:
+                by_key[(r.date, r.market)] = r
+            merged = sorted(by_key.values(), key=lambda r: r.date)
+            self._save_cache(symbol_upper, merged)
+            return merged
 
         # Fall back to cache
         cached = self._load_cache(symbol_upper)
@@ -144,6 +171,87 @@ class RegShoThresholdClient:
         cutoff = today - timedelta(days=7)
         recent = [r for r in records if r.date >= cutoff.isoformat()]
         return len(recent) > 0
+
+    # ------------------------------------------------------------------
+    # NYSE threshold list query
+    # ------------------------------------------------------------------
+
+    def _query_nyse(
+        self, symbol: str, lookback_days: int = 1825
+    ) -> list[ThresholdRecord]:
+        """Query NYSE daily threshold list API.
+
+        The NYSE API returns pipe-delimited text with format:
+        ``Symbol|Security Name|Market|Reg SHO Threshold Flag||``
+
+        NYSE's Cloudflare protection is aggressive, so we use a
+        slower rate limit and back off on 429 responses.
+        """
+        records: list[ThresholdRecord] = []
+        today = date.today()
+        consecutive_failures = 0
+
+        for offset in range(lookback_days):
+            check_date = today - timedelta(days=offset)
+            if check_date.weekday() >= 5:
+                continue
+
+            if consecutive_failures >= _MAX_RETRIES:
+                logger.warning(
+                    "Too many consecutive NYSE failures, stopping at %s",
+                    check_date.isoformat(),
+                )
+                break
+
+            date_str = check_date.strftime("%Y-%m-%d")
+            url = _NYSE_URL_TEMPLATE.format(date=date_str)
+
+            try:
+                self._nyse_rate_limit()
+                resp = self._session.get(url, timeout=10)
+                if resp.status_code == 200:
+                    consecutive_failures = 0
+                    for line in resp.text.splitlines():
+                        parts = line.split("|")
+                        if len(parts) >= 2 and parts[0].strip() == symbol:
+                            records.append(ThresholdRecord(
+                                date=check_date.isoformat(),
+                                symbol=symbol,
+                                market="NYSE",
+                                threshold_shares=0,
+                                consecutive_days=0,
+                            ))
+                            break
+                elif resp.status_code == 429:
+                    consecutive_failures += 1
+                    retry_after = int(
+                        resp.headers.get("Retry-After", "60")
+                    )
+                    logger.info(
+                        "NYSE rate limited on %s (retry-after: %ds)",
+                        date_str, retry_after,
+                    )
+                elif resp.status_code in (404, 204):
+                    consecutive_failures = 0
+                else:
+                    consecutive_failures += 1
+            except requests.RequestException:
+                consecutive_failures += 1
+
+        if records:
+            logger.info(
+                "NYSE Reg SHO: %d threshold dates for %s",
+                len(records), symbol,
+            )
+        return records
+
+    def _nyse_rate_limit(self) -> None:
+        """Separate, slower rate limit for NYSE requests."""
+        now = time.monotonic()
+        elapsed = now - self._last_nyse_request_time
+        if elapsed < _NYSE_RATE_LIMIT_DELAY:
+            time.sleep(_NYSE_RATE_LIMIT_DELAY - elapsed)
+        self._last_nyse_request_time = time.monotonic()
 
     # ------------------------------------------------------------------
     # Nasdaq text file query

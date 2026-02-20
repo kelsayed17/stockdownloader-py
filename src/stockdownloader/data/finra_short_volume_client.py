@@ -5,8 +5,21 @@ publishes **daily** short sale volume — the number of shares sold short
 each day across all trade reporting facilities.  This provides a much
 more granular view of short-selling activity.
 
-Data endpoint:
-    ``https://api.finra.org/data/group/otcMarket/name/regShoDaily``
+Data sources (in priority order):
+
+1. **FINRA CDN text files** (2019–present, no auth needed)::
+
+       https://cdn.finra.org/equity/regsho/daily/CNMSshvol{YYYYMMDD}.txt
+
+   The consolidated (CNMS) file contains one row per symbol per day with
+   pipe-delimited fields: ``Date|Symbol|ShortVolume|ShortExemptVolume|TotalVolume|Market``
+
+2. **FINRA API** (recent data only, requires OAuth2)::
+
+       https://api.finra.org/data/group/otcMarket/name/regShoDaily
+
+   The API only has data from ~March 2025 onward and requires per-date
+   queries (``tradeReportDate`` is a partition key).
 
 The ratio of short volume to total volume (short volume ratio, SVR)
 is a useful indicator:
@@ -47,6 +60,10 @@ _FINRA_URL = (
 _FINRA_TOKEN_URL = (
     "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token"
     "?grant_type=client_credentials"
+)
+# FINRA CDN text files — consolidated short volume (no auth, 2019–present)
+_FINRA_CDN_TEMPLATE = (
+    "https://cdn.finra.org/equity/regsho/daily/CNMSshvol{date}.txt"
 )
 
 
@@ -153,38 +170,37 @@ class FinraShortVolumeClient(BaseDataClient):
     def fetch_short_volume(
         self,
         symbol: str,
-        lookback_days: int = 365,
+        lookback_days: int = 2555,
     ) -> list[ShortVolumeRecord]:
         """Fetch daily short sale volume records for *symbol*.
 
-        Tries FINRA API first.  Falls back to cached data on failure.
+        Tries FINRA CDN text files first (2019–present, no auth needed),
+        then the FINRA API for the most recent data, merges with cache.
 
         Returns records sorted by date ascending.
         """
         symbol_upper = symbol.upper()
 
+        # 1. Try CDN text files (primary source, 2019–present)
+        cdn_records = self._query_text_files(symbol_upper, lookback_days)
+
+        # 2. Try API for recent data (may have data not yet in CDN)
+        api_records: list[ShortVolumeRecord] = []
         if self._access_token is None:
             self._authenticate()
-
         if self._access_token:
-            raw = self._query_api(symbol_upper, lookback_days)
+            raw = self._query_api(symbol_upper, lookback_days=60)
             if raw:
-                records = self._raw_to_records(raw, symbol_upper)
-                if records:
-                    # Merge with existing cache
-                    cached = self._load_cache(symbol_upper) or []
-                    merged = self._merge_records(cached, records)
-                    self._save_cache(symbol_upper, merged)
-                    return merged
+                api_records = self._raw_to_records(raw, symbol_upper)
 
-        # Fall back to cache
-        cached = self._load_cache(symbol_upper)
-        if cached:
-            logger.info(
-                "Using cached short volume data for %s (%d records)",
-                symbol_upper, len(cached),
-            )
-            return cached
+        # 3. Merge all sources: cache + CDN + API (API newest wins)
+        cached = self._load_cache(symbol_upper) or []
+        merged = self._merge_records(cached, cdn_records)
+        merged = self._merge_records(merged, api_records)
+
+        if merged:
+            self._save_cache(symbol_upper, merged)
+            return merged
 
         logger.warning("No short volume data available for %s", symbol_upper)
         return []
@@ -238,7 +254,99 @@ class FinraShortVolumeClient(BaseDataClient):
         }
 
     # ------------------------------------------------------------------
-    # API query
+    # CDN text file query (primary source, 2019–present)
+    # ------------------------------------------------------------------
+
+    def _query_text_files(
+        self, symbol: str, lookback_days: int
+    ) -> list[ShortVolumeRecord]:
+        """Fetch short volume from FINRA CDN text files.
+
+        The consolidated (CNMS) file contains one row per symbol per day:
+        ``Date|Symbol|ShortVolume|ShortExemptVolume|TotalVolume|Market``
+
+        Returns parsed :class:`ShortVolumeRecord` list sorted by date.
+        """
+        end_date = date.today()
+        start_date = end_date - timedelta(days=lookback_days)
+
+        records: list[ShortVolumeRecord] = []
+        consecutive_failures = 0
+        current = start_date
+        cdn_retries = 10  # more tolerant for CDN (long iteration)
+
+        while current <= end_date:
+            if current.weekday() >= 5:  # skip weekends
+                current += timedelta(days=1)
+                continue
+
+            if consecutive_failures >= cdn_retries:
+                logger.warning(
+                    "Too many consecutive failures fetching FINRA CDN "
+                    "short volume files, stopping at %s",
+                    current.isoformat(),
+                )
+                break
+
+            date_str = current.strftime("%Y%m%d")
+            url = _FINRA_CDN_TEMPLATE.format(date=date_str)
+
+            try:
+                # CDN is static files — use shorter delay than API
+                time.sleep(0.15)
+                resp = self._session.get(url, timeout=15)
+                if resp.status_code == 200 and "text/plain" in resp.headers.get(
+                    "Content-Type", ""
+                ):
+                    consecutive_failures = 0
+                    for line in resp.text.splitlines():
+                        parts = line.split("|")
+                        if len(parts) >= 5 and parts[1] == symbol:
+                            try:
+                                short_vol = int(parts[2])
+                                exempt_vol = int(parts[3])
+                                total_vol = int(parts[4])
+                                svr = (
+                                    short_vol / total_vol
+                                    if total_vol > 0
+                                    else 0.0
+                                )
+                                records.append(ShortVolumeRecord(
+                                    date=current.isoformat(),
+                                    symbol=symbol,
+                                    short_volume=short_vol,
+                                    total_volume=total_vol,
+                                    short_exempt_volume=exempt_vol,
+                                    short_volume_ratio=round(svr, 6),
+                                ))
+                            except (ValueError, IndexError):
+                                pass
+                            break
+                elif resp.status_code in (404, 204):
+                    consecutive_failures = 0  # normal for holidays
+                elif resp.status_code == 403:
+                    consecutive_failures += 1
+                    logger.debug(
+                        "FINRA CDN returned 403 for %s",
+                        current.isoformat(),
+                    )
+                else:
+                    consecutive_failures += 1
+            except requests.RequestException:
+                consecutive_failures += 1
+
+            current += timedelta(days=1)
+
+        if records:
+            logger.info(
+                "FINRA CDN short volume: %d records for %s (%s to %s)",
+                len(records), symbol,
+                records[0].date, records[-1].date,
+            )
+        return records
+
+    # ------------------------------------------------------------------
+    # API query (recent data only, requires OAuth2)
     # ------------------------------------------------------------------
 
     def _query_api(
