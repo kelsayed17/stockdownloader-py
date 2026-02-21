@@ -187,13 +187,26 @@ class SecInsiderClient:
             )
 
             # SEC bulk data starts Q1 2006; earlier quarters use
-            # individual EDGAR filing downloads instead
+            # individual EDGAR filing downloads instead.
+            # Current quarter's bulk ZIP may not exist yet — fall back
+            # to individual EDGAR filings in that case too.
             if (year, quarter) < (2006, 1):
                 txns = self._fetch_individual_filings(
                     symbol_upper, year, quarter,
                 )
             else:
                 txns = self._fetch_from_bulk(symbol_upper, year, quarter)
+                if txns is None and (year, quarter) >= (
+                    current_year, current_quarter,
+                ):
+                    logger.info(
+                        "Bulk ZIP unavailable for current quarter %dQ%d, "
+                        "falling back to individual EDGAR filings",
+                        year, quarter,
+                    )
+                    txns = self._fetch_individual_filings(
+                        symbol_upper, year, quarter,
+                    )
 
             if txns is not None:
                 all_transactions.extend(txns)
@@ -638,9 +651,7 @@ class SecInsiderClient:
         parses each filing's XML/HTML content.
         """
         if not issuer_cik:
-            # Try to find the issuer CIK from known mappings
-            _KNOWN_CIKS = {"GME": "1326380"}
-            issuer_cik = _KNOWN_CIKS.get(symbol)
+            issuer_cik = self._resolve_cik(symbol)
             if not issuer_cik:
                 logger.debug(
                     "No CIK for %s, cannot fetch individual filings", symbol,
@@ -1201,6 +1212,46 @@ class SecInsiderClient:
             return 0, 0.0, 0, 0, 0, 0
 
         return _extract_13d_13g_data(content)
+
+    # ------------------------------------------------------------------
+    # CIK resolution
+    # ------------------------------------------------------------------
+
+    def _resolve_cik(self, symbol: str) -> str | None:
+        """Resolve an issuer CIK from a ticker symbol.
+
+        Checks a hardcoded mapping first (fastest), then queries the
+        SEC company tickers endpoint as a fallback.
+        """
+        _KNOWN_CIKS: dict[str, str] = {
+            "GME": "1326380",
+            "AAPL": "320193",
+            "TSLA": "1318605",
+            "MSFT": "789019",
+            "AMZN": "1018724",
+            "NVDA": "1045810",
+            "GOOG": "1652044",
+            "META": "1326801",
+        }
+        if symbol in _KNOWN_CIKS:
+            return _KNOWN_CIKS[symbol]
+
+        # Fallback: SEC company tickers JSON
+        try:
+            self._rate_limit()
+            resp = self._session.get(
+                "https://www.sec.gov/files/company_tickers.json",
+                timeout=15,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                for _key, entry in data.items():
+                    if entry.get("ticker", "").upper() == symbol:
+                        return str(entry["cik_str"])
+        except (requests.RequestException, ValueError, KeyError):
+            pass
+
+        return None
 
     # ------------------------------------------------------------------
     # HTTP helpers
