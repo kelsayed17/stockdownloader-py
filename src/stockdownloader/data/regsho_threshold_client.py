@@ -1,4 +1,4 @@
-"""Fetches Reg SHO threshold list data from Nasdaq and NYSE.
+"""Fetches Reg SHO threshold list data from OCC, Nasdaq, and NYSE.
 
 The **Regulation SHO threshold list** contains securities where aggregate
 failures to deliver (FTDs) have reached or exceeded 10,000 shares and
@@ -8,9 +8,12 @@ consecutive settlement days.
 Being on the threshold list signals extreme short-selling pressure and
 may trigger mandatory close-out requirements (forced buy-ins).
 
-Sources:
-- **NYSE**: ``https://www.nyse.com/api/regulatory/threshold-securities/download``
+Sources (in priority order):
+- **OCC**: ``https://marketdata.theocc.com/threshold-securities``
+  (combined list covering ALL exchanges — preferred source)
 - **Nasdaq**: ``https://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{YYYYMMDD}.txt``
+- **NYSE**: ``https://www.nyse.com/api/regulatory/threshold-securities/download``
+  (often Cloudflare-blocked — used as last resort)
 
 Usage::
 
@@ -35,7 +38,12 @@ logger = logging.getLogger(__name__)
 _MAX_RETRIES = 3
 _RATE_LIMIT_DELAY = 0.3
 _NYSE_RATE_LIMIT_DELAY = 1.0  # NYSE Cloudflare is aggressive
+_OCC_RATE_LIMIT_DELAY = 0.5   # OCC is generous but be polite
 
+# OCC combined threshold list (covers ALL exchanges — preferred source)
+_OCC_URL_TEMPLATE = (
+    "https://marketdata.theocc.com/threshold-securities?reportDate={date}"
+)
 # Nasdaq publishes daily threshold lists (YYYYMMDD format)
 _NASDAQ_URL_TEMPLATE = (
     "https://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{date}.txt"
@@ -65,11 +73,11 @@ class ThresholdRecord:
 
 
 class RegShoThresholdClient:
-    """Fetches Reg SHO threshold list data from NYSE and Nasdaq.
+    """Fetches Reg SHO threshold list data from OCC, Nasdaq, and NYSE.
 
-    The FINRA ``regShoThresholdList`` dataset is not available via the
-    FINRA API.  This client queries NYSE (for NYSE-listed securities) and
-    Nasdaq (for Nasdaq-listed securities) daily text files.
+    The preferred source is the **OCC combined threshold list** which
+    covers all exchanges in a single request without Cloudflare issues.
+    Falls back to Nasdaq text files and NYSE API if OCC is unavailable.
 
     Parameters
     ----------
@@ -95,6 +103,7 @@ class RegShoThresholdClient:
         })
         self._last_request_time: float = 0.0
         self._last_nyse_request_time: float = 0.0
+        self._last_occ_request_time: float = 0.0
         self._data_dir = Path(data_dir)
         self._data_dir.mkdir(parents=True, exist_ok=True)
 
@@ -107,7 +116,9 @@ class RegShoThresholdClient:
     ) -> list[ThresholdRecord]:
         """Fetch all dates where *symbol* appeared on the Reg SHO threshold list.
 
-        Queries Nasdaq daily text files, then falls back to cache.
+        Queries the OCC combined list first (covers all exchanges),
+        then falls back to Nasdaq and NYSE individual queries if OCC
+        returned nothing.
 
         Parameters
         ----------
@@ -123,17 +134,24 @@ class RegShoThresholdClient:
         symbol_upper = symbol.upper()
         records: list[ThresholdRecord] = []
 
-        # Query NYSE (covers NYSE-listed securities like GME)
-        nyse_records = self._query_nyse(symbol_upper, lookback_days)
-        records.extend(nyse_records)
+        # Priority 1: OCC combined list (covers ALL exchanges)
+        occ_records = self._query_occ(symbol_upper, lookback_days)
+        records.extend(occ_records)
 
-        # Query Nasdaq (covers Nasdaq-listed securities)
-        nasdaq_records = self._query_nasdaq(symbol_upper, lookback_days)
-        # Merge without duplicates
-        existing_dates = {(r.date, r.market) for r in records}
-        for nr in nasdaq_records:
-            if (nr.date, nr.market) not in existing_dates:
-                records.append(nr)
+        # Priority 2: Only query individual exchanges if OCC
+        # returned no results (avoids redundant network calls)
+        if not occ_records:
+            # Query NYSE (covers NYSE-listed securities like GME)
+            nyse_records = self._query_nyse(symbol_upper, lookback_days)
+            records.extend(nyse_records)
+
+            # Query Nasdaq (covers Nasdaq-listed securities)
+            nasdaq_records = self._query_nasdaq(symbol_upper, lookback_days)
+            # Merge without duplicates
+            existing_dates = {(r.date, r.market) for r in records}
+            for nr in nasdaq_records:
+                if (nr.date, nr.market) not in existing_dates:
+                    records.append(nr)
 
         if records:
             records.sort(key=lambda r: r.date)
@@ -172,6 +190,82 @@ class RegShoThresholdClient:
         cutoff = today - timedelta(days=7)
         recent = [r for r in records if r.date >= cutoff.isoformat()]
         return len(recent) > 0
+
+    # ------------------------------------------------------------------
+    # OCC combined threshold list (covers all exchanges)
+    # ------------------------------------------------------------------
+
+    def _query_occ(
+        self, symbol: str, lookback_days: int = 1825
+    ) -> list[ThresholdRecord]:
+        """Query the OCC combined threshold list.
+
+        The OCC (Options Clearing Corporation) publishes a combined
+        threshold list covering NYSE, NASDAQ, NYSE Arca, NYSE American,
+        and other exchanges.  Pipe-delimited format::
+
+            Symbol|Security Name|Market Category|Reg SHO Flag|...
+
+        The ``Market Category`` column contains the actual exchange
+        (e.g. ``"NYSE"``, ``"NYSE Arca"``, ``"G"`` for OTC).
+        """
+        records: list[ThresholdRecord] = []
+        today = date.today()
+        consecutive_failures = 0
+
+        for offset in range(lookback_days):
+            check_date = today - timedelta(days=offset)
+            if check_date.weekday() >= 5:
+                continue
+
+            if consecutive_failures >= _MAX_RETRIES:
+                logger.warning(
+                    "Too many consecutive OCC failures, stopping at %s",
+                    check_date.isoformat(),
+                )
+                break
+
+            date_str = check_date.strftime("%Y%m%d")
+            url = _OCC_URL_TEMPLATE.format(date=date_str)
+
+            try:
+                self._occ_rate_limit()
+                resp = self._session.get(url, timeout=15)
+                if resp.status_code == 200:
+                    consecutive_failures = 0
+                    for line in resp.text.splitlines():
+                        parts = line.split("|")
+                        if len(parts) >= 4 and parts[0].strip() == symbol:
+                            market = parts[2].strip() or "OCC"
+                            records.append(ThresholdRecord(
+                                date=check_date.isoformat(),
+                                symbol=symbol,
+                                market=market,
+                                threshold_shares=0,
+                                consecutive_days=0,
+                            ))
+                            break
+                elif resp.status_code in (404, 204):
+                    consecutive_failures = 0
+                else:
+                    consecutive_failures += 1
+            except requests.RequestException:
+                consecutive_failures += 1
+
+        if records:
+            logger.info(
+                "OCC Reg SHO: %d threshold dates for %s",
+                len(records), symbol,
+            )
+        return records
+
+    def _occ_rate_limit(self) -> None:
+        """Rate limit for OCC requests."""
+        now = time.monotonic()
+        elapsed = now - self._last_occ_request_time
+        if elapsed < _OCC_RATE_LIMIT_DELAY:
+            time.sleep(_OCC_RATE_LIMIT_DELAY - elapsed)
+        self._last_occ_request_time = time.monotonic()
 
     # ------------------------------------------------------------------
     # NYSE threshold list query

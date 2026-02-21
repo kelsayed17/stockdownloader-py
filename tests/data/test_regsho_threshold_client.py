@@ -1,16 +1,18 @@
-"""Unit tests for RegShoThresholdClient — caching with per-symbol subdirectories."""
+"""Unit tests for RegShoThresholdClient — caching, OCC, per-symbol subdirectories."""
 
 from __future__ import annotations
 
 import json
 from dataclasses import asdict
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from stockdownloader.data.regsho_threshold_client import (
     RegShoThresholdClient,
     ThresholdRecord,
+    _OCC_URL_TEMPLATE,
 )
 
 
@@ -128,3 +130,127 @@ class TestThresholdLegacyMigration:
         # Legacy file should have been moved
         assert not legacy_file.exists()
         assert (client._data_dir / "MSFT" / "regsho_threshold.json").exists()
+
+
+# ------------------------------------------------------------------
+# Tests: OCC combined endpoint
+# ------------------------------------------------------------------
+
+_OCC_SAMPLE_RESPONSE = (
+    "Symbol|Security Name|Market Category|Reg SHO Threshold Flag|Flag2|\n"
+    "AAPU|DIREXION SHS ETF TR DAILY AAPL|G|Y|N|\n"
+    "AIM|AIM ImmunoTech Inc.|NYSE American|Y||\n"
+    "GME|GameStop Corp New|NYSE|Y||\n"
+    "SPXS|Direxion Daily S&P 500 Bear 3x|NYSE Arca|Y||\n"
+)
+
+
+class TestOccQuery:
+    """Tests for the OCC combined threshold list query."""
+
+    def test_occ_url_template(self) -> None:
+        """Verify the OCC URL template produces correct URLs."""
+        url = _OCC_URL_TEMPLATE.format(date="20260220")
+        assert url == (
+            "https://marketdata.theocc.com/threshold-securities"
+            "?reportDate=20260220"
+        )
+
+    def test_occ_parses_symbol(self, tmp_path: Path) -> None:
+        """OCC response correctly identifies symbol on threshold list."""
+        client = _make_client(tmp_path)
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = _OCC_SAMPLE_RESPONSE
+
+        with patch.object(client._session, "get", return_value=mock_resp):
+            records = client._query_occ("GME", lookback_days=1)
+
+        assert len(records) >= 1
+        assert records[0].symbol == "GME"
+        assert records[0].market == "NYSE"
+
+    def test_occ_not_found_returns_empty(self, tmp_path: Path) -> None:
+        """Symbol not in OCC response returns empty list."""
+        client = _make_client(tmp_path)
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = _OCC_SAMPLE_RESPONSE
+
+        with patch.object(client._session, "get", return_value=mock_resp):
+            records = client._query_occ("TSLA", lookback_days=1)
+
+        assert len(records) == 0
+
+    def test_occ_404_not_counted_as_failure(self, tmp_path: Path) -> None:
+        """OCC 404 responses should not increment failure counter."""
+        client = _make_client(tmp_path)
+        mock_resp = MagicMock()
+        mock_resp.status_code = 404
+
+        with patch.object(client._session, "get", return_value=mock_resp):
+            records = client._query_occ("GME", lookback_days=5)
+
+        # Should not stop early due to failures
+        assert records == []
+
+    def test_occ_market_category_preserved(self, tmp_path: Path) -> None:
+        """OCC market category is used as the record market field."""
+        client = _make_client(tmp_path)
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = _OCC_SAMPLE_RESPONSE
+
+        with patch.object(client._session, "get", return_value=mock_resp):
+            records = client._query_occ("SPXS", lookback_days=1)
+
+        assert len(records) >= 1
+        assert records[0].market == "NYSE Arca"
+
+
+class TestOccFallback:
+    """Tests that OCC is tried first, NYSE/Nasdaq as fallback."""
+
+    def test_occ_results_skip_nyse_nasdaq(self, tmp_path: Path) -> None:
+        """When OCC returns results, NYSE/Nasdaq are not queried."""
+        client = _make_client(tmp_path)
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.text = _OCC_SAMPLE_RESPONSE
+
+        with (
+            patch.object(
+                client, "_query_occ",
+                return_value=[ThresholdRecord(
+                    date="2024-06-10", symbol="GME",
+                    market="NYSE", threshold_shares=0, consecutive_days=0,
+                )],
+            ) as mock_occ,
+            patch.object(client, "_query_nyse") as mock_nyse,
+            patch.object(client, "_query_nasdaq") as mock_nasdaq,
+        ):
+            records = client.fetch_threshold_status("GME", lookback_days=5)
+
+        mock_occ.assert_called_once()
+        mock_nyse.assert_not_called()
+        mock_nasdaq.assert_not_called()
+        assert len(records) >= 1
+
+    def test_empty_occ_triggers_nyse_nasdaq(self, tmp_path: Path) -> None:
+        """When OCC returns nothing, NYSE and Nasdaq are queried."""
+        client = _make_client(tmp_path)
+
+        with (
+            patch.object(client, "_query_occ", return_value=[]) as mock_occ,
+            patch.object(
+                client, "_query_nyse", return_value=[],
+            ) as mock_nyse,
+            patch.object(
+                client, "_query_nasdaq", return_value=[],
+            ) as mock_nasdaq,
+        ):
+            client.fetch_threshold_status("GME", lookback_days=5)
+
+        mock_occ.assert_called_once()
+        mock_nyse.assert_called_once()
+        mock_nasdaq.assert_called_once()

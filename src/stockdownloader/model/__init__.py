@@ -44,6 +44,9 @@ from stockdownloader.model.regulatory_records import (
     SecFiling,
     InstitutionalHolding,
     OwnershipSnapshot,
+    InsiderTransaction,
+    BeneficialOwner,
+    InsiderOwnershipSnapshot,
 )
 from stockdownloader.model.symbol_info import (
     SymbolInfo,
@@ -93,6 +96,9 @@ __all__ = [
     "InstitutionalHolding",
     "OwnershipSnapshot",
     "BorrowRateRecord",
+    "InsiderTransaction",
+    "BeneficialOwner",
+    "InsiderOwnershipSnapshot",
     "SymbolInfo",
     "SYMBOL_REGISTRY",
     "get_symbol_info",

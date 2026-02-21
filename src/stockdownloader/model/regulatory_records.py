@@ -1,8 +1,9 @@
 """Immutable dataclasses for FINRA / SEC regulatory data records.
 
 Includes dark-pool volume, short interest, failure-to-deliver,
-estimated borrow-rate records, SEC EDGAR filing metadata, and
-13F institutional ownership snapshots.
+estimated borrow-rate records, SEC EDGAR filing metadata,
+13F institutional ownership snapshots, Form 3/4/5 insider
+transactions, and Schedule 13D/13G beneficial ownership.
 """
 
 from __future__ import annotations
@@ -184,5 +185,105 @@ class OwnershipSnapshot:
     def __post_init__(self) -> None:
         if not self.quarter_end:
             raise ValueError("quarter_end must not be empty")
+        if not self.symbol:
+            raise ValueError("symbol must not be empty")
+
+
+# ── Insider Transactions (Form 3/4/5) ────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class InsiderTransaction:
+    """A single insider buy/sell from SEC Form 3, 4, or 5.
+
+    Form 4 is the most common: insiders must report changes in
+    beneficial ownership within 2 business days.  Transaction codes:
+
+    * ``P`` — open-market purchase
+    * ``S`` — open-market sale
+    * ``A`` — grant/award
+    * ``M`` — exercise of derivative (conversion)
+    * ``G`` — gift
+    * ``F`` — tax withholding (disposition)
+    * ``D`` — disposition to issuer
+    * ``J`` — other acquisition/disposition
+
+    ``shares`` is signed: positive = acquired, negative = disposed.
+    """
+
+    filing_date: str           # "YYYY-MM-DD"
+    transaction_date: str      # "YYYY-MM-DD"
+    owner_name: str
+    owner_cik: str
+    owner_title: str           # "CEO", "Director", etc.
+    is_director: bool
+    is_officer: bool
+    is_ten_pct_owner: bool
+    transaction_code: str      # "P", "S", "A", "M", etc.
+    shares: int                # signed: positive=acquire, negative=dispose
+    price_per_share: float     # 0.0 if not reported
+    shares_owned_after: int    # post-transaction balance
+    direct_or_indirect: str    # "D"=direct, "I"=indirect
+
+    def __post_init__(self) -> None:
+        if not self.filing_date:
+            raise ValueError("filing_date must not be empty")
+        if not self.owner_name:
+            raise ValueError("owner_name must not be empty")
+
+
+# ── Beneficial Ownership (Schedule 13D/13G) ──────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class BeneficialOwner:
+    """A >5% beneficial owner from Schedule 13D or 13G.
+
+    Schedule 13D is filed by activist investors (>5% with intent to
+    influence).  Schedule 13G is filed by passive investors (>5%
+    without activist intent).  Amendments (``/A``) update prior
+    filings with new share counts.
+    """
+
+    filing_date: str           # "YYYY-MM-DD"
+    owner_name: str
+    owner_cik: str
+    form_type: str             # "SC 13D", "SC 13D/A", "SC 13G", etc.
+    shares_beneficially_owned: int
+    percent_of_class: float    # e.g. 11.9
+    sole_voting_power: int
+    shared_voting_power: int
+    sole_dispositive_power: int
+    shared_dispositive_power: int
+    filing_url: str
+
+    def __post_init__(self) -> None:
+        if not self.filing_date:
+            raise ValueError("filing_date must not be empty")
+        if not self.owner_name:
+            raise ValueError("owner_name must not be empty")
+        if not self.form_type:
+            raise ValueError("form_type must not be empty")
+
+
+# ── Insider Ownership Snapshot ───────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class InsiderOwnershipSnapshot:
+    """Aggregated insider + beneficial ownership for a symbol at a point in time."""
+
+    as_of_date: str
+    symbol: str
+    total_insider_shares: int
+    total_beneficial_owner_shares: int
+    num_insiders: int
+    num_beneficial_owners: int
+    transactions: tuple[InsiderTransaction, ...]
+    beneficial_owners: tuple[BeneficialOwner, ...]
+
+    def __post_init__(self) -> None:
+        if not self.as_of_date:
+            raise ValueError("as_of_date must not be empty")
         if not self.symbol:
             raise ValueError("symbol must not be empty")

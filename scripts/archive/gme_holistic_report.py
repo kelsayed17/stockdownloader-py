@@ -25,20 +25,22 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Add project root to path (scripts/archive -> scripts -> project root)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from stockdownloader.data.sec_ftd_client import SecFtdClient
 from stockdownloader.data.borrow_rate import BorrowRateProxy
+from stockdownloader.data.sec_insider_client import SecInsiderClient
 
 DATA_DIR = PROJECT_ROOT / "data"
+GME_DIR = DATA_DIR / "GME"
 CACHE_DIR = DATA_DIR / "cache"
 
 
 def load_price_data():
     """Load GME daily price data from CSV."""
-    csv_path = DATA_DIR / "gme_daily_bars.csv"
+    csv_path = GME_DIR / "daily_bars.csv"
     if not csv_path.exists():
         print(f"ERROR: {csv_path} not found. Run full_history_fetcher first.")
         sys.exit(1)
@@ -81,8 +83,8 @@ def load_ftd_data():
 
 
 def load_short_interest():
-    """Load short interest from FINRA cache."""
-    cache_path = CACHE_DIR / "short_interest" / "GME_si.json"
+    """Load short interest from per-symbol data dir."""
+    cache_path = GME_DIR / "short_interest.json"
     if not cache_path.exists():
         print("  WARNING: No short interest cache found")
         return {}
@@ -103,8 +105,8 @@ def load_short_interest():
 
 
 def load_dark_pool():
-    """Load dark pool / ATS data from FINRA cache."""
-    cache_path = CACHE_DIR / "dark_pool" / "GME_dp.json"
+    """Load dark pool / ATS data from per-symbol data dir."""
+    cache_path = GME_DIR / "dark_pool.json"
     if not cache_path.exists():
         print("  WARNING: No dark pool cache found")
         return {}
@@ -125,11 +127,8 @@ def load_dark_pool():
 
 
 def load_ownership():
-    """Load 13F institutional ownership from SEC cache."""
-    # Check new filename first, then legacy
-    cache_path = CACHE_DIR / "ownership" / "GME_13f.json"
-    if not cache_path.exists():
-        cache_path = CACHE_DIR / "ownership" / "GME_ownership.json"
+    """Load 13F institutional ownership from per-symbol data dir."""
+    cache_path = GME_DIR / "ownership_13f.json"
     if not cache_path.exists():
         print("  WARNING: No ownership cache found")
         return {}
@@ -148,6 +147,85 @@ def load_ownership():
         }
     print(f"  Ownership quarterly records loaded: {len(own_by_quarter)}")
     return own_by_quarter
+
+
+def load_short_volume():
+    """Load daily short volume from per-symbol data dir."""
+    cache_path = GME_DIR / "short_volume.json"
+    if not cache_path.exists():
+        print("  WARNING: No short volume cache found")
+        return {}
+
+    with open(cache_path) as f:
+        records = json.load(f)
+
+    sv_by_date = {}
+    for r in records:
+        sv_by_date[r["date"]] = {
+            "short_volume": r["short_volume"],
+            "total_volume": r["total_volume"],
+            "short_exempt_volume": r["short_exempt_volume"],
+            "short_volume_ratio": r["short_volume_ratio"],
+        }
+    print(f"  Short volume daily records loaded: {len(sv_by_date)}")
+    return sv_by_date
+
+
+def load_regsho_threshold():
+    """Load Reg SHO threshold list from per-symbol data dir."""
+    cache_path = GME_DIR / "regsho_threshold.json"
+    if not cache_path.exists():
+        print("  WARNING: No Reg SHO threshold cache found")
+        return {}
+
+    with open(cache_path) as f:
+        records = json.load(f)
+
+    threshold_dates = set()
+    for r in records:
+        threshold_dates.add(r["date"])
+    print(f"  Reg SHO threshold dates loaded: {len(threshold_dates)}")
+    return threshold_dates
+
+
+def load_insider_transactions():
+    """Load insider transactions from per-symbol data dir."""
+    insider_dir = GME_DIR / "insider"
+    txn_file = GME_DIR / "insider_transactions.json"
+
+    # Check merged file first
+    if txn_file.exists():
+        with open(txn_file) as f:
+            records = json.load(f)
+        print(f"  Insider transactions loaded: {len(records)}")
+        return records
+
+    # Fall back to per-quarter files
+    if not insider_dir.exists():
+        print("  WARNING: No insider transaction data found")
+        return []
+
+    all_txns = []
+    for qf in sorted(insider_dir.glob("*.json")):
+        with open(qf) as f:
+            all_txns.extend(json.load(f))
+
+    print(f"  Insider transactions loaded: {len(all_txns)} (from {len(list(insider_dir.glob('*.json')))} quarter files)")
+    return all_txns
+
+
+def load_beneficial_owners():
+    """Load beneficial ownership data (13D/13G) from per-symbol data dir."""
+    cache_path = GME_DIR / "beneficial_owners.json"
+    if not cache_path.exists():
+        print("  WARNING: No beneficial ownership cache found")
+        return []
+
+    with open(cache_path) as f:
+        records = json.load(f)
+
+    print(f"  Beneficial owners loaded: {len(records)}")
+    return records
 
 
 def estimate_borrow_rates(si_by_date):
@@ -180,7 +258,8 @@ def estimate_borrow_rates(si_by_date):
     return rates
 
 
-def align_all_data(prices, ftd_by_date, si_by_date, dp_by_week, own_by_quarter, borrow_rates):
+def align_all_data(prices, ftd_by_date, si_by_date, dp_by_week, own_by_quarter,
+                    borrow_rates, sv_by_date, threshold_dates):
     """
     Align all data sources on the daily price timeline with forward-fill.
     """
@@ -223,6 +302,9 @@ def align_all_data(prices, ftd_by_date, si_by_date, dp_by_week, own_by_quarter, 
         # FTD is daily — no forward fill, just lookup
         ftd = ftd_by_date.get(d, {"quantity": 0, "value": 0.0})
 
+        # Short volume is daily — just lookup
+        sv = sv_by_date.get(d)
+
         row = {
             "date": d,
             # Price
@@ -234,6 +316,11 @@ def align_all_data(prices, ftd_by_date, si_by_date, dp_by_week, own_by_quarter, 
             # FTD (daily, 0 if no failures)
             "ftd_quantity": ftd["quantity"],
             "ftd_value": round(ftd["value"], 2),
+            # Short Volume (daily)
+            "short_volume": sv["short_volume"] if sv else 0,
+            "short_volume_total": sv["total_volume"] if sv else 0,
+            "short_exempt_volume": sv["short_exempt_volume"] if sv else 0,
+            "short_volume_ratio": round(sv["short_volume_ratio"] * 100, 2) if sv else 0,
             # Short Interest (forward-filled)
             "short_interest": current_si["short_interest"] if current_si else 0,
             "si_days_to_cover": current_si["days_to_cover"] if current_si else 0,
@@ -249,6 +336,8 @@ def align_all_data(prices, ftd_by_date, si_by_date, dp_by_week, own_by_quarter, 
             # Borrow Rate (forward-filled)
             "borrow_rate_est": current_borrow["estimated_fee_pct"] if current_borrow else 0,
             "borrow_utilization": current_borrow["utilization_pct"] if current_borrow else 0,
+            # Reg SHO Threshold
+            "on_threshold_list": 1 if d in threshold_dates else 0,
         }
         aligned.append(row)
 
@@ -320,7 +409,8 @@ def compute_derived_metrics(aligned):
     return aligned
 
 
-def print_summary_report(aligned, ftd_by_date, si_by_date, dp_by_week, own_by_quarter):
+def print_summary_report(aligned, ftd_by_date, si_by_date, dp_by_week, own_by_quarter,
+                         sv_by_date, threshold_dates):
     """Print comprehensive summary statistics."""
     print("\n" + "=" * 80)
     print("  GME HOLISTIC DATA REPORT")
@@ -463,6 +553,53 @@ def print_summary_report(aligned, ftd_by_date, si_by_date, dp_by_week, own_by_qu
         for h in holdings[:15]:
             val = h["value_usd"] * 1000 if h["value_usd"] else 0
             print(f"    {h['manager_name']:<40} {h['shares']:>12,} shares  ${val:>14,}")
+
+    # === SHORT VOLUME ANALYSIS ===
+    print("\n" + "─" * 60)
+    print("  DAILY SHORT VOLUME ANALYSIS")
+    print("─" * 60)
+
+    sv_sorted = sorted(sv_by_date.items(), key=lambda x: x[0])
+    if sv_sorted:
+        print(f"  Date Range:        {sv_sorted[0][0]} → {sv_sorted[-1][0]}")
+        print(f"  Trading Days:      {len(sv_sorted)}")
+
+        svrs = [r[1]["short_volume_ratio"] for r in sv_sorted]
+        avg_svr = sum(svrs) / len(svrs) * 100
+        max_svr_entry = max(sv_sorted, key=lambda x: x[1]["short_volume_ratio"])
+        total_short_vol = sum(r[1]["short_volume"] for r in sv_sorted)
+        total_total_vol = sum(r[1]["total_volume"] for r in sv_sorted)
+        overall_svr = total_short_vol / total_total_vol * 100 if total_total_vol > 0 else 0
+
+        print(f"  Overall SVR:       {overall_svr:.1f}%")
+        print(f"  Avg Daily SVR:     {avg_svr:.1f}%")
+        print(f"  Peak SVR:          {max_svr_entry[1]['short_volume_ratio'] * 100:.1f}% ({max_svr_entry[0]})")
+
+        days_above_50 = sum(1 for s in svrs if s > 0.50)
+        days_above_60 = sum(1 for s in svrs if s > 0.60)
+        print(f"  Days SVR > 50%:    {days_above_50} ({days_above_50/len(svrs)*100:.1f}%)")
+        print(f"  Days SVR > 60%:    {days_above_60} ({days_above_60/len(svrs)*100:.1f}%)")
+
+        # Recent trend (last 20 days)
+        recent_sv = sv_sorted[-20:]
+        recent_avg_svr = sum(r[1]["short_volume_ratio"] for r in recent_sv) / len(recent_sv) * 100
+        print(f"\n  Recent 20-day SVR: {recent_avg_svr:.1f}%")
+        print(f"  {'Date':<14} {'Short Vol':>12} {'Total Vol':>12} {'SVR':>7}")
+        for date, sv in recent_sv:
+            print(f"  {date:<14} {sv['short_volume']:>12,} {sv['total_volume']:>12,} {sv['short_volume_ratio'] * 100:>6.1f}%")
+
+    # === REG SHO THRESHOLD ===
+    print("\n" + "─" * 60)
+    print("  REG SHO THRESHOLD LIST")
+    print("─" * 60)
+
+    if threshold_dates:
+        sorted_threshold = sorted(threshold_dates)
+        print(f"  Total Days on List: {len(threshold_dates)}")
+        print(f"  Date Range:         {sorted_threshold[0]} → {sorted_threshold[-1]}")
+        print(f"  Dates: {', '.join(sorted_threshold)}")
+    else:
+        print("  GME is NOT currently on the Reg SHO threshold list")
 
     # === BORROW RATE ESTIMATES ===
     print("\n" + "─" * 60)
@@ -801,6 +938,200 @@ def print_interpretation(aligned, si_by_date, dp_by_week, ftd_by_date):
 """)
 
 
+def print_insider_analysis(insider_txns, beneficial_owners, aligned):
+    """Print insider transaction and beneficial ownership analysis."""
+    print("\n" + "=" * 80)
+    print("  INSIDER & BENEFICIAL OWNERSHIP ANALYSIS")
+    print("=" * 80)
+
+    # ── Insider Transactions ──
+    if insider_txns:
+        print("\n" + "-" * 60)
+        print("  INSIDER TRANSACTIONS (Form 3/4/5)")
+        print("-" * 60)
+
+        # Aggregate by owner
+        owner_data = defaultdict(lambda: {"buys": 0, "sells": 0, "net": 0, "latest_shares": 0, "titles": set()})
+        for t in insider_txns:
+            name = t.get("owner_name", t.get("ownerName", "Unknown"))
+            code = t.get("transaction_code", t.get("transactionCode", ""))
+            shares = t.get("shares", 0)
+            shares_after = t.get("shares_owned_after", t.get("sharesOwnedAfter", 0))
+            title = t.get("owner_title", t.get("ownerTitle", ""))
+
+            if title:
+                owner_data[name]["titles"].add(title)
+            owner_data[name]["latest_shares"] = max(owner_data[name]["latest_shares"], shares_after)
+
+            if code in ("P",):
+                owner_data[name]["buys"] += abs(shares)
+            elif code in ("S", "F"):
+                owner_data[name]["sells"] += abs(shares)
+            owner_data[name]["net"] += shares  # already signed
+
+        # Sort by total activity
+        sorted_owners = sorted(
+            owner_data.items(),
+            key=lambda x: abs(x[1]["buys"]) + abs(x[1]["sells"]),
+            reverse=True,
+        )
+
+        print(f"\n  Total insider transactions: {len(insider_txns)}")
+        print(f"  Distinct insiders: {len(owner_data)}")
+
+        total_buys = sum(o["buys"] for o in owner_data.values())
+        total_sells = sum(o["sells"] for o in owner_data.values())
+        print(f"  Total shares purchased: {total_buys:,}")
+        print(f"  Total shares sold/withheld: {total_sells:,}")
+        print(f"  Net insider flow: {total_buys - total_sells:+,}")
+
+        print(f"\n  {'Owner':<35} {'Title':<20} {'Buys':>12} {'Sells':>12} {'Net':>12} {'Holdings':>12}")
+        print(f"  {'-'*35} {'-'*20} {'-'*12} {'-'*12} {'-'*12} {'-'*12}")
+        for name, data in sorted_owners[:20]:
+            title = ", ".join(sorted(data["titles"]))[:20] if data["titles"] else ""
+            print(
+                f"  {name[:35]:<35} {title:<20} "
+                f"{data['buys']:>12,} {data['sells']:>12,} "
+                f"{data['net']:>+12,} {data['latest_shares']:>12,}"
+            )
+
+        # Net sentiment by quarter
+        quarter_data = defaultdict(lambda: {"buys": 0, "sells": 0})
+        for t in insider_txns:
+            txn_date = t.get("transaction_date", t.get("transactionDate", ""))
+            if not txn_date or len(txn_date) < 7:
+                continue
+            year = txn_date[:4]
+            month = int(txn_date[5:7])
+            q = (month - 1) // 3 + 1
+            qkey = f"{year}Q{q}"
+            code = t.get("transaction_code", t.get("transactionCode", ""))
+            shares = t.get("shares", 0)
+            if code == "P":
+                quarter_data[qkey]["buys"] += abs(shares)
+            elif code in ("S", "F"):
+                quarter_data[qkey]["sells"] += abs(shares)
+
+        if quarter_data:
+            print(f"\n  {'Quarter':<10} {'Buys':>12} {'Sells':>12} {'Net':>12} {'Sentiment':>12}")
+            print(f"  {'-'*10} {'-'*12} {'-'*12} {'-'*12} {'-'*12}")
+            for qkey in sorted(quarter_data.keys())[-20:]:
+                qd = quarter_data[qkey]
+                net = qd["buys"] - qd["sells"]
+                sentiment = "BULLISH" if net > 0 else "BEARISH" if net < 0 else "NEUTRAL"
+                print(
+                    f"  {qkey:<10} {qd['buys']:>12,} {qd['sells']:>12,} "
+                    f"{net:>+12,} {sentiment:>12}"
+                )
+
+    # ── Beneficial Owners (13D/13G) ──
+    if beneficial_owners:
+        print("\n" + "-" * 60)
+        print("  BENEFICIAL OWNERSHIP (Schedule 13D/13G)")
+        print("-" * 60)
+
+        # Group by owner, show latest filing
+        latest_by_owner = {}
+        for bo in beneficial_owners:
+            name = bo.get("owner_name", bo.get("ownerName", "Unknown"))
+            date = bo.get("filing_date", bo.get("filingDate", ""))
+            if name not in latest_by_owner or date > latest_by_owner[name]["filing_date"]:
+                latest_by_owner[name] = {
+                    "filing_date": date,
+                    "form_type": bo.get("form_type", bo.get("formType", "")),
+                    "shares": bo.get("shares_beneficially_owned", bo.get("sharesBeneficiallyOwned", 0)),
+                    "pct": bo.get("percent_of_class", bo.get("percentOfClass", 0.0)),
+                }
+
+        print(f"\n  Total 13D/13G filings: {len(beneficial_owners)}")
+        print(f"  Distinct >5% beneficial owners: {len(latest_by_owner)}")
+
+        print(f"\n  {'Owner':<40} {'Last Filed':<12} {'Form':>12} {'Shares':>14} {'% Class':>8}")
+        print(f"  {'-'*40} {'-'*12} {'-'*12} {'-'*14} {'-'*8}")
+
+        for name, data in sorted(
+            latest_by_owner.items(),
+            key=lambda x: x[1].get("shares", 0),
+            reverse=True,
+        ):
+            print(
+                f"  {name[:40]:<40} {data['filing_date']:<12} "
+                f"{data['form_type']:>12} {data['shares']:>14,} "
+                f"{data['pct']:>7.1f}%"
+            )
+
+        # Timeline of filings
+        all_filings = sorted(beneficial_owners, key=lambda x: x.get("filing_date", x.get("filingDate", "")))
+        print(f"\n  Filing Timeline (most recent 20):")
+        for bo in all_filings[-20:]:
+            name = bo.get("owner_name", bo.get("ownerName", "Unknown"))
+            date = bo.get("filing_date", bo.get("filingDate", ""))
+            form = bo.get("form_type", bo.get("formType", ""))
+            shares = bo.get("shares_beneficially_owned", bo.get("sharesBeneficiallyOwned", 0))
+            pct = bo.get("percent_of_class", bo.get("percentOfClass", 0.0))
+            print(f"    {date} | {form:>12} | {name[:35]:<35} | {shares:>14,} shares ({pct:.1f}%)")
+
+    # ── Share Accounting ──
+    print("\n" + "-" * 60)
+    print("  COMPLETE SHARE ACCOUNTING")
+    print("-" * 60)
+
+    # Get latest institutional ownership from aligned data
+    latest = aligned[-1] if aligned else {}
+    inst_shares = latest.get("institutional_shares", 0)
+    si = latest.get("short_interest", 0)
+
+    # Get latest beneficial owner total
+    total_bo_shares = 0
+    if beneficial_owners:
+        latest_by_owner_list = {}
+        for bo in beneficial_owners:
+            name = bo.get("owner_name", bo.get("ownerName", "Unknown"))
+            date = bo.get("filing_date", bo.get("filingDate", ""))
+            shares = bo.get("shares_beneficially_owned", bo.get("sharesBeneficiallyOwned", 0))
+            if name not in latest_by_owner_list or date > latest_by_owner_list[name][0]:
+                latest_by_owner_list[name] = (date, shares)
+        total_bo_shares = sum(s for _, s in latest_by_owner_list.values())
+
+    # Get latest insider total
+    total_insider_shares = 0
+    if insider_txns:
+        latest_insider = {}
+        for t in insider_txns:
+            name = t.get("owner_name", t.get("ownerName", "Unknown"))
+            date = t.get("transaction_date", t.get("transactionDate", ""))
+            shares_after = t.get("shares_owned_after", t.get("sharesOwnedAfter", 0))
+            di = t.get("direct_or_indirect", t.get("directOrIndirect", "D"))
+            if di == "D" and shares_after > 0:
+                if name not in latest_insider or date > latest_insider[name][0]:
+                    latest_insider[name] = (date, shares_after)
+        total_insider_shares = sum(s for _, s in latest_insider.values())
+
+    SHARES_OUTSTANDING = 447_000_000  # approximate 2024-2025
+
+    print(f"\n  Shares Outstanding (approx):  {SHARES_OUTSTANDING:>14,}")
+    print(f"  Institutional (13F):          {inst_shares:>14,}")
+    print(f"  Beneficial Owners (13D/13G):  {total_bo_shares:>14,}")
+    print(f"  Insider Direct Holdings:      {total_insider_shares:>14,}")
+    print(f"  Short Interest:               {si:>14,}")
+    print(f"  {'─'*50}")
+
+    total_claimed = inst_shares + total_bo_shares + total_insider_shares + si
+    print(f"  Total Claimed (IO+BO+Insider+SI): {total_claimed:>14,}")
+
+    if SHARES_OUTSTANDING > 0:
+        ratio = total_claimed / SHARES_OUTSTANDING
+        excess = total_claimed - SHARES_OUTSTANDING
+        print(f"  Ratio to Outstanding:         {ratio:>13.1%}")
+        if excess > 0:
+            print(f"  >>> EXCESS SHARES:            {excess:>14,}")
+            print(f"  >>> This suggests more shares are claimed than exist!")
+        else:
+            print(f"  Free Float (approx):          {-excess:>14,}")
+
+    print()
+
+
 def main():
     print("Loading GME data from all sources...")
     print()
@@ -826,27 +1157,49 @@ def main():
     print("🏛️  Loading institutional ownership...")
     own_by_quarter = load_ownership()
 
-    # 6. Estimate borrow rates
+    # 6. Short Volume
+    print("📉 Loading short volume data...")
+    sv_by_date = load_short_volume()
+
+    # 7. Reg SHO Threshold
+    print("⚠️  Loading Reg SHO threshold data...")
+    threshold_dates = load_regsho_threshold()
+
+    # 8. Insider transactions (Form 3/4/5)
+    print("👤 Loading insider transactions...")
+    insider_txns = load_insider_transactions()
+
+    # 9. Beneficial owners (13D/13G)
+    print("📜 Loading beneficial ownership (13D/13G)...")
+    beneficial_owners = load_beneficial_owners()
+
+    # 10. Estimate borrow rates
     print("💰 Computing borrow rate estimates...")
     borrow_rates = estimate_borrow_rates(si_by_date)
 
-    # 7. Align everything
+    # 11. Align everything
     print("\n⚡ Aligning all data on daily timeline...")
-    aligned = align_all_data(prices, ftd_by_date, si_by_date, dp_by_week, own_by_quarter, borrow_rates)
+    aligned = align_all_data(prices, ftd_by_date, si_by_date, dp_by_week, own_by_quarter,
+                             borrow_rates, sv_by_date, threshold_dates)
     print(f"  Aligned dataset: {len(aligned)} rows")
 
-    # 8. Compute derived metrics
+    # 12. Compute derived metrics
     print("📐 Computing derived metrics (rolling averages, volatility, etc.)...")
     aligned = compute_derived_metrics(aligned)
 
-    # 9. Print reports
-    print_summary_report(aligned, ftd_by_date, si_by_date, dp_by_week, own_by_quarter)
+    # 13. Print reports
+    print_summary_report(aligned, ftd_by_date, si_by_date, dp_by_week, own_by_quarter,
+                         sv_by_date, threshold_dates)
     print_key_events_analysis(aligned)
     print_interpretation(aligned, si_by_date, dp_by_week, ftd_by_date)
 
-    # 10. Export
-    csv_path = DATA_DIR / "gme_holistic_aligned.csv"
-    json_path = DATA_DIR / "gme_report_data.json"
+    # 14. Print insider/beneficial ownership analysis
+    if insider_txns or beneficial_owners:
+        print_insider_analysis(insider_txns, beneficial_owners, aligned)
+
+    # 15. Export
+    csv_path = GME_DIR / "holistic_aligned.csv"
+    json_path = GME_DIR / "report_data.json"
     export_csv(aligned, csv_path)
     export_tradingview_json(aligned, si_by_date, dp_by_week, own_by_quarter, json_path)
 
