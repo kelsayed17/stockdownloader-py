@@ -53,20 +53,21 @@ class FinraShortInterestClient(BaseDataClient):
         FINRA API client ID.  Falls back to ``FINRA_CLIENT_ID`` env var.
     client_secret:
         FINRA API client secret.  Falls back to ``FINRA_CLIENT_SECRET`` env var.
-    cache_dir:
-        Directory for JSON cache files.
+    data_dir:
+        Root data directory.  Per-symbol data is stored under
+        ``data_dir/{SYMBOL}/short_interest.json``.
     """
 
     def __init__(
         self,
         client_id: str | None = None,
         client_secret: str | None = None,
-        cache_dir: str = "data/cache/short_interest",
+        data_dir: str = "data",
     ) -> None:
         super().__init__(
             rate_limit_delay=_RATE_LIMIT_DELAY,
             max_retries=_MAX_RETRIES,
-            cache_dir=cache_dir,
+            data_dir=data_dir,
             default_headers={
                 "User-Agent": "StockDownloader admin@example.com",
                 "Accept": "application/json",
@@ -291,26 +292,24 @@ class FinraShortInterestClient(BaseDataClient):
     # Caching
     # ------------------------------------------------------------------
 
-    def _symbol_cache_dir(self, symbol: str) -> Path:
-        """Return per-symbol cache subdirectory, creating it if needed."""
-        d = self._cache_dir / symbol.upper()
-        d.mkdir(parents=True, exist_ok=True)
-        return d
-
     def _load_cache(self, symbol: str) -> list[ShortInterestRecord] | None:
         """Load cached short interest records for *symbol*.
 
         Returns ``None`` if no cache exists.
         """
-        sym_dir = self._symbol_cache_dir(symbol)
-        cache_file = sym_dir / "si.json"
+        sym_dir = self._symbol_dir(symbol)
+        cache_file = sym_dir / "short_interest.json"
 
-        # Legacy migration
+        # Legacy migration from old cache paths
         if not cache_file.exists():
-            legacy = self._cache_dir / f"{symbol}_si.json"
-            if legacy.exists():
-                legacy.rename(cache_file)
-                logger.info("Migrated %s → %s", legacy, cache_file)
+            for legacy_path in (
+                self._data_dir / "cache" / "short_interest" / symbol.upper() / "si.json",
+                self._data_dir / "cache" / "short_interest" / f"{symbol}_si.json",
+            ):
+                if legacy_path.exists():
+                    legacy_path.rename(cache_file)
+                    logger.info("Migrated %s → %s", legacy_path, cache_file)
+                    break
 
         if not cache_file.exists():
             return None
@@ -340,7 +339,7 @@ class FinraShortInterestClient(BaseDataClient):
         records: list[ShortInterestRecord],
     ) -> None:
         """Persist short interest records to JSON cache."""
-        cache_file = self._symbol_cache_dir(symbol) / "si.json"
+        cache_file = self._symbol_dir(symbol) / "short_interest.json"
         data = [
             {
                 "settlement_date": r.settlement_date,

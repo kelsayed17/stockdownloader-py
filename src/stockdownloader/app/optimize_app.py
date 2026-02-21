@@ -10,9 +10,9 @@ reports the best configuration along with before/after comparison.
 
 Usage::
 
-    strategy-optimize                                  # data/spy/5m_bars.csv
-    strategy-optimize --csv data/spy/5m_bars.csv       # explicit CSV
-    strategy-optimize --csv data/aapl_5m_bars.csv      # different symbol
+    strategy-optimize                                  # data/SPY/5m_bars.csv
+    strategy-optimize --csv data/SPY/5m_bars.csv       # explicit CSV
+    strategy-optimize --csv data/AAPL/5m_bars.csv      # different symbol
     strategy-optimize --log opt.log                    # tailable log file
     strategy-optimize --all-strategies                 # compare all 8 strategies
 
@@ -28,8 +28,8 @@ across all native intraday strategies to detect overfitting.
 
 Usage::
 
-    walk-forward                                   # data/spy/5m_bars.csv
-    walk-forward --csv data/spy/5m_bars.csv        # explicit CSV
+    walk-forward                                   # data/SPY/5m_bars.csv
+    walk-forward --csv data/SPY/5m_bars.csv        # explicit CSV
     walk-forward --windows 5                       # number of WF windows
     walk-forward --is-ratio 0.7                    # IS/OOS split ratio
 """
@@ -70,7 +70,7 @@ def main_optimize() -> None:
         epilog=(
             "Examples:\n"
             "  strategy-optimize                            # default SPY CSV\n"
-            "  strategy-optimize --csv data/spy/5m_bars.csv\n"
+            "  strategy-optimize --csv data/SPY/5m_bars.csv\n"
             "  strategy-optimize --capital 50000\n"
             "  strategy-optimize --log opt.log              # tail -f opt.log\n"
             "  strategy-optimize --all-strategies           # compare all strategies\n"

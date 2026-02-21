@@ -6,7 +6,7 @@ Covers intraday, daily (adapted to intraday), and options strategies.
 Usage::
 
     pipeline                                        # full pipeline, default CSV
-    pipeline --csv data/spy/5m_bars.csv             # explicit data file
+    pipeline --csv data/SPY/5m_bars.csv             # explicit data file
     pipeline --stage backtest                       # baseline only
     pipeline --stage optimize                       # optimize only
     pipeline --stage validate                       # walk-forward only

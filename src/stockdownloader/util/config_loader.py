@@ -81,7 +81,7 @@ OPTIONS_COMMISSION = Decimal("0.65")  # Per-contract options commission
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[3]
 
 #: Default path to the SPY 5-minute bar CSV.
-DEFAULT_DATA_FILE: Path = PROJECT_ROOT / "data" / "spy" / "5m_bars.csv"
+DEFAULT_DATA_FILE: Path = PROJECT_ROOT / "data" / "SPY" / "5m_bars.csv"
 
 #: Default output directory for logs and reports.
 DEFAULT_OUTPUT_DIR: Path = PROJECT_ROOT / "output"

@@ -86,12 +86,12 @@ def add_intraday_csv_arg(parser: argparse.ArgumentParser) -> None:
     """Add a ``--csv`` argument defaulting to the standard intraday CSV.
 
     This is the intraday-specific variant of :func:`add_csv_arg` — it
-    defaults to :data:`DEFAULT_DATA_FILE` (``data/spy/5m_bars.csv``)
+    defaults to :data:`DEFAULT_DATA_FILE` (``data/SPY/5m_bars.csv``)
     instead of ``None``.
     """
     parser.add_argument(
         "--csv", dest="csv_file", default=str(DEFAULT_DATA_FILE),
-        help="Intraday CSV file path (default: data/spy/5m_bars.csv)",
+        help="Intraday CSV file path (default: data/SPY/5m_bars.csv)",
     )
 
 

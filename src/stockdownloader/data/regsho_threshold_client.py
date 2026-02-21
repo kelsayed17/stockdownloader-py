@@ -77,15 +77,16 @@ class RegShoThresholdClient:
         Reserved for future use (FINRA credentials).  Not required.
     client_secret:
         Reserved for future use (FINRA credentials).  Not required.
-    cache_dir:
-        Directory for JSON cache files.
+    data_dir:
+        Root data directory.  Per-symbol data is stored under
+        ``data_dir/{SYMBOL}/regsho_threshold.json``.
     """
 
     def __init__(
         self,
         client_id: str | None = None,
         client_secret: str | None = None,
-        cache_dir: str = "data/cache/regsho",
+        data_dir: str = "data",
     ) -> None:
         self._session = requests.Session()
         self._session.headers.update({
@@ -94,8 +95,8 @@ class RegShoThresholdClient:
         })
         self._last_request_time: float = 0.0
         self._last_nyse_request_time: float = 0.0
-        self._cache_dir = Path(cache_dir)
-        self._cache_dir.mkdir(parents=True, exist_ok=True)
+        self._data_dir = Path(data_dir)
+        self._data_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
     # Public API
@@ -302,22 +303,26 @@ class RegShoThresholdClient:
     # Caching
     # ------------------------------------------------------------------
 
-    def _symbol_cache_dir(self, symbol: str) -> Path:
-        """Return per-symbol cache subdirectory, creating it if needed."""
-        d = self._cache_dir / symbol.upper()
+    def _symbol_dir(self, symbol: str) -> Path:
+        """Return per-symbol data directory, creating it if needed."""
+        d = self._data_dir / symbol.upper()
         d.mkdir(parents=True, exist_ok=True)
         return d
 
     def _load_cache(self, symbol: str) -> list[ThresholdRecord] | None:
-        sym_dir = self._symbol_cache_dir(symbol)
-        cache_file = sym_dir / "threshold.json"
+        sym_dir = self._symbol_dir(symbol)
+        cache_file = sym_dir / "regsho_threshold.json"
 
-        # Legacy migration
+        # Legacy migration from old cache paths
         if not cache_file.exists():
-            legacy = self._cache_dir / f"{symbol}_threshold.json"
-            if legacy.exists():
-                legacy.rename(cache_file)
-                logger.info("Migrated %s -> %s", legacy, cache_file)
+            for legacy_path in (
+                self._data_dir / "cache" / "regsho" / symbol.upper() / "threshold.json",
+                self._data_dir / "cache" / "regsho" / f"{symbol}_threshold.json",
+            ):
+                if legacy_path.exists():
+                    legacy_path.rename(cache_file)
+                    logger.info("Migrated %s -> %s", legacy_path, cache_file)
+                    break
 
         if not cache_file.exists():
             return None
@@ -335,7 +340,7 @@ class RegShoThresholdClient:
     def _save_cache(
         self, symbol: str, records: list[ThresholdRecord]
     ) -> None:
-        cache_file = self._symbol_cache_dir(symbol) / "threshold.json"
+        cache_file = self._symbol_dir(symbol) / "regsho_threshold.json"
         try:
             cache_file.write_text(
                 json.dumps(

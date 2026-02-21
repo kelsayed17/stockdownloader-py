@@ -267,13 +267,13 @@ def main(argv: list[str] | None = None) -> None:
     # Auto-detect data files
     daily_csv = args.daily_csv
     if daily_csv is None:
-        auto = f"data/{symbol.lower()}_daily_bars.csv"
+        auto = f"data/{symbol}/daily_bars.csv"
         if os.path.exists(auto):
             daily_csv = auto
 
     intraday_csv = args.intraday_csv
     if intraday_csv is None:
-        auto = f"data/{symbol.lower()}_5m_bars.csv"
+        auto = f"data/{symbol}/5m_bars.csv"
         if os.path.exists(auto):
             intraday_csv = auto
 

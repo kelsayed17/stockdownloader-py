@@ -233,7 +233,7 @@ class DataStage:
                 from stockdownloader.data.sec_ftd_client import SecFtdClient
 
                 client = SecFtdClient(
-                    cache_dir=str(Path(alt_cfg.cache_dir) / "ftd"),
+                    cache_dir=alt_cfg.ftd_cache_dir,
                     user_agent=alt_cfg.user_agent,
                 )
                 ftd_records = client.fetch_ftd_data(
@@ -256,7 +256,7 @@ class DataStage:
                 client = FinraShortInterestClient(
                     client_id=alt_cfg.finra_client_id or None,
                     client_secret=alt_cfg.finra_client_secret or None,
-                    cache_dir=str(Path(alt_cfg.cache_dir) / "short_interest"),
+                    data_dir=alt_cfg.data_dir,
                 )
                 si_records = client.fetch_short_interest(symbol)
                 self._out(
@@ -276,7 +276,7 @@ class DataStage:
                 client = FinraDarkPoolClient(
                     client_id=alt_cfg.finra_client_id or None,
                     client_secret=alt_cfg.finra_client_secret or None,
-                    cache_dir=str(Path(alt_cfg.cache_dir) / "dark_pool"),
+                    data_dir=alt_cfg.data_dir,
                 )
                 dp_records = client.fetch_dark_pool_volume(symbol)
                 self._out(
@@ -294,7 +294,7 @@ class DataStage:
                 )
 
                 client = SecOwnershipClient(
-                    cache_dir=str(Path(alt_cfg.cache_dir) / "ownership"),
+                    data_dir=alt_cfg.data_dir,
                     user_agent=alt_cfg.user_agent,
                 )
                 ownership_records = client.fetch_ownership_snapshots(symbol)

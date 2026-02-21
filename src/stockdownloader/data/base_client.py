@@ -19,7 +19,7 @@ Usage::
             super().__init__(
                 rate_limit_delay=0.5,
                 max_retries=3,
-                cache_dir="data/cache/my_client",
+                data_dir="data",
                 default_headers={
                     "User-Agent": "MyApp",
                     "Accept": "application/json",
@@ -50,8 +50,9 @@ class BaseDataClient:
     max_retries:
         Maximum number of consecutive failures before giving up
         in :meth:`_fetch_with_retry`.
-    cache_dir:
-        Directory for JSON cache files.  Created automatically.
+    data_dir:
+        Root data directory.  Per-symbol data is stored under
+        ``data_dir/{SYMBOL}/``.  Created automatically.
     default_headers:
         Headers applied to every request via the session.
     """
@@ -61,7 +62,7 @@ class BaseDataClient:
         *,
         rate_limit_delay: float = 0.5,
         max_retries: int = 3,
-        cache_dir: str = "data/cache",
+        data_dir: str = "data",
         default_headers: dict[str, str] | None = None,
     ) -> None:
         self._rate_limit_delay = rate_limit_delay
@@ -73,8 +74,8 @@ class BaseDataClient:
 
         self._last_request_time: float = 0.0
 
-        self._cache_dir = Path(cache_dir)
-        self._cache_dir.mkdir(parents=True, exist_ok=True)
+        self._data_dir = Path(data_dir)
+        self._data_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
     # Rate limiting
@@ -148,13 +149,19 @@ class BaseDataClient:
     # JSON caching helpers
     # ------------------------------------------------------------------
 
+    def _symbol_dir(self, symbol: str) -> Path:
+        """Return per-symbol data directory, creating it if needed."""
+        d = self._data_dir / symbol.upper()
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def _get_cached_json(self, key: str) -> Any | None:
         """Load a JSON cache file by *key* (filename without extension).
 
         Returns the parsed JSON data, or ``None`` if no cache exists
         or the cache is corrupt.
         """
-        cache_file = self._cache_dir / f"{key}.json"
+        cache_file = self._data_dir / f"{key}.json"
         if not cache_file.exists():
             return None
         try:
@@ -165,7 +172,7 @@ class BaseDataClient:
 
     def _save_cached_json(self, key: str, data: Any) -> None:
         """Persist JSON-serializable *data* to cache under *key*."""
-        cache_file = self._cache_dir / f"{key}.json"
+        cache_file = self._data_dir / f"{key}.json"
         try:
             cache_file.write_text(
                 json.dumps(data, indent=2), encoding="utf-8",

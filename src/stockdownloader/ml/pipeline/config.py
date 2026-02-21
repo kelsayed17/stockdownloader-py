@@ -26,7 +26,8 @@ class AltDataConfig:
     enable_ownership: bool = True
     enable_borrow_rate: bool = True
     ftd_start_year: int = 2004
-    cache_dir: str = "data/cache"
+    data_dir: str = "data"
+    ftd_cache_dir: str = "data/cache/ftd"
     user_agent: str = "StockDownloader admin@example.com"
     finra_client_id: str = ""
     finra_client_secret: str = ""

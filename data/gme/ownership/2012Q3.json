@@ -1,0 +1,5201 @@
+{
+  "quarter_end": "2012-09-30",
+  "symbol": "GME",
+  "total_institutional_shares": 26379178961,
+  "num_institutions": 649,
+  "top_10_concentration": 0.9935697558953301,
+  "holdings": [
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT SYSTEM OF OHIO  (CIK 0001007280)",
+      "manager_cik": "1007280",
+      "shares": 13555645487,
+      "value_usd": 645487,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STATE STREET CORP  (STT, STT-PG)  (CIK 0000093751)",
+      "manager_cik": "93751",
+      "shares": 12568101218,
+      "value_usd": 6006933,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+      "manager_cik": "831001",
+      "shares": 23151825,
+      "value_usd": 5839,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FMR LLC  (CIK 0000315066)",
+      "manager_cik": "315066",
+      "shares": 16780599,
+      "value_usd": 16780088,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SCHRODER INVESTMENT MANAGEMENT GROUP  (CIK 0001086619)",
+      "manager_cik": "1086619",
+      "shares": 10779384,
+      "value_usd": 513304,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DUPONT CAPITAL MANAGEMENT Corp  (CIK 0001128251)",
+      "manager_cik": "1128251",
+      "shares": 9246300,
+      "value_usd": 440300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYCE & ASSOCIATES LLC  (CIK 0000906304)",
+      "manager_cik": "906304",
+      "shares": 7264183,
+      "value_usd": 7264183,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "VANGUARD GROUP INC  (CIK 0000102909)",
+      "manager_cik": "102909",
+      "shares": 7049999,
+      "value_usd": 7049999,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Nationwide Fund Advisors  (CIK 0001097218)",
+      "manager_cik": "1097218",
+      "shares": 5965701,
+      "value_usd": 284081,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 5569705,
+      "value_usd": 4991005,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 5400727,
+      "value_usd": 257300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 5382716,
+      "value_usd": 257300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Quantitative Investment Management, LLC  (CIK 0001445911)",
+      "manager_cik": "1445911",
+      "shares": 4510800,
+      "value_usd": 214800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ALLIANCEBERNSTEIN L.P.  (CIK 0001109448)",
+      "manager_cik": "1109448",
+      "shares": 4394126,
+      "value_usd": 3908882,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AQR CAPITAL MANAGEMENT LLC  (CIK 0001167557)",
+      "manager_cik": "1167557",
+      "shares": 4388515,
+      "value_usd": 4098015,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MACKENZIE FINANCIAL CORP  (CIK 0000919859)",
+      "manager_cik": "919859",
+      "shares": 3989538,
+      "value_usd": 83780,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Institutional Trust Company, N.A.  (CIK 0000913414)",
+      "manager_cik": "913414",
+      "shares": 3917102,
+      "value_usd": 3917102,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Institutional Trust Company, N.A.  (CIK 0000913414)",
+      "manager_cik": "913414",
+      "shares": 3604394,
+      "value_usd": 3604394,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BNP Paribas Investment Partners S.A.  (CIK 0001520354)",
+      "manager_cik": "1520354",
+      "shares": 3256850,
+      "value_usd": 3256850,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "LSV ASSET MANAGEMENT  (CIK 0001050470)",
+      "manager_cik": "1050470",
+      "shares": 3163119,
+      "value_usd": 1634989,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STELLIAM INVESTMENT MANAGEMENT, LP  (CIK 0001427165)",
+      "manager_cik": "1427165",
+      "shares": 3106900,
+      "value_usd": 3106900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 3014692,
+      "value_usd": 2337620,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DIMENSIONAL FUND ADVISORS LP  (CIK 0000354204)",
+      "manager_cik": "354204",
+      "shares": 2957898,
+      "value_usd": 2892321,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TRUST DEPARTMENT MB FINANCIAL BANK N A  (CIK 0001082849)",
+      "manager_cik": "1082849",
+      "shares": 2809065,
+      "value_usd": 133765,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLINGTON MANAGEMENT CO LLP  (CIK 0000902219)",
+      "manager_cik": "902219",
+      "shares": 2791202,
+      "value_usd": 1753932,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLINGTON MANAGEMENT CO LLP  (CIK 0000902219)",
+      "manager_cik": "902219",
+      "shares": 2791202,
+      "value_usd": 1753932,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "C M BIDWELL & ASSOCIATES LTD  (CIK 0001091860)",
+      "manager_cik": "1091860",
+      "shares": 2485245,
+      "value_usd": 118345,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FMR LLC  (CIK 0000315066)",
+      "manager_cik": "315066",
+      "shares": 2415830,
+      "value_usd": 2415830,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FRANKLIN RESOURCES INC  (BEN)  (CIK 0000038777)",
+      "manager_cik": "38777",
+      "shares": 2394100,
+      "value_usd": 2252100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AMERIPRISE FINANCIAL INC  (AMP)  (CIK 0000820027)",
+      "manager_cik": "820027",
+      "shares": 2276228,
+      "value_usd": 1671818,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SEIZERT CAPITAL PARTNERS, LLC  (CIK 0001134283)",
+      "manager_cik": "1134283",
+      "shares": 2272376,
+      "value_usd": 1270011,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BARCLAYS PLC  (BCS, BCLYF)  (CIK 0000312069)",
+      "manager_cik": "312069",
+      "shares": 2065800,
+      "value_usd": 2065800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 2010842,
+      "value_usd": 95800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 1893298,
+      "value_usd": 90200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ADAGE CAPITAL PARTNERS GP LLC  (CIK 0001165408)",
+      "manager_cik": "1165408",
+      "shares": 1842211,
+      "value_usd": 1842211,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DnB Asset Management AS  (CIK 0001456670)",
+      "manager_cik": "1456670",
+      "shares": 1806021,
+      "value_usd": 86001,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Freestone Capital Holdings, LLC  (CIK 0001470876)",
+      "manager_cik": "1470876",
+      "shares": 1639278,
+      "value_usd": 1639278,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STELLIAM INVESTMENT MANAGEMENT, LP  (CIK 0001427165)",
+      "manager_cik": "1427165",
+      "shares": 1618200,
+      "value_usd": 1618200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BLACKROCK ADVISORS LLC  (CIK 0001086364)",
+      "manager_cik": "1086364",
+      "shares": 1558658,
+      "value_usd": 1558658,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Park West Asset Management LLC  (CIK 0001386928)",
+      "manager_cik": "1386928",
+      "shares": 1507029,
+      "value_usd": 1507029,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CONNABLE OFFICE INC  (CIK 0000914933)",
+      "manager_cik": "914933",
+      "shares": 1459668,
+      "value_usd": 69508,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PRICE T ROWE ASSOCIATES INC /MD/  (CIK 0000080255)",
+      "manager_cik": "80255",
+      "shares": 1280270,
+      "value_usd": 1243970,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NORTHERN TRUST CORP  (NTRS, NTRSO)  (CIK 0000073124)",
+      "manager_cik": "73124",
+      "shares": 1213250,
+      "value_usd": 711746,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Irish Life Investment Managers Ltd.  (CIK 0001427274)",
+      "manager_cik": "1427274",
+      "shares": 1197021,
+      "value_usd": 57001,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Fund Advisors  (CIK 0001006249)",
+      "manager_cik": "1006249",
+      "shares": 1189989,
+      "value_usd": 1189989,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Fund Advisors  (CIK 0001006249)",
+      "manager_cik": "1006249",
+      "shares": 1163700,
+      "value_usd": 1163700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FIRST TRUST ADVISORS LP  (CIK 0001125816)",
+      "manager_cik": "1125816",
+      "shares": 1129611,
+      "value_usd": 1129611,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Susquehanna International Group, LLP  (CIK 0001446194)",
+      "manager_cik": "1446194",
+      "shares": 1107400,
+      "value_usd": 23255,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JENNISON ASSOCIATES LLC  (CIK 0000053417)",
+      "manager_cik": "53417",
+      "shares": 1106896,
+      "value_usd": 899280,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Susquehanna International Group, LLP  (CIK 0001446194)",
+      "manager_cik": "1446194",
+      "shares": 1094700,
+      "value_usd": 22989,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "THOMPSON SIEGEL & WALMSLEY LLC  (CIK 0001008322)",
+      "manager_cik": "1008322",
+      "shares": 1023589,
+      "value_usd": 755743,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ALYDAR PARTNERS LLC  (CIK 0001279895)",
+      "manager_cik": "1279895",
+      "shares": 1000000,
+      "value_usd": 1000000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Norges Bank  (CIK 0001374170)",
+      "manager_cik": "1374170",
+      "shares": 994241,
+      "value_usd": 994241,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TIAA CREF INVESTMENT MANAGEMENT LLC  (CIK 0000887793)",
+      "manager_cik": "887793",
+      "shares": 985686,
+      "value_usd": 985686,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FIRST MERCANTILE TRUST CO  (CIK 0001259664)",
+      "manager_cik": "1259664",
+      "shares": 956109,
+      "value_usd": 45529,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AXA  (CIK 0000898427)",
+      "manager_cik": "898427",
+      "shares": 939680,
+      "value_usd": 717490,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 908197,
+      "value_usd": 895061,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AMERICAN INTERNATIONAL GROUP INC  (AIG)  (CIK 0000005272)",
+      "manager_cik": "5272",
+      "shares": 891807,
+      "value_usd": 42467,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Winton Capital Management Ltd  (CIK 0001456098)",
+      "manager_cik": "1456098",
+      "shares": 872836,
+      "value_usd": 872836,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GOLDMAN SACHS GROUP INC  (GS, GSCE, GS-PA, GS-PC, GS-PD)  (CIK 0000886982)",
+      "manager_cik": "886982",
+      "shares": 787700,
+      "value_usd": 787700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AMERICAN CENTURY COMPANIES INC  (CIK 0000748054)",
+      "manager_cik": "748054",
+      "shares": 780121,
+      "value_usd": 780121,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WASATCH ADVISORS INC  (CIK 0000814133)",
+      "manager_cik": "814133",
+      "shares": 775782,
+      "value_usd": 16291,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GEODE CAPITAL MANAGEMENT LLC  (CIK 0001214717)",
+      "manager_cik": "1214717",
+      "shares": 769457,
+      "value_usd": 609615,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 761062,
+      "value_usd": 666062,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Prescott General Partners LLC  (CIK 0001538653)",
+      "manager_cik": "1538653",
+      "shares": 750000,
+      "value_usd": 750000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Gotham Asset Management, LLC  (CIK 0001510387)",
+      "manager_cik": "1510387",
+      "shares": 731368,
+      "value_usd": 731368,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Mount Lucas Management LP  (CIK 0001185072)",
+      "manager_cik": "1185072",
+      "shares": 708700,
+      "value_usd": 708700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 690257,
+      "value_usd": 607557,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT AGRICOLE S A  (CIK 0001191672)",
+      "manager_cik": "1191672",
+      "shares": 671617,
+      "value_usd": 7642,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT AGRICOLE S A  (CIK 0001191672)",
+      "manager_cik": "1191672",
+      "shares": 671617,
+      "value_usd": 900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "LEGAL & GENERAL GROUP PLC  (CIK 0000764068)",
+      "manager_cik": "764068",
+      "shares": 660389,
+      "value_usd": 609287,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 652789,
+      "value_usd": 31100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Stonerise Capital Management, LLC  (CIK 0001494179)",
+      "manager_cik": "1494179",
+      "shares": 650000,
+      "value_usd": 650000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYAL LONDON ASSET MANAGEMENT LTD  (CIK 0000863748)",
+      "manager_cik": "863748",
+      "shares": 625388,
+      "value_usd": 29880,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Investment Management, LLC  (CIK 0001305227)",
+      "manager_cik": "1305227",
+      "shares": 572757,
+      "value_usd": 572757,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 569127,
+      "value_usd": 569127,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 562800,
+      "value_usd": 26800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BARCLAYS PLC  (BCS, BCLYF)  (CIK 0000312069)",
+      "manager_cik": "312069",
+      "shares": 553794,
+      "value_usd": 553794,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STRS OHIO  (CIK 0000820478)",
+      "manager_cik": "820478",
+      "shares": 547600,
+      "value_usd": 547600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SCHRODER INVESTMENT MANAGEMENT GROUP  (CIK 0001086619)",
+      "manager_cik": "1086619",
+      "shares": 546000,
+      "value_usd": 26000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GOLDMAN SACHS GROUP INC  (GS, GSCE, GS-PA, GS-PC, GS-PD)  (CIK 0000886982)",
+      "manager_cik": "886982",
+      "shares": 545273,
+      "value_usd": 542501,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CALIFORNIA PUBLIC EMPLOYEES RETIREMENT SYSTEM  (CIK 0000919079)",
+      "manager_cik": "919079",
+      "shares": 539188,
+      "value_usd": 539188,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TOWLE & CO  (CIK 0001224014)",
+      "manager_cik": "1224014",
+      "shares": 538511,
+      "value_usd": 538511,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Sumitomo Mitsui Trust Holdings, Inc.  (CIK 0001475365)",
+      "manager_cik": "1475365",
+      "shares": 537847,
+      "value_usd": 537847,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BLACKROCK ADVISORS LLC  (CIK 0001086364)",
+      "manager_cik": "1086364",
+      "shares": 531315,
+      "value_usd": 531315,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PRUDENTIAL FINANCIAL INC  (PFH, PRH, PRS, PRU)  (CIK 0001137774)",
+      "manager_cik": "1137774",
+      "shares": 526600,
+      "value_usd": 117642,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ALYDAR PARTNERS LLC  (CIK 0001279895)",
+      "manager_cik": "1279895",
+      "shares": 500000,
+      "value_usd": 500000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 492888,
+      "value_usd": 252524,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "KESTREL INVESTMENT MANAGEMENT CORP  (CIK 0000917579)",
+      "manager_cik": "917579",
+      "shares": 490000,
+      "value_usd": 490000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TRUST DEPARTMENT MB FINANCIAL BANK N A  (CIK 0001082849)",
+      "manager_cik": "1082849",
+      "shares": 489006,
+      "value_usd": 23286,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 480900,
+      "value_usd": 22900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 479969,
+      "value_usd": 275956,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "OPPENHEIMER FUNDS INC  (CIK 0000728889)",
+      "manager_cik": "728889",
+      "shares": 475989,
+      "value_usd": 475989,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Lingohr & Partner Asset Management GmbH  (CIK 0001527570)",
+      "manager_cik": "1527570",
+      "shares": 456796,
+      "value_usd": 456796,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BROWN ADVISORY INC  (CIK 0001345929)",
+      "manager_cik": "1345929",
+      "shares": 455827,
+      "value_usd": 421516,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS GLOBAL ASSET MANAGEMENT AMERICAS INC  (CIK 0000861177)",
+      "manager_cik": "861177",
+      "shares": 450725,
+      "value_usd": 383600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS GLOBAL ASSET MANAGEMENT AMERICAS INC  (CIK 0000861177)",
+      "manager_cik": "861177",
+      "shares": 430756,
+      "value_usd": 305436,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ALYDAR PARTNERS LLC  (CIK 0001279895)",
+      "manager_cik": "1279895",
+      "shares": 425000,
+      "value_usd": 425000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ALYDAR PARTNERS LLC  (CIK 0001279895)",
+      "manager_cik": "1279895",
+      "shares": 425000,
+      "value_usd": 425000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "APG All Pensions Group NV  (CIK 0001434819)",
+      "manager_cik": "1434819",
+      "shares": 422264,
+      "value_usd": 422264,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Susquehanna International Group, LLP  (CIK 0001446194)",
+      "manager_cik": "1446194",
+      "shares": 417700,
+      "value_usd": 8772,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Xaraf Management LLC  (CIK 0001352910)",
+      "manager_cik": "1352910",
+      "shares": 415200,
+      "value_usd": 8719,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "S&T BANK/PA  (CIK 0001010911)",
+      "manager_cik": "1010911",
+      "shares": 396674,
+      "value_usd": 391498,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BECKER CAPITAL MANAGEMENT INC  (CIK 0000799004)",
+      "manager_cik": "799004",
+      "shares": 383749,
+      "value_usd": 304959,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NEW YORK STATE COMMON RETIREMENT FUND  (CIK 0000810265)",
+      "manager_cik": "810265",
+      "shares": 383700,
+      "value_usd": 383700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GUGGENHEIM CAPITAL LLC  (CIK 0001283072)",
+      "manager_cik": "1283072",
+      "shares": 381073,
+      "value_usd": 381073,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GUGGENHEIM CAPITAL LLC  (CIK 0001283072)",
+      "manager_cik": "1283072",
+      "shares": 381073,
+      "value_usd": 381073,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 373800,
+      "value_usd": 17800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Korea Investment CORP  (CIK 0001441689)",
+      "manager_cik": "1441689",
+      "shares": 371300,
+      "value_usd": 371300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STATE OF WISCONSIN INVESTMENT BOARD  (CIK 0000854157)",
+      "manager_cik": "854157",
+      "shares": 369596,
+      "value_usd": 369596,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STEVENS CAPITAL MANAGEMENT LP  (CIK 0001134813)",
+      "manager_cik": "1134813",
+      "shares": 369583,
+      "value_usd": 369583,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MANAGED ACCOUNT ADVISORS LLC  (CIK 0001418660)",
+      "manager_cik": "1418660",
+      "shares": 366094,
+      "value_usd": 366094,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STEVENS CAPITAL MANAGEMENT LP  (CIK 0001134813)",
+      "manager_cik": "1134813",
+      "shares": 364462,
+      "value_usd": 364462,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GOODNOW INVESTMENT GROUP, LLC  (CIK 0001362255)",
+      "manager_cik": "1362255",
+      "shares": 357197,
+      "value_usd": 357197,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NORTHERN TRUST CORP  (NTRS, NTRSO)  (CIK 0000073124)",
+      "manager_cik": "73124",
+      "shares": 349309,
+      "value_usd": 349309,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/  (BAC, BAC-PB, BAC-PE, BAC-PK, BAC-PL, BAC-PM, BAC-PN, BAC-PO, BAC-PP, BML-PG, BML-PH, BML-PJ, BML-PL)  (CIK 0000070858)",
+      "manager_cik": "70858",
+      "shares": 348051,
+      "value_usd": 337438,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Susquehanna International Group, LLP  (CIK 0001446194)",
+      "manager_cik": "1446194",
+      "shares": 347841,
+      "value_usd": 347841,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PARAMETRIC PORTFOLIO ASSOCIATES LLC  (CIK 0000932859)",
+      "manager_cik": "932859",
+      "shares": 344932,
+      "value_usd": 246914,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SCHWAB CHARLES INVESTMENT MANAGEMENT INC  (CIK 0000884546)",
+      "manager_cik": "884546",
+      "shares": 335128,
+      "value_usd": 335128,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUTNAM INVESTMENT MANAGEMENT LLC  (CIK 0000081273)",
+      "manager_cik": "81273",
+      "shares": 335048,
+      "value_usd": 334939,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TEACHERS ADVISORS INC  (CIK 0000939222)",
+      "manager_cik": "939222",
+      "shares": 318852,
+      "value_usd": 318852,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Robeco Investment Management, Inc.  (CIK 0001386060)",
+      "manager_cik": "1386060",
+      "shares": 318711,
+      "value_usd": 224380,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NEW YORK STATE TEACHERS RETIREMENT SYSTEM  (CIK 0000314969)",
+      "manager_cik": "314969",
+      "shares": 314157,
+      "value_usd": 314157,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SG Americas Securities, LLC  (CIK 0001313360)",
+      "manager_cik": "1313360",
+      "shares": 303154,
+      "value_usd": 303154,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 294638,
+      "value_usd": 294638,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BOSTON ADVISORS LLC  (CIK 0001062842)",
+      "manager_cik": "1062842",
+      "shares": 290970,
+      "value_usd": 254570,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 283452,
+      "value_usd": 283452,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Mitsubishi UFJ Trust & Banking Corp  (CIK 0001462160)",
+      "manager_cik": "1462160",
+      "shares": 276688,
+      "value_usd": 276688,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLINGTON MANAGEMENT CO LLP  (CIK 0000902219)",
+      "manager_cik": "902219",
+      "shares": 275555,
+      "value_usd": 275555,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLINGTON MANAGEMENT CO LLP  (CIK 0000902219)",
+      "manager_cik": "902219",
+      "shares": 275555,
+      "value_usd": 275555,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BNP Paribas Investment Partners S.A.  (CIK 0001520354)",
+      "manager_cik": "1520354",
+      "shares": 270850,
+      "value_usd": 270850,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WEISEL THOMAS PARTNERS ASSET MANAGEMENT LLC  (CIK 0001164431)",
+      "manager_cik": "1164431",
+      "shares": 268658,
+      "value_usd": 268658,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 264000,
+      "value_usd": 264000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NORTHERN TRUST CO OF CONNECTICUT  (CIK 0001065441)",
+      "manager_cik": "1065441",
+      "shares": 263465,
+      "value_usd": 5533,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GUGGENHEIM CAPITAL LLC  (CIK 0001283072)",
+      "manager_cik": "1283072",
+      "shares": 261103,
+      "value_usd": 261103,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GUGGENHEIM CAPITAL LLC  (CIK 0001283072)",
+      "manager_cik": "1283072",
+      "shares": 261103,
+      "value_usd": 261103,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Grantham, Mayo, Van Otterloo & Co. LLC  (CIK 0001352662)",
+      "manager_cik": "1352662",
+      "shares": 252840,
+      "value_usd": 252840,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STATE BOARD OF ADMINISTRATION OF FLORIDA RETIREMENT SYSTEM  (CIK 0000938076)",
+      "manager_cik": "938076",
+      "shares": 251611,
+      "value_usd": 251611,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "O'SHAUGHNESSY ASSET MANAGEMENT, LLC  (CIK 0001423442)",
+      "manager_cik": "1423442",
+      "shares": 248564,
+      "value_usd": 85036,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ANALYTIC INVESTORS, LLC  (CIK 0001086137)",
+      "manager_cik": "1086137",
+      "shares": 245213,
+      "value_usd": 123213,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 240830,
+      "value_usd": 180960,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Nuveen Asset Management, LLC  (CIK 0001521019)",
+      "manager_cik": "1521019",
+      "shares": 240618,
+      "value_usd": 11458,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MILLENNIUM MANAGEMENT LLC  (CIK 0001273087)",
+      "manager_cik": "1273087",
+      "shares": 236897,
+      "value_usd": 236897,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ADVANTUS CAPITAL MANAGEMENT INC  (CIK 0001035350)",
+      "manager_cik": "1035350",
+      "shares": 234801,
+      "value_usd": 11181,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+      "manager_cik": "831001",
+      "shares": 231100,
+      "value_usd": 231100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CALIFORNIA STATE TEACHERS RETIREMENT SYSTEM  (CIK 0001081019)",
+      "manager_cik": "1081019",
+      "shares": 224919,
+      "value_usd": 224919,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 223874,
+      "value_usd": 223874,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GENERAL MOTORS INVESTMENT MANAGEMENT CORP  (CIK 0000883422)",
+      "manager_cik": "883422",
+      "shares": 221781,
+      "value_usd": 10561,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Counsel Portfolio Services Inc.  (CIK 0001498900)",
+      "manager_cik": "1498900",
+      "shares": 221643,
+      "value_usd": 4655,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Investment Management, LLC  (CIK 0001305227)",
+      "manager_cik": "1305227",
+      "shares": 220906,
+      "value_usd": 220906,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 220583,
+      "value_usd": 220583,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JANUS CAPITAL MANAGEMENT LLC  (CIK 0000812295)",
+      "manager_cik": "812295",
+      "shares": 220300,
+      "value_usd": 122400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AXA  (CIK 0000898427)",
+      "manager_cik": "898427",
+      "shares": 220000,
+      "value_usd": 220000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Allianz Asset Management AG  (CIK 0001535323)",
+      "manager_cik": "1535323",
+      "shares": 216157,
+      "value_usd": 138227,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Allianz Asset Management AG  (CIK 0001535323)",
+      "manager_cik": "1535323",
+      "shares": 216157,
+      "value_usd": 138227,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 215328,
+      "value_usd": 215328,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 212414,
+      "value_usd": 212414,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "OXFORD ASSET MANAGEMENT  (CIK 0001438284)",
+      "manager_cik": "1438284",
+      "shares": 212340,
+      "value_usd": 212340,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "THOMPSON SIEGEL & WALMSLEY LLC  (CIK 0001008322)",
+      "manager_cik": "1008322",
+      "shares": 205728,
+      "value_usd": 205728,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Japan Co. Ltd  (CIK 0001085635)",
+      "manager_cik": "1085635",
+      "shares": 204083,
+      "value_usd": 204083,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 202969,
+      "value_usd": 202969,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 202620,
+      "value_usd": 202620,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Espalier Global Management LLC  (CIK 0001533327)",
+      "manager_cik": "1533327",
+      "shares": 200000,
+      "value_usd": 200000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ACT II MANAGEMENT, LP  (CIK 0001450008)",
+      "manager_cik": "1450008",
+      "shares": 198900,
+      "value_usd": 4177,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STEVENS CAPITAL MANAGEMENT LP  (CIK 0001134813)",
+      "manager_cik": "1134813",
+      "shares": 198726,
+      "value_usd": 198726,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BRITISH COLUMBIA INVESTMENT MANAGEMENT CORP  (CIK 0001228242)",
+      "manager_cik": "1228242",
+      "shares": 196974,
+      "value_usd": 196974,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MADISON SQUARE INVESTORS LLC.  (CIK 0001453415)",
+      "manager_cik": "1453415",
+      "shares": 194720,
+      "value_usd": 194720,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AXIAL CAPITAL MANAGEMENT, LLC  (CIK 0001351143)",
+      "manager_cik": "1351143",
+      "shares": 192444,
+      "value_usd": 192444,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GOLDMAN SACHS GROUP INC  (GS, GSCE, GS-PA, GS-PC, GS-PD)  (CIK 0000886982)",
+      "manager_cik": "886982",
+      "shares": 191100,
+      "value_usd": 191100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Japan Co. Ltd  (CIK 0001085635)",
+      "manager_cik": "1085635",
+      "shares": 188868,
+      "value_usd": 188868,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "QS Investors, LLC  (CIK 0001501436)",
+      "manager_cik": "1501436",
+      "shares": 188300,
+      "value_usd": 188300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "RHUMBLINE ADVISERS  (CIK 0001115418)",
+      "manager_cik": "1115418",
+      "shares": 185440,
+      "value_usd": 121394,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 185223,
+      "value_usd": 185223,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ENTRUST CAPITAL INC/NY  (CIK 0001043853)",
+      "manager_cik": "1043853",
+      "shares": 185100,
+      "value_usd": 185100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MANAGED ACCOUNT ADVISORS LLC  (CIK 0001418660)",
+      "manager_cik": "1418660",
+      "shares": 185087,
+      "value_usd": 185087,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+      "manager_cik": "831001",
+      "shares": 182527,
+      "value_usd": 33740,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+      "manager_cik": "831001",
+      "shares": 182100,
+      "value_usd": 182100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NORTHERN TRUST CORP  (NTRS, NTRSO)  (CIK 0000073124)",
+      "manager_cik": "73124",
+      "shares": 180590,
+      "value_usd": 106059,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JACOBS LEVY EQUITY MANAGEMENT INC  (CIK 0000884414)",
+      "manager_cik": "884414",
+      "shares": 180240,
+      "value_usd": 180240,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HSBC HOLDINGS PLC  (CIK 0000873630)",
+      "manager_cik": "873630",
+      "shares": 179006,
+      "value_usd": 81666,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TOBAM  (CIK 0001527488)",
+      "manager_cik": "1527488",
+      "shares": 178567,
+      "value_usd": 140593,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 176400,
+      "value_usd": 8400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 176248,
+      "value_usd": 176248,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "A.R.T. Advisors, LLC  (CIK 0001315281)",
+      "manager_cik": "1315281",
+      "shares": 175388,
+      "value_usd": 175388,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Wilmington Funds Management Corp  (CIK 0001056357)",
+      "manager_cik": "1056357",
+      "shares": 173920,
+      "value_usd": 173920,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+      "manager_cik": "831001",
+      "shares": 171825,
+      "value_usd": 41649,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "VANGUARD GROUP INC  (CIK 0000102909)",
+      "manager_cik": "102909",
+      "shares": 171280,
+      "value_usd": 171280,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 170441,
+      "value_usd": 170441,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 155955,
+      "value_usd": 155955,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 154560,
+      "value_usd": 154560,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BROWN ADVISORY INC  (CIK 0001345929)",
+      "manager_cik": "1345929",
+      "shares": 153953,
+      "value_usd": 150833,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Paragon Capital Management LLC  (CIK 0001388437)",
+      "manager_cik": "1388437",
+      "shares": 150587,
+      "value_usd": 150587,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 149000,
+      "value_usd": 149000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "LOS ANGELES CAPITAL MANAGEMENT & EQUITY RESEARCH INC  (CIK 0001177206)",
+      "manager_cik": "1177206",
+      "shares": 147665,
+      "value_usd": 138625,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "EDMP, INC.  (CIK 0001016021)",
+      "manager_cik": "1016021",
+      "shares": 146661,
+      "value_usd": 100451,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Porter Orlin LLC  (CIK 0001326537)",
+      "manager_cik": "1326537",
+      "shares": 144100,
+      "value_usd": 144100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BARCLAYS PLC  (BCS, BCLYF)  (CIK 0000312069)",
+      "manager_cik": "312069",
+      "shares": 143500,
+      "value_usd": 143500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CAISSE DE DEPOT ET PLACEMENT DU QUEBEC  (CIK 0000898286)",
+      "manager_cik": "898286",
+      "shares": 142152,
+      "value_usd": 2985,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BABSON CAPITAL MANAGEMENT LLC  (CIK 0000009015)",
+      "manager_cik": "9015",
+      "shares": 137812,
+      "value_usd": 137812,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 135900,
+      "value_usd": 135900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 134758,
+      "value_usd": 133693,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Stux Capital Management, LLC  (CIK 0001328533)",
+      "manager_cik": "1328533",
+      "shares": 127500,
+      "value_usd": 127500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 127500,
+      "value_usd": 127500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Fiera Capital Corp  (CIK 0001505817)",
+      "manager_cik": "1505817",
+      "shares": 126618,
+      "value_usd": 126618,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 124109,
+      "value_usd": 91553,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 122927,
+      "value_usd": 122536,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 122927,
+      "value_usd": 122536,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TD ASSET MANAGEMENT INC  (CIK 0001056053)",
+      "manager_cik": "1056053",
+      "shares": 122909,
+      "value_usd": 122909,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PRINCIPAL FINANCIAL GROUP INC  (PFG)  (CIK 0001126328)",
+      "manager_cik": "1126328",
+      "shares": 121716,
+      "value_usd": 121716,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SG Americas Securities, LLC  (CIK 0001313360)",
+      "manager_cik": "1313360",
+      "shares": 121300,
+      "value_usd": 121300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "THOMPSON SIEGEL & WALMSLEY LLC  (CIK 0001008322)",
+      "manager_cik": "1008322",
+      "shares": 120819,
+      "value_usd": 120819,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TCW GROUP INC  (CIK 0000850401)",
+      "manager_cik": "850401",
+      "shares": 118794,
+      "value_usd": 104499,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TWO SIGMA INVESTMENTS LLC  (CIK 0001179392)",
+      "manager_cik": "1179392",
+      "shares": 117534,
+      "value_usd": 117534,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GOLDMAN SACHS GROUP INC  (GS, GSCE, GS-PA, GS-PC, GS-PD)  (CIK 0000886982)",
+      "manager_cik": "886982",
+      "shares": 117175,
+      "value_usd": 117175,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Smith, Salley & Associates  (CIK 0001482012)",
+      "manager_cik": "1482012",
+      "shares": 117035,
+      "value_usd": 117035,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 116909,
+      "value_usd": 116909,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Porter Orlin LLC  (CIK 0001326537)",
+      "manager_cik": "1326537",
+      "shares": 115900,
+      "value_usd": 115900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Susquehanna International Group, LLP  (CIK 0001446194)",
+      "manager_cik": "1446194",
+      "shares": 115482,
+      "value_usd": 115482,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Permit Capital, LLC  (CIK 0001313978)",
+      "manager_cik": "1313978",
+      "shares": 113515,
+      "value_usd": 2384,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 112561,
+      "value_usd": 112561,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 111195,
+      "value_usd": 111195,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FEDERATED INVESTORS INC /PA/  (FHI)  (CIK 0001056288)",
+      "manager_cik": "1056288",
+      "shares": 110741,
+      "value_usd": 110741,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Spot Trading L.L.C  (CIK 0001511566)",
+      "manager_cik": "1511566",
+      "shares": 103683,
+      "value_usd": 103683,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ALYDAR PARTNERS LLC  (CIK 0001279895)",
+      "manager_cik": "1279895",
+      "shares": 100000,
+      "value_usd": 100000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/  (BAC, BAC-PB, BAC-PE, BAC-PK, BAC-PL, BAC-PM, BAC-PN, BAC-PO, BAC-PP, BML-PG, BML-PH, BML-PJ, BML-PL)  (CIK 0000070858)",
+      "manager_cik": "70858",
+      "shares": 100000,
+      "value_usd": 100000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 98600,
+      "value_usd": 98600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS AG  (AMNA, AMND, AMTR, AMUB, BDCX, BDCZ, CEFD, DJCB, ESUS, FEDL, HDLB, IFED, IWDL, IWFL, IWML, MLPB)  (CIK 0001114446)",
+      "manager_cik": "1114446",
+      "shares": 98202,
+      "value_usd": 98202,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Andra AP-fonden  (CIK 0001535452)",
+      "manager_cik": "1535452",
+      "shares": 97800,
+      "value_usd": 97800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CWC Advisors, LLC.  (CIK 0001520683)",
+      "manager_cik": "1520683",
+      "shares": 96883,
+      "value_usd": 88386,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PEAK6 Investments, L.P.  (CIK 0001389957)",
+      "manager_cik": "1389957",
+      "shares": 95800,
+      "value_usd": 95800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 93902,
+      "value_usd": 93902,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 93313,
+      "value_usd": 83069,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ING INVESTMENT MANAGEMENT CO  (CIK 0000033670)",
+      "manager_cik": "33670",
+      "shares": 93242,
+      "value_usd": 93242,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Susquehanna International Group, LLP  (CIK 0001446194)",
+      "manager_cik": "1446194",
+      "shares": 91500,
+      "value_usd": 1922,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS GLOBAL ASSET MANAGEMENT AMERICAS INC  (CIK 0000861177)",
+      "manager_cik": "861177",
+      "shares": 91493,
+      "value_usd": 91493,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BESSEMER GROUP INC  (CIK 0001054074)",
+      "manager_cik": "1054074",
+      "shares": 90425,
+      "value_usd": 90425,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PGGM Investments  (CIK 0001472190)",
+      "manager_cik": "1472190",
+      "shares": 89220,
+      "value_usd": 89220,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 88400,
+      "value_usd": 88400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Susquehanna International Group, LLP  (CIK 0001446194)",
+      "manager_cik": "1446194",
+      "shares": 87800,
+      "value_usd": 1844,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STEVENS CAPITAL MANAGEMENT LP  (CIK 0001134813)",
+      "manager_cik": "1134813",
+      "shares": 86123,
+      "value_usd": 86123,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 84722,
+      "value_usd": 84722,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HSBC HOLDINGS PLC  (CIK 0000873630)",
+      "manager_cik": "873630",
+      "shares": 83398,
+      "value_usd": 1751,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "REGENTATLANTIC CAPITAL LLC  (CIK 0001217758)",
+      "manager_cik": "1217758",
+      "shares": 82918,
+      "value_usd": 82918,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MARQUE MILLENNIUM CAPITAL MANAGEMENT LCC  (CIK 0001056519)",
+      "manager_cik": "1056519",
+      "shares": 82670,
+      "value_usd": 82500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "OZ MANAGEMENT LP  (CIK 0001054587)",
+      "manager_cik": "1054587",
+      "shares": 82100,
+      "value_usd": 82100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "METROPOLITAN LIFE INSURANCE CO/NY  (CIK 0000728618)",
+      "manager_cik": "728618",
+      "shares": 81884,
+      "value_usd": 81884,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 81422,
+      "value_usd": 81422,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 81422,
+      "value_usd": 81422,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 81422,
+      "value_usd": 81422,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "OZ MANAGEMENT LP  (CIK 0001054587)",
+      "manager_cik": "1054587",
+      "shares": 81100,
+      "value_usd": 81100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MADISON SQUARE INVESTORS LLC.  (CIK 0001453415)",
+      "manager_cik": "1453415",
+      "shares": 80096,
+      "value_usd": 74803,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+      "manager_cik": "831001",
+      "shares": 79996,
+      "value_usd": 79996,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Chevy Chase Trust Holdings, Inc.  (CIK 0001462020)",
+      "manager_cik": "1462020",
+      "shares": 79591,
+      "value_usd": 79591,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "KBC Group NV  (CIK 0001411133)",
+      "manager_cik": "1411133",
+      "shares": 79467,
+      "value_usd": 79467,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "VIRGINIA RETIREMENT SYSTEMS ET AL  (CIK 0001005354)",
+      "manager_cik": "1005354",
+      "shares": 78772,
+      "value_usd": 78772,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 77201,
+      "value_usd": 77201,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Hutchin Hill Capital, LP  (CIK 0001482799)",
+      "manager_cik": "1482799",
+      "shares": 77000,
+      "value_usd": 77000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 75870,
+      "value_usd": 75870,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CLARK ESTATES INC/NY  (CIK 0001056466)",
+      "manager_cik": "1056466",
+      "shares": 75600,
+      "value_usd": 75600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FRANKLIN STREET ADVISORS INC /NC  (CIK 0001010873)",
+      "manager_cik": "1010873",
+      "shares": 75500,
+      "value_usd": 71200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TEXAS PERMANENT SCHOOL FUND  (CIK 0001223779)",
+      "manager_cik": "1223779",
+      "shares": 72279,
+      "value_usd": 72279,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITADEL ADVISORS LLC  (CIK 0001423053)",
+      "manager_cik": "1423053",
+      "shares": 71994,
+      "value_usd": 71994,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Mount Lucas Management LP  (CIK 0001185072)",
+      "manager_cik": "1185072",
+      "shares": 70569,
+      "value_usd": 70569,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MERITAGE PORTFOLIO MANAGEMENT  (CIK 0000881432)",
+      "manager_cik": "881432",
+      "shares": 70211,
+      "value_usd": 70211,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 70088,
+      "value_usd": 70088,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 69226,
+      "value_usd": 69226,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ENTRUST CAPITAL INC/NY  (CIK 0001043853)",
+      "manager_cik": "1043853",
+      "shares": 67212,
+      "value_usd": 67212,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CAPITAL FUND MANAGEMENT S.A.  (CIK 0001323645)",
+      "manager_cik": "1323645",
+      "shares": 66800,
+      "value_usd": 66800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CIBC World Markets Inc.  (CIK 0001421224)",
+      "manager_cik": "1421224",
+      "shares": 66787,
+      "value_usd": 66787,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "IBM Retirement Fund  (CIK 0001018825)",
+      "manager_cik": "1018825",
+      "shares": 66763,
+      "value_usd": 1402,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "D. E. Shaw & Co., INC.  (CIK 0001009207)",
+      "manager_cik": "1009207",
+      "shares": 66753,
+      "value_usd": 66753,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ESSEX INVESTMENT MANAGEMENT CO LLC  (CIK 0000201772)",
+      "manager_cik": "201772",
+      "shares": 66192,
+      "value_usd": 3152,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Freestone Capital Holdings, LLC  (CIK 0001470876)",
+      "manager_cik": "1470876",
+      "shares": 64000,
+      "value_usd": 64000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MANULIFE ASSET MANAGEMENT (US) LLC  (CIK 0001034182)",
+      "manager_cik": "1034182",
+      "shares": 63509,
+      "value_usd": 63509,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MANULIFE ASSET MANAGEMENT (US) LLC  (CIK 0001034182)",
+      "manager_cik": "1034182",
+      "shares": 63509,
+      "value_usd": 63509,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Spot Trading L.L.C  (CIK 0001511566)",
+      "manager_cik": "1511566",
+      "shares": 62600,
+      "value_usd": 62600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PICTET ASSET MANAGEMENT LTD  (CIK 0001291274)",
+      "manager_cik": "1291274",
+      "shares": 62300,
+      "value_usd": 1308,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PRINCIPAL FINANCIAL GROUP INC  (PFG)  (CIK 0001126328)",
+      "manager_cik": "1126328",
+      "shares": 61621,
+      "value_usd": 61621,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 60792,
+      "value_usd": 60792,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 60792,
+      "value_usd": 60792,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITY OF EDINBURGH COUNCIL AS ADMINISTRATOR OF THE LOTHIAN PENSION FUND  (CIK 0001529289)",
+      "manager_cik": "1529289",
+      "shares": 60100,
+      "value_usd": 60100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TEACHER RETIREMENT SYSTEM OF TEXAS  (CIK 0000796848)",
+      "manager_cik": "796848",
+      "shares": 59690,
+      "value_usd": 59690,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MADISON SQUARE INVESTORS LLC.  (CIK 0001453415)",
+      "manager_cik": "1453415",
+      "shares": 57967,
+      "value_usd": 29724,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 57918,
+      "value_usd": 2758,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Brown Advisory Securities, LLC  (CIK 0001389479)",
+      "manager_cik": "1389479",
+      "shares": 57300,
+      "value_usd": 57300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FEDERATED INVESTORS INC /PA/  (FHI)  (CIK 0001056288)",
+      "manager_cik": "1056288",
+      "shares": 57200,
+      "value_usd": 57200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 56726,
+      "value_usd": 56726,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "COMMONWEALTH BANK OF AUSTRALIA  (CIK 0000008565)",
+      "manager_cik": "8565",
+      "shares": 56600,
+      "value_usd": 56600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 56584,
+      "value_usd": 56394,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "OLD MUTUAL ASSET MANAGERS UK LTD  (CIK 0001080386)",
+      "manager_cik": "1080386",
+      "shares": 56580,
+      "value_usd": 56580,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STONERIDGE INVESTMENT PARTNERS LLC  (CIK 0001108831)",
+      "manager_cik": "1108831",
+      "shares": 56093,
+      "value_usd": 42294,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BARCLAYS PLC  (BCS, BCLYF)  (CIK 0000312069)",
+      "manager_cik": "312069",
+      "shares": 55566,
+      "value_usd": 55566,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HSBC HOLDINGS PLC  (CIK 0000873630)",
+      "manager_cik": "873630",
+      "shares": 55073,
+      "value_usd": 1156,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 54847,
+      "value_usd": 54847,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS GLOBAL ASSET MANAGEMENT AMERICAS INC  (CIK 0000861177)",
+      "manager_cik": "861177",
+      "shares": 54835,
+      "value_usd": 54835,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UNITED SERVICES AUTOMOBILE ASSOCIATION  (CIK 0001021249)",
+      "manager_cik": "1021249",
+      "shares": 54421,
+      "value_usd": 54421,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GSA CAPITAL PARTNERS LLP  (CIK 0001362033)",
+      "manager_cik": "1362033",
+      "shares": 54132,
+      "value_usd": 54132,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STATE TREASURER STATE OF MICHIGAN  (CIK 0000762152)",
+      "manager_cik": "762152",
+      "shares": 53254,
+      "value_usd": 53254,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 52343,
+      "value_usd": 51037,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "RUSSELL FRANK CO/  (CIK 0000721204)",
+      "manager_cik": "721204",
+      "shares": 51900,
+      "value_usd": 51900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STEWARD CAPITAL MANAGEMENT/  (CIK 0000919533)",
+      "manager_cik": "919533",
+      "shares": 51650,
+      "value_usd": 50900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Robeco Institutional Asset Management B.V.  (CIK 0001418773)",
+      "manager_cik": "1418773",
+      "shares": 51100,
+      "value_usd": 28100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "VANGUARD GROUP INC  (CIK 0000102909)",
+      "manager_cik": "102909",
+      "shares": 51100,
+      "value_usd": 51100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ANALYTIC INVESTORS, LLC  (CIK 0001086137)",
+      "manager_cik": "1086137",
+      "shares": 50300,
+      "value_usd": 50300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SHELL ASSET MANAGEMENT CO  (CIK 0001211028)",
+      "manager_cik": "1211028",
+      "shares": 50115,
+      "value_usd": 50115,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "OTTER CREEK MANAGEMENT INC  (CIK 0001226779)",
+      "manager_cik": "1226779",
+      "shares": 50000,
+      "value_usd": 50000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SUNRISE PARTNERS LIMITED PARTNERSHIP /CT  (CIK 0001103882)",
+      "manager_cik": "1103882",
+      "shares": 48200,
+      "value_usd": 48200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "COMERICA BANK  (CIK 0000901541)",
+      "manager_cik": "901541",
+      "shares": 47417,
+      "value_usd": 996,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WFG Advisors, LP  (CIK 0001533892)",
+      "manager_cik": "1533892",
+      "shares": 46594,
+      "value_usd": 46594,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Arizona State Retirement System  (CIK 0001558481)",
+      "manager_cik": "1558481",
+      "shares": 45465,
+      "value_usd": 45465,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TWO SIGMA ADVISERS, LLC  (CIK 0001478735)",
+      "manager_cik": "1478735",
+      "shares": 45017,
+      "value_usd": 45017,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 45000,
+      "value_usd": 45000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Freestone Capital Holdings, LLC  (CIK 0001470876)",
+      "manager_cik": "1470876",
+      "shares": 44890,
+      "value_usd": 44890,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Xaraf Management LLC  (CIK 0001352910)",
+      "manager_cik": "1352910",
+      "shares": 44800,
+      "value_usd": 941,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 44700,
+      "value_usd": 44700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HARTFORD INVESTMENT MANAGEMENT CO  (CIK 0000922439)",
+      "manager_cik": "922439",
+      "shares": 44682,
+      "value_usd": 44682,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Janney Montgomery Scott LLC  (CIK 0001329948)",
+      "manager_cik": "1329948",
+      "shares": 44533,
+      "value_usd": 44533,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GALAXY CAPITAL TRADING LTD  (CIK 0001446804)",
+      "manager_cik": "1446804",
+      "shares": 44100,
+      "value_usd": 44100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Lloyds Banking Group plc  (LYG, LLDTF, LLOBF)  (CIK 0001160106)",
+      "manager_cik": "1160106",
+      "shares": 43973,
+      "value_usd": 43973,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Man Investments Ltd  (CIK 0001390262)",
+      "manager_cik": "1390262",
+      "shares": 43628,
+      "value_usd": 43628,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FJARDE AP-FONDEN /FOURTH SWEDISH NATIONAL PENSION FUND  (CIK 0001540880)",
+      "manager_cik": "1540880",
+      "shares": 42705,
+      "value_usd": 897,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYAL BANK OF CANADA  (RY, RBCPF, RBMCF, RYLBF)  (CIK 0001000275)",
+      "manager_cik": "1000275",
+      "shares": 42505,
+      "value_usd": 42505,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TCW GROUP INC  (CIK 0000850401)",
+      "manager_cik": "850401",
+      "shares": 42415,
+      "value_usd": 42200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Manulife Asset Management (North America) Ltd  (CIK 0001254859)",
+      "manager_cik": "1254859",
+      "shares": 42036,
+      "value_usd": 42036,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AVIVA PLC  (CIK 0001140022)",
+      "manager_cik": "1140022",
+      "shares": 41299,
+      "value_usd": 41299,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 40800,
+      "value_usd": 40800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 40700,
+      "value_usd": 40700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SEGALL BRYANT & HAMILL  (CIK 0001006378)",
+      "manager_cik": "1006378",
+      "shares": 40648,
+      "value_usd": 31153,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FMR LLC  (CIK 0000315066)",
+      "manager_cik": "315066",
+      "shares": 40381,
+      "value_usd": 40381,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "EXXONMOBIL INVESTMENT MANAGEMENT INC /TX  (CIK 0001082970)",
+      "manager_cik": "1082970",
+      "shares": 40151,
+      "value_usd": 40151,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BMO FINANCIAL CORP  (CIK 0000934729)",
+      "manager_cik": "934729",
+      "shares": 40000,
+      "value_usd": 40000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FULLER & THALER ASSET MANAGEMENT, INC.  (CIK 0001082327)",
+      "manager_cik": "1082327",
+      "shares": 39900,
+      "value_usd": 1900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC SECTOR PENSION INVESTMENT BOARD  (CIK 0001396318)",
+      "manager_cik": "1396318",
+      "shares": 39667,
+      "value_usd": 39667,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PANAGORA ASSET MANAGEMENT INC  (CIK 0000883677)",
+      "manager_cik": "883677",
+      "shares": 39235,
+      "value_usd": 30232,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 39083,
+      "value_usd": 39083,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NOMURA ASSET MANAGEMENT CO LTD  (CIK 0001055964)",
+      "manager_cik": "1055964",
+      "shares": 39020,
+      "value_usd": 39020,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 38900,
+      "value_usd": 38900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Euclid Advisors LLC  (CIK 0001534491)",
+      "manager_cik": "1534491",
+      "shares": 38743,
+      "value_usd": 38743,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ENTRUST CAPITAL INC/NY  (CIK 0001043853)",
+      "manager_cik": "1043853",
+      "shares": 38300,
+      "value_usd": 38300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Livforsakringsaktiebolaget Skandia (publ)  (CIK 0001547926)",
+      "manager_cik": "1547926",
+      "shares": 37700,
+      "value_usd": 37700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 37681,
+      "value_usd": 37681,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "US BANCORP \\DE\\  (USB, USB-PA, USB-PH, USB-PP, USB-PQ, USB-PR, USB-PS)  (CIK 0000036104)",
+      "manager_cik": "36104",
+      "shares": 37400,
+      "value_usd": 37400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "VANGUARD GROUP INC  (CIK 0000102909)",
+      "manager_cik": "102909",
+      "shares": 36400,
+      "value_usd": 36400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "IRONWOOD INVESTMENT MANAGEMENT LLC  (CIK 0001127761)",
+      "manager_cik": "1127761",
+      "shares": 35650,
+      "value_usd": 35650,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Mitsubishi UFJ Asset Management Co., Ltd.  (CIK 0001466546)",
+      "manager_cik": "1466546",
+      "shares": 35600,
+      "value_usd": 35600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "KBC Group NV  (CIK 0001411133)",
+      "manager_cik": "1411133",
+      "shares": 35547,
+      "value_usd": 35547,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DIAM Co., Ltd.  (CIK 0001068855)",
+      "manager_cik": "1068855",
+      "shares": 35500,
+      "value_usd": 35500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DIAM International Ltd.  (CIK 0001121805)",
+      "manager_cik": "1121805",
+      "shares": 35500,
+      "value_usd": 35500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT AGRICOLE S A  (CIK 0001191672)",
+      "manager_cik": "1191672",
+      "shares": 35408,
+      "value_usd": 743,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 35200,
+      "value_usd": 35200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CRAMER ROSENTHAL MCGLYNN LLC  (CIK 0000820743)",
+      "manager_cik": "820743",
+      "shares": 35000,
+      "value_usd": 35000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BMO FINANCIAL CORP  (CIK 0000934729)",
+      "manager_cik": "934729",
+      "shares": 34800,
+      "value_usd": 34800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 34500,
+      "value_usd": 34500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CAPITAL FUND MANAGEMENT S.A.  (CIK 0001323645)",
+      "manager_cik": "1323645",
+      "shares": 34300,
+      "value_usd": 34300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "THRIVENT FINANCIAL FOR LUTHERANS  (CIK 0000314984)",
+      "manager_cik": "314984",
+      "shares": 33900,
+      "value_usd": 33900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HIGHBRIDGE CAPITAL MANAGEMENT LLC  (CIK 0000919185)",
+      "manager_cik": "919185",
+      "shares": 33200,
+      "value_usd": 33200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS AG  (AMNA, AMND, AMTR, AMUB, BDCX, BDCZ, CEFD, DJCB, ESUS, FEDL, HDLB, IFED, IWDL, IWFL, IWML, MLPB)  (CIK 0001114446)",
+      "manager_cik": "1114446",
+      "shares": 33100,
+      "value_usd": 33100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PineBridge Investments Ltd  (CIK 0001531721)",
+      "manager_cik": "1531721",
+      "shares": 32977,
+      "value_usd": 32977,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "COMMONWEALTH OF PENNSYLVANIA PUBLIC SCHOOL EMPLS RETRMT SYS  (CIK 0001083190)",
+      "manager_cik": "1083190",
+      "shares": 32815,
+      "value_usd": 32815,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GAM Holding AG  (CIK 0001438848)",
+      "manager_cik": "1438848",
+      "shares": 32700,
+      "value_usd": 32700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BLACKROCK ADVISORS LLC  (CIK 0001086364)",
+      "manager_cik": "1086364",
+      "shares": 32045,
+      "value_usd": 32045,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GOLDMAN SACHS GROUP INC  (GS, GSCE, GS-PA, GS-PC, GS-PD)  (CIK 0000886982)",
+      "manager_cik": "886982",
+      "shares": 31915,
+      "value_usd": 31915,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HSBC HOLDINGS PLC  (CIK 0000873630)",
+      "manager_cik": "873630",
+      "shares": 31836,
+      "value_usd": 668,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CANADA PENSION PLAN INVESTMENT BOARD  (CIK 0001283718)",
+      "manager_cik": "1283718",
+      "shares": 31540,
+      "value_usd": 31540,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 31389,
+      "value_usd": 31389,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TOBAM  (CIK 0001527488)",
+      "manager_cik": "1527488",
+      "shares": 30577,
+      "value_usd": 30577,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "THRIVENT FINANCIAL FOR LUTHERANS  (CIK 0000314984)",
+      "manager_cik": "314984",
+      "shares": 30500,
+      "value_usd": 30500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 30441,
+      "value_usd": 30441,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 30441,
+      "value_usd": 30441,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "First Allied Advisory Services, Inc.  (CIK 0001512647)",
+      "manager_cik": "1512647",
+      "shares": 30303,
+      "value_usd": 1443,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TEACHERS RETIREMENT SYSTEM OF THE STATE OF KENTUCKY  (CIK 0000714142)",
+      "manager_cik": "714142",
+      "shares": 30300,
+      "value_usd": 1200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CAPSTONE INVESTMENT ADVISORS, LLC  (CIK 0001426196)",
+      "manager_cik": "1426196",
+      "shares": 30000,
+      "value_usd": 30000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYAL BANK OF SCOTLAND GROUP PLC  (NWG, RBSPF)  (CIK 0000844150)",
+      "manager_cik": "844150",
+      "shares": 29751,
+      "value_usd": 29751,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 29600,
+      "value_usd": 29600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "COMMERZBANK AKTIENGESELLSCHAFT /FI  (CIK 0000852933)",
+      "manager_cik": "852933",
+      "shares": 29415,
+      "value_usd": 617,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ICON ADVISERS INC/CO  (CIK 0001058470)",
+      "manager_cik": "1058470",
+      "shares": 29200,
+      "value_usd": 29200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TD Securities (USA) LLC  (CIK 0001335977)",
+      "manager_cik": "1335977",
+      "shares": 29018,
+      "value_usd": 29018,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "First Heartland Consultants, Inc.  (CIK 0001428793)",
+      "manager_cik": "1428793",
+      "shares": 28448,
+      "value_usd": 28448,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STEVENS CAPITAL MANAGEMENT LP  (CIK 0001134813)",
+      "manager_cik": "1134813",
+      "shares": 28373,
+      "value_usd": 28373,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/  (BAC, BAC-PB, BAC-PE, BAC-PK, BAC-PL, BAC-PM, BAC-PN, BAC-PO, BAC-PP, BML-PG, BML-PH, BML-PJ, BML-PL)  (CIK 0000070858)",
+      "manager_cik": "70858",
+      "shares": 28282,
+      "value_usd": 24795,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CAPSTONE ASSET MANAGEMENT CO  (CIK 0000825204)",
+      "manager_cik": "825204",
+      "shares": 27915,
+      "value_usd": 18216,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS GLOBAL ASSET MANAGEMENT AMERICAS INC  (CIK 0000861177)",
+      "manager_cik": "861177",
+      "shares": 26919,
+      "value_usd": 14293,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DIAM Co., Ltd.  (CIK 0001068855)",
+      "manager_cik": "1068855",
+      "shares": 26500,
+      "value_usd": 26500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DIAM International Ltd.  (CIK 0001121805)",
+      "manager_cik": "1121805",
+      "shares": 26500,
+      "value_usd": 26500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DekaBank Deutsche Girozentrale  (CIK 0001456228)",
+      "manager_cik": "1456228",
+      "shares": 26431,
+      "value_usd": 26431,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HIGHBRIDGE CAPITAL MANAGEMENT LLC  (CIK 0000919185)",
+      "manager_cik": "919185",
+      "shares": 26300,
+      "value_usd": 26300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PAX WORLD MANAGEMENT LLC  (CIK 0001127990)",
+      "manager_cik": "1127990",
+      "shares": 26241,
+      "value_usd": 26241,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "World Asset Management Inc  (CIK 0001389215)",
+      "manager_cik": "1389215",
+      "shares": 25829,
+      "value_usd": 21030,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TOKIO MARINE ASSET MANAGEMENT CO LTD  (CIK 0001504169)",
+      "manager_cik": "1504169",
+      "shares": 25660,
+      "value_usd": 25660,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "REGIONS FINANCIAL CORP  (RF, RF-PB, RF-PC, RF-PE, RF-PF)  (CIK 0001281761)",
+      "manager_cik": "1281761",
+      "shares": 25645,
+      "value_usd": 25200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 25458,
+      "value_usd": 25458,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 25458,
+      "value_usd": 25458,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 25458,
+      "value_usd": 25458,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 25458,
+      "value_usd": 25458,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO  (CIK 0000315297)",
+      "manager_cik": "315297",
+      "shares": 25458,
+      "value_usd": 25458,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PEAK6 Investments, L.P.  (CIK 0001389957)",
+      "manager_cik": "1389957",
+      "shares": 25000,
+      "value_usd": 25000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ONTARIO TEACHERS PENSION PLAN BOARD  (CIK 0000937567)",
+      "manager_cik": "937567",
+      "shares": 24090,
+      "value_usd": 24090,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Placemark Investments, Inc.  (CIK 0001315726)",
+      "manager_cik": "1315726",
+      "shares": 23978,
+      "value_usd": 23971,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DIAM Co., Ltd.  (CIK 0001068855)",
+      "manager_cik": "1068855",
+      "shares": 23534,
+      "value_usd": 23534,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DIAM International Ltd.  (CIK 0001121805)",
+      "manager_cik": "1121805",
+      "shares": 23534,
+      "value_usd": 23534,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 23310,
+      "value_usd": 23310,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GlobalBridge, Inc.  (CIK 0001364630)",
+      "manager_cik": "1364630",
+      "shares": 23280,
+      "value_usd": 23280,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/  (BAC, BAC-PB, BAC-PE, BAC-PK, BAC-PL, BAC-PM, BAC-PN, BAC-PO, BAC-PP, BML-PG, BML-PH, BML-PJ, BML-PL)  (CIK 0000070858)",
+      "manager_cik": "70858",
+      "shares": 22500,
+      "value_usd": 22500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GAM Holding AG  (CIK 0001438848)",
+      "manager_cik": "1438848",
+      "shares": 22405,
+      "value_usd": 22405,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 22277,
+      "value_usd": 22277,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AMG National Trust Bank  (CIK 0001388829)",
+      "manager_cik": "1388829",
+      "shares": 22077,
+      "value_usd": 22077,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Employees Retirement System of Texas  (CIK 0001398739)",
+      "manager_cik": "1398739",
+      "shares": 22000,
+      "value_usd": 22000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF HAWAII  (CIK 0000315080)",
+      "manager_cik": "315080",
+      "shares": 21755,
+      "value_usd": 457,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WESTPAC BANKING CORP  (WEBNF)  (CIK 0000719245)",
+      "manager_cik": "719245",
+      "shares": 21651,
+      "value_usd": 1031,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "OMERS ADMINISTRATION Corp  (CIK 0001053321)",
+      "manager_cik": "1053321",
+      "shares": 21440,
+      "value_usd": 21440,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 21400,
+      "value_usd": 21400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GROUP ONE TRADING, L.P.  (CIK 0000932540)",
+      "manager_cik": "932540",
+      "shares": 21400,
+      "value_usd": 21400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GREAT LAKES ADVISORS, LLC  (CIK 0001078013)",
+      "manager_cik": "1078013",
+      "shares": 21348,
+      "value_usd": 21348,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DAI ICHI LIFE INSURANCE CO., LTD.  (CIK 0000948518)",
+      "manager_cik": "948518",
+      "shares": 21087,
+      "value_usd": 21087,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 20702,
+      "value_usd": 20702,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BLAIR WILLIAM & CO/IL  (CIK 0000902367)",
+      "manager_cik": "902367",
+      "shares": 20315,
+      "value_usd": 10780,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS AG  (AMNA, AMND, AMTR, AMUB, BDCX, BDCZ, CEFD, DJCB, ESUS, FEDL, HDLB, IFED, IWDL, IWFL, IWML, MLPB)  (CIK 0001114446)",
+      "manager_cik": "1114446",
+      "shares": 19700,
+      "value_usd": 19700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Utah Retirement Systems  (CIK 0001548392)",
+      "manager_cik": "1548392",
+      "shares": 19561,
+      "value_usd": 19561,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STEVENS CAPITAL MANAGEMENT LP  (CIK 0001134813)",
+      "manager_cik": "1134813",
+      "shares": 19538,
+      "value_usd": 19538,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CenturyLink Investment Management Co  (CIK 0001054522)",
+      "manager_cik": "1054522",
+      "shares": 19391,
+      "value_usd": 19391,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GEODE CAPITAL MANAGEMENT LLC  (CIK 0001214717)",
+      "manager_cik": "1214717",
+      "shares": 19305,
+      "value_usd": 19305,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invictus RG Pte. Ltd.  (CIK 0001547494)",
+      "manager_cik": "1547494",
+      "shares": 19278,
+      "value_usd": 19278,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NORTHERN TRUST CORP  (NTRS, NTRSO)  (CIK 0000073124)",
+      "manager_cik": "73124",
+      "shares": 19231,
+      "value_usd": 13479,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GUGGENHEIM CAPITAL LLC  (CIK 0001283072)",
+      "manager_cik": "1283072",
+      "shares": 19081,
+      "value_usd": 19081,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GUGGENHEIM CAPITAL LLC  (CIK 0001283072)",
+      "manager_cik": "1283072",
+      "shares": 19081,
+      "value_usd": 19081,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/  (BAC, BAC-PB, BAC-PE, BAC-PK, BAC-PL, BAC-PM, BAC-PN, BAC-PO, BAC-PP, BML-PG, BML-PH, BML-PJ, BML-PL)  (CIK 0000070858)",
+      "manager_cik": "70858",
+      "shares": 18600,
+      "value_usd": 18600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "RUSSELL FRANK CO/  (CIK 0000721204)",
+      "manager_cik": "721204",
+      "shares": 18500,
+      "value_usd": 18500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CHICAGO EQUITY PARTNERS LLC  (CIK 0001116992)",
+      "manager_cik": "1116992",
+      "shares": 18255,
+      "value_usd": 13405,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 18254,
+      "value_usd": 18254,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 18254,
+      "value_usd": 18254,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MANUFACTURERES LIFE INSURANCE CO  (CIK 0000928047)",
+      "manager_cik": "928047",
+      "shares": 18151,
+      "value_usd": 18151,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ALPHA WINDWARD LLC  (CIK 0001353219)",
+      "manager_cik": "1353219",
+      "shares": 18060,
+      "value_usd": 18060,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "COMMONWEALTH BANK OF AUSTRALIA  (CIK 0000008565)",
+      "manager_cik": "8565",
+      "shares": 17900,
+      "value_usd": 13500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Aperio Group, LLC  (CIK 0001364615)",
+      "manager_cik": "1364615",
+      "shares": 17779,
+      "value_usd": 17779,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Adams Asset Advisors, LLC  (CIK 0001386929)",
+      "manager_cik": "1386929",
+      "shares": 17500,
+      "value_usd": 17500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Adams Asset Advisors, LLC  (CIK 0001386929)",
+      "manager_cik": "1386929",
+      "shares": 17500,
+      "value_usd": 17500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HENDERSON GROUP PLC  (JHG)  (CIK 0001274173)",
+      "manager_cik": "1274173",
+      "shares": 17468,
+      "value_usd": 17468,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HENDERSON GROUP PLC  (JHG)  (CIK 0001274173)",
+      "manager_cik": "1274173",
+      "shares": 17468,
+      "value_usd": 17468,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MASON STREET ADVISORS, LLC  (CIK 0001167711)",
+      "manager_cik": "1167711",
+      "shares": 17300,
+      "value_usd": 17300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Radium Fund Advisors LLC  (CIK 0001549975)",
+      "manager_cik": "1549975",
+      "shares": 17000,
+      "value_usd": 17000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Sumitomo Mitsui Asset Management Company, LTD  (CIK 0001411530)",
+      "manager_cik": "1411530",
+      "shares": 16889,
+      "value_usd": 16889,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FMR LLC  (CIK 0000315066)",
+      "manager_cik": "315066",
+      "shares": 16696,
+      "value_usd": 16696,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ASSOCIATED BANC-CORP  (ASB, ASBA, ASB-PE, ASB-PF)  (CIK 0000007789)",
+      "manager_cik": "7789",
+      "shares": 16615,
+      "value_usd": 16340,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 16300,
+      "value_usd": 16300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "D. E. Shaw & Co., INC.  (CIK 0001009207)",
+      "manager_cik": "1009207",
+      "shares": 16300,
+      "value_usd": 13900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CIBC Global Asset Management Inc  (CIK 0001021926)",
+      "manager_cik": "1021926",
+      "shares": 16112,
+      "value_usd": 16112,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FRANKLIN RESOURCES INC  (BEN)  (CIK 0000038777)",
+      "manager_cik": "38777",
+      "shares": 15300,
+      "value_usd": 15300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PNC FINANCIAL SERVICES GROUP, INC.  (PNC)  (CIK 0000713676)",
+      "manager_cik": "713676",
+      "shares": 15225,
+      "value_usd": 5284,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TUDOR INVESTMENT CORP ET AL  (CIK 0000923093)",
+      "manager_cik": "923093",
+      "shares": 14700,
+      "value_usd": 14700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FIRST HAWAIIAN BANK  (CIK 0000764106)",
+      "manager_cik": "764106",
+      "shares": 14647,
+      "value_usd": 14647,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TOCQUEVILLE ASSET MANAGEMENT L.P.  (CIK 0000883961)",
+      "manager_cik": "883961",
+      "shares": 14586,
+      "value_usd": 14586,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Meiji Yasuda Asset Management Co Ltd.  (CIK 0001491685)",
+      "manager_cik": "1491685",
+      "shares": 14461,
+      "value_usd": 14461,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AMERICAN NATIONAL BANK & TRUST CO /VA/  (CIK 0000939835)",
+      "manager_cik": "939835",
+      "shares": 14400,
+      "value_usd": 11400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FEDERATED INVESTORS INC /PA/  (FHI)  (CIK 0001056288)",
+      "manager_cik": "1056288",
+      "shares": 14343,
+      "value_usd": 14336,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 14275,
+      "value_usd": 14275,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SAC Capital Advisors LP  (CIK 0001451928)",
+      "manager_cik": "1451928",
+      "shares": 14261,
+      "value_usd": 14261,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BNP Paribas Investment Partners S.A.  (CIK 0001520354)",
+      "manager_cik": "1520354",
+      "shares": 14200,
+      "value_usd": 14200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PUTNAM INVESTMENT MANAGEMENT LLC  (CIK 0000081273)",
+      "manager_cik": "81273",
+      "shares": 13864,
+      "value_usd": 12871,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Susquehanna International Group, LLP  (CIK 0001446194)",
+      "manager_cik": "1446194",
+      "shares": 13690,
+      "value_usd": 13690,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Virtu Financial LLC  (CIK 0001533964)",
+      "manager_cik": "1533964",
+      "shares": 13659,
+      "value_usd": 13659,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HL FINANCIAL SERVICES LLC  (CIK 0001430233)",
+      "manager_cik": "1430233",
+      "shares": 13557,
+      "value_usd": 285,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT AGRICOLE S A  (CIK 0001191672)",
+      "manager_cik": "1191672",
+      "shares": 13500,
+      "value_usd": 283,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 13300,
+      "value_usd": 13300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 13200,
+      "value_usd": 13200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 13060,
+      "value_usd": 9902,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "RAYMOND JAMES & ASSOCIATES  (CIK 0001084208)",
+      "manager_cik": "1084208",
+      "shares": 12672,
+      "value_usd": 12672,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 12639,
+      "value_usd": 12639,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 12639,
+      "value_usd": 12639,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SUNRISE PARTNERS LIMITED PARTNERSHIP /CT  (CIK 0001103882)",
+      "manager_cik": "1103882",
+      "shares": 12613,
+      "value_usd": 12613,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MUTUAL OF AMERICA CAPITAL MANAGEMENT CORP  (CIK 0000922127)",
+      "manager_cik": "922127",
+      "shares": 12329,
+      "value_usd": 259,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Zweig-DiMenna Associates LLC  (CIK 0001533950)",
+      "manager_cik": "1533950",
+      "shares": 11943,
+      "value_usd": 11943,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Meiji Yasuda Life Insurance Co  (CIK 0001144492)",
+      "manager_cik": "1144492",
+      "shares": 11730,
+      "value_usd": 11730,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "STEVENS CAPITAL MANAGEMENT LP  (CIK 0001134813)",
+      "manager_cik": "1134813",
+      "shares": 11527,
+      "value_usd": 11527,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GATEWAY INVESTMENT ADVISERS LLC  (CIK 0001114618)",
+      "manager_cik": "1114618",
+      "shares": 11505,
+      "value_usd": 11505,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Neuberger Berman Group LLC  (CIK 0001465109)",
+      "manager_cik": "1465109",
+      "shares": 11466,
+      "value_usd": 11362,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GROUP ONE TRADING, L.P.  (CIK 0000932540)",
+      "manager_cik": "932540",
+      "shares": 11358,
+      "value_usd": 11358,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FIRST CITIZENS BANK & TRUST CO  (CIK 0001092203)",
+      "manager_cik": "1092203",
+      "shares": 11286,
+      "value_usd": 11286,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BESSEMER GROUP INC  (CIK 0001054074)",
+      "manager_cik": "1054074",
+      "shares": 11111,
+      "value_usd": 11111,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 11110,
+      "value_usd": 11110,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 11110,
+      "value_usd": 11110,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Rotella Capital Management, Inc.  (CIK 0001529426)",
+      "manager_cik": "1529426",
+      "shares": 11100,
+      "value_usd": 10200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 10926,
+      "value_usd": 10926,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PICTET ASSET MANAGEMENT LTD  (CIK 0001291274)",
+      "manager_cik": "1291274",
+      "shares": 10800,
+      "value_usd": 226,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BUCKHEAD CAPITAL MANAGEMENT LLC  (CIK 0001133999)",
+      "manager_cik": "1133999",
+      "shares": 10698,
+      "value_usd": 10548,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 10600,
+      "value_usd": 10600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ProShare Advisors LLC  (CIK 0001357955)",
+      "manager_cik": "1357955",
+      "shares": 10594,
+      "value_usd": 10594,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MANUFACTURERES LIFE INSURANCE CO  (CIK 0000928047)",
+      "manager_cik": "928047",
+      "shares": 10542,
+      "value_usd": 10542,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BMO FINANCIAL CORP  (CIK 0000934729)",
+      "manager_cik": "934729",
+      "shares": 10482,
+      "value_usd": 5672,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS AG  (AMNA, AMND, AMTR, AMUB, BDCX, BDCZ, CEFD, DJCB, ESUS, FEDL, HDLB, IFED, IWDL, IWFL, IWML, MLPB)  (CIK 0001114446)",
+      "manager_cik": "1114446",
+      "shares": 10439,
+      "value_usd": 10439,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT AGRICOLE S A  (CIK 0001191672)",
+      "manager_cik": "1191672",
+      "shares": 10302,
+      "value_usd": 216,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Hodges Capital Management Inc.  (CIK 0001337263)",
+      "manager_cik": "1337263",
+      "shares": 10000,
+      "value_usd": 10000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 9900,
+      "value_usd": 9900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 9800,
+      "value_usd": 9800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GREAT WEST LIFE ASSURANCE CO /CAN/  (CIK 0001046192)",
+      "manager_cik": "1046192",
+      "shares": 9497,
+      "value_usd": 9497,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 9100,
+      "value_usd": 9100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ALLSTATE CORP  (ALL, ALL-PB, ALL-PH, ALL-PI, ALL-PJ)  (CIK 0000899051)",
+      "manager_cik": "899051",
+      "shares": 9000,
+      "value_usd": 189,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 8500,
+      "value_usd": 8500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MEEDER ASSET MANAGEMENT INC  (CIK 0000809443)",
+      "manager_cik": "809443",
+      "shares": 8445,
+      "value_usd": 8445,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Strategic Capital Group LLC  (CIK 0001536037)",
+      "manager_cik": "1536037",
+      "shares": 8340,
+      "value_usd": 8340,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TRUST CO OF VERMONT  (CIK 0001134008)",
+      "manager_cik": "1134008",
+      "shares": 8169,
+      "value_usd": 389,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 7995,
+      "value_usd": 6635,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ABERDEEN ASSET MANAGEMENT PLC/UK  (CIK 0001080434)",
+      "manager_cik": "1080434",
+      "shares": 7914,
+      "value_usd": 7914,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 7900,
+      "value_usd": 7900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AMERIPRISE FINANCIAL INC  (AMP)  (CIK 0000820027)",
+      "manager_cik": "820027",
+      "shares": 7867,
+      "value_usd": 7867,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ABERDEEN ASSET MANAGEMENT PLC/UK  (CIK 0001080434)",
+      "manager_cik": "1080434",
+      "shares": 7570,
+      "value_usd": 7570,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT AGRICOLE S A  (CIK 0001191672)",
+      "manager_cik": "1191672",
+      "shares": 7325,
+      "value_usd": 153,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 7093,
+      "value_usd": 6438,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "UBS AG  (AMNA, AMND, AMTR, AMUB, BDCX, BDCZ, CEFD, DJCB, ESUS, FEDL, HDLB, IFED, IWDL, IWFL, IWML, MLPB)  (CIK 0001114446)",
+      "manager_cik": "1114446",
+      "shares": 7036,
+      "value_usd": 7036,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITIGROUP INC  (C, C-PN)  (CIK 0000831001)",
+      "manager_cik": "831001",
+      "shares": 6933,
+      "value_usd": 143,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Daiwa Securities Group Inc.  (DSECF, DSEEY)  (CIK 0001481045)",
+      "manager_cik": "1481045",
+      "shares": 6700,
+      "value_usd": 6700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 6592,
+      "value_usd": 6592,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CITADEL ADVISORS LLC  (CIK 0001423053)",
+      "manager_cik": "1423053",
+      "shares": 6349,
+      "value_usd": 6349,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 6300,
+      "value_usd": 6300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "S&T BANK/PA  (CIK 0001010911)",
+      "manager_cik": "1010911",
+      "shares": 5892,
+      "value_usd": 5892,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYAL BANK OF CANADA  (RY, RBCPF, RBMCF, RYLBF)  (CIK 0001000275)",
+      "manager_cik": "1000275",
+      "shares": 5787,
+      "value_usd": 5787,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 5100,
+      "value_usd": 5100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SUNTRUST BANKS INC  (CIK 0000750556)",
+      "manager_cik": "750556",
+      "shares": 5026,
+      "value_usd": 5026,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 4900,
+      "value_usd": 4900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 4800,
+      "value_usd": 4800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PartnerRe Asset Management CORP  (CIK 0001301542)",
+      "manager_cik": "1301542",
+      "shares": 4728,
+      "value_usd": 4728,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Inc.  (BLK)  (CIK 0001364742)",
+      "manager_cik": "1364742",
+      "shares": 4629,
+      "value_usd": 4629,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "RUSSELL FRANK CO/  (CIK 0000721204)",
+      "manager_cik": "721204",
+      "shares": 4586,
+      "value_usd": 4586,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FIRST QUADRANT L P/CA  (CIK 0001014736)",
+      "manager_cik": "1014736",
+      "shares": 4300,
+      "value_usd": 4300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BMO FINANCIAL CORP  (CIK 0000934729)",
+      "manager_cik": "934729",
+      "shares": 4291,
+      "value_usd": 4291,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/  (BAC, BAC-PB, BAC-PE, BAC-PK, BAC-PL, BAC-PM, BAC-PN, BAC-PO, BAC-PP, BML-PG, BML-PH, BML-PJ, BML-PL)  (CIK 0000070858)",
+      "manager_cik": "70858",
+      "shares": 4232,
+      "value_usd": 4232,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 4200,
+      "value_usd": 4200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/  (BAC, BAC-PB, BAC-PE, BAC-PK, BAC-PL, BAC-PM, BAC-PN, BAC-PO, BAC-PP, BML-PG, BML-PH, BML-PJ, BML-PL)  (CIK 0000070858)",
+      "manager_cik": "70858",
+      "shares": 4171,
+      "value_usd": 4171,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 3975,
+      "value_usd": 3975,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Old Mutual Global Index Trackers (Proprietary) LTD  (CIK 0001463524)",
+      "manager_cik": "1463524",
+      "shares": 3900,
+      "value_usd": 3900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PEAK6 Investments, L.P.  (CIK 0001389957)",
+      "manager_cik": "1389957",
+      "shares": 3900,
+      "value_usd": 3900,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BMO FINANCIAL CORP  (CIK 0000934729)",
+      "manager_cik": "934729",
+      "shares": 3710,
+      "value_usd": 3710,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 3708,
+      "value_usd": 3708,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 3708,
+      "value_usd": 3708,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 3700,
+      "value_usd": 3700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NEW YORK LIFE TRUST CO  (CIK 0001033244)",
+      "manager_cik": "1033244",
+      "shares": 3677,
+      "value_usd": 3677,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Zurcher Kantonalbank (Zurich Cantonalbank)  (CIK 0001368163)",
+      "manager_cik": "1368163",
+      "shares": 3613,
+      "value_usd": 3613,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "HSBC HOLDINGS PLC  (CIK 0000873630)",
+      "manager_cik": "873630",
+      "shares": 3500,
+      "value_usd": 73,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYAL BANK OF CANADA  (RY, RBCPF, RBMCF, RYLBF)  (CIK 0001000275)",
+      "manager_cik": "1000275",
+      "shares": 3347,
+      "value_usd": 3347,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 3200,
+      "value_usd": 3200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ACADIAN ASSET MANAGEMENT LLC  (CIK 0000916542)",
+      "manager_cik": "916542",
+      "shares": 3131,
+      "value_usd": 3131,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ING INVESTMENT MANAGEMENT CO  (CIK 0000033670)",
+      "manager_cik": "33670",
+      "shares": 3007,
+      "value_usd": 3007,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 2993,
+      "value_usd": 2993,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "RUSSELL FRANK CO/  (CIK 0000721204)",
+      "manager_cik": "721204",
+      "shares": 2908,
+      "value_usd": 2908,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BATTERYMARCH FINANCIAL MANAGEMENT INC  (CIK 0000316471)",
+      "manager_cik": "316471",
+      "shares": 2831,
+      "value_usd": 2548,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 2700,
+      "value_usd": 2700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN  (WFC, WFCNP, WFC-PA, WFC-PC, WFC-PD, WFC-PL, WFC-PY, WFC-PZ)  (CIK 0000072971)",
+      "manager_cik": "72971",
+      "shares": 2662,
+      "value_usd": 2662,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 2430,
+      "value_usd": 2430,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BMO FINANCIAL CORP  (CIK 0000934729)",
+      "manager_cik": "934729",
+      "shares": 2375,
+      "value_usd": 2375,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 2355,
+      "value_usd": 1730,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SUNTRUST BANKS INC  (CIK 0000750556)",
+      "manager_cik": "750556",
+      "shares": 2350,
+      "value_usd": 2350,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SUNTRUST BANKS INC  (CIK 0000750556)",
+      "manager_cik": "750556",
+      "shares": 2297,
+      "value_usd": 1218,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TCW GROUP INC  (CIK 0000850401)",
+      "manager_cik": "850401",
+      "shares": 2285,
+      "value_usd": 2285,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "NORDEA INVESTMENT MANAGEMENT AB  (CIK 0001218210)",
+      "manager_cik": "1218210",
+      "shares": 2282,
+      "value_usd": 48,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Freestone Capital Holdings, LLC  (CIK 0001470876)",
+      "manager_cik": "1470876",
+      "shares": 2211,
+      "value_usd": 2211,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 2200,
+      "value_usd": 2200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MACQUARIE GROUP LTD  (CIK 0001418333)",
+      "manager_cik": "1418333",
+      "shares": 2200,
+      "value_usd": 2200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PineBridge Investments Ltd  (CIK 0001531721)",
+      "manager_cik": "1531721",
+      "shares": 2066,
+      "value_usd": 2066,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BlackRock Group LTD  (CIK 0001003283)",
+      "manager_cik": "1003283",
+      "shares": 2064,
+      "value_usd": 2064,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GUARDIAN INVESTOR SERVICES LLC  (CIK 0000728572)",
+      "manager_cik": "728572",
+      "shares": 2013,
+      "value_usd": 2013,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SUNTRUST BANKS INC  (CIK 0000750556)",
+      "manager_cik": "750556",
+      "shares": 1921,
+      "value_usd": 1821,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Global X Management CO LLC  (CIK 0001432354)",
+      "manager_cik": "1432354",
+      "shares": 1893,
+      "value_usd": 1893,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 1819,
+      "value_usd": 1819,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DUNCKER STREETT & CO INC  (CIK 0001020585)",
+      "manager_cik": "1020585",
+      "shares": 1800,
+      "value_usd": 1800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "COMERICA BANK  (CIK 0000901541)",
+      "manager_cik": "901541",
+      "shares": 1785,
+      "value_usd": 1785,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Invesco Ltd.  (IVZ)  (CIK 0000914208)",
+      "manager_cik": "914208",
+      "shares": 1747,
+      "value_usd": 1747,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 1700,
+      "value_usd": 1700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 1700,
+      "value_usd": 1700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/  (BAC, BAC-PB, BAC-PE, BAC-PK, BAC-PL, BAC-PM, BAC-PN, BAC-PO, BAC-PP, BML-PG, BML-PH, BML-PJ, BML-PL)  (CIK 0000070858)",
+      "manager_cik": "70858",
+      "shares": 1600,
+      "value_usd": 1600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ING INVESTMENT MANAGEMENT CO  (CIK 0000033670)",
+      "manager_cik": "33670",
+      "shares": 1573,
+      "value_usd": 1573,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Creative Planning  (CIK 0001540235)",
+      "manager_cik": "1540235",
+      "shares": 1531,
+      "value_usd": 1531,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GUGGENHEIM CAPITAL LLC  (CIK 0001283072)",
+      "manager_cik": "1283072",
+      "shares": 1509,
+      "value_usd": 1509,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GUGGENHEIM CAPITAL LLC  (CIK 0001283072)",
+      "manager_cik": "1283072",
+      "shares": 1509,
+      "value_usd": 1509,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ASSOCIATED BANC-CORP  (ASB, ASBA, ASB-PE, ASB-PF)  (CIK 0000007789)",
+      "manager_cik": "7789",
+      "shares": 1500,
+      "value_usd": 1500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 1476,
+      "value_usd": 1476,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 1400,
+      "value_usd": 1400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Allianz Asset Management AG  (CIK 0001535323)",
+      "manager_cik": "1535323",
+      "shares": 1320,
+      "value_usd": 1320,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Allianz Asset Management AG  (CIK 0001535323)",
+      "manager_cik": "1535323",
+      "shares": 1320,
+      "value_usd": 1320,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 1300,
+      "value_usd": 1300,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "COMERICA BANK  (CIK 0000901541)",
+      "manager_cik": "901541",
+      "shares": 1252,
+      "value_usd": 1252,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BARCLAYS PLC  (BCS, BCLYF)  (CIK 0000312069)",
+      "manager_cik": "312069",
+      "shares": 1230,
+      "value_usd": 1230,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "LADENBURG THALMANN FINANCIAL SERVICES INC  (CIK 0001029730)",
+      "manager_cik": "1029730",
+      "shares": 1217,
+      "value_usd": 1217,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "QUANTUM CAPITAL MANAGEMENT  (CIK 0001280511)",
+      "manager_cik": "1280511",
+      "shares": 1200,
+      "value_usd": 1200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 1200,
+      "value_usd": 1200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Brandywine Global Investment Management, LLC  (CIK 0000829108)",
+      "manager_cik": "829108",
+      "shares": 1160,
+      "value_usd": 1160,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MEEDER ASSET MANAGEMENT INC  (CIK 0000809443)",
+      "manager_cik": "809443",
+      "shares": 1155,
+      "value_usd": 1155,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT AGRICOLE S A  (CIK 0001191672)",
+      "manager_cik": "1191672",
+      "shares": 1043,
+      "value_usd": 90,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Shinko Asset Management Co., Ltd.  (CIK 0001512440)",
+      "manager_cik": "1512440",
+      "shares": 1000,
+      "value_usd": 1000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 1000,
+      "value_usd": 1000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 973,
+      "value_usd": 856,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AMERICAN INTERNATIONAL GROUP INC  (AIG)  (CIK 0000005272)",
+      "manager_cik": "5272",
+      "shares": 882,
+      "value_usd": 53,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 876,
+      "value_usd": 876,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "AMERIPRISE FINANCIAL INC  (AMP)  (CIK 0000820027)",
+      "manager_cik": "820027",
+      "shares": 824,
+      "value_usd": 824,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FMR LLC  (CIK 0000315066)",
+      "manager_cik": "315066",
+      "shares": 810,
+      "value_usd": 810,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Advisors Asset Management, Inc.  (CIK 0001297376)",
+      "manager_cik": "1297376",
+      "shares": 800,
+      "value_usd": 800,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BMO FINANCIAL CORP  (CIK 0000934729)",
+      "manager_cik": "934729",
+      "shares": 751,
+      "value_usd": 751,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Johnson Financial Group, Inc.  (CIK 0001477024)",
+      "manager_cik": "1477024",
+      "shares": 740,
+      "value_usd": 740,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 700,
+      "value_usd": 700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "LEGG MASON CAPITAL MANAGEMENT LLC  (CIK 0000820330)",
+      "manager_cik": "820330",
+      "shares": 629,
+      "value_usd": 629,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WOLVERINE ASSET MANAGEMENT LLC  (CIK 0001279891)",
+      "manager_cik": "1279891",
+      "shares": 608,
+      "value_usd": 100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 604,
+      "value_usd": 604,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 600,
+      "value_usd": 600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 600,
+      "value_usd": 600,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DekaBank Deutsche Girozentrale  (CIK 0001456228)",
+      "manager_cik": "1456228",
+      "shares": 581,
+      "value_usd": 581,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FEDERATED INVESTORS INC /PA/  (FHI)  (CIK 0001056288)",
+      "manager_cik": "1056288",
+      "shares": 560,
+      "value_usd": 560,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BOSTON PRIVATE BANK & TRUST CO  (CIK 0001172928)",
+      "manager_cik": "1172928",
+      "shares": 525,
+      "value_usd": 525,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WHITTIER TRUST CO OF NEVADA INC  (CIK 0001263548)",
+      "manager_cik": "1263548",
+      "shares": 500,
+      "value_usd": 500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/  (BAC, BAC-PB, BAC-PE, BAC-PK, BAC-PL, BAC-PM, BAC-PN, BAC-PO, BAC-PP, BML-PG, BML-PH, BML-PJ, BML-PL)  (CIK 0000070858)",
+      "manager_cik": "70858",
+      "shares": 485,
+      "value_usd": 485,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Evercore Wealth Management, LLC  (CIK 0001482689)",
+      "manager_cik": "1482689",
+      "shares": 480,
+      "value_usd": 380,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYAL BANK OF CANADA  (RY, RBCPF, RBMCF, RYLBF)  (CIK 0001000275)",
+      "manager_cik": "1000275",
+      "shares": 465,
+      "value_usd": 465,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Plante Moran Financial Advisors, LLC  (CIK 0001424717)",
+      "manager_cik": "1424717",
+      "shares": 445,
+      "value_usd": 445,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 433,
+      "value_usd": 433,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CREDIT SUISSE AG/  (CIK 0000824468)",
+      "manager_cik": "824468",
+      "shares": 433,
+      "value_usd": 433,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ENTERPRISE FINANCIAL SERVICES CORP  (EFSC, EFSCP)  (CIK 0001025835)",
+      "manager_cik": "1025835",
+      "shares": 431,
+      "value_usd": 431,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FIRST HORIZON NATIONAL CORP  (FHN, FHN-PB, FHN-PC, FHN-PE, FHN-PF)  (CIK 0000036966)",
+      "manager_cik": "36966",
+      "shares": 408,
+      "value_usd": 408,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 400,
+      "value_usd": 400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYAL BANK OF SCOTLAND GROUP PLC  (NWG, RBSPF)  (CIK 0000844150)",
+      "manager_cik": "844150",
+      "shares": 400,
+      "value_usd": 400,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 392,
+      "value_usd": 392,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WOLVERINE ASSET MANAGEMENT LLC  (CIK 0001279891)",
+      "manager_cik": "1279891",
+      "shares": 378,
+      "value_usd": 63,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MIZUHO SECURITIES USA INC.  (CIK 0001513006)",
+      "manager_cik": "1513006",
+      "shares": 359,
+      "value_usd": 359,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FARMERS & MERCHANTS INVESTMENTS INC  (CIK 0001259969)",
+      "manager_cik": "1259969",
+      "shares": 336,
+      "value_usd": 16,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Allianz Asset Management AG  (CIK 0001535323)",
+      "manager_cik": "1535323",
+      "shares": 330,
+      "value_usd": 330,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Allianz Asset Management AG  (CIK 0001535323)",
+      "manager_cik": "1535323",
+      "shares": 330,
+      "value_usd": 330,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CAPITAL GUARDIAN TRUST CO  (CIK 0000314965)",
+      "manager_cik": "314965",
+      "shares": 325,
+      "value_usd": 325,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "PRUDENTIAL FINANCIAL INC  (PFH, PRH, PRS, PRU)  (CIK 0001137774)",
+      "manager_cik": "1137774",
+      "shares": 325,
+      "value_usd": 325,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Concert Wealth Management Inc.  (CIK 0001456534)",
+      "manager_cik": "1456534",
+      "shares": 284,
+      "value_usd": 284,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "WHITTIER TRUST CO  (CIK 0001137881)",
+      "manager_cik": "1137881",
+      "shares": 265,
+      "value_usd": 265,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ETRADE Capital Management LLC  (CIK 0001512581)",
+      "manager_cik": "1512581",
+      "shares": 250,
+      "value_usd": 5,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FIFTH THIRD BANCORP  (FITB, FITBI, FITBO, FITBP)  (CIK 0000035527)",
+      "manager_cik": "35527",
+      "shares": 244,
+      "value_usd": 244,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "BMO FINANCIAL CORP  (CIK 0000934729)",
+      "manager_cik": "934729",
+      "shares": 240,
+      "value_usd": 240,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "GLENMEDE TRUST CO NA  (CIK 0000314949)",
+      "manager_cik": "314949",
+      "shares": 228,
+      "value_usd": 228,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 200,
+      "value_usd": 200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Partnervest Advisory Services LLC  (CIK 0001532516)",
+      "manager_cik": "1532516",
+      "shares": 200,
+      "value_usd": 200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MONROE BANK & TRUST/MI  (CIK 0001075699)",
+      "manager_cik": "1075699",
+      "shares": 190,
+      "value_usd": 190,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 170,
+      "value_usd": 170,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 168,
+      "value_usd": 168,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "SYNOVUS FINANCIAL CORP  (SNV, SNV-PD, SNV-PE)  (CIK 0000018349)",
+      "manager_cik": "18349",
+      "shares": 150,
+      "value_usd": 150,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Walleye Trading LLC  (CIK 0001388391)",
+      "manager_cik": "1388391",
+      "shares": 100,
+      "value_usd": 100,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Pathstone Family Office, LLC  (CIK 0001511137)",
+      "manager_cik": "1511137",
+      "shares": 65,
+      "value_usd": 65,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Bank of New York Mellon CORP  (BK)  (CIK 0001390777)",
+      "manager_cik": "1390777",
+      "shares": 65,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYAL BANK OF CANADA  (RY, RBCPF, RBMCF, RYLBF)  (CIK 0001000275)",
+      "manager_cik": "1000275",
+      "shares": 64,
+      "value_usd": 64,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "ROYAL BANK OF CANADA  (RY, RBCPF, RBMCF, RYLBF)  (CIK 0001000275)",
+      "manager_cik": "1000275",
+      "shares": 58,
+      "value_usd": 58,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "JPMORGAN CHASE & CO  (JPM, AMJB, JPM-PC, JPM-PD, JPM-PJ, JPM-PK, JPM-PL, JPM-PM)  (CIK 0000019617)",
+      "manager_cik": "19617",
+      "shares": 55,
+      "value_usd": 55,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "TORONTO DOMINION BANK  (TD, TDBCP, TDBKF, TDOMF, TDOPF)  (CIK 0000947263)",
+      "manager_cik": "947263",
+      "shares": 54,
+      "value_usd": 54,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "CENTRAL TRUST & INVESTMENT CO  (CIK 0000044365)",
+      "manager_cik": "44365",
+      "shares": 50,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "DekaBank Deutsche Girozentrale  (CIK 0001456228)",
+      "manager_cik": "1456228",
+      "shares": 43,
+      "value_usd": 43,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FIRST NATIONAL TRUST CO  (CIK 0001277303)",
+      "manager_cik": "1277303",
+      "shares": 40,
+      "value_usd": 40,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "MORGAN STANLEY  (MS, MS-PA, MS-PE, MS-PF, MS-PI, MS-PK, MS-PL, MS-PO, MS-PP, MS-PQ, MSTLW)  (CIK 0000895421)",
+      "manager_cik": "895421",
+      "shares": 40,
+      "value_usd": 40,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "Diversified Trust Co  (CIK 0001479844)",
+      "manager_cik": "1479844",
+      "shares": 25,
+      "value_usd": 25,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2012-09-30",
+      "manager_name": "FMR LLC  (CIK 0000315066)",
+      "manager_cik": "315066",
+      "shares": 2,
+      "value_usd": 2,
+      "share_class": "SH"
+    }
+  ]
+}

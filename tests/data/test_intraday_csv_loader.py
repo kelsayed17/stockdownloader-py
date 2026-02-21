@@ -8,7 +8,7 @@ from stockdownloader.model.price_data import IntradayPriceData
 
 
 # Path to real 5-minute data file
-_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy" / "5m_bars.csv"
+_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "SPY" / "5m_bars.csv"
 
 
 class TestIntradayCsvLoader:
@@ -21,7 +21,7 @@ class TestIntradayCsvLoader:
     def test_load_from_real_file(self):
         if not _DATA_FILE.exists():
             import pytest
-            pytest.skip("data/spy/5m_bars.csv not found")
+            pytest.skip("data/SPY/5m_bars.csv not found")
         data = IntradayCsvLoader.load_from_file(_DATA_FILE)
         assert len(data) > 100
         assert isinstance(data[0], IntradayPriceData)
@@ -32,7 +32,7 @@ class TestIntradayCsvLoader:
     def test_loaded_data_has_datetime_properties(self):
         if not _DATA_FILE.exists():
             import pytest
-            pytest.skip("data/spy/5m_bars.csv not found")
+            pytest.skip("data/SPY/5m_bars.csv not found")
         data = IntradayCsvLoader.load_from_file(_DATA_FILE)
         bar = data[0]
         assert len(bar.trading_date) == 10  # YYYY-MM-DD
@@ -45,7 +45,7 @@ class TestIntradayCsvLoader:
     def test_load_preserves_order(self):
         if not _DATA_FILE.exists():
             import pytest
-            pytest.skip("data/spy/5m_bars.csv not found")
+            pytest.skip("data/SPY/5m_bars.csv not found")
         data = IntradayCsvLoader.load_from_file(_DATA_FILE)
         # Bars should be in chronological order
         for i in range(1, min(10, len(data))):

@@ -23,7 +23,7 @@ def _make_client(tmp_path: Path) -> RegShoThresholdClient:
     return RegShoThresholdClient(
         client_id="test_id",
         client_secret="test_secret",
-        cache_dir=str(tmp_path / "regsho_cache"),
+        data_dir=str(tmp_path),
     )
 
 
@@ -57,14 +57,14 @@ class TestThresholdCacheFileNaming:
     def test_cache_file_naming(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
         client._save_cache("AAPL", _sample_records("AAPL"))
-        assert (client._cache_dir / "AAPL" / "threshold.json").exists()
+        assert (client._data_dir / "AAPL" / "regsho_threshold.json").exists()
 
     def test_save_creates_symbol_subdir(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
         client._save_cache("TSLA", _sample_records("TSLA"))
-        sym_dir = client._cache_dir / "TSLA"
+        sym_dir = client._data_dir / "TSLA"
         assert sym_dir.is_dir()
-        assert (sym_dir / "threshold.json").exists()
+        assert (sym_dir / "regsho_threshold.json").exists()
 
 
 # ------------------------------------------------------------------
@@ -93,9 +93,9 @@ class TestThresholdCacheRoundtrip:
 
     def test_load_corrupt_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        sym_dir = client._cache_dir / "BAD"
+        sym_dir = client._data_dir / "BAD"
         sym_dir.mkdir(parents=True, exist_ok=True)
-        (sym_dir / "threshold.json").write_text("{{invalid", encoding="utf-8")
+        (sym_dir / "regsho_threshold.json").write_text("{{invalid", encoding="utf-8")
         loaded = client._load_cache("BAD")
         assert loaded is None
 
@@ -112,8 +112,9 @@ class TestThresholdLegacyMigration:
         client = _make_client(tmp_path)
         records = _sample_records("MSFT")
 
-        # Write legacy flat file
-        legacy_file = client._cache_dir / "MSFT_threshold.json"
+        # Write legacy flat file at the old location
+        legacy_file = client._data_dir / "cache" / "regsho" / "MSFT_threshold.json"
+        legacy_file.parent.mkdir(parents=True, exist_ok=True)
         legacy_file.write_text(
             json.dumps([asdict(r) for r in records]),
             encoding="utf-8",
@@ -126,4 +127,4 @@ class TestThresholdLegacyMigration:
         assert loaded[0].symbol == "MSFT"
         # Legacy file should have been moved
         assert not legacy_file.exists()
-        assert (client._cache_dir / "MSFT" / "threshold.json").exists()
+        assert (client._data_dir / "MSFT" / "regsho_threshold.json").exists()

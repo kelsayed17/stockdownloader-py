@@ -1,0 +1,2841 @@
+{
+  "quarter_end": "2013-12-31",
+  "symbol": "GME",
+  "total_institutional_shares": 151903820,
+  "num_institutions": 354,
+  "top_10_concentration": 0.3974990754017904,
+  "holdings": [
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FMR LLC",
+      "manager_cik": "0000315066",
+      "shares": 12952439,
+      "value_usd": 643089,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Vanguard Group Inc",
+      "manager_cik": "0000102909",
+      "shares": 9102525,
+      "value_usd": 451940,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "AMERICAN INTERNATIONAL GROUP INC",
+      "manager_cik": "0000005272",
+      "shares": 6863523,
+      "value_usd": 340773917,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SUSQUEHANNA INTERNATIONAL GROUP, LLP",
+      "manager_cik": "0001446194",
+      "shares": 5390984,
+      "value_usd": 267663,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "State Street Corp",
+      "manager_cik": "0000093751",
+      "shares": 5306779,
+      "value_usd": 263485,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "AJO, LP",
+      "manager_cik": "0001013536",
+      "shares": 4582900,
+      "value_usd": 227541,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Bank of New York Mellon Corp",
+      "manager_cik": "0001390777",
+      "shares": 4564268,
+      "value_usd": 226616,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Invesco Ltd.",
+      "manager_cik": "0000914208",
+      "shares": 4031819,
+      "value_usd": 200180,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "WELLINGTON MANAGEMENT CO LLP",
+      "manager_cik": "0000902219",
+      "shares": 3796149,
+      "value_usd": 188479,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MACKENZIE FINANCIAL CORP",
+      "manager_cik": "0000919859",
+      "shares": 3790242,
+      "value_usd": 188186,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ALLIANCEBERNSTEIN L.P.",
+      "manager_cik": "0001109448",
+      "shares": 3672518,
+      "value_usd": 182341,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "JPMORGAN CHASE & CO",
+      "manager_cik": "0000019617",
+      "shares": 3490166,
+      "value_usd": 173286,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "AQR CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0001167557",
+      "shares": 3271357,
+      "value_usd": 162423,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BlackRock Institutional Trust Company, N.A.",
+      "manager_cik": "0000913414",
+      "shares": 3265632,
+      "value_usd": 162139,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "LSV ASSET MANAGEMENT",
+      "manager_cik": "0001050470",
+      "shares": 3148200,
+      "value_usd": 156308,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "DIMENSIONAL FUND ADVISORS LP",
+      "manager_cik": "0000354204",
+      "shares": 2945253,
+      "value_usd": 146229,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ROYCE & ASSOCIATES LLC",
+      "manager_cik": "0000906304",
+      "shares": 2531966,
+      "value_usd": 125712,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HSBC HOLDINGS PLC",
+      "manager_cik": "0000873630",
+      "shares": 2496714,
+      "value_usd": 60310,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ALYDAR PARTNERS LLC",
+      "manager_cik": "0001279895",
+      "shares": 2300000,
+      "value_usd": 114196,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "D. E. Shaw & Co., Inc.",
+      "manager_cik": "0001009207",
+      "shares": 2162188,
+      "value_usd": 107352,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "JENNISON ASSOCIATES LLC",
+      "manager_cik": "0000053417",
+      "shares": 1896456,
+      "value_usd": 94159,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GOLDMAN SACHS GROUP INC",
+      "manager_cik": "0000886982",
+      "shares": 1830518,
+      "value_usd": 90886,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NORTHERN TRUST CORP",
+      "manager_cik": "0000073124",
+      "shares": 1795900,
+      "value_usd": 89166,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BARCLAYS PLC",
+      "manager_cik": "0000312069",
+      "shares": 1791882,
+      "value_usd": 87804,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "STELLIAM INVESTMENT MANAGEMENT, LP",
+      "manager_cik": "0001427165",
+      "shares": 1775000,
+      "value_usd": 88129,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TIAA CREF INVESTMENT MANAGEMENT LLC",
+      "manager_cik": "0000887793",
+      "shares": 1686279,
+      "value_usd": 83724,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FRANKLIN RESOURCES INC",
+      "manager_cik": "0000038777",
+      "shares": 1526331,
+      "value_usd": 75782,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BlackRock Fund Advisors",
+      "manager_cik": "0001006249",
+      "shares": 1365265,
+      "value_usd": 67785,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SCHRODER INVESTMENT MANAGEMENT GROUP",
+      "manager_cik": "0001086619",
+      "shares": 1342900,
+      "value_usd": 66674985,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "DEUTSCHE BANK AG\\",
+      "manager_cik": "0000948046",
+      "shares": 1232590,
+      "value_usd": 61195,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HAP Trading, LLC",
+      "manager_cik": "0001484972",
+      "shares": 1186500,
+      "value_usd": 8731,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "JANUS CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0000812295",
+      "shares": 1160457,
+      "value_usd": 57617,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MORGAN STANLEY",
+      "manager_cik": "0000895421",
+      "shares": 1158261,
+      "value_usd": 57508,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "AMERICAN CENTURY COMPANIES INC",
+      "manager_cik": "0000748054",
+      "shares": 1086595,
+      "value_usd": 53949,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SCOPUS ASSET MANAGEMENT, L.P.",
+      "manager_cik": "0001317583",
+      "shares": 1067667,
+      "value_usd": 53010,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "WEDGE CAPITAL MANAGEMENT L L P/NC",
+      "manager_cik": "0001015308",
+      "shares": 1051286,
+      "value_usd": 52196,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NORGES BANK",
+      "manager_cik": "0001374170",
+      "shares": 1027500,
+      "value_usd": 21577,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TOBAM",
+      "manager_cik": "0001527488",
+      "shares": 988326,
+      "value_usd": 49070,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "LORD, ABBETT & CO. LLC",
+      "manager_cik": "0000728100",
+      "shares": 973817,
+      "value_usd": 48350,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BlackRock Group LTD",
+      "manager_cik": "0001003283",
+      "shares": 922221,
+      "value_usd": 45789,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "COLUMBIA WANGER ASSET MANAGEMENT LLC",
+      "manager_cik": "0000908733",
+      "shares": 865000,
+      "value_usd": 42947,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GLG INC.",
+      "manager_cik": "0001425915",
+      "shares": 849696,
+      "value_usd": 42188,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GEODE CAPITAL MANAGEMENT, LLC",
+      "manager_cik": "0001214717",
+      "shares": 811584,
+      "value_usd": 40285,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Jefferies Group LLC",
+      "manager_cik": "0001084580",
+      "shares": 795945,
+      "value_usd": 39519,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CITIGROUP INC",
+      "manager_cik": "0000831001",
+      "shares": 748951,
+      "value_usd": 37188,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "OPPENHEIMER FUNDS INC",
+      "manager_cik": "0000728889",
+      "shares": 704766,
+      "value_usd": 34992,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "O'SHAUGHNESSY ASSET MANAGEMENT, LLC",
+      "manager_cik": "0001423442",
+      "shares": 661310,
+      "value_usd": 32834,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PEAK6 Investments, L.P.",
+      "manager_cik": "0001389957",
+      "shares": 582798,
+      "value_usd": 28938,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Legal & General Group Plc",
+      "manager_cik": "0000764068",
+      "shares": 578554,
+      "value_usd": 28725,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NEW YORK STATE COMMON RETIREMENT FUND",
+      "manager_cik": "0000810265",
+      "shares": 563300,
+      "value_usd": 27968,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "WESTFIELD CAPITAL MANAGEMENT CO LP",
+      "manager_cik": "0001177719",
+      "shares": 556620,
+      "value_usd": 27636,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BANK OF AMERICA CORP /DE/",
+      "manager_cik": "0000070858",
+      "shares": 538307,
+      "value_usd": 26726,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Clough Capital Partners L P",
+      "manager_cik": "0001276144",
+      "shares": 533700,
+      "value_usd": 26498,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "UBS GLOBAL ASSET MANAGEMENT AMERICAS INC",
+      "manager_cik": "0000861177",
+      "shares": 512719,
+      "value_usd": 25456,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CALIFORNIA PUBLIC EMPLOYEES RETIREMENT SYSTEM",
+      "manager_cik": "0000919079",
+      "shares": 501253,
+      "value_usd": 24887,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "VALINOR MANAGEMENT, LLC",
+      "manager_cik": "0001401388",
+      "shares": 488400,
+      "value_usd": 24249,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Parametric Portfolio Associates LLC",
+      "manager_cik": "0000932859",
+      "shares": 486384,
+      "value_usd": 24149,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TEACHERS ADVISORS INC",
+      "manager_cik": "0000939222",
+      "shares": 485318,
+      "value_usd": 24096,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "STATE OF WISCONSIN INVESTMENT BOARD",
+      "manager_cik": "0000854157",
+      "shares": 471786,
+      "value_usd": 23424,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Ameriprise Financial Inc",
+      "manager_cik": "0000820027",
+      "shares": 470012,
+      "value_usd": 23336,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MILLENNIUM MANAGEMENT LLC",
+      "manager_cik": "0001273087",
+      "shares": 456918,
+      "value_usd": 22685,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CREDIT SUISSE AG/",
+      "manager_cik": "0000824468",
+      "shares": 454606,
+      "value_usd": 22572,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PRUDENTIAL FINANCIAL INC",
+      "manager_cik": "0001137774",
+      "shares": 449400,
+      "value_usd": 22313,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CHICAGO EQUITY PARTNERS LLC",
+      "manager_cik": "0001116992",
+      "shares": 432525,
+      "value_usd": 21474,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ADAGE CAPITAL PARTNERS GP LLC",
+      "manager_cik": "0001165408",
+      "shares": 427963,
+      "value_usd": 21248,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CANADA PENSION PLAN INVESTMENT BOARD",
+      "manager_cik": "0001283718",
+      "shares": 427080,
+      "value_usd": 21204,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Neuberger Berman Group LLC",
+      "manager_cik": "0001465109",
+      "shares": 421904,
+      "value_usd": 20948,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BANK OF MONTREAL /CAN/",
+      "manager_cik": "0000927971",
+      "shares": 418960,
+      "value_usd": 20802,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Sumitomo Mitsui Trust Holdings, Inc.",
+      "manager_cik": "0001475365",
+      "shares": 413821,
+      "value_usd": 20546,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CORNERSTONE CAPITAL MANAGEMENT HOLDINGS LLC.",
+      "manager_cik": "0001453415",
+      "shares": 413479,
+      "value_usd": 20530,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PRUDENTIAL PLC",
+      "manager_cik": "0000898419",
+      "shares": 400000,
+      "value_usd": 19860,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Spot Trading L.L.C",
+      "manager_cik": "0001511566",
+      "shares": 391329,
+      "value_usd": 19430,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "QS Investors, LLC",
+      "manager_cik": "0001501436",
+      "shares": 390000,
+      "value_usd": 19364,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Westpac Banking Corp",
+      "manager_cik": "0000719245",
+      "shares": 389831,
+      "value_usd": 19348303,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SCHWAB CHARLES INVESTMENT MANAGEMENT INC",
+      "manager_cik": "0000884546",
+      "shares": 338348,
+      "value_usd": 17327,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SYSTEMATIC FINANCIAL MANAGEMENT LP",
+      "manager_cik": "0001085936",
+      "shares": 327239,
+      "value_usd": 16247,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "RUSSELL FRANK CO/",
+      "manager_cik": "0000721204",
+      "shares": 317158,
+      "value_usd": 15745,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CLOVIS CAPITAL MANAGEMENT LP",
+      "manager_cik": "0001275729",
+      "shares": 304000,
+      "value_usd": 15094,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "RENAISSANCE TECHNOLOGIES LLC",
+      "manager_cik": "0001037389",
+      "shares": 286402,
+      "value_usd": 14220,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Citadel Advisors LLC",
+      "manager_cik": "0001423053",
+      "shares": 281842,
+      "value_usd": 13994,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Timberline Asset Management LLC",
+      "manager_cik": "0001562045",
+      "shares": 275967,
+      "value_usd": 13701762,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GUGGENHEIM CAPITAL LLC",
+      "manager_cik": "0001283072",
+      "shares": 274852,
+      "value_usd": 13646,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CAPITAL FUND MANAGEMENT S.A.",
+      "manager_cik": "0001323645",
+      "shares": 273719,
+      "value_usd": 13590,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "COBALT CAPITAL MANAGEMENT INC",
+      "manager_cik": "0001086762",
+      "shares": 271100,
+      "value_usd": 13460,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "LOS ANGELES CAPITAL MANAGEMENT & EQUITY RESEARCH INC",
+      "manager_cik": "0001177206",
+      "shares": 266773,
+      "value_usd": 13245,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NEW YORK STATE TEACHERS RETIREMENT SYSTEM",
+      "manager_cik": "0000314969",
+      "shares": 262394,
+      "value_usd": 13028,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MANUFACTURERS LIFE INSURANCE COMPANY, THE",
+      "manager_cik": "0000928047",
+      "shares": 253859,
+      "value_usd": 11639,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "S&T Bank/PA",
+      "manager_cik": "0001010911",
+      "shares": 251208,
+      "value_usd": 12472,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BlackRock Inc.",
+      "manager_cik": "0001364742",
+      "shares": 242443,
+      "value_usd": 12037,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Korea Investment CORP",
+      "manager_cik": "0001441689",
+      "shares": 237400,
+      "value_usd": 11786,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "UBS AG",
+      "manager_cik": "0001114446",
+      "shares": 236043,
+      "value_usd": 11720,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Redwood Investments, LLC",
+      "manager_cik": "0001384058",
+      "shares": 234058,
+      "value_usd": 11621,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BlackRock Investment Management, LLC",
+      "manager_cik": "0001305227",
+      "shares": 228055,
+      "value_usd": 11323,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Davidson Kempner Capital Management LLC",
+      "manager_cik": "0000937617",
+      "shares": 225000,
+      "value_usd": 11171,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "WELLS FARGO & COMPANY/MN",
+      "manager_cik": "0000072971",
+      "shares": 224620,
+      "value_usd": 11153,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Mitsubishi UFJ Trust & Banking Corp",
+      "manager_cik": "0001462160",
+      "shares": 222430,
+      "value_usd": 11044,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GREAT WEST LIFE ASSURANCE CO /CAN/",
+      "manager_cik": "0001046192",
+      "shares": 217215,
+      "value_usd": 10767,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Winton Capital Management Ltd",
+      "manager_cik": "0001456098",
+      "shares": 215848,
+      "value_usd": 10717,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "STATE BOARD OF ADMINISTRATION OF FLORIDA RETIREMENT SYSTEM",
+      "manager_cik": "0000938076",
+      "shares": 215781,
+      "value_usd": 10714,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CALIFORNIA STATE TEACHERS RETIREMENT SYSTEM",
+      "manager_cik": "0001081019",
+      "shares": 213764,
+      "value_usd": 10613,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Allianz Asset Management AG",
+      "manager_cik": "0001535323",
+      "shares": 206637,
+      "value_usd": 10259,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Grantham, Mayo, Van Otterloo & Co. LLC",
+      "manager_cik": "0001352662",
+      "shares": 201995,
+      "value_usd": 10029,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GENEVA INVESTMENT MANAGEMENT OF CHICAGO LLC",
+      "manager_cik": "0001269932",
+      "shares": 197203,
+      "value_usd": 9791,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "RHUMBLINE ADVISERS",
+      "manager_cik": "0001115418",
+      "shares": 188899,
+      "value_usd": 9379,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "AMP Capital Investors Ltd",
+      "manager_cik": "0001535782",
+      "shares": 186972,
+      "value_usd": 9283,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PRICE T ROWE ASSOCIATES INC /MD/",
+      "manager_cik": "0000080255",
+      "shares": 179870,
+      "value_usd": 8931,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BlackRock Japan Co. Ltd",
+      "manager_cik": "0001085635",
+      "shares": 175264,
+      "value_usd": 8702,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Espalier Global Management LLC",
+      "manager_cik": "0001533327",
+      "shares": 175000,
+      "value_usd": 8689,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "J. Goldman & Co LP",
+      "manager_cik": "0001412741",
+      "shares": 170000,
+      "value_usd": 8440,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NORTHERN TRUST CO OF CONNECTICUT",
+      "manager_cik": "0001065441",
+      "shares": 161584,
+      "value_usd": 8023,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PUTNAM INVESTMENTS LLC",
+      "manager_cik": "0001421578",
+      "shares": 159165,
+      "value_usd": 7902,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BROWN ADVISORY INC",
+      "manager_cik": "0001345929",
+      "shares": 156203,
+      "value_usd": 7756,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SG Americas Securities, LLC",
+      "manager_cik": "0001313360",
+      "shares": 155958,
+      "value_usd": 7743,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PRINCIPAL FINANCIAL GROUP INC",
+      "manager_cik": "0001126328",
+      "shares": 155220,
+      "value_usd": 7707,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "KBC Group NV",
+      "manager_cik": "0001411133",
+      "shares": 153367,
+      "value_usd": 7614,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "State of Tennessee, Treasury Department",
+      "manager_cik": "0001587973",
+      "shares": 140772,
+      "value_usd": 6990,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Nationwide Fund Advisors",
+      "manager_cik": "0001097218",
+      "shares": 133442,
+      "value_usd": 6625,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PANAGORA ASSET MANAGEMENT INC",
+      "manager_cik": "0000883677",
+      "shares": 132501,
+      "value_usd": 6579,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Swiss National Bank",
+      "manager_cik": "0001582202",
+      "shares": 128636,
+      "value_usd": 6387,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "WAFRA INVESTMENT ADVISORY GROUP INC /NY",
+      "manager_cik": "0000920440",
+      "shares": 128500,
+      "value_usd": 6380000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Gotham Asset Management, LLC",
+      "manager_cik": "0001510387",
+      "shares": 123179,
+      "value_usd": 6116,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HANCOCK HOLDING CO",
+      "manager_cik": "0000750577",
+      "shares": 122628,
+      "value_usd": 6088,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Walleye Trading LLC",
+      "manager_cik": "0001388391",
+      "shares": 120119,
+      "value_usd": 5966,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BECKER CAPITAL MANAGEMENT INC",
+      "manager_cik": "0000799004",
+      "shares": 117353,
+      "value_usd": 5827,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TD ASSET MANAGEMENT INC",
+      "manager_cik": "0001056053",
+      "shares": 116249,
+      "value_usd": 5772,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "OLD MUTUAL ASSET MANAGERS UK LTD",
+      "manager_cik": "0001080386",
+      "shares": 112406,
+      "value_usd": 5580,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Wilmington Funds Management Corp",
+      "manager_cik": "0001056357",
+      "shares": 111970,
+      "value_usd": 5559,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "F&C Asset Management plc",
+      "manager_cik": "0001319184",
+      "shares": 111466,
+      "value_usd": 5532,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MASSACHUSETTS FINANCIAL SERVICES CO /MA/",
+      "manager_cik": "0000912938",
+      "shares": 109010,
+      "value_usd": 5412347,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NOMURA HOLDINGS INC",
+      "manager_cik": "0001163653",
+      "shares": 107376,
+      "value_usd": 5338,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "UBS OCONNOR LLC",
+      "manager_cik": "0001132716",
+      "shares": 106988,
+      "value_usd": 5312000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CREDIT AGRICOLE S A",
+      "manager_cik": "0001191672",
+      "shares": 104515,
+      "value_usd": 5190,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Bowling Portfolio Management LLC",
+      "manager_cik": "0001322590",
+      "shares": 100048,
+      "value_usd": 4967,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HUSSMAN STRATEGIC ADVISORS, INC.",
+      "manager_cik": "0001179475",
+      "shares": 100000,
+      "value_usd": 4965,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BRITISH COLUMBIA INVESTMENT MANAGEMENT CORP",
+      "manager_cik": "0001228242",
+      "shares": 95921,
+      "value_usd": 4762,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Bluefin Trading, LLC",
+      "manager_cik": "0001532351",
+      "shares": 94031,
+      "value_usd": 4700,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CAISSE DE DEPOT ET PLACEMENT DU QUEBEC",
+      "manager_cik": "0000898286",
+      "shares": 93752,
+      "value_usd": 4655,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Employees Retirement System of Texas",
+      "manager_cik": "0001398739",
+      "shares": 91500,
+      "value_usd": 4543,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GAM Holding AG",
+      "manager_cik": "0001438848",
+      "shares": 90005,
+      "value_usd": 4469,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ROYAL BANK OF CANADA",
+      "manager_cik": "0001000275",
+      "shares": 89280,
+      "value_usd": 4433,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "APG All Pensions Group NV",
+      "manager_cik": "0001434819",
+      "shares": 89218,
+      "value_usd": 4430,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SAC Capital Advisors LP",
+      "manager_cik": "0001451928",
+      "shares": 88384,
+      "value_usd": 4388,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ING INVESTMENT MANAGEMENT LLC",
+      "manager_cik": "0001068837",
+      "shares": 87102,
+      "value_usd": 4325,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Nuveen Asset Management, LLC",
+      "manager_cik": "0001521019",
+      "shares": 84692,
+      "value_usd": 4205,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PGGM Investments",
+      "manager_cik": "0001472190",
+      "shares": 82620,
+      "value_usd": 2311,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Chevy Chase Trust Holdings, Inc.",
+      "manager_cik": "0001462020",
+      "shares": 82284,
+      "value_usd": 4085,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BOGLE INVESTMENT MANAGEMENT L P /DE/",
+      "manager_cik": "0001131667",
+      "shares": 77687,
+      "value_usd": 3857,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MARQUE MILLENNIUM CAPITAL MANAGEMENT LCC",
+      "manager_cik": "0001056519",
+      "shares": 77170,
+      "value_usd": 3831,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "I.G. INVESTMENT MANAGEMENT, LTD.",
+      "manager_cik": "0000898581",
+      "shares": 74234,
+      "value_usd": 3686,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "METROPOLITAN LIFE INSURANCE CO/NY",
+      "manager_cik": "0000728618",
+      "shares": 73963,
+      "value_usd": 3672,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TCW GROUP INC",
+      "manager_cik": "0000850401",
+      "shares": 72468,
+      "value_usd": 3598,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PDT Partners, LLC",
+      "manager_cik": "0001564702",
+      "shares": 71149,
+      "value_usd": 3533,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "DIAM Co., Ltd.",
+      "manager_cik": "0001068855",
+      "shares": 70961,
+      "value_usd": 3523,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "STEELHEAD PARTNERS LLC",
+      "manager_cik": "0001133521",
+      "shares": 70000,
+      "value_usd": 43,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MORGENS WATERFALL VINTIADIS & CO INC",
+      "manager_cik": "0001016150",
+      "shares": 70000,
+      "value_usd": 3476,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Andra AP-fonden",
+      "manager_cik": "0001535452",
+      "shares": 67400,
+      "value_usd": 3346,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Fiera Capital Corp",
+      "manager_cik": "0001505817",
+      "shares": 67000,
+      "value_usd": 2870,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CIBC World Markets Inc.",
+      "manager_cik": "0001421224",
+      "shares": 64228,
+      "value_usd": 3189,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "COMMERZBANK AKTIENGESELLSCHAFT /FI",
+      "manager_cik": "0000852933",
+      "shares": 63854,
+      "value_usd": 3170,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BNP PARIBAS ARBITRAGE, SA",
+      "manager_cik": "0001166588",
+      "shares": 63601,
+      "value_usd": 3157790,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PICTET ASSET MANAGEMENT LTD",
+      "manager_cik": "0001291274",
+      "shares": 63300,
+      "value_usd": 3143,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GSA CAPITAL PARTNERS LLP",
+      "manager_cik": "0001362033",
+      "shares": 62847,
+      "value_usd": 3120,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "JACOBS LEVY EQUITY MANAGEMENT, INC",
+      "manager_cik": "0000884414",
+      "shares": 62320,
+      "value_usd": 3094,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Caerus Global Investors LLC",
+      "manager_cik": "0001537335",
+      "shares": 61796,
+      "value_usd": 3068,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Portolan Capital Management, LLC",
+      "manager_cik": "0001350290",
+      "shares": 61765,
+      "value_usd": 3067,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "UNITED SERVICES AUTOMOBILE ASSOCIATION",
+      "manager_cik": "0001021249",
+      "shares": 61737,
+      "value_usd": 3065,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Permit Capital, LLC",
+      "manager_cik": "0001313978",
+      "shares": 59900,
+      "value_usd": 2974,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CLARK ESTATES INC/NY",
+      "manager_cik": "0001056466",
+      "shares": 58600,
+      "value_usd": 2909,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TEXAS PERMANENT SCHOOL FUND",
+      "manager_cik": "0001223779",
+      "shares": 58160,
+      "value_usd": 2888,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Euclid Advisors LLC",
+      "manager_cik": "0001534491",
+      "shares": 58150,
+      "value_usd": 2887,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TEACHER RETIREMENT SYSTEM OF TEXAS",
+      "manager_cik": "0000796848",
+      "shares": 56924,
+      "value_usd": 2826,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Forty4 Asset Management LLC",
+      "manager_cik": "0001561322",
+      "shares": 55300,
+      "value_usd": 620,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "LMR Master Fund Ltd",
+      "manager_cik": "0001515685",
+      "shares": 54497,
+      "value_usd": 2705,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Smith, Salley & Associates",
+      "manager_cik": "0001482012",
+      "shares": 54207,
+      "value_usd": 2691,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "DUPONT CAPITAL MANAGEMENT Corp",
+      "manager_cik": "0001128251",
+      "shares": 52931,
+      "value_usd": 2628,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Arizona State Retirement System",
+      "manager_cik": "0001558481",
+      "shares": 52865,
+      "value_usd": 2624,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CIBC Global Asset Management Inc",
+      "manager_cik": "0001021926",
+      "shares": 51665,
+      "value_usd": 2366,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Brandywine Global Investment Management, LLC",
+      "manager_cik": "0000829108",
+      "shares": 51086,
+      "value_usd": 2537,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Zurcher Kantonalbank (Zurich Cantonalbank)",
+      "manager_cik": "0001368163",
+      "shares": 50916,
+      "value_usd": 2528,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ROYAL BANK OF SCOTLAND GROUP PLC",
+      "manager_cik": "0000844150",
+      "shares": 49735,
+      "value_usd": 2174,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "IBM Retirement Fund",
+      "manager_cik": "0001018825",
+      "shares": 49389,
+      "value_usd": 2452,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "COMERICA BANK",
+      "manager_cik": "0000901541",
+      "shares": 48641,
+      "value_usd": 2416,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Lingohr & Partner Asset Management GmbH",
+      "manager_cik": "0001527570",
+      "shares": 47811,
+      "value_usd": 2374,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "STATE TREASURER STATE OF MICHIGAN",
+      "manager_cik": "0000762152",
+      "shares": 47502,
+      "value_usd": 2358,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "AVIVA PLC",
+      "manager_cik": "0001140022",
+      "shares": 46237,
+      "value_usd": 2296,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Freestone Capital Holdings, LLC",
+      "manager_cik": "0001470876",
+      "shares": 45024,
+      "value_usd": 949,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FEDERATED INVESTORS INC /PA/",
+      "manager_cik": "0001056288",
+      "shares": 43728,
+      "value_usd": 2172,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SUNTRUST BANKS INC",
+      "manager_cik": "0000750556",
+      "shares": 43190,
+      "value_usd": 2142,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CURIAN CAPITAL LLC",
+      "manager_cik": "0001275431",
+      "shares": 42216,
+      "value_usd": 2096,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Lloyds Banking Group plc",
+      "manager_cik": "0001160106",
+      "shares": 41966,
+      "value_usd": 2083,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TD Securities (USA) LLC",
+      "manager_cik": "0001335977",
+      "shares": 40024,
+      "value_usd": 1987,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT SYSTEM OF OHIO",
+      "manager_cik": "0001007280",
+      "shares": 39911,
+      "value_usd": 1982,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Public Sector Pension Investment Board",
+      "manager_cik": "0001396318",
+      "shares": 38967,
+      "value_usd": 1935,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "COMMONWEALTH BANK OF AUSTRALIA",
+      "manager_cik": "0000008565",
+      "shares": 38300,
+      "value_usd": 1902,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SEI TRUST CO",
+      "manager_cik": "0001204692",
+      "shares": 37790,
+      "value_usd": 1876,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO",
+      "manager_cik": "0000315297",
+      "shares": 37112,
+      "value_usd": 1843,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HARTFORD INVESTMENT MANAGEMENT CO",
+      "manager_cik": "0000922439",
+      "shares": 35973,
+      "value_usd": 1786,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PINEBRIDGE INVESTMENTS LTD",
+      "manager_cik": "0001531721",
+      "shares": 34152,
+      "value_usd": 1695,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FJARDE AP-FONDEN /FOURTH SWEDISH NATIONAL PENSION FUND",
+      "manager_cik": "0001540880",
+      "shares": 33755,
+      "value_usd": 1676,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Robeco Institutional Asset Management B.V.",
+      "manager_cik": "0001418773",
+      "shares": 32481,
+      "value_usd": 1612,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ONTARIO TEACHERS PENSION PLAN BOARD",
+      "manager_cik": "0000937567",
+      "shares": 32072,
+      "value_usd": 1592,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "EXXONMOBIL INVESTMENT MANAGEMENT INC /TX",
+      "manager_cik": "0001082970",
+      "shares": 31078,
+      "value_usd": 1543,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "REGENTATLANTIC CAPITAL LLC",
+      "manager_cik": "0001217758",
+      "shares": 29999,
+      "value_usd": 1489,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BABSON CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0000009015",
+      "shares": 29912,
+      "value_usd": 1485,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Analytic Investors, LLC",
+      "manager_cik": "0001086137",
+      "shares": 29852,
+      "value_usd": 1482,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ROYAL LONDON ASSET MANAGEMENT LTD",
+      "manager_cik": "0000863748",
+      "shares": 29377,
+      "value_usd": 1610,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Livforsakringsaktiebolaget Skandia (publ)",
+      "manager_cik": "0001547926",
+      "shares": 28800,
+      "value_usd": 1430,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BB&T SECURITIES, LLC",
+      "manager_cik": "0001383161",
+      "shares": 28538,
+      "value_usd": 14169,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Dai Ichi Life Insurance Co., Ltd.",
+      "manager_cik": "0000948518",
+      "shares": 28297,
+      "value_usd": 1405,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Mitsubishi UFJ Asset Management Co., Ltd.",
+      "manager_cik": "0001466546",
+      "shares": 27664,
+      "value_usd": 1374,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "IRONWOOD INVESTMENT MANAGEMENT LLC",
+      "manager_cik": "0001127761",
+      "shares": 27550,
+      "value_usd": 1368,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "OREGON PUBLIC EMPLOYEES RETIREMENT FUND",
+      "manager_cik": "0001107314",
+      "shares": 27539,
+      "value_usd": 1367,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ProShare Advisors LLC",
+      "manager_cik": "0001357955",
+      "shares": 27197,
+      "value_usd": 1350,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Nine Chapters Capital Management LLC",
+      "manager_cik": "0001567745",
+      "shares": 26800,
+      "value_usd": 1331,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "REGIONS FINANCIAL CORP",
+      "manager_cik": "0001281761",
+      "shares": 26625,
+      "value_usd": 1322,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Advisors Asset Management, Inc.",
+      "manager_cik": "0001297376",
+      "shares": 26601,
+      "value_usd": 1321,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Gerry Farber, LLC",
+      "manager_cik": "0001434767",
+      "shares": 26500,
+      "value_usd": 1316,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MANAGED ACCOUNT ADVISORS LLC",
+      "manager_cik": "0001418660",
+      "shares": 25810,
+      "value_usd": 1281,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SHELL ASSET MANAGEMENT CO",
+      "manager_cik": "0001211028",
+      "shares": 24997,
+      "value_usd": 1241,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "M&T BANK CORP",
+      "manager_cik": "0000036270",
+      "shares": 24637,
+      "value_usd": 1224,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CenturyLink Investment Management Co",
+      "manager_cik": "0001054522",
+      "shares": 24573,
+      "value_usd": 1220,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "STEVENS CAPITAL MANAGEMENT LP",
+      "manager_cik": "0001134813",
+      "shares": 24553,
+      "value_usd": 1219,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Archipel Asset Management AB",
+      "manager_cik": "0001536725",
+      "shares": 24452,
+      "value_usd": 1214,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TOCQUEVILLE ASSET MANAGEMENT L.P.",
+      "manager_cik": "0000883961",
+      "shares": 24176,
+      "value_usd": 1200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HANSEATIC MANAGEMENT SERVICES INC",
+      "manager_cik": "0001128074",
+      "shares": 23951,
+      "value_usd": 1189,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "COMMONWEALTH OF PENNSYLVANIA PUBLIC SCHOOL EMPLS RETRMT SYS",
+      "manager_cik": "0001083190",
+      "shares": 23874,
+      "value_usd": 1185,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BATTERYMARCH FINANCIAL MANAGEMENT INC",
+      "manager_cik": "0000316471",
+      "shares": 23637,
+      "value_usd": 1174,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Aperio Group, LLC",
+      "manager_cik": "0001364615",
+      "shares": 23242,
+      "value_usd": 1154,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "World Asset Management Inc",
+      "manager_cik": "0001389215",
+      "shares": 22777,
+      "value_usd": 1131,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MASON STREET ADVISORS, LLC",
+      "manager_cik": "0001167711",
+      "shares": 22226,
+      "value_usd": 1104,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FIL Ltd",
+      "manager_cik": "0000318989",
+      "shares": 21700,
+      "value_usd": 1077,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "STEWARD CAPITAL MANAGEMENT/",
+      "manager_cik": "0000919533",
+      "shares": 21700,
+      "value_usd": 1078,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SEIZERT CAPITAL PARTNERS, LLC",
+      "manager_cik": "0001134283",
+      "shares": 21591,
+      "value_usd": 1072,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "AMERICAN NATIONAL BANK & TRUST CO /VA/",
+      "manager_cik": "0000939835",
+      "shares": 21500,
+      "value_usd": 1067,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CAPITAL ONE, NATIONAL ASSOCIATION",
+      "manager_cik": "0000047288",
+      "shares": 21469,
+      "value_usd": 1066,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "US BANCORP \\DE\\",
+      "manager_cik": "0000036104",
+      "shares": 21101,
+      "value_usd": 1048,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Utah Retirement Systems",
+      "manager_cik": "0001548392",
+      "shares": 21061,
+      "value_usd": 1046,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FRANKLIN STREET ADVISORS INC /NC",
+      "manager_cik": "0001010873",
+      "shares": 20975,
+      "value_usd": 1041,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TEACHERS RETIREMENT SYSTEM OF THE STATE OF KENTUCKY",
+      "manager_cik": "0000714142",
+      "shares": 20800,
+      "value_usd": 1033,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NOMURA ASSET MANAGEMENT CO LTD",
+      "manager_cik": "0001055964",
+      "shares": 20400,
+      "value_usd": 1013,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Nantahala Capital Management, LLC",
+      "manager_cik": "0001472322",
+      "shares": 20000,
+      "value_usd": 993,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Sterling Capital Management LLC",
+      "manager_cik": "0001329883",
+      "shares": 19255,
+      "value_usd": 956,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "DekaBank Deutsche Girozentrale",
+      "manager_cik": "0001456228",
+      "shares": 17969,
+      "value_usd": 885,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CAPSTONE ASSET MANAGEMENT CO",
+      "manager_cik": "0000825204",
+      "shares": 17537,
+      "value_usd": 871,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ATRIA INVESTMENTS LLC",
+      "manager_cik": "0001535865",
+      "shares": 16716,
+      "value_usd": 830,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BLAIR WILLIAM & CO/IL",
+      "manager_cik": "0000902367",
+      "shares": 16593,
+      "value_usd": 824,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PNC Financial Services Group, Inc.",
+      "manager_cik": "0000713676",
+      "shares": 16586,
+      "value_usd": 823,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "RAYMOND JAMES & ASSOCIATES",
+      "manager_cik": "0001084208",
+      "shares": 16545,
+      "value_usd": 821,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Parallax Volatility Advisers, LLC",
+      "manager_cik": "0001521001",
+      "shares": 16025,
+      "value_usd": 797,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BANK OF HAWAII",
+      "manager_cik": "0000315080",
+      "shares": 16014,
+      "value_usd": 795,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HENDERSON GROUP PLC",
+      "manager_cik": "0001274173",
+      "shares": 15459,
+      "value_usd": 767,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Tradeworx Inc.",
+      "manager_cik": "0001389526",
+      "shares": 15318,
+      "value_usd": 761,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HBK INVESTMENTS L P",
+      "manager_cik": "0001011443",
+      "shares": 15200,
+      "value_usd": 755,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "LPL Financial LLC",
+      "manager_cik": "0001403438",
+      "shares": 14693,
+      "value_usd": 761,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "WOLVERINE ASSET MANAGEMENT LLC",
+      "manager_cik": "0001279891",
+      "shares": 14393,
+      "value_usd": 1012,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Invictus RG Pte. Ltd.",
+      "manager_cik": "0001547494",
+      "shares": 14318,
+      "value_usd": 711,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Verition Fund Management LLC",
+      "manager_cik": "0001454027",
+      "shares": 14114,
+      "value_usd": 701,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Sumitomo Mitsui Asset Management Company, LTD",
+      "manager_cik": "0001411530",
+      "shares": 13924,
+      "value_usd": 691,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Man Investments Ltd",
+      "manager_cik": "0001390262",
+      "shares": 13853,
+      "value_usd": 688,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GATEWAY INVESTMENT ADVISERS LLC",
+      "manager_cik": "0001114618",
+      "shares": 13207,
+      "value_usd": 656,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MUTUAL OF AMERICA CAPITAL MANAGEMENT CORP",
+      "manager_cik": "0000922127",
+      "shares": 13085,
+      "value_usd": 650,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TOKIO MARINE ASSET MANAGEMENT CO LTD",
+      "manager_cik": "0001504169",
+      "shares": 13024,
+      "value_usd": 647,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Spark Investment Management LLC",
+      "manager_cik": "0001554871",
+      "shares": 12900,
+      "value_usd": 640,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MEEDER ASSET MANAGEMENT INC",
+      "manager_cik": "0000809443",
+      "shares": 12840,
+      "value_usd": 637,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "KCG HOLDINGS, INC.",
+      "manager_cik": "0001569391",
+      "shares": 12587,
+      "value_usd": 625,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ABERDEEN ASSET MANAGEMENT PLC/UK",
+      "manager_cik": "0001080434",
+      "shares": 11770,
+      "value_usd": 584,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "VTL Associates, LLC",
+      "manager_cik": "0001388712",
+      "shares": 11441,
+      "value_usd": 568,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FIRST CITIZENS BANK & TRUST CO",
+      "manager_cik": "0001092203",
+      "shares": 11197,
+      "value_usd": 556,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BUCKHEAD CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0001133999",
+      "shares": 10626,
+      "value_usd": 528,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Advantus Capital Management Inc",
+      "manager_cik": "0001035350",
+      "shares": 10344,
+      "value_usd": 513580,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Standard Life Investments LTD",
+      "manager_cik": "0001505708",
+      "shares": 10046,
+      "value_usd": 498,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HIGHBRIDGE CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0000919185",
+      "shares": 9846,
+      "value_usd": 489,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Kentucky Retirement Systems",
+      "manager_cik": "0001537783",
+      "shares": 9771,
+      "value_usd": 485,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ALPHA WINDWARD LLC",
+      "manager_cik": "0001353219",
+      "shares": 9565,
+      "value_usd": 475,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BRC Investment Management LLC",
+      "manager_cik": "0001332160",
+      "shares": 8708,
+      "value_usd": 432,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TWIN CAPITAL MANAGEMENT INC",
+      "manager_cik": "0001059187",
+      "shares": 8350,
+      "value_usd": 415,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Placemark Investments, Inc.",
+      "manager_cik": "0001315726",
+      "shares": 7985,
+      "value_usd": 394,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ICON ADVISERS INC/CO",
+      "manager_cik": "0001058470",
+      "shares": 7400,
+      "value_usd": 367,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Perimeter Capital Partners, LLC",
+      "manager_cik": "0001388136",
+      "shares": 7235,
+      "value_usd": 359,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "A.R.T. Advisors, LLC",
+      "manager_cik": "0001315281",
+      "shares": 7204,
+      "value_usd": 357,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Liberty Mutual Group Asset Management Inc.",
+      "manager_cik": "0001533497",
+      "shares": 7070,
+      "value_usd": 351,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TWO SIGMA ADVISERS, LLC",
+      "manager_cik": "0001478735",
+      "shares": 7000,
+      "value_usd": 348,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BANKERS TRUST CO OF SOUTH DAKOTA",
+      "manager_cik": "0001161914",
+      "shares": 6852,
+      "value_usd": 340,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "REYNOLDS CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0001286313",
+      "shares": 6500,
+      "value_usd": 323,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Creative Planning",
+      "manager_cik": "0001540235",
+      "shares": 6370,
+      "value_usd": 316,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Pacific Global Investment Management CO",
+      "manager_cik": "0000908431",
+      "shares": 6100,
+      "value_usd": 303,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ELLINGTON MANAGEMENT GROUP LLC",
+      "manager_cik": "0001098490",
+      "shares": 6000,
+      "value_usd": 298,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PartnerRe Asset Management CORP",
+      "manager_cik": "0001301542",
+      "shares": 5958,
+      "value_usd": 296,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BBVA COMPASS BANCSHARES, INC",
+      "manager_cik": "0001409775",
+      "shares": 5700,
+      "value_usd": 283,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Index Management Solutions, LLC",
+      "manager_cik": "0001579671",
+      "shares": 5687,
+      "value_usd": 282,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "STRATEGIC INVESTMENT MANAGEMENT, LLC",
+      "manager_cik": "0000846633",
+      "shares": 5323,
+      "value_usd": 264,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "KEYBANK NATIONAL ASSOCIATION/OH",
+      "manager_cik": "0001089877",
+      "shares": 5135,
+      "value_usd": 216,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PARADIGM CAPITAL MANAGEMENT INC/NY",
+      "manager_cik": "0001037792",
+      "shares": 5000,
+      "value_usd": 248,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TRUST DEPARTMENT MB FINANCIAL BANK N A",
+      "manager_cik": "0001082849",
+      "shares": 4910,
+      "value_usd": 244,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "TradeLink Global Equity LLC",
+      "manager_cik": "0001402302",
+      "shares": 4903,
+      "value_usd": 243,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Tudor Investment Corp Et Al",
+      "manager_cik": "0000923093",
+      "shares": 4800,
+      "value_usd": 238,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GALAXY CAPITAL TRADING LTD",
+      "manager_cik": "0001446804",
+      "shares": 4800,
+      "value_usd": 238,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Banyan Partners, LLC",
+      "manager_cik": "0001483499",
+      "shares": 4749,
+      "value_usd": 236,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "HIGHLAND CAPITAL MANAGEMENT LP",
+      "manager_cik": "0001167365",
+      "shares": 4600,
+      "value_usd": 228,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Norinchukin Bank, The",
+      "manager_cik": "0001496637",
+      "shares": 4390,
+      "value_usd": 218,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Janney Montgomery Scott LLC",
+      "manager_cik": "0001329948",
+      "shares": 4388,
+      "value_usd": 217853,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "PROFUND ADVISORS LLC",
+      "manager_cik": "0001129919",
+      "shares": 4260,
+      "value_usd": 212,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Kentucky Retirement Systems Insurance Trust Fund",
+      "manager_cik": "0001584686",
+      "shares": 4191,
+      "value_usd": 208,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Coastline Trust Co",
+      "manager_cik": "0001324279",
+      "shares": 4105,
+      "value_usd": 203,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Municipal Employees' Retirement System of Michigan",
+      "manager_cik": "0001588873",
+      "shares": 4100,
+      "value_usd": 204,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SENTRY INVESTMENT MANAGEMENT INC",
+      "manager_cik": "0000089014",
+      "shares": 4000,
+      "value_usd": 199,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "LADENBURG THALMANN FINANCIAL SERVICES INC",
+      "manager_cik": "0001029730",
+      "shares": 3960,
+      "value_usd": 202,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "MEAG MUNICH ERGO KAPITALANLAGEGESELLSCHAFT MBH",
+      "manager_cik": "0001142433",
+      "shares": 3930,
+      "value_usd": 195,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Old Mutual Global Index Trackers (Proprietary) LTD",
+      "manager_cik": "0001463524",
+      "shares": 3900,
+      "value_usd": 194,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "STRS OHIO",
+      "manager_cik": "0000820478",
+      "shares": 3824,
+      "value_usd": 190,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FIFTH THIRD BANCORP",
+      "manager_cik": "0000035527",
+      "shares": 3590,
+      "value_usd": 178,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Daiwa Securities Group Inc.",
+      "manager_cik": "0001481045",
+      "shares": 3000,
+      "value_usd": 149,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NORDEA INVESTMENT MANAGEMENT AB",
+      "manager_cik": "0001218210",
+      "shares": 2282,
+      "value_usd": 113,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Macquarie Group Ltd",
+      "manager_cik": "0001418333",
+      "shares": 2200,
+      "value_usd": 109,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NEW YORK LIFE TRUST CO",
+      "manager_cik": "0001033244",
+      "shares": 1850,
+      "value_usd": 92,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GUARDIAN LIFE INSURANCE CO OF AMERICA",
+      "manager_cik": "0000901849",
+      "shares": 1461,
+      "value_usd": 73,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BlackRock Advisors LLC",
+      "manager_cik": "0001086364",
+      "shares": 1403,
+      "value_usd": 70,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "LS Investment Advisors, LLC",
+      "manager_cik": "0001455845",
+      "shares": 1397,
+      "value_usd": 69,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Shapiro Robert N",
+      "manager_cik": "0001008930",
+      "shares": 1000,
+      "value_usd": 50,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GUARDIAN INVESTOR SERVICES LLC",
+      "manager_cik": "0000728572",
+      "shares": 954,
+      "value_usd": 47,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Tower Research Capital LLC",
+      "manager_cik": "0001533421",
+      "shares": 853,
+      "value_usd": 43,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "First Washington CORP",
+      "manager_cik": "0001390043",
+      "shares": 848,
+      "value_usd": 42,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BESSEMER GROUP INC",
+      "manager_cik": "0001054074",
+      "shares": 800,
+      "value_usd": 40,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Shinko Asset Management Co., Ltd.",
+      "manager_cik": "0001512440",
+      "shares": 700,
+      "value_usd": 35,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SPRINGBOK CAPITAL MANAGEMENT, LLC",
+      "manager_cik": "0001387508",
+      "shares": 650,
+      "value_usd": 32,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "WFG Advisors, LP",
+      "manager_cik": "0001533892",
+      "shares": 607,
+      "value_usd": 30,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Lehman Financial Resources, Inc.",
+      "manager_cik": "0001589661",
+      "shares": 600,
+      "value_usd": 24,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BOSTON PRIVATE BANK & TRUST CO",
+      "manager_cik": "0001172928",
+      "shares": 450,
+      "value_usd": 22,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ENTERPRISE FINANCIAL SERVICES CORP",
+      "manager_cik": "0001025835",
+      "shares": 431,
+      "value_usd": 21,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FTB Advisors, Inc.",
+      "manager_cik": "0001588539",
+      "shares": 408,
+      "value_usd": 20,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FineMark National Bank & Trust",
+      "manager_cik": "0001537720",
+      "shares": 364,
+      "value_usd": 18,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "WESTPORT RESOURCES MANAGEMENT INC",
+      "manager_cik": "0000878313",
+      "shares": 350,
+      "value_usd": 16,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NEW ENGLAND SECURITIES CORP /MA/",
+      "manager_cik": "0000910316",
+      "shares": 340,
+      "value_usd": 17,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Manchester Capital Management LLC",
+      "manager_cik": "0001393389",
+      "shares": 298,
+      "value_usd": 15,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ENVESTNET ASSET MANAGEMENT INC",
+      "manager_cik": "0001407543",
+      "shares": 270,
+      "value_usd": 13,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Hoxton Financial, Inc.",
+      "manager_cik": "0001497943",
+      "shares": 252,
+      "value_usd": 13,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "GLENMEDE TRUST CO NA",
+      "manager_cik": "0000314949",
+      "shares": 248,
+      "value_usd": 12,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "WHITTIER TRUST CO",
+      "manager_cik": "0001137881",
+      "shares": 215,
+      "value_usd": 11,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FIRST QUADRANT L P/CA",
+      "manager_cik": "0001014736",
+      "shares": 210,
+      "value_usd": 10,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Partnervest Advisory Services LLC",
+      "manager_cik": "0001532516",
+      "shares": 200,
+      "value_usd": 10,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SYNOVUS FINANCIAL CORP",
+      "manager_cik": "0000018349",
+      "shares": 130,
+      "value_usd": 6,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Financial Network Group, Ltd",
+      "manager_cik": "0001538900",
+      "shares": 111,
+      "value_usd": 5,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BENJAMIN F. EDWARDS & COMPANY, INC.",
+      "manager_cik": "0001445065",
+      "shares": 110,
+      "value_usd": 5,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "CAPITAL GUARDIAN TRUST CO",
+      "manager_cik": "0000314965",
+      "shares": 100,
+      "value_usd": 5,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "VICTORY CAPITAL MANAGEMENT INC",
+      "manager_cik": "0001040188",
+      "shares": 97,
+      "value_usd": 4,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "BBK Capital Partners, LLC",
+      "manager_cik": "0001592613",
+      "shares": 84,
+      "value_usd": 4,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Gary Goldberg Planning Services Inc",
+      "manager_cik": "0001569517",
+      "shares": 65,
+      "value_usd": 3,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "NORTHWESTERN MUTUAL WEALTH MANAGEMENT CO",
+      "manager_cik": "0001141802",
+      "shares": 50,
+      "value_usd": 2,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "JONES FINANCIAL COMPANIES LLLP",
+      "manager_cik": "0000815917",
+      "shares": 44,
+      "value_usd": 2,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "ETRADE Capital Management LLC",
+      "manager_cik": "0001512581",
+      "shares": 21,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "FIRST MANHATTAN CO",
+      "manager_cik": "0000728083",
+      "shares": 20,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "Hirtle Callaghan & Co LLC",
+      "manager_cik": "0001360710",
+      "shares": 12,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "American Research & Management Co.",
+      "manager_cik": "0001506796",
+      "shares": 10,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-12-31",
+      "manager_name": "SIGNATUREFD, LLC",
+      "manager_cik": "0001456048",
+      "shares": 5,
+      "value_usd": 0,
+      "share_class": "SH"
+    }
+  ]
+}

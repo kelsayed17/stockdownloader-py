@@ -68,20 +68,21 @@ class FinraDarkPoolClient(BaseDataClient):
         FINRA API client ID.  Falls back to ``FINRA_CLIENT_ID`` env var.
     client_secret:
         FINRA API client secret.  Falls back to ``FINRA_CLIENT_SECRET`` env var.
-    cache_dir:
-        Directory for JSON cache files.
+    data_dir:
+        Root data directory.  Per-symbol data is stored under
+        ``data_dir/{SYMBOL}/dark_pool.json``.
     """
 
     def __init__(
         self,
         client_id: str | None = None,
         client_secret: str | None = None,
-        cache_dir: str = "data/cache/dark_pool",
+        data_dir: str = "data",
     ) -> None:
         super().__init__(
             rate_limit_delay=_RATE_LIMIT_DELAY,
             max_retries=_MAX_RETRIES,
-            cache_dir=cache_dir,
+            data_dir=data_dir,
             default_headers={
                 "User-Agent": "StockDownloader admin@example.com",
                 "Accept": "application/json",
@@ -350,26 +351,24 @@ class FinraDarkPoolClient(BaseDataClient):
     # Caching
     # ------------------------------------------------------------------
 
-    def _symbol_cache_dir(self, symbol: str) -> Path:
-        """Return per-symbol cache subdirectory, creating it if needed."""
-        d = self._cache_dir / symbol.upper()
-        d.mkdir(parents=True, exist_ok=True)
-        return d
-
     def _load_cache(self, symbol: str) -> list[DarkPoolRecord] | None:
         """Load cached dark pool records for *symbol*.
 
         Returns ``None`` if no cache exists.
         """
-        sym_dir = self._symbol_cache_dir(symbol)
-        cache_file = sym_dir / "dp.json"
+        sym_dir = self._symbol_dir(symbol)
+        cache_file = sym_dir / "dark_pool.json"
 
-        # Legacy migration
+        # Legacy migration from old cache paths
         if not cache_file.exists():
-            legacy = self._cache_dir / f"{symbol}_dp.json"
-            if legacy.exists():
-                legacy.rename(cache_file)
-                logger.info("Migrated %s → %s", legacy, cache_file)
+            for legacy_path in (
+                self._data_dir / "cache" / "dark_pool" / symbol.upper() / "dp.json",
+                self._data_dir / "cache" / "dark_pool" / f"{symbol}_dp.json",
+            ):
+                if legacy_path.exists():
+                    legacy_path.rename(cache_file)
+                    logger.info("Migrated %s → %s", legacy_path, cache_file)
+                    break
 
         if not cache_file.exists():
             return None
@@ -401,7 +400,7 @@ class FinraDarkPoolClient(BaseDataClient):
         records: list[DarkPoolRecord],
     ) -> None:
         """Persist dark pool records to JSON cache."""
-        cache_file = self._symbol_cache_dir(symbol) / "dp.json"
+        cache_file = self._symbol_dir(symbol) / "dark_pool.json"
         data = [
             {
                 "week_ending": r.week_ending,

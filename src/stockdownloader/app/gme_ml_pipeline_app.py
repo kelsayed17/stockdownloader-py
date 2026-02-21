@@ -178,7 +178,7 @@ def main(argv: list[str] | None = None) -> None:
     # Auto-detect CSV
     csv_file = args.csv_file
     if csv_file is None:
-        auto = f"data/{args.symbol.lower()}_daily_bars.csv"
+        auto = f"data/{args.symbol.upper()}/daily_bars.csv"
         if os.path.exists(auto):
             csv_file = auto
             print(f"  Auto-detected CSV: {csv_file}")

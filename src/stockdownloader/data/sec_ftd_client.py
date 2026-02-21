@@ -226,6 +226,7 @@ class SecFtdClient:
             "Accept-Encoding": "gzip, deflate",
         })
         self._last_request_time: float = 0.0
+        # FTD bulk ZIPs are multi-ticker; keep them in a cache directory
         self._cache_dir = Path(cache_dir)
         self._cache_dir.mkdir(parents=True, exist_ok=True)
 

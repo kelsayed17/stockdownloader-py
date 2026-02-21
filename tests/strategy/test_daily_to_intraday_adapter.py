@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from stockdownloader.model.price_data import PriceData
 
 # Real data file for integration tests
-_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy" / "5m_bars.csv"
+_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "SPY" / "5m_bars.csv"
 
 
 # ---------------------------------------------------------------------------
@@ -494,7 +494,7 @@ class TestIntegration:
     @pytest.fixture(scope="class")
     def real_data(self):
         if not _DATA_FILE.exists():
-            pytest.skip("data/spy/5m_bars.csv not found")
+            pytest.skip("data/SPY/5m_bars.csv not found")
         from stockdownloader.data.intraday_csv import IntradayCsvLoader
         data = IntradayCsvLoader.load_from_file(_DATA_FILE)
         if len(data) < 500:

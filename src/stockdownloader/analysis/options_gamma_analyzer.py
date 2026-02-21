@@ -144,11 +144,11 @@ class OptionsGammaAnalyzer:
 
     def __init__(
         self,
-        cache_dir: str = "data/cache/options",
+        data_dir: str = "data",
         unusual_vol_oi_threshold: float = 3.0,
     ) -> None:
-        self._cache_dir = Path(cache_dir)
-        self._cache_dir.mkdir(parents=True, exist_ok=True)
+        self._data_dir = Path(data_dir)
+        self._data_dir.mkdir(parents=True, exist_ok=True)
         self._unusual_threshold = unusual_vol_oi_threshold
 
     # ------------------------------------------------------------------
@@ -711,9 +711,15 @@ class OptionsGammaAnalyzer:
     # Caching
     # ------------------------------------------------------------------
 
+    def _symbol_dir(self, symbol: str) -> Path:
+        """Return per-symbol data directory, creating it if needed."""
+        d = self._data_dir / symbol.upper()
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def _save_cache(self, report: OptionsFlowReport) -> None:
         """Persist analysis report to JSON cache."""
-        cache_file = self._cache_dir / f"{report.symbol}_gamma.json"
+        cache_file = self._symbol_dir(report.symbol) / "options_gamma.json"
         try:
             # Convert StrikeGamma and UnusualActivity to dicts
             data = report.to_dict()
@@ -733,7 +739,7 @@ class OptionsGammaAnalyzer:
 
     def load_cache(self, symbol: str) -> dict | None:
         """Load cached analysis report."""
-        cache_file = self._cache_dir / f"{symbol.upper()}_gamma.json"
+        cache_file = self._symbol_dir(symbol) / "options_gamma.json"
         if not cache_file.exists():
             return None
         try:

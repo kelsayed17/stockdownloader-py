@@ -97,20 +97,21 @@ class FinraShortVolumeClient(BaseDataClient):
         FINRA API client ID.  Falls back to ``FINRA_CLIENT_ID`` env var.
     client_secret:
         FINRA API client secret.  Falls back to ``FINRA_CLIENT_SECRET``.
-    cache_dir:
-        Directory for JSON cache files.
+    data_dir:
+        Root data directory.  Per-symbol data is stored under
+        ``data_dir/{SYMBOL}/short_volume.json``.
     """
 
     def __init__(
         self,
         client_id: str | None = None,
         client_secret: str | None = None,
-        cache_dir: str = "data/cache/short_volume",
+        data_dir: str = "data",
     ) -> None:
         super().__init__(
             rate_limit_delay=_RATE_LIMIT_DELAY,
             max_retries=_MAX_RETRIES,
-            cache_dir=cache_dir,
+            data_dir=data_dir,
             default_headers={
                 "User-Agent": "StockDownloader admin@example.com",
                 "Accept": "application/json",
@@ -500,22 +501,20 @@ class FinraShortVolumeClient(BaseDataClient):
         merged.sort(key=lambda r: r.date)
         return merged
 
-    def _symbol_cache_dir(self, symbol: str) -> Path:
-        """Return per-symbol cache subdirectory, creating it if needed."""
-        d = self._cache_dir / symbol.upper()
-        d.mkdir(parents=True, exist_ok=True)
-        return d
-
     def _load_cache(self, symbol: str) -> list[ShortVolumeRecord] | None:
-        sym_dir = self._symbol_cache_dir(symbol)
-        cache_file = sym_dir / "sv.json"
+        sym_dir = self._symbol_dir(symbol)
+        cache_file = sym_dir / "short_volume.json"
 
-        # Legacy migration
+        # Legacy migration from old cache paths
         if not cache_file.exists():
-            legacy = self._cache_dir / f"{symbol}_sv.json"
-            if legacy.exists():
-                legacy.rename(cache_file)
-                logger.info("Migrated %s → %s", legacy, cache_file)
+            for legacy_path in (
+                self._data_dir / "cache" / "short_volume" / symbol.upper() / "sv.json",
+                self._data_dir / "cache" / "short_volume" / f"{symbol}_sv.json",
+            ):
+                if legacy_path.exists():
+                    legacy_path.rename(cache_file)
+                    logger.info("Migrated %s → %s", legacy_path, cache_file)
+                    break
 
         if not cache_file.exists():
             return None
@@ -533,7 +532,7 @@ class FinraShortVolumeClient(BaseDataClient):
     def _save_cache(
         self, symbol: str, records: list[ShortVolumeRecord]
     ) -> None:
-        cache_file = self._symbol_cache_dir(symbol) / "sv.json"
+        cache_file = self._symbol_dir(symbol) / "short_volume.json"
         try:
             cache_file.write_text(
                 json.dumps([asdict(r) for r in records], indent=2),

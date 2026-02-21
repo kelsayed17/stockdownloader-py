@@ -76,7 +76,7 @@ def _make_client(
     return FinraShortInterestClient(
         client_id=client_id,
         client_secret=client_secret,
-        cache_dir=str(tmp_path / "si_cache"),
+        data_dir=str(tmp_path),
     )
 
 
@@ -464,9 +464,9 @@ class TestCaching:
 
     def test_load_corrupt_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        sym_dir = client._cache_dir / "BAD"
+        sym_dir = client._data_dir / "BAD"
         sym_dir.mkdir(parents=True, exist_ok=True)
-        cache_file = sym_dir / "si.json"
+        cache_file = sym_dir / "short_interest.json"
         cache_file.write_text("not valid json{{{", encoding="utf-8")
         loaded = client._load_cache("BAD")
         assert loaded is None
@@ -484,7 +484,7 @@ class TestCaching:
             ),
         ]
         client._save_cache("AAPL", records)
-        assert (client._cache_dir / "AAPL" / "si.json").exists()
+        assert (client._data_dir / "AAPL" / "short_interest.json").exists()
 
     def test_save_creates_symbol_subdir(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
@@ -499,9 +499,9 @@ class TestCaching:
             ),
         ]
         client._save_cache("TSLA", records)
-        sym_dir = client._cache_dir / "TSLA"
+        sym_dir = client._data_dir / "TSLA"
         assert sym_dir.is_dir()
-        assert (sym_dir / "si.json").exists()
+        assert (sym_dir / "short_interest.json").exists()
 
     def test_legacy_migration_on_load(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
@@ -515,9 +515,11 @@ class TestCaching:
                 short_interest_pct=0.0,
             ),
         ]
-        # Write legacy flat file
+        # Write legacy nested file (data_dir / "cache" / "short_interest" / symbol / "si.json")
         import json as _json
-        legacy_file = client._cache_dir / "MSFT_si.json"
+        legacy_dir = client._data_dir / "cache" / "short_interest" / "MSFT"
+        legacy_dir.mkdir(parents=True, exist_ok=True)
+        legacy_file = legacy_dir / "si.json"
         legacy_file.write_text(
             _json.dumps([{
                 "settlement_date": r.settlement_date,
@@ -537,7 +539,7 @@ class TestCaching:
         assert loaded[0].symbol == "MSFT"
         # Legacy file should have been moved
         assert not legacy_file.exists()
-        assert (client._cache_dir / "MSFT" / "si.json").exists()
+        assert (client._data_dir / "MSFT" / "short_interest.json").exists()
 
 
 # ------------------------------------------------------------------

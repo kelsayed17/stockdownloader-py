@@ -73,13 +73,14 @@ class IbkrBorrowRateClient:
 
     Parameters
     ----------
-    cache_dir:
-        Directory for JSON cache files.
+    data_dir:
+        Root data directory.  Per-symbol data is stored under
+        ``data_dir/{SYMBOL}/``.
     """
 
-    def __init__(self, cache_dir: str = "data/cache/borrow_rate") -> None:
-        self._cache_dir = Path(cache_dir)
-        self._cache_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(self, data_dir: str = "data") -> None:
+        self._data_dir = Path(data_dir)
+        self._data_dir.mkdir(parents=True, exist_ok=True)
         self._parsed_data: dict[str, IbkrBorrowRate] | None = None
         self._last_fetch_time: float = 0.0
 
@@ -307,9 +308,15 @@ class IbkrBorrowRateClient:
     # Caching
     # ------------------------------------------------------------------
 
+    def _symbol_dir(self, symbol: str) -> Path:
+        """Return per-symbol data directory, creating it if needed."""
+        d = self._data_dir / symbol.upper()
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def _load_cached_rate(self, symbol: str) -> IbkrBorrowRate | None:
         """Load a cached borrow rate for *symbol*."""
-        cache_file = self._cache_dir / f"{symbol}_ibkr.json"
+        cache_file = self._symbol_dir(symbol) / "borrow_rate.json"
         if not cache_file.exists():
             return None
 
@@ -322,7 +329,7 @@ class IbkrBorrowRateClient:
 
     def _save_cached_rate(self, symbol: str, rate: IbkrBorrowRate) -> None:
         """Persist a borrow rate to JSON cache."""
-        cache_file = self._cache_dir / f"{symbol}_ibkr.json"
+        cache_file = self._symbol_dir(symbol) / "borrow_rate.json"
         try:
             cache_file.write_text(
                 json.dumps(asdict(rate), indent=2),
@@ -340,7 +347,7 @@ class IbkrBorrowRateClient:
 
         Maintains a JSONL (JSON Lines) file for time-series analysis.
         """
-        history_file = self._cache_dir / f"{symbol}_ibkr_history.jsonl"
+        history_file = self._symbol_dir(symbol) / "borrow_rate_history.jsonl"
         try:
             with open(history_file, "a", encoding="utf-8") as f:
                 f.write(json.dumps(asdict(rate)) + "\n")
@@ -351,7 +358,7 @@ class IbkrBorrowRateClient:
 
     def load_history(self, symbol: str) -> list[IbkrBorrowRate]:
         """Load all historical snapshots for *symbol*."""
-        history_file = self._cache_dir / f"{symbol}_ibkr_history.jsonl"
+        history_file = self._symbol_dir(symbol) / "borrow_rate_history.jsonl"
         if not history_file.exists():
             return []
 

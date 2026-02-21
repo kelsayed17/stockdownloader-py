@@ -8,8 +8,8 @@ bars.  Results are persisted as CSV.
 Usage::
 
     fetcher = FullHistoryFetcher()
-    daily = fetcher.fetch_full_daily_history("GME")   # → data/gme_daily_bars.csv
-    intraday = fetcher.fetch_intraday_history("GME")   # → data/gme_5m_bars.csv
+    daily = fetcher.fetch_full_daily_history("GME")   # → data/GME/daily_bars.csv
+    intraday = fetcher.fetch_intraday_history("GME")   # → data/GME/5m_bars.csv
     all_tf = fetcher.fetch_all_timeframes("GME")
 """
 from __future__ import annotations
@@ -65,7 +65,7 @@ class FullHistoryFetcher:
         **Fallback**: Yahoo Finance with epoch timestamps (``period1=0``).
 
         Results are cached both as JSON (``data/cache/{SYMBOL}_max_1d.json``)
-        and as CSV (``data/{symbol}_daily_bars.csv``).
+        and as CSV (``data/{SYMBOL}/daily_bars.csv``).
 
         Parameters
         ----------
@@ -79,7 +79,16 @@ class FullHistoryFetcher:
             on failure.
         """
         # Check CSV cache first
-        csv_path = Path("data") / f"{symbol.lower()}_daily_bars.csv"
+        sym_dir = Path("data") / symbol.upper()
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        csv_path = sym_dir / "daily_bars.csv"
+
+        # Legacy migration from old flat path
+        legacy_csv = Path("data") / f"{symbol.lower()}_daily_bars.csv"
+        if not csv_path.exists() and legacy_csv.exists():
+            legacy_csv.rename(csv_path)
+            logger.info("Migrated %s → %s", legacy_csv, csv_path)
+
         cached = self._load_daily_csv(csv_path)
         if cached:
             logger.info(
@@ -150,7 +159,7 @@ class FullHistoryFetcher:
 
         Polygon provides 2 years of 5-minute bars on the free tier.
         Any timeframe (15m, 30m, 1h, 4h, daily) can be resampled
-        from these 5-min bars.  Caches to ``data/{symbol}_5m_bars.csv``.
+        from these 5-min bars.  Caches to ``data/{SYMBOL}/5m_bars.csv``.
 
         Parameters
         ----------
@@ -164,7 +173,15 @@ class FullHistoryFetcher:
         list[IntradayPriceData]
             5-minute bars sorted by datetime ascending.
         """
-        csv_path = Path("data") / f"{symbol.lower()}_5m_bars.csv"
+        sym_dir = Path("data") / symbol.upper()
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        csv_path = sym_dir / "5m_bars.csv"
+
+        # Legacy migration from old flat path
+        legacy_csv = Path("data") / f"{symbol.lower()}_5m_bars.csv"
+        if not csv_path.exists() and legacy_csv.exists():
+            legacy_csv.rename(csv_path)
+            logger.info("Migrated %s → %s", legacy_csv, csv_path)
 
         # Load existing bars from disk
         existing: list[IntradayPriceData] = []

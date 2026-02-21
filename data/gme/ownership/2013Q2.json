@@ -1,0 +1,121 @@
+{
+  "quarter_end": "2013-06-30",
+  "symbol": "GME",
+  "total_institutional_shares": 17831205,
+  "num_institutions": 14,
+  "top_10_concentration": 0.9965285576605731,
+  "holdings": [
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "GOLDMAN SACHS GROUP INC",
+      "manager_cik": "0000886982",
+      "shares": 10911504,
+      "value_usd": 224470,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "AQR CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0001167557",
+      "shares": 4295383,
+      "value_usd": 107771,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "HSBC HOLDINGS PLC",
+      "manager_cik": "0000873630",
+      "shares": 1149732,
+      "value_usd": 27673,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "CORNERSTONE CAPITAL MANAGEMENT HOLDINGS LLC.",
+      "manager_cik": "0001453415",
+      "shares": 708646,
+      "value_usd": 19821,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "OPPENHEIMER FUNDS INC",
+      "manager_cik": "0000728889",
+      "shares": 296380,
+      "value_usd": 8290,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "PIONEER INVESTMENT MANAGEMENT INC",
+      "manager_cik": "0001102598",
+      "shares": 183948,
+      "value_usd": 4615,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "PGGM Investments",
+      "manager_cik": "0001472190",
+      "shares": 82620,
+      "value_usd": 2311,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "TEXAS PERMANENT SCHOOL FUND",
+      "manager_cik": "0001223779",
+      "shares": 64072,
+      "value_usd": 1792,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "VTL Associates, LLC",
+      "manager_cik": "0001388712",
+      "shares": 42880,
+      "value_usd": 6597,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "CANADA PENSION PLAN INVESTMENT BOARD",
+      "manager_cik": "0001283718",
+      "shares": 34140,
+      "value_usd": 955,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "COLUMBIA PARTNERS L L C INVESTMENT MANAGEMENT",
+      "manager_cik": "0001009215",
+      "shares": 26694,
+      "value_usd": 746,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "Eqis Capital Management, Inc.",
+      "manager_cik": "0001566653",
+      "shares": 19725,
+      "value_usd": 552,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "SPRINGBOK CAPITAL MANAGEMENT, LLC",
+      "manager_cik": "0001387508",
+      "shares": 12400,
+      "value_usd": 347,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2013-06-30",
+      "manager_name": "BROWN BROTHERS HARRIMAN & CO",
+      "manager_cik": "0000014661",
+      "shares": 3081,
+      "value_usd": 86,
+      "share_class": "SH"
+    }
+  ]
+}

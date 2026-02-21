@@ -22,14 +22,14 @@ from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategyConfig
 
 # Real data file
-_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "spy" / "5m_bars.csv"
+_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "SPY" / "5m_bars.csv"
 
 
 @pytest.fixture(scope="module")
 def sample_data():
     """Load a small slice of real data for testing (first 2000 bars ~ 25 days)."""
     if not _DATA_FILE.exists():
-        pytest.skip("data/spy/5m_bars.csv not found")
+        pytest.skip("data/SPY/5m_bars.csv not found")
     data = IntradayCsvLoader.load_from_file(_DATA_FILE)
     if len(data) < 2000:
         pytest.skip("Not enough data for optimizer tests")

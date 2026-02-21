@@ -11,11 +11,11 @@ intraday bar data.
 Usage::
 
     python -m stockdownloader.app.tournament_apps exit \\
-        --bars data/spy/5m_bars.csv \\
+        --bars data/SPY/5m_bars.csv \\
         --trades trades.csv
 
     python -m stockdownloader.app.tournament_apps exit \\
-        --bars data/spy/5m_bars.csv \\
+        --bars data/SPY/5m_bars.csv \\
         --trades trades.csv \\
         --stop-distance 0.96
 
@@ -91,8 +91,8 @@ def main_exit_tournament() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
-            "  exit_tournament_app --bars data/spy/5m_bars.csv --trades trades.csv\n"
-            "  exit_tournament_app --bars data/spy/5m_bars.csv --trades trades.csv "
+            "  exit_tournament_app --bars data/SPY/5m_bars.csv --trades trades.csv\n"
+            "  exit_tournament_app --bars data/SPY/5m_bars.csv --trades trades.csv "
             "--stop-distance 0.96\n"
         ),
     )
@@ -396,7 +396,7 @@ if __name__ == "__main__":
         "--file",
         type=str,
         default=None,
-        help="Custom data file path (default: data/spy/5m_bars.csv)",
+        help="Custom data file path (default: data/SPY/5m_bars.csv)",
     )
 
     args = parser.parse_args()

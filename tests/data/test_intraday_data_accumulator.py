@@ -33,13 +33,13 @@ def _bar(date: str, close: str = "600.00") -> IntradayPriceData:
 class TestDefaultCsvPath:
 
     def test_spy(self):
-        assert default_csv_path("SPY") == Path("data/spy/5m_bars.csv")
+        assert default_csv_path("SPY") == Path("data/SPY/5m_bars.csv")
 
     def test_aapl(self):
-        assert default_csv_path("AAPL") == Path("data/aapl/5m_bars.csv")
+        assert default_csv_path("AAPL") == Path("data/AAPL/5m_bars.csv")
 
     def test_lowercase_input(self):
-        assert default_csv_path("aapl") == Path("data/aapl/5m_bars.csv")
+        assert default_csv_path("aapl") == Path("data/AAPL/5m_bars.csv")
 
 
 class TestMergeBars:

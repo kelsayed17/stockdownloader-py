@@ -151,7 +151,7 @@ def _make_client(
     return FinraDarkPoolClient(
         client_id=client_id,
         client_secret=client_secret,
-        cache_dir=str(tmp_path / "dp_cache"),
+        data_dir=str(tmp_path),
     )
 
 
@@ -574,9 +574,9 @@ class TestDPCaching:
 
     def test_load_corrupt_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        sym_dir = client._cache_dir / "CORRUPT"
+        sym_dir = client._data_dir / "CORRUPT"
         sym_dir.mkdir(parents=True, exist_ok=True)
-        cache_file = sym_dir / "dp.json"
+        cache_file = sym_dir / "dark_pool.json"
         cache_file.write_text("{{invalid json", encoding="utf-8")
         loaded = client._load_cache("CORRUPT")
         assert loaded is None
@@ -594,7 +594,7 @@ class TestDPCaching:
             ),
         ]
         client._save_cache("AAPL", records)
-        assert (client._cache_dir / "AAPL" / "dp.json").exists()
+        assert (client._data_dir / "AAPL" / "dark_pool.json").exists()
 
     def test_save_creates_symbol_subdir(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
@@ -609,9 +609,9 @@ class TestDPCaching:
             ),
         ]
         client._save_cache("TSLA", records)
-        sym_dir = client._cache_dir / "TSLA"
+        sym_dir = client._data_dir / "TSLA"
         assert sym_dir.is_dir()
-        assert (sym_dir / "dp.json").exists()
+        assert (sym_dir / "dark_pool.json").exists()
 
     def test_legacy_migration_on_load(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
@@ -627,7 +627,8 @@ class TestDPCaching:
         ]
         # Write legacy flat file
         import json as _json
-        legacy_file = client._cache_dir / "MSFT_dp.json"
+        legacy_file = client._data_dir / "cache" / "dark_pool" / "MSFT_dp.json"
+        legacy_file.parent.mkdir(parents=True, exist_ok=True)
         legacy_file.write_text(
             _json.dumps([{
                 "week_ending": r.week_ending,
@@ -647,7 +648,7 @@ class TestDPCaching:
         assert loaded[0].symbol == "MSFT"
         # Legacy file should have been moved
         assert not legacy_file.exists()
-        assert (client._cache_dir / "MSFT" / "dp.json").exists()
+        assert (client._data_dir / "MSFT" / "dark_pool.json").exists()
 
 
 # ------------------------------------------------------------------

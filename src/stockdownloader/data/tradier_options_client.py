@@ -53,8 +53,9 @@ class TradierOptionsClient:
     api_token:
         Bearer token for Tradier API. Falls back to ``TRADIER_API_TOKEN``
         env var, then to the sandbox default token.
-    cache_dir:
-        Directory for JSON cache files.
+    data_dir:
+        Root data directory.  Per-symbol data is stored under
+        ``data_dir/{SYMBOL}/options_chain.json``.
     use_sandbox:
         If True (default), use sandbox.tradier.com.
         If False, use api.tradier.com (requires paid token).
@@ -63,7 +64,7 @@ class TradierOptionsClient:
     def __init__(
         self,
         api_token: str | None = None,
-        cache_dir: str = "data/cache/options",
+        data_dir: str = "data",
         use_sandbox: bool = True,
     ) -> None:
         self._token = (
@@ -77,8 +78,8 @@ class TradierOptionsClient:
                 "TRADIER_SANDBOX_TOKEN env var.  Get a free token at: "
                 "https://web.tradier.com/user/api"
             )
-        self._cache_dir = Path(cache_dir)
-        self._cache_dir.mkdir(parents=True, exist_ok=True)
+        self._data_dir = Path(data_dir)
+        self._data_dir.mkdir(parents=True, exist_ok=True)
         self._last_request_time: float = 0.0
 
         if use_sandbox:
@@ -354,10 +355,16 @@ class TradierOptionsClient:
     # Caching
     # ------------------------------------------------------------------
 
+    def _symbol_dir(self, symbol: str) -> Path:
+        """Return per-symbol data directory, creating it if needed."""
+        d = self._data_dir / symbol.upper()
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def save_chain_cache(self, chain: OptionsChain) -> None:
         """Persist an options chain to JSON cache for offline use."""
         symbol = chain.underlying_symbol
-        cache_file = self._cache_dir / f"{symbol}_tradier_chain.json"
+        cache_file = self._symbol_dir(symbol) / "options_chain.json"
 
         data = {
             "symbol": symbol,
@@ -385,7 +392,7 @@ class TradierOptionsClient:
 
     def load_chain_cache(self, symbol: str) -> dict | None:
         """Load cached chain metadata."""
-        cache_file = self._cache_dir / f"{symbol.upper()}_tradier_chain.json"
+        cache_file = self._symbol_dir(symbol) / "options_chain.json"
         if not cache_file.exists():
             return None
         try:

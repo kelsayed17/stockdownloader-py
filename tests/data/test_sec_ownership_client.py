@@ -138,7 +138,7 @@ _SAMPLE_INDEX_JSON_NO_INFOTABLE = {
 def _make_client(tmp_path: Path) -> SecOwnershipClient:
     return SecOwnershipClient(
         user_agent="TestAgent test@test.com",
-        cache_dir=str(tmp_path / "ownership_cache"),
+        data_dir=str(tmp_path),
     )
 
 
@@ -596,9 +596,9 @@ class TestOwnershipCaching:
 
     def test_load_corrupt_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        sym_dir = client._cache_dir / "BAD"
+        sym_dir = client._data_dir / "BAD"
         sym_dir.mkdir(parents=True, exist_ok=True)
-        cache_file = sym_dir / "13f.json"
+        cache_file = sym_dir / "ownership_13f.json"
         cache_file.write_text("{{{corrupt json", encoding="utf-8")
         loaded = client._load_cache("BAD")
         assert loaded is None
@@ -625,7 +625,7 @@ class TestOwnershipCaching:
             ),
         ]
         client._save_cache("AAPL", snapshots)
-        assert (client._cache_dir / "AAPL" / "13f.json").exists()
+        assert (client._data_dir / "AAPL" / "ownership_13f.json").exists()
 
 
 # ------------------------------------------------------------------
@@ -637,14 +637,14 @@ class TestPerSymbolCacheDir:
     """Tests for per-symbol cache subdirectory layout and legacy migration."""
 
     def test_symbol_cache_dir_creates_and_uppercases(self, tmp_path: Path) -> None:
-        """_symbol_cache_dir creates the dir and uppercases the symbol."""
+        """_symbol_dir creates the dir and uppercases the symbol."""
         client = _make_client(tmp_path)
-        d = client._symbol_cache_dir("aapl")
-        assert d == client._cache_dir / "AAPL"
+        d = client._symbol_dir("aapl")
+        assert d == client._data_dir / "AAPL"
         assert d.is_dir()
 
     def test_save_cache_creates_file_in_symbol_subdir(self, tmp_path: Path) -> None:
-        """_save_cache writes to {SYMBOL}/13f.json inside cache_dir."""
+        """_save_cache writes to {SYMBOL}/ownership_13f.json inside data_dir."""
         client = _make_client(tmp_path)
         snapshots = [
             OwnershipSnapshot(
@@ -666,17 +666,19 @@ class TestPerSymbolCacheDir:
             ),
         ]
         client._save_cache("TSLA", snapshots)
-        expected = client._cache_dir / "TSLA" / "13f.json"
+        expected = client._data_dir / "TSLA" / "ownership_13f.json"
         assert expected.exists()
         # The old flat path should NOT exist
-        assert not (client._cache_dir / "TSLA_13f.json").exists()
+        assert not (client._data_dir / "TSLA_13f.json").exists()
 
     def test_legacy_13f_json_migration_on_load(self, tmp_path: Path) -> None:
-        """Legacy {SYMBOL}_13f.json migrates to {SYMBOL}/13f.json on load."""
+        """Legacy cache/ownership/{SYMBOL}_13f.json migrates to {SYMBOL}/ownership_13f.json on load."""
         client = _make_client(tmp_path)
 
-        # Write a snapshot using the old flat layout
-        legacy_file = client._cache_dir / "GME_13f.json"
+        # Write a snapshot using the old legacy layout
+        legacy_dir = client._data_dir / "cache" / "ownership"
+        legacy_dir.mkdir(parents=True, exist_ok=True)
+        legacy_file = legacy_dir / "GME_13f.json"
         data = [
             {
                 "quarter_end": "2024-03-31",
@@ -705,13 +707,15 @@ class TestPerSymbolCacheDir:
 
         # Legacy file should be gone, new path should exist
         assert not legacy_file.exists()
-        assert (client._cache_dir / "GME" / "13f.json").exists()
+        assert (client._data_dir / "GME" / "ownership_13f.json").exists()
 
     def test_legacy_ownership_json_migration_on_load(self, tmp_path: Path) -> None:
-        """Legacy {SYMBOL}_ownership.json migrates to {SYMBOL}/13f.json on load."""
+        """Legacy cache/ownership/{SYMBOL}_ownership.json migrates to {SYMBOL}/ownership_13f.json on load."""
         client = _make_client(tmp_path)
 
-        legacy_file = client._cache_dir / "GME_ownership.json"
+        legacy_dir = client._data_dir / "cache" / "ownership"
+        legacy_dir.mkdir(parents=True, exist_ok=True)
+        legacy_file = legacy_dir / "GME_ownership.json"
         data = [
             {
                 "quarter_end": "2024-06-30",
@@ -740,7 +744,7 @@ class TestPerSymbolCacheDir:
 
         # Legacy file gone, new path exists
         assert not legacy_file.exists()
-        assert (client._cache_dir / "GME" / "13f.json").exists()
+        assert (client._data_dir / "GME" / "ownership_13f.json").exists()
 
     def test_save_load_roundtrip_new_paths(self, tmp_path: Path) -> None:
         """Save + load roundtrip works with new per-symbol paths."""
@@ -1149,11 +1153,11 @@ class TestEftsQuarterSnapshotCache:
         )
 
     def test_save_creates_correct_file(self, tmp_path: Path) -> None:
-        """_save_quarter_snapshot writes {SYMBOL}/{YYYY}Q{Q}.json."""
+        """_save_quarter_snapshot writes {SYMBOL}/ownership/{YYYY}Q{Q}.json."""
         client = _make_client(tmp_path)
         snap = self._make_snapshot()
         client._save_quarter_snapshot("GME", 2024, 1, snap)
-        expected = client._cache_dir / "GME" / "2024Q1.json"
+        expected = client._data_dir / "GME" / "ownership" / "2024Q1.json"
         assert expected.exists()
         data = json.loads(expected.read_text(encoding="utf-8"))
         assert data["quarter_end"] == "2024-03-31"
@@ -1180,8 +1184,10 @@ class TestEftsQuarterSnapshotCache:
     def test_load_corrupt_returns_none(self, tmp_path: Path) -> None:
         """Loading a corrupt quarter file returns None."""
         client = _make_client(tmp_path)
-        sym_dir = client._symbol_cache_dir("GME")
-        corrupt = sym_dir / "2024Q1.json"
+        sym_dir = client._symbol_dir("GME")
+        ownership_dir = sym_dir / "ownership"
+        ownership_dir.mkdir(parents=True, exist_ok=True)
+        corrupt = ownership_dir / "2024Q1.json"
         corrupt.write_text("{{{bad json", encoding="utf-8")
         loaded = client._load_quarter_snapshot("GME", 2024, 1)
         assert loaded is None
@@ -1189,7 +1195,7 @@ class TestEftsQuarterSnapshotCache:
     def test_force_refresh_preserves_quarter_snapshots(
         self, tmp_path: Path,
     ) -> None:
-        """force_refresh=True deletes merged 13f.json but keeps quarter files."""
+        """force_refresh=True deletes merged ownership_13f.json but keeps quarter files."""
         client = _make_client(tmp_path)
         snap = self._make_snapshot()
 
@@ -1197,8 +1203,8 @@ class TestEftsQuarterSnapshotCache:
         client._save_quarter_snapshot("GME", 2024, 1, snap)
         client._save_cache("GME", [snap])
 
-        merged = client._symbol_cache_dir("GME") / "13f.json"
-        quarter = client._symbol_cache_dir("GME") / "2024Q1.json"
+        merged = client._symbol_dir("GME") / "ownership_13f.json"
+        quarter = client._symbol_dir("GME") / "ownership" / "2024Q1.json"
         assert merged.exists()
         assert quarter.exists()
 

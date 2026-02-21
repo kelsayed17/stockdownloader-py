@@ -496,7 +496,7 @@ def main_accumulate() -> None:
         "--file",
         dest="csv_file",
         default=None,
-        help="CSV file path (default: data/<symbol>_5m_bars.csv)",
+        help="CSV file path (default: data/{SYMBOL}/5m_bars.csv)",
     )
     parser.add_argument(
         "--days",

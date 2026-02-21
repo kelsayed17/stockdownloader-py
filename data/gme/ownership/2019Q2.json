@@ -1,0 +1,2249 @@
+{
+  "quarter_end": "2019-06-30",
+  "symbol": "GME",
+  "total_institutional_shares": 139935919,
+  "num_institutions": 280,
+  "top_10_concentration": 0.5490769528586867,
+  "holdings": [
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "FMR LLC",
+      "manager_cik": "0000315066",
+      "shares": 15295131,
+      "value_usd": 155398,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BlackRock Inc.",
+      "manager_cik": "0001364742",
+      "shares": 15189573,
+      "value_usd": 154327,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "VANGUARD GROUP INC",
+      "manager_cik": "0000102909",
+      "shares": 10601872,
+      "value_usd": 107715,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Allianz Asset Management GmbH",
+      "manager_cik": "0001535323",
+      "shares": 8319209,
+      "value_usd": 188289,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "DIMENSIONAL FUND ADVISORS LP",
+      "manager_cik": "0000354204",
+      "shares": 6882924,
+      "value_usd": 69931,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Aperio Group, LLC",
+      "manager_cik": "0001364615",
+      "shares": 4686476,
+      "value_usd": 84741,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MORGAN STANLEY",
+      "manager_cik": "0000895421",
+      "shares": 4453968,
+      "value_usd": 63739,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SUSQUEHANNA INTERNATIONAL GROUP, LLP",
+      "manager_cik": "0001446194",
+      "shares": 4290688,
+      "value_usd": 43593,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Bank of New York Mellon Corp",
+      "manager_cik": "0001390777",
+      "shares": 3585740,
+      "value_usd": 36432,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "STATE STREET CORP",
+      "manager_cik": "0000093751",
+      "shares": 3530007,
+      "value_usd": 35865,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Melvin Capital Management LP",
+      "manager_cik": "0001628110",
+      "shares": 3250000,
+      "value_usd": 33020,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "JPMORGAN CHASE & CO",
+      "manager_cik": "0000019617",
+      "shares": 2734838,
+      "value_usd": 27786,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "LSV ASSET MANAGEMENT",
+      "manager_cik": "0001050470",
+      "shares": 2732084,
+      "value_usd": 27757,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "FIL Ltd",
+      "manager_cik": "0000318989",
+      "shares": 2400000,
+      "value_usd": 24384,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "FIRST TRUST ADVISORS LP",
+      "manager_cik": "0001125816",
+      "shares": 2069860,
+      "value_usd": 21030,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Paradice Investment Management LLC",
+      "manager_cik": "0001620275",
+      "shares": 2000249,
+      "value_usd": 20323,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CITADEL ADVISORS LLC",
+      "manager_cik": "0001423053",
+      "shares": 1854738,
+      "value_usd": 18845,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CANADA PENSION PLAN INVESTMENT BOARD",
+      "manager_cik": "0001283718",
+      "shares": 1643054,
+      "value_usd": 16693,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Advisors Asset Management, Inc.",
+      "manager_cik": "0001297376",
+      "shares": 1509961,
+      "value_usd": 15341,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "D. E. Shaw & Co., Inc.",
+      "manager_cik": "0001009207",
+      "shares": 1389243,
+      "value_usd": 14115,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Tyvor Capital LLC",
+      "manager_cik": "0001598558",
+      "shares": 1361016,
+      "value_usd": 13828,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NORTHERN TRUST CORP",
+      "manager_cik": "0000073124",
+      "shares": 1314682,
+      "value_usd": 13358,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "GOLDMAN SACHS GROUP INC",
+      "manager_cik": "0000886982",
+      "shares": 1302735,
+      "value_usd": 13235,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CITIGROUP INC",
+      "manager_cik": "0000831001",
+      "shares": 1257715,
+      "value_usd": 12779,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Robeco Institutional Asset Management B.V.",
+      "manager_cik": "0001418773",
+      "shares": 1220022,
+      "value_usd": 12393,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "GEODE CAPITAL MANAGEMENT, LLC",
+      "manager_cik": "0001214717",
+      "shares": 1165156,
+      "value_usd": 11837,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NORGES BANK",
+      "manager_cik": "0001374170",
+      "shares": 1146216,
+      "value_usd": 14465,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Parametric Portfolio Associates LLC",
+      "manager_cik": "0000932859",
+      "shares": 1134622,
+      "value_usd": 11528,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CHARLES SCHWAB INVESTMENT MANAGEMENT INC",
+      "manager_cik": "0000884546",
+      "shares": 1043621,
+      "value_usd": 10604,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Spark Investment Management LLC",
+      "manager_cik": "0001554871",
+      "shares": 1031600,
+      "value_usd": 10481,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "WINTON GROUP Ltd",
+      "manager_cik": "0001612063",
+      "shares": 1002023,
+      "value_usd": 10181,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PERMIT CAPITAL, LLC",
+      "manager_cik": "0001313978",
+      "shares": 1000000,
+      "value_usd": 10160,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ARROWSTREET CAPITAL, LIMITED PARTNERSHIP",
+      "manager_cik": "0001164508",
+      "shares": 999467,
+      "value_usd": 10155,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PRINCIPAL FINANCIAL GROUP INC",
+      "manager_cik": "0001126328",
+      "shares": 819400,
+      "value_usd": 8325,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Mirae Asset Global Investments Co., Ltd.",
+      "manager_cik": "0001569395",
+      "shares": 809099,
+      "value_usd": 8220,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BARCLAYS PLC",
+      "manager_cik": "0000312069",
+      "shares": 797500,
+      "value_usd": 8101,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Commonwealth Bank of Australia",
+      "manager_cik": "0000008565",
+      "shares": 704558,
+      "value_usd": 7153,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "KENNEDY CAPITAL MANAGEMENT, INC.",
+      "manager_cik": "0000884589",
+      "shares": 699056,
+      "value_usd": 7102,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Scion Asset Management, LLC",
+      "manager_cik": "0001649339",
+      "shares": 650000,
+      "value_usd": 6604,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "AMERIPRISE FINANCIAL INC",
+      "manager_cik": "0000820027",
+      "shares": 606400,
+      "value_usd": 6162,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "TWO SIGMA INVESTMENTS, LP",
+      "manager_cik": "0001179392",
+      "shares": 580560,
+      "value_usd": 5898,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Invesco Ltd.",
+      "manager_cik": "0000914208",
+      "shares": 541993,
+      "value_usd": 5507,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "RENAISSANCE TECHNOLOGIES LLC",
+      "manager_cik": "0001037389",
+      "shares": 509700,
+      "value_usd": 5179,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Blueshift Asset Management, LLC",
+      "manager_cik": "0001727827",
+      "shares": 482412,
+      "value_usd": 4901,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BRIDGEWAY CAPITAL MANAGEMENT INC",
+      "manager_cik": "0001107261",
+      "shares": 470700,
+      "value_usd": 4782,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Engineers Gate Manager LP",
+      "manager_cik": "0001620220",
+      "shares": 463520,
+      "value_usd": 4709,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "TWO SIGMA ADVISERS, LP",
+      "manager_cik": "0001478735",
+      "shares": 450300,
+      "value_usd": 4575,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "OppenheimerFunds, Inc.",
+      "manager_cik": "0000728889",
+      "shares": 447088,
+      "value_usd": 4542,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Legal & General Group Plc",
+      "manager_cik": "0000764068",
+      "shares": 415665,
+      "value_usd": 4223,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "UBS OCONNOR LLC",
+      "manager_cik": "0001132716",
+      "shares": 415000,
+      "value_usd": 675000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CALIFORNIA PUBLIC EMPLOYEES RETIREMENT SYSTEM",
+      "manager_cik": "0000919079",
+      "shares": 402585,
+      "value_usd": 4090,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "DEUTSCHE BANK AG\\",
+      "manager_cik": "0000948046",
+      "shares": 398017,
+      "value_usd": 4457,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "North Fourth Asset Management, LP",
+      "manager_cik": "0001715329",
+      "shares": 385100,
+      "value_usd": 3913,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "WELLS FARGO & COMPANY/MN",
+      "manager_cik": "0000072971",
+      "shares": 377146,
+      "value_usd": 3832,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PRUDENTIAL PLC",
+      "manager_cik": "0000898419",
+      "shares": 376114,
+      "value_usd": 3821,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Brandywine Global Investment Management, LLC",
+      "manager_cik": "0000829108",
+      "shares": 351896,
+      "value_usd": 3576,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "HANCOCK WHITNEY CORP",
+      "manager_cik": "0000750577",
+      "shares": 344522,
+      "value_usd": 3500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BNP PARIBAS ARBITRAGE, SA",
+      "manager_cik": "0001166588",
+      "shares": 320237,
+      "value_usd": 3253608,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BANK OF AMERICA CORP /DE/",
+      "manager_cik": "0000070858",
+      "shares": 316176,
+      "value_usd": 3212,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "LOS ANGELES CAPITAL MANAGEMENT & EQUITY RESEARCH INC",
+      "manager_cik": "0001177206",
+      "shares": 311560,
+      "value_usd": 3165,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NEW YORK STATE COMMON RETIREMENT FUND",
+      "manager_cik": "0000810265",
+      "shares": 311400,
+      "value_usd": 3164,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "UBS Group AG",
+      "manager_cik": "0001610520",
+      "shares": 310013,
+      "value_usd": 3150,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "RHUMBLINE ADVISERS",
+      "manager_cik": "0001115418",
+      "shares": 303478,
+      "value_usd": 3083,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PRUDENTIAL FINANCIAL INC",
+      "manager_cik": "0001137774",
+      "shares": 300706,
+      "value_usd": 3055,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MACKAY SHIELDS LLC",
+      "manager_cik": "0000061227",
+      "shares": 293800,
+      "value_usd": 2986,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "DekaBank Deutsche Girozentrale",
+      "manager_cik": "0001456228",
+      "shares": 290270,
+      "value_usd": 4187,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SkyBridge Capital II, LLC",
+      "manager_cik": "0001639668",
+      "shares": 284190,
+      "value_usd": 2887,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CLIFFORD CAPITAL PARTNERS LLC",
+      "manager_cik": "0001730467",
+      "shares": 281408,
+      "value_usd": 2859,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Tudor Investment Corp Et Al",
+      "manager_cik": "0000923093",
+      "shares": 263966,
+      "value_usd": 2682,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NOMURA HOLDINGS INC",
+      "manager_cik": "0001163653",
+      "shares": 255718,
+      "value_usd": 2681,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "TIAA CREF INVESTMENT MANAGEMENT LLC",
+      "manager_cik": "0000887793",
+      "shares": 241261,
+      "value_usd": 2451,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "UBS ASSET MANAGEMENT AMERICAS INC",
+      "manager_cik": "0000861177",
+      "shares": 239566,
+      "value_usd": 2433991,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "WOLVERINE TRADING, LLC",
+      "manager_cik": "0000927337",
+      "shares": 237500,
+      "value_usd": 2413,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Her Majesty the Queen in Right of the Province of Alberta as represented by Alberta Investment Management Corp",
+      "manager_cik": "0001463559",
+      "shares": 234532,
+      "value_usd": 2383,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MUHLENKAMP & CO INC",
+      "manager_cik": "0001133219",
+      "shares": 232937,
+      "value_usd": 2367,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Walleye Trading LLC",
+      "manager_cik": "0001388391",
+      "shares": 225500,
+      "value_usd": 2291,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "TEACHERS ADVISORS, LLC",
+      "manager_cik": "0000939222",
+      "shares": 208084,
+      "value_usd": 2114,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NEW YORK STATE TEACHERS RETIREMENT SYSTEM",
+      "manager_cik": "0000314969",
+      "shares": 200106,
+      "value_usd": 2033,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SPROTT INC.",
+      "manager_cik": "0001512920",
+      "shares": 200000,
+      "value_usd": 2032,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "HOTCHKIS & WILEY CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0001164833",
+      "shares": 196244,
+      "value_usd": 1994,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Quantitative Investment Management, LLC",
+      "manager_cik": "0001445911",
+      "shares": 193478,
+      "value_usd": 1965,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Swiss National Bank",
+      "manager_cik": "0001582202",
+      "shares": 185782,
+      "value_usd": 1888,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CALIFORNIA STATE TEACHERS RETIREMENT SYSTEM",
+      "manager_cik": "0001081019",
+      "shares": 182391,
+      "value_usd": 1853,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ETF MANAGERS GROUP, LLC",
+      "manager_cik": "0001645173",
+      "shares": 163429,
+      "value_usd": 1660,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "GREAT WEST LIFE ASSURANCE CO /CAN/",
+      "manager_cik": "0001046192",
+      "shares": 158665,
+      "value_usd": 1611,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "VOLORIDGE INVESTMENT MANAGEMENT, LLC",
+      "manager_cik": "0001556921",
+      "shares": 157926,
+      "value_usd": 1605,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Arizona State Retirement System",
+      "manager_cik": "0001558481",
+      "shares": 157299,
+      "value_usd": 1598,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Vident Investment Advisory, LLC",
+      "manager_cik": "0001634047",
+      "shares": 154051,
+      "value_usd": 1565,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "OXFORD ASSET MANAGEMENT LLP",
+      "manager_cik": "0001438284",
+      "shares": 152266,
+      "value_usd": 1547,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CREDIT SUISSE AG/",
+      "manager_cik": "0000824468",
+      "shares": 149663,
+      "value_usd": 1522,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "GUGGENHEIM CAPITAL LLC",
+      "manager_cik": "1283072",
+      "shares": 139669,
+      "value_usd": 1419,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "American Assets Investment Management, LLC",
+      "manager_cik": "0001389256",
+      "shares": 132700,
+      "value_usd": 1348,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "JANE STREET GROUP, LLC",
+      "manager_cik": "0001595888",
+      "shares": 131444,
+      "value_usd": 1335,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Elm Ridge Management, LLC",
+      "manager_cik": "0001483276",
+      "shares": 129235,
+      "value_usd": 1313,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PINEBRIDGE INVESTMENTS, L.P.",
+      "manager_cik": "0001531721",
+      "shares": 127267,
+      "value_usd": 1293,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Bayesian Capital Management, LP",
+      "manager_cik": "0001632551",
+      "shares": 126327,
+      "value_usd": 1283,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Quinn Opportunity Partners LLC",
+      "manager_cik": "0001633275",
+      "shares": 125695,
+      "value_usd": 1277,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "AMERICAN INTERNATIONAL GROUP INC",
+      "manager_cik": "0000005272",
+      "shares": 125183,
+      "value_usd": 1272,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ALLIANCEBERNSTEIN L.P.",
+      "manager_cik": "0001109448",
+      "shares": 120825,
+      "value_usd": 1228,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Fairbanks Capital Management, Inc.",
+      "manager_cik": "0001681372",
+      "shares": 113452,
+      "value_usd": 1153,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "WELLINGTON MANAGEMENT GROUP LLP",
+      "manager_cik": "0000902219",
+      "shares": 109588,
+      "value_usd": 1114,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Camelot Portfolios, LLC",
+      "manager_cik": "0001569766",
+      "shares": 106484,
+      "value_usd": 1082,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "COMERICA BANK",
+      "manager_cik": "0000901541",
+      "shares": 106301,
+      "value_usd": 1060,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PEAK6 Investments LLC",
+      "manager_cik": "0001756111",
+      "shares": 105765,
+      "value_usd": 1075,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Parallax Volatility Advisers, L.P.",
+      "manager_cik": "0001521001",
+      "shares": 105037,
+      "value_usd": 1061,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SCHRODER INVESTMENT MANAGEMENT GROUP",
+      "manager_cik": "0001086619",
+      "shares": 103662,
+      "value_usd": 1053,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MILLER VALUE PARTNERS, LLC",
+      "manager_cik": "0001135778",
+      "shares": 98210,
+      "value_usd": 998,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "GMT CAPITAL CORP",
+      "manager_cik": "0001106191",
+      "shares": 94400,
+      "value_usd": 959,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Public Sector Pension Investment Board",
+      "manager_cik": "0001396318",
+      "shares": 93741,
+      "value_usd": 952,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MetLife Investment Advisors, LLC",
+      "manager_cik": "0001529735",
+      "shares": 92542,
+      "value_usd": 940,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "GSA CAPITAL PARTNERS LLP",
+      "manager_cik": "0001362033",
+      "shares": 91051,
+      "value_usd": 925,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SYSTEMATIC FINANCIAL MANAGEMENT LP",
+      "manager_cik": "0001085936",
+      "shares": 89300,
+      "value_usd": 907,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SEVEN EIGHT CAPITAL, LP",
+      "manager_cik": "0001575129",
+      "shares": 88733,
+      "value_usd": 902,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "JEFFERIES FINANCIAL GROUP INC.",
+      "manager_cik": "0000096223",
+      "shares": 83699,
+      "value_usd": 850,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Euclidean Technologies Management, LLC",
+      "manager_cik": "0001597864",
+      "shares": 80762,
+      "value_usd": 821,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Voya Investment Management LLC",
+      "manager_cik": "0001068837",
+      "shares": 80517,
+      "value_usd": 818,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Gotham Asset Management, LLC",
+      "manager_cik": "0001510387",
+      "shares": 78812,
+      "value_usd": 801,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Thrivent Financial for Lutherans",
+      "manager_cik": "0000314984",
+      "shares": 77955,
+      "value_usd": 792,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Asset Management One Co., Ltd.",
+      "manager_cik": "0001068855",
+      "shares": 75090,
+      "value_usd": 763,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NISA INVESTMENT ADVISORS, LLC",
+      "manager_cik": "0000937615",
+      "shares": 74750,
+      "value_usd": 759,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Standard Life Aberdeen plc",
+      "manager_cik": "0001716774",
+      "shares": 74415,
+      "value_usd": 756,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Cambria Investment Management, L.P.",
+      "manager_cik": "0001529389",
+      "shares": 71686,
+      "value_usd": 728,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "HBK INVESTMENTS L P",
+      "manager_cik": "0001011443",
+      "shares": 70889,
+      "value_usd": 720,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "TEXAS PERMANENT SCHOOL FUND",
+      "manager_cik": "0001223779",
+      "shares": 69235,
+      "value_usd": 703,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Pacer Advisors, Inc.",
+      "manager_cik": "0001616667",
+      "shares": 67452,
+      "value_usd": 685,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Adams Asset Advisors, LLC",
+      "manager_cik": "0001386929",
+      "shares": 66139,
+      "value_usd": 671,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MANUFACTURERS LIFE INSURANCE COMPANY, THE",
+      "manager_cik": "0000928047",
+      "shares": 65510,
+      "value_usd": 665,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "GROESBECK INVESTMENT MANAGEMENT CORP /NJ/",
+      "manager_cik": "0000923116",
+      "shares": 62650,
+      "value_usd": 637,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "STATE BOARD OF ADMINISTRATION OF FLORIDA RETIREMENT SYSTEM",
+      "manager_cik": "0000938076",
+      "shares": 62303,
+      "value_usd": 633,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "State of Tennessee, Treasury Department",
+      "manager_cik": "0001587973",
+      "shares": 61358,
+      "value_usd": 623,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "JAMES INVESTMENT RESEARCH INC",
+      "manager_cik": "0000810384",
+      "shares": 60930,
+      "value_usd": 619,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Trexquant Investment LP",
+      "manager_cik": "0001633445",
+      "shares": 55112,
+      "value_usd": 560,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "HAP Trading, LLC",
+      "manager_cik": "0001484972",
+      "shares": 47800,
+      "value_usd": 72,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NJ State Employees Deferred Compensation Plan",
+      "manager_cik": "0001483259",
+      "shares": 46000,
+      "value_usd": 467,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BlueCrest Capital Management Ltd",
+      "manager_cik": "0001610880",
+      "shares": 45748,
+      "value_usd": 465,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Factorial Partners, LLC",
+      "manager_cik": "0001732687",
+      "shares": 45000,
+      "value_usd": 457200,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Man Group plc",
+      "manager_cik": "0001637460",
+      "shares": 44295,
+      "value_usd": 450,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Cubist Systematic Strategies, LLC",
+      "manager_cik": "0001603465",
+      "shares": 43711,
+      "value_usd": 444,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Cutler Group LP",
+      "manager_cik": "0001534270",
+      "shares": 42307,
+      "value_usd": 159,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "HSBC HOLDINGS PLC",
+      "manager_cik": "0000873630",
+      "shares": 42207,
+      "value_usd": 429,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NumerixS Investment Technologies Inc",
+      "manager_cik": "0001611457",
+      "shares": 42200,
+      "value_usd": 430,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MILLENNIUM MANAGEMENT LLC",
+      "manager_cik": "0001273087",
+      "shares": 41783,
+      "value_usd": 425,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Westpac Banking Corp",
+      "manager_cik": "0000719245",
+      "shares": 41568,
+      "value_usd": 422331,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SEI Investments Co",
+      "manager_cik": "0000350894",
+      "shares": 40618,
+      "value_usd": 351,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Livforsakringsbolaget Skandia, Omsesidigt",
+      "manager_cik": "0001547926",
+      "shares": 39800,
+      "value_usd": 404,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "OREGON PUBLIC EMPLOYEES RETIREMENT FUND",
+      "manager_cik": "0001107314",
+      "shares": 39484,
+      "value_usd": 401,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "AXA",
+      "manager_cik": "0000898427",
+      "shares": 39000,
+      "value_usd": 396,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Louisiana State Employees Retirement System",
+      "manager_cik": "0001537191",
+      "shares": 38100,
+      "value_usd": 387,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Atom Investors LP",
+      "manager_cik": "0001738902",
+      "shares": 37695,
+      "value_usd": 383,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BB&T SECURITIES, LLC",
+      "manager_cik": "0001383161",
+      "shares": 35406,
+      "value_usd": 359,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Metropolitan Life Insurance Co/NY",
+      "manager_cik": "0000728618",
+      "shares": 35346,
+      "value_usd": 843,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CAPSTONE INVESTMENT ADVISORS, LLC",
+      "manager_cik": "0001426196",
+      "shares": 35200,
+      "value_usd": 358,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "COMMONWEALTH OF PENNSYLVANIA PUBLIC SCHOOL EMPLS RETRMT SYS",
+      "manager_cik": "0001083190",
+      "shares": 34996,
+      "value_usd": 356,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "STIFEL FINANCIAL CORP",
+      "manager_cik": "0000720672",
+      "shares": 34993,
+      "value_usd": 357,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "State of Alaska, Department of Revenue",
+      "manager_cik": "0001370102",
+      "shares": 34370,
+      "value_usd": 349,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Lombard Odier Asset Management (USA) Corp",
+      "manager_cik": "0001491719",
+      "shares": 34216,
+      "value_usd": 348,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "RIVERHEAD CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0001568679",
+      "shares": 33436,
+      "value_usd": 340,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MASON STREET ADVISORS, LLC",
+      "manager_cik": "0001167711",
+      "shares": 32748,
+      "value_usd": 333,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Advisor Group, Inc.",
+      "manager_cik": "0001681115",
+      "shares": 32580,
+      "value_usd": 330,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "UNITED SERVICES AUTOMOBILE ASSOCIATION",
+      "manager_cik": "0001021249",
+      "shares": 32161,
+      "value_usd": 327,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Neuburgh Advisers LLC",
+      "manager_cik": "0001693800",
+      "shares": 32062,
+      "value_usd": 326,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Cypress Capital, LLC",
+      "manager_cik": "0001729939",
+      "shares": 31534,
+      "value_usd": 320,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "TEACHERS RETIREMENT SYSTEM OF THE STATE OF KENTUCKY",
+      "manager_cik": "0000714142",
+      "shares": 31400,
+      "value_usd": 319,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Arrow Investment Advisors, LLC",
+      "manager_cik": "0001378410",
+      "shares": 31193,
+      "value_usd": 317,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "GAM Holding AG",
+      "manager_cik": "0001438848",
+      "shares": 30584,
+      "value_usd": 311,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "IRONWOOD INVESTMENT MANAGEMENT LLC",
+      "manager_cik": "0001127761",
+      "shares": 30520,
+      "value_usd": 310,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Municipal Employees' Retirement System of Michigan",
+      "manager_cik": "0001588873",
+      "shares": 29980,
+      "value_usd": 305,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Stone Ridge Asset Management LLC",
+      "manager_cik": "0001584728",
+      "shares": 29806,
+      "value_usd": 303,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MML INVESTORS SERVICES, LLC",
+      "manager_cik": "0000701059",
+      "shares": 29137,
+      "value_usd": 296,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ROYAL BANK OF CANADA",
+      "manager_cik": "0001000275",
+      "shares": 28912,
+      "value_usd": 294,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Mutual Advisors, LLC",
+      "manager_cik": "0001694080",
+      "shares": 27418,
+      "value_usd": 279,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Flinton Capital Management LLC",
+      "manager_cik": "0001696726",
+      "shares": 26404,
+      "value_usd": 268,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "AQR CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0001167557",
+      "shares": 25869,
+      "value_usd": 263,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PIEDMONT INVESTMENT ADVISORS INC",
+      "manager_cik": "0001270341",
+      "shares": 25761,
+      "value_usd": 262,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PRICE T ROWE ASSOCIATES INC /MD/",
+      "manager_cik": "0000080255",
+      "shares": 25655,
+      "value_usd": 261,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "People's United Financial, Inc.",
+      "manager_cik": "0001378946",
+      "shares": 25377,
+      "value_usd": 258,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ELEMENT CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0001535630",
+      "shares": 24971,
+      "value_usd": 254,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PRELUDE CAPITAL MANAGEMENT, LLC",
+      "manager_cik": "0001387508",
+      "shares": 23534,
+      "value_usd": 240,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "AMP Capital Investors Ltd",
+      "manager_cik": "0001535782",
+      "shares": 23201,
+      "value_usd": 236,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Jump Trading, LLC",
+      "manager_cik": "0001520770",
+      "shares": 22700,
+      "value_usd": 766,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "LPL Financial LLC",
+      "manager_cik": "0001403438",
+      "shares": 22437,
+      "value_usd": 228,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ENVESTNET ASSET MANAGEMENT INC",
+      "manager_cik": "0001407543",
+      "shares": 22288,
+      "value_usd": 226,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SUMMIT WEALTH & RETIREMENT PLANNING, INC.",
+      "manager_cik": "0001766995",
+      "shares": 22135,
+      "value_usd": 225,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Walleye Trading Advisors, LLC",
+      "manager_cik": "0001758720",
+      "shares": 21600,
+      "value_usd": 220,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Edgestream Partners, L.P.",
+      "manager_cik": "0001535061",
+      "shares": 21004,
+      "value_usd": 213,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Tyers Asset Management LLC",
+      "manager_cik": "0001694909",
+      "shares": 20746,
+      "value_usd": 211,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Russell Investments Group, Ltd.",
+      "manager_cik": "0001692234",
+      "shares": 20500,
+      "value_usd": 208,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Xact Kapitalforvaltning AB",
+      "manager_cik": "0001677440",
+      "shares": 20376,
+      "value_usd": 207,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Caption Management, LLC",
+      "manager_cik": "0001706766",
+      "shares": 20000,
+      "value_usd": 203,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Brown Advisory Securities, LLC",
+      "manager_cik": "0001389479",
+      "shares": 19503,
+      "value_usd": 195,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ROTHSCHILD INVESTMENT CORP /IL",
+      "manager_cik": "0001020918",
+      "shares": 18120,
+      "value_usd": 184,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "COMMONWEALTH EQUITY SERVICES, LLC",
+      "manager_cik": "0000312272",
+      "shares": 17823,
+      "value_usd": 181,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "O'Shares Investment Advisers, LLC",
+      "manager_cik": "0001672775",
+      "shares": 17769,
+      "value_usd": 181,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Quantitative Systematic Strategies LLC",
+      "manager_cik": "0001591902",
+      "shares": 17359,
+      "value_usd": 176,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Crossmark Global Holdings, Inc.",
+      "manager_cik": "0001539204",
+      "shares": 17121,
+      "value_usd": 174,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "World Asset Management Inc",
+      "manager_cik": "0001389215",
+      "shares": 17020,
+      "value_usd": 173,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ATRIA INVESTMENTS LLC",
+      "manager_cik": "0001535865",
+      "shares": 15914,
+      "value_usd": 162,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Fortis Advisors, LLC",
+      "manager_cik": "0001697478",
+      "shares": 15543,
+      "value_usd": 158,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Glen Harbor Capital Management LLC",
+      "manager_cik": "0001696417",
+      "shares": 15088,
+      "value_usd": 153,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Twin Tree Management, LP",
+      "manager_cik": "0001535588",
+      "shares": 15023,
+      "value_usd": 153,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Cerity Partners LLC",
+      "manager_cik": "0001566475",
+      "shares": 14981,
+      "value_usd": 152,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "AMALGAMATED BANK",
+      "manager_cik": "0000919192",
+      "shares": 14796,
+      "value_usd": 150,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Rafferty Asset Management, LLC",
+      "manager_cik": "0001389426",
+      "shares": 14688,
+      "value_usd": 149,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CAXTON ASSOCIATES LP",
+      "manager_cik": "0000872573",
+      "shares": 14491,
+      "value_usd": 147,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BLAIR WILLIAM & CO/IL",
+      "manager_cik": "0000902367",
+      "shares": 14415,
+      "value_usd": 159,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SMITH, MOORE & CO.",
+      "manager_cik": "0000200724",
+      "shares": 14400,
+      "value_usd": 146,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ProShare Advisors LLC",
+      "manager_cik": "0001357955",
+      "shares": 14176,
+      "value_usd": 144,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO",
+      "manager_cik": "0000315297",
+      "shares": 13732,
+      "value_usd": 140,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "US BANCORP \\DE\\",
+      "manager_cik": "0000036104",
+      "shares": 13578,
+      "value_usd": 138,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "STEVENS CAPITAL MANAGEMENT LP",
+      "manager_cik": "0001134813",
+      "shares": 12959,
+      "value_usd": 132,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "CIBC Asset Management Inc",
+      "manager_cik": "0001021926",
+      "shares": 12932,
+      "value_usd": 131,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Unison Advisors LLC",
+      "manager_cik": "0001695818",
+      "shares": 12490,
+      "value_usd": 127,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "LMR Partners LLP",
+      "manager_cik": "0001578621",
+      "shares": 12018,
+      "value_usd": 122,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Advisory Services Network, LLC",
+      "manager_cik": "0001573876",
+      "shares": 11956,
+      "value_usd": 121,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Cubic Asset Management, LLC",
+      "manager_cik": "0001424322",
+      "shares": 11950,
+      "value_usd": 121,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Eqis Capital Management, Inc.",
+      "manager_cik": "0001566653",
+      "shares": 11850,
+      "value_usd": 120,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "APG Asset Management N.V.",
+      "manager_cik": "0001434819",
+      "shares": 11500,
+      "value_usd": 104,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ADVENT CAPITAL MANAGEMENT /DE/",
+      "manager_cik": "0001097278",
+      "shares": 11094,
+      "value_usd": 113,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "RAYMOND JAMES & ASSOCIATES",
+      "manager_cik": "0001084208",
+      "shares": 11087,
+      "value_usd": 113,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "EVERENCE CAPITAL MANAGEMENT INC",
+      "manager_cik": "0001056825",
+      "shares": 10930,
+      "value_usd": 111,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "IFP Advisors, Inc",
+      "manager_cik": "0001641866",
+      "shares": 10893,
+      "value_usd": 242,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Magnus Financial Group LLC",
+      "manager_cik": "0001765216",
+      "shares": 10878,
+      "value_usd": 111,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "IMC-Chicago, LLC",
+      "manager_cik": "0001452861",
+      "shares": 10077,
+      "value_usd": 127,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "KEMPNER CAPITAL MANAGEMENT INC.",
+      "manager_cik": "0000898399",
+      "shares": 10000,
+      "value_usd": 102,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ARROWGRASS CAPITAL PARTNERS (US) LP",
+      "manager_cik": "0001454288",
+      "shares": 9500,
+      "value_usd": 97,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Ameritas Investment Partners, Inc.",
+      "manager_cik": "0001055980",
+      "shares": 8361,
+      "value_usd": 85,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Tower Research Capital LLC (TRC)",
+      "manager_cik": "0001533421",
+      "shares": 8025,
+      "value_usd": 82,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SeaCrest Wealth Management, LLC",
+      "manager_cik": "0001728121",
+      "shares": 7678,
+      "value_usd": 78,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "FEDERATED INVESTORS INC /PA/",
+      "manager_cik": "0001056288",
+      "shares": 7061,
+      "value_usd": 72,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Investors Research Corp",
+      "manager_cik": "0001730630",
+      "shares": 5435,
+      "value_usd": 55,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Zurcher Kantonalbank (Zurich Cantonalbank)",
+      "manager_cik": "0001368163",
+      "shares": 5274,
+      "value_usd": 54,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Migdal Insurance & Financial Holdings Ltd.",
+      "manager_cik": "0001415912",
+      "shares": 4971,
+      "value_usd": 51,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PNC Financial Services Group, Inc.",
+      "manager_cik": "0000713676",
+      "shares": 4312,
+      "value_usd": 45,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PANAGORA ASSET MANAGEMENT INC",
+      "manager_cik": "0000883677",
+      "shares": 4078,
+      "value_usd": 41,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MOODY NATIONAL BANK TRUST DIVISION",
+      "manager_cik": "0001092903",
+      "shares": 3762,
+      "value_usd": 39,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "LADENBURG THALMANN FINANCIAL SERVICES INC.",
+      "manager_cik": "0001029730",
+      "shares": 3270,
+      "value_usd": 33,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "LS Investment Advisors, LLC",
+      "manager_cik": "0001455845",
+      "shares": 3108,
+      "value_usd": 32,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Destination Wealth Management",
+      "manager_cik": "0001278573",
+      "shares": 2927,
+      "value_usd": 30,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MUTUAL OF AMERICA CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0000922127",
+      "shares": 2893,
+      "value_usd": 29,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BANK OF MONTREAL /CAN/",
+      "manager_cik": "0000927971",
+      "shares": 2562,
+      "value_usd": 26,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NORTHWESTERN MUTUAL WEALTH MANAGEMENT CO",
+      "manager_cik": "0001141802",
+      "shares": 2377,
+      "value_usd": 24,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "LOOMIS SAYLES & CO L P",
+      "manager_cik": "0000312348",
+      "shares": 2237,
+      "value_usd": 23,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Versant Capital Management, Inc",
+      "manager_cik": "0001735057",
+      "shares": 2004,
+      "value_usd": 40,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Coastal Investment Advisors, Inc.",
+      "manager_cik": "0001776792",
+      "shares": 1597,
+      "value_usd": 17,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Parallel Advisors, LLC",
+      "manager_cik": "0001690010",
+      "shares": 1040,
+      "value_usd": 11,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Truvestments Capital LLC",
+      "manager_cik": "0001750405",
+      "shares": 929,
+      "value_usd": 9,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "PROEQUITIES, INC.",
+      "manager_cik": "0000752798",
+      "shares": 893,
+      "value_usd": 9,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "GLENMEDE TRUST CO NA",
+      "manager_cik": "0000314949",
+      "shares": 886,
+      "value_usd": 9,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Winslow, Evans & Crocker, Inc.",
+      "manager_cik": "0001597409",
+      "shares": 850,
+      "value_usd": 10,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "First Washington CORP",
+      "manager_cik": "0001390043",
+      "shares": 848,
+      "value_usd": 9,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "MEEDER ASSET MANAGEMENT INC",
+      "manager_cik": "0000809443",
+      "shares": 621,
+      "value_usd": 6,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "BRONFMAN E.L. ROTHSCHILD, L.P.",
+      "manager_cik": "0001666612",
+      "shares": 602,
+      "value_usd": 6,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NEXT Financial Holdings",
+      "manager_cik": "0001541670",
+      "shares": 425,
+      "value_usd": 5,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Quad-Cities Investment Group, LLC",
+      "manager_cik": "0001741426",
+      "shares": 400,
+      "value_usd": 4,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SIGNATUREFD, LLC",
+      "manager_cik": "0001456048",
+      "shares": 277,
+      "value_usd": 3,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "TRUST DEPARTMENT MB FINANCIAL BANK N A",
+      "manager_cik": "0001082849",
+      "shares": 257,
+      "value_usd": 3,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Washington Trust Bank",
+      "manager_cik": "0000861787",
+      "shares": 245,
+      "value_usd": 2,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "QUADRANT CAPITAL GROUP LLC",
+      "manager_cik": "0001650717",
+      "shares": 213,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Financial Gravity Wealth, Inc.",
+      "manager_cik": "0001741736",
+      "shares": 211,
+      "value_usd": 2,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Executive Wealth Management, LLC",
+      "manager_cik": "0001542611",
+      "shares": 200,
+      "value_usd": 2,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "FIFTH THIRD BANCORP",
+      "manager_cik": "0000035527",
+      "shares": 168,
+      "value_usd": 2,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Parkside Financial Bank & Trust",
+      "manager_cik": "0001455267",
+      "shares": 140,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Cresset Asset Management, LLC",
+      "manager_cik": "0001761013",
+      "shares": 104,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "SHELTON CAPITAL MANAGEMENT",
+      "manager_cik": "0001002784",
+      "shares": 104,
+      "value_usd": 10222,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Compagnie Lombard Odier SCmA",
+      "manager_cik": "0001615423",
+      "shares": 100,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Resources Investment Advisors, Inc.",
+      "manager_cik": "0001690370",
+      "shares": 100,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "VALLEY NATIONAL ADVISERS INC",
+      "manager_cik": "0000773411",
+      "shares": 84,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Centerpoint Advisors, LLC",
+      "manager_cik": "0001733788",
+      "shares": 70,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Cable Hill Partners, LLC",
+      "manager_cik": "0001674581",
+      "shares": 62,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ADVANTAGE INVESTMENT MANAGEMENT, LLC",
+      "manager_cik": "0001697815",
+      "shares": 59,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "TRUEWEALTH LLC",
+      "manager_cik": "0001722092",
+      "shares": 58,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Private Capital Group, LLC",
+      "manager_cik": "0001732854",
+      "shares": 42,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "NORTHWEST WEALTH MANAGEMENT, LLC",
+      "manager_cik": "0001695344",
+      "shares": 40,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "ENTERPRISE FINANCIAL SERVICES CORP",
+      "manager_cik": "0001025835",
+      "shares": 39,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Valeo Financial Advisors, LLC",
+      "manager_cik": "0001722641",
+      "shares": 31,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "TCI Wealth Advisors, Inc.",
+      "manager_cik": "0001583751",
+      "shares": 20,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Front Row Advisors LLC",
+      "manager_cik": "0001729254",
+      "shares": 16,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Newfound Research LLC",
+      "manager_cik": "0001630806",
+      "shares": 14,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "One Wealth Advisors, LLC",
+      "manager_cik": "0001725297",
+      "shares": 10,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2019-06-30",
+      "manager_name": "Financial Management Professionals, Inc.",
+      "manager_cik": "0001568132",
+      "shares": 5,
+      "value_usd": 0,
+      "share_class": "SH"
+    }
+  ]
+}

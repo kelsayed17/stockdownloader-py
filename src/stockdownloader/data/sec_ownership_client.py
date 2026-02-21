@@ -162,7 +162,7 @@ class SecOwnershipClient:
     def __init__(
         self,
         user_agent: str = "StockDownloader admin@example.com",
-        cache_dir: str = "data/cache/ownership",
+        data_dir: str = "data",
     ) -> None:
         self._session = requests.Session()
         self._session.headers.update({
@@ -170,10 +170,10 @@ class SecOwnershipClient:
             "Accept-Encoding": "gzip, deflate",
         })
         self._last_request_time: float = 0.0
-        self._cache_dir = Path(cache_dir)
-        self._cache_dir.mkdir(parents=True, exist_ok=True)
-        # Separate directory for downloaded bulk ZIP files
-        self._bulk_dir = self._cache_dir / "bulk_13f"
+        self._data_dir = Path(data_dir)
+        self._data_dir.mkdir(parents=True, exist_ok=True)
+        # Bulk ZIP files are multi-ticker, kept under cache/
+        self._bulk_dir = self._data_dir / "cache" / "bulk_13f"
         self._bulk_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
@@ -249,8 +249,8 @@ class SecOwnershipClient:
                 )
                 return cached[-num_quarters:]
         else:
-            # Delete only the merged 13f.json; preserve per-quarter snapshots
-            merged = self._symbol_cache_dir(symbol_upper) / "13f.json"
+            # Delete only the merged ownership_13f.json; preserve per-quarter snapshots
+            merged = self._symbol_dir(symbol_upper) / "ownership_13f.json"
             if merged.exists():
                 merged.unlink()
                 logger.info(
@@ -1073,24 +1073,28 @@ class SecOwnershipClient:
     # Caching
     # ------------------------------------------------------------------
 
-    def _symbol_cache_dir(self, symbol: str) -> Path:
-        """Return per-symbol cache subdirectory, creating it if needed."""
-        d = self._cache_dir / symbol.upper()
+    def _symbol_dir(self, symbol: str) -> Path:
+        """Return per-symbol data directory, creating it if needed."""
+        d = self._data_dir / symbol.upper()
         d.mkdir(parents=True, exist_ok=True)
         return d
 
     def _load_cache(self, symbol: str) -> list[OwnershipSnapshot] | None:
         """Load cached ownership snapshots for *symbol*."""
-        sym_dir = self._symbol_cache_dir(symbol)
-        cache_file = sym_dir / "13f.json"
+        sym_dir = self._symbol_dir(symbol)
+        cache_file = sym_dir / "ownership_13f.json"
 
-        # Legacy migration: move old flat files into symbol subdir
+        # Legacy migration from old cache paths
         if not cache_file.exists():
-            for legacy_name in (f"{symbol}_13f.json", f"{symbol}_ownership.json"):
-                legacy = self._cache_dir / legacy_name
-                if legacy.exists():
-                    legacy.rename(cache_file)
-                    logger.info("Migrated %s → %s", legacy, cache_file)
+            for legacy_path in (
+                self._data_dir / "cache" / "ownership" / symbol.upper() / "13f.json",
+                self._data_dir / "cache" / "ownership" / f"{symbol}_13f.json",
+                self._data_dir / "cache" / "ownership" / f"{symbol}_ownership.json",
+                sym_dir / "13f.json",
+            ):
+                if legacy_path.exists():
+                    legacy_path.rename(cache_file)
+                    logger.info("Migrated %s → %s", legacy_path, cache_file)
                     break
 
         if not cache_file.exists():
@@ -1135,7 +1139,7 @@ class SecOwnershipClient:
         snapshots: list[OwnershipSnapshot],
     ) -> None:
         """Persist ownership snapshots to JSON cache."""
-        cache_file = self._symbol_cache_dir(symbol) / "13f.json"
+        cache_file = self._symbol_dir(symbol) / "ownership_13f.json"
         data = [
             {
                 "quarter_end": s.quarter_end,
@@ -1173,8 +1177,10 @@ class SecOwnershipClient:
         quarter: int,
         snapshot: OwnershipSnapshot,
     ) -> None:
-        """Persist a single quarter snapshot as ``{SYMBOL}/{YYYY}Q{Q}.json``."""
-        cache_file = self._symbol_cache_dir(symbol) / f"{year}Q{quarter}.json"
+        """Persist a single quarter snapshot as ``{SYMBOL}/ownership/{YYYY}Q{Q}.json``."""
+        quarter_dir = self._symbol_dir(symbol) / "ownership"
+        quarter_dir.mkdir(parents=True, exist_ok=True)
+        cache_file = quarter_dir / f"{year}Q{quarter}.json"
         data = {
             "quarter_end": snapshot.quarter_end,
             "symbol": snapshot.symbol,
@@ -1209,8 +1215,18 @@ class SecOwnershipClient:
         year: int,
         quarter: int,
     ) -> OwnershipSnapshot | None:
-        """Load a single quarter snapshot from ``{SYMBOL}/{YYYY}Q{Q}.json``."""
-        cache_file = self._symbol_cache_dir(symbol) / f"{year}Q{quarter}.json"
+        """Load a single quarter snapshot from ``{SYMBOL}/ownership/{YYYY}Q{Q}.json``."""
+        quarter_dir = self._symbol_dir(symbol) / "ownership"
+        cache_file = quarter_dir / f"{year}Q{quarter}.json"
+
+        # Legacy migration: move from old flat location
+        if not cache_file.exists():
+            legacy = self._data_dir / "cache" / "ownership" / symbol.upper() / f"{year}Q{quarter}.json"
+            if legacy.exists():
+                quarter_dir.mkdir(parents=True, exist_ok=True)
+                legacy.rename(cache_file)
+                logger.info("Migrated %s → %s", legacy, cache_file)
+
         if not cache_file.exists():
             return None
         try:

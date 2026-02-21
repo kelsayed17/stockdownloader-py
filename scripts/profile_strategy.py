@@ -16,7 +16,7 @@ ensure_registered()
 
 
 def main():
-    csv_path = Path(__file__).resolve().parent.parent / "data" / "spy" / "5m_bars.csv"
+    csv_path = Path(__file__).resolve().parent.parent / "data" / "SPY" / "5m_bars.csv"
     if not csv_path.exists():
         print(f"Data file not found: {csv_path}")
         return

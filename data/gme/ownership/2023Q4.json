@@ -1,0 +1,2049 @@
+{
+  "quarter_end": "2023-12-31",
+  "symbol": "GME",
+  "total_institutional_shares": 134408752,
+  "num_institutions": 255,
+  "top_10_concentration": 0.8194427919396201,
+  "holdings": [
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "VANGUARD GROUP INC",
+      "manager_cik": "0000102909",
+      "shares": 50805270,
+      "value_usd": 763587764,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BlackRock Inc.",
+      "manager_cik": "0001364742",
+      "shares": 22619397,
+      "value_usd": 283194849,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "GOLDMAN SACHS GROUP INC",
+      "manager_cik": "0000886982",
+      "shares": 8830636,
+      "value_usd": 115975684,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "STATE STREET CORP",
+      "manager_cik": "0000093751",
+      "shares": 8283898,
+      "value_usd": 103714403,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SUSQUEHANNA INTERNATIONAL GROUP, LLP",
+      "manager_cik": "0001446194",
+      "shares": 5373750,
+      "value_usd": 67279350,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "GEODE CAPITAL MANAGEMENT, LLC",
+      "manager_cik": "0001214717",
+      "shares": 4322330,
+      "value_usd": 54126637,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SANDLER CAPITAL MANAGEMENT",
+      "manager_cik": "0001000742",
+      "shares": 3452000,
+      "value_usd": 43219040,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CHARLES SCHWAB INVESTMENT MANAGEMENT INC",
+      "manager_cik": "0000884546",
+      "shares": 2809948,
+      "value_usd": 35180549,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Bank of New York Mellon Corp",
+      "manager_cik": "0001390777",
+      "shares": 2030563,
+      "value_usd": 25422654,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NORTHERN TRUST CORP",
+      "manager_cik": "0000073124",
+      "shares": 1612491,
+      "value_usd": 20188387,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "VAN ECK ASSOCIATES CORP",
+      "manager_cik": "0000869178",
+      "shares": 1479191,
+      "value_usd": 18519,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "MetLife Investment Management, LLC",
+      "manager_cik": "0001529735",
+      "shares": 1475852,
+      "value_usd": 50453427,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CITADEL ADVISORS LLC",
+      "manager_cik": "0001423053",
+      "shares": 1247739,
+      "value_usd": 15621692,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "MORGAN STANLEY",
+      "manager_cik": "0000895421",
+      "shares": 1055736,
+      "value_usd": 13217824,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PRINCIPAL FINANCIAL GROUP INC",
+      "manager_cik": "0001126328",
+      "shares": 1011337,
+      "value_usd": 12661940,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "RENAISSANCE TECHNOLOGIES LLC",
+      "manager_cik": "0001037389",
+      "shares": 1004958,
+      "value_usd": 12582,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "DIMENSIONAL FUND ADVISORS LP",
+      "manager_cik": "0000354204",
+      "shares": 825573,
+      "value_usd": 10336175,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Nuveen Asset Management, LLC",
+      "manager_cik": "0001521019",
+      "shares": 751920,
+      "value_usd": 9414038,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "RHUMBLINE ADVISERS",
+      "manager_cik": "0001115418",
+      "shares": 751103,
+      "value_usd": 9403760,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BANK OF AMERICA CORP /DE/",
+      "manager_cik": "0000070858",
+      "shares": 581375,
+      "value_usd": 7278815,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Swiss National Bank",
+      "manager_cik": "0001582202",
+      "shares": 542828,
+      "value_usd": 6796207,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Invesco Ltd.",
+      "manager_cik": "0000914208",
+      "shares": 516781,
+      "value_usd": 6470099,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Walleye Trading LLC",
+      "manager_cik": "0001388391",
+      "shares": 510733,
+      "value_usd": 6394377,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Legal & General Group Plc",
+      "manager_cik": "0000764068",
+      "shares": 485486,
+      "value_usd": 6078285,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "LMR Partners LLP",
+      "manager_cik": "0001578621",
+      "shares": 465700,
+      "value_usd": 5830564,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CREDIT SUISSE AG/",
+      "manager_cik": "0000824468",
+      "shares": 457708,
+      "value_usd": 5730504,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "ALLIANCEBERNSTEIN L.P.",
+      "manager_cik": "0001109448",
+      "shares": 448576,
+      "value_usd": 5616172,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "JPMORGAN CHASE & CO",
+      "manager_cik": "0000019617",
+      "shares": 380491,
+      "value_usd": 4763747,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "UBS ASSET MANAGEMENT AMERICAS LLC",
+      "manager_cik": "0000861177",
+      "shares": 378784,
+      "value_usd": 4742376,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "AMERICAN INTERNATIONAL GROUP, INC.",
+      "manager_cik": "0000005272",
+      "shares": 355550,
+      "value_usd": 4451486,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Retirement Systems of Alabama",
+      "manager_cik": "0001593051",
+      "shares": 337301,
+      "value_usd": 4223009,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "STATE BOARD OF ADMINISTRATION OF FLORIDA RETIREMENT SYSTEM",
+      "manager_cik": "0000938076",
+      "shares": 304884,
+      "value_usd": 7018429,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NEW YORK STATE TEACHERS RETIREMENT SYSTEM",
+      "manager_cik": "0000314969",
+      "shares": 288564,
+      "value_usd": 3613,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "AMERIPRISE FINANCIAL INC",
+      "manager_cik": "0000820027",
+      "shares": 287663,
+      "value_usd": 3601541,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "WS MANAGEMENT LLLP",
+      "manager_cik": "0000877338",
+      "shares": 286100,
+      "value_usd": 3581972,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CALIFORNIA STATE TEACHERS RETIREMENT SYSTEM",
+      "manager_cik": "0001081019",
+      "shares": 274433,
+      "value_usd": 3435901,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BARCLAYS PLC",
+      "manager_cik": "0000312069",
+      "shares": 264758,
+      "value_usd": 3315,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Treasurer of the State of North Carolina",
+      "manager_cik": "0001761054",
+      "shares": 238396,
+      "value_usd": 3579,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "MANUFACTURERS LIFE INSURANCE COMPANY, THE",
+      "manager_cik": "0000928047",
+      "shares": 237749,
+      "value_usd": 2976617,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "TEXAS PERMANENT SCHOOL FUND CORP",
+      "manager_cik": "0001223779",
+      "shares": 235081,
+      "value_usd": 2943214,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CAPITAL FUND MANAGEMENT S.A.",
+      "manager_cik": "0001323645",
+      "shares": 218922,
+      "value_usd": 2740903,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "STATE OF WISCONSIN INVESTMENT BOARD",
+      "manager_cik": "0000854157",
+      "shares": 204352,
+      "value_usd": 2558487,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "State of New Jersey Common Pension Fund D",
+      "manager_cik": "0001483066",
+      "shares": 203809,
+      "value_usd": 2551689,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CANADA LIFE ASSURANCE Co",
+      "manager_cik": "0001046192",
+      "shares": 194764,
+      "value_usd": 2438,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Fairbanks Capital Management, Inc.",
+      "manager_cik": "0001681372",
+      "shares": 182669,
+      "value_usd": 2287015,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PRICE T ROWE ASSOCIATES INC /MD/",
+      "manager_cik": "0000080255",
+      "shares": 180643,
+      "value_usd": 2262,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NEW YORK STATE COMMON RETIREMENT FUND",
+      "manager_cik": "0000810265",
+      "shares": 174588,
+      "value_usd": 2186,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "California Public Employees Retirement System",
+      "manager_cik": "0000919079",
+      "shares": 165615,
+      "value_usd": 2073500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "MUTUAL OF AMERICA CAPITAL MANAGEMENT LLC",
+      "manager_cik": "0000922127",
+      "shares": 160059,
+      "value_usd": 2003939,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BNP PARIBAS FINANCIAL MARKETS",
+      "manager_cik": "1166588",
+      "shares": 157242,
+      "value_usd": 1968670,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NATIONAL BANK OF CANADA /FI/",
+      "manager_cik": "0000926171",
+      "shares": 148582,
+      "value_usd": 2594171,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "AMALGAMATED BANK",
+      "manager_cik": "0000919192",
+      "shares": 147012,
+      "value_usd": 1841,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Tidal Investments LLC",
+      "manager_cik": "0001600064",
+      "shares": 139723,
+      "value_usd": 1749332,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "JANUS HENDERSON GROUP PLC",
+      "manager_cik": "0001274173",
+      "shares": 132312,
+      "value_usd": 1655892,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "IMC-Chicago, LLC",
+      "manager_cik": "0001452861",
+      "shares": 127243,
+      "value_usd": 1593082,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "GTS SECURITIES LLC",
+      "manager_cik": "0001452765",
+      "shares": 126200,
+      "value_usd": 1580024,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Walleye Capital LLC",
+      "manager_cik": "0001758720",
+      "shares": 125567,
+      "value_usd": 1572099,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "YOUSIF CAPITAL MANAGEMENT, LLC",
+      "manager_cik": "0001858789",
+      "shares": 122451,
+      "value_usd": 1533087,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "State of Tennessee, Treasury Department",
+      "manager_cik": "0001587973",
+      "shares": 117600,
+      "value_usd": 1472352,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PANAGORA ASSET MANAGEMENT INC",
+      "manager_cik": "0000883677",
+      "shares": 115469,
+      "value_usd": 1445672,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "JANE STREET GROUP, LLC",
+      "manager_cik": "0001595888",
+      "shares": 115356,
+      "value_usd": 1444257,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "D. E. Shaw & Co., Inc.",
+      "manager_cik": "0001009207",
+      "shares": 113672,
+      "value_usd": 1423173,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT SYSTEM OF OHIO",
+      "manager_cik": "0001007280",
+      "shares": 107348,
+      "value_usd": 1343997,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "COMERICA BANK",
+      "manager_cik": "0000901541",
+      "shares": 104055,
+      "value_usd": 1302769,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "UBS Group AG",
+      "manager_cik": "0001610520",
+      "shares": 101330,
+      "value_usd": 1268651,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SIMPLEX TRADING, LLC",
+      "manager_cik": "0001488542",
+      "shares": 98379,
+      "value_usd": 1231,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CANADA PENSION PLAN INVESTMENT BOARD",
+      "manager_cik": "0001283718",
+      "shares": 98000,
+      "value_usd": 1226960,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Belvedere Trading LLC",
+      "manager_cik": "0001632341",
+      "shares": 94457,
+      "value_usd": 1182602,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Balyasny Asset Management L.P.",
+      "manager_cik": "0001218710",
+      "shares": 86743,
+      "value_usd": 1086022,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "TEACHERS RETIREMENT SYSTEM OF THE STATE OF KENTUCKY",
+      "manager_cik": "0000714142",
+      "shares": 86428,
+      "value_usd": 1082,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "AZZAD ASSET MANAGEMENT INC /ADV",
+      "manager_cik": "0001121914",
+      "shares": 78574,
+      "value_usd": 1817921,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "E. Ohman J:or Asset Management AB",
+      "manager_cik": "0002009396",
+      "shares": 78300,
+      "value_usd": 2501625,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Louisiana State Employees Retirement System",
+      "manager_cik": "0001537191",
+      "shares": 77300,
+      "value_usd": 967796,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Cetera Investment Advisers",
+      "manager_cik": "0001666741",
+      "shares": 76342,
+      "value_usd": 955802,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Arizona State Retirement System",
+      "manager_cik": "0001558481",
+      "shares": 75566,
+      "value_usd": 946086,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Penserra Capital Management LLC",
+      "manager_cik": "0001593324",
+      "shares": 74435,
+      "value_usd": 931,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "WELLINGTON MANAGEMENT GROUP LLP",
+      "manager_cik": "0000902219",
+      "shares": 74185,
+      "value_usd": 928796,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Thrivent Financial for Lutherans",
+      "manager_cik": "0000314984",
+      "shares": 67818,
+      "value_usd": 849,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "TWO SIGMA ADVISERS, LP",
+      "manager_cik": "0001478735",
+      "shares": 66708,
+      "value_usd": 835184,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "OREGON PUBLIC EMPLOYEES RETIREMENT FUND",
+      "manager_cik": "0001107314",
+      "shares": 66332,
+      "value_usd": 830477,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "STATE OF MICHIGAN RETIREMENT SYSTEM",
+      "manager_cik": "0000762152",
+      "shares": 66000,
+      "value_usd": 826320,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NEW MEXICO EDUCATIONAL RETIREMENT BOARD",
+      "manager_cik": "0000862469",
+      "shares": 64400,
+      "value_usd": 2778,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Cetera Advisors LLC",
+      "manager_cik": "0001534400",
+      "shares": 64395,
+      "value_usd": 806225,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Handelsbanken Fonder AB",
+      "manager_cik": "0001398318",
+      "shares": 61000,
+      "value_usd": 764,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Ameritas Investment Partners, Inc.",
+      "manager_cik": "0001055980",
+      "shares": 59972,
+      "value_usd": 750849,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NORTHWESTERN MUTUAL INVESTMENT MANAGEMENT COMPANY, LLC",
+      "manager_cik": "0001629649",
+      "shares": 59911,
+      "value_usd": 750086,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "COMMONWEALTH OF PENNSYLVANIA PUBLIC SCHOOL EMPLS RETRMT SYS",
+      "manager_cik": "0001083190",
+      "shares": 59417,
+      "value_usd": 743901,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Voya Investment Management LLC",
+      "manager_cik": "0001068837",
+      "shares": 56731,
+      "value_usd": 710272,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PEAK6 Investments LLC",
+      "manager_cik": "0001756111",
+      "shares": 56200,
+      "value_usd": 703624,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "VICTORY CAPITAL MANAGEMENT INC",
+      "manager_cik": "0001040188",
+      "shares": 56173,
+      "value_usd": 703286,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Zurcher Kantonalbank (Zurich Cantonalbank)",
+      "manager_cik": "0001368163",
+      "shares": 55949,
+      "value_usd": 700481,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Squarepoint Ops LLC",
+      "manager_cik": "0001642575",
+      "shares": 49800,
+      "value_usd": 623496,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Crescent Park Management, L.P.",
+      "manager_cik": "0001629984",
+      "shares": 41800,
+      "value_usd": 523336,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Pacer Advisors, Inc.",
+      "manager_cik": "0001616667",
+      "shares": 40742,
+      "value_usd": 510090,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "AXQ CAPITAL, LP",
+      "manager_cik": "0001916908",
+      "shares": 40422,
+      "value_usd": 506083,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "MILLENNIUM MANAGEMENT LLC",
+      "manager_cik": "0001273087",
+      "shares": 37907,
+      "value_usd": 474596,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Rafferty Asset Management, LLC",
+      "manager_cik": "0001389426",
+      "shares": 35715,
+      "value_usd": 447152,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NWAM LLC",
+      "manager_cik": "0001655006",
+      "shares": 35613,
+      "value_usd": 446042,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "FMR LLC",
+      "manager_cik": "0000315066",
+      "shares": 35274,
+      "value_usd": 441632,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "WINTON GROUP Ltd",
+      "manager_cik": "0001612063",
+      "shares": 32891,
+      "value_usd": 411795,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PICTET ASSET MANAGEMENT Holding SA",
+      "manager_cik": "0001993888",
+      "shares": 32713,
+      "value_usd": 409989,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BANK OF MONTREAL /CAN/",
+      "manager_cik": "0000927971",
+      "shares": 32410,
+      "value_usd": 505920,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "XPONANCE, INC.",
+      "manager_cik": "0001637541",
+      "shares": 32033,
+      "value_usd": 401053,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Cutler Group LLC / CA",
+      "manager_cik": "0001534270",
+      "shares": 30750,
+      "value_usd": 113,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PUBLIC EMPLOYEES RETIREMENT ASSOCIATION OF COLORADO",
+      "manager_cik": "0000315297",
+      "shares": 30180,
+      "value_usd": 378,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "LPL Financial LLC",
+      "manager_cik": "0001403438",
+      "shares": 30067,
+      "value_usd": 376439,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "State of Alaska, Department of Revenue",
+      "manager_cik": "0001370102",
+      "shares": 29007,
+      "value_usd": 363,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Balentine LLC",
+      "manager_cik": "0001586678",
+      "shares": 26837,
+      "value_usd": 335999,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "XR Securities LLC",
+      "manager_cik": "0001531971",
+      "shares": 22800,
+      "value_usd": 285456,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PRUDENTIAL FINANCIAL INC",
+      "manager_cik": "0001137774",
+      "shares": 22429,
+      "value_usd": 280811,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Tower Research Capital LLC (TRC)",
+      "manager_cik": "0001533421",
+      "shares": 22180,
+      "value_usd": 277693,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SECURIAN ASSET MANAGEMENT, INC",
+      "manager_cik": "0001035350",
+      "shares": 22089,
+      "value_usd": 276554,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "UNITED SERVICES AUTOMOBILE ASSOCIATION",
+      "manager_cik": "0001021249",
+      "shares": 21109,
+      "value_usd": 264285,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "XTX Topco Ltd",
+      "manager_cik": "0001828301",
+      "shares": 20647,
+      "value_usd": 258500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "FEDERATED HERMES, INC.",
+      "manager_cik": "0001056288",
+      "shares": 19808,
+      "value_usd": 247996,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "HighTower Advisors, LLC",
+      "manager_cik": "0001462245",
+      "shares": 19751,
+      "value_usd": 246000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Maryland State Retirement & Pension System",
+      "manager_cik": "0001795552",
+      "shares": 19568,
+      "value_usd": 204192,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Revisor Wealth Management LLC",
+      "manager_cik": "0001887409",
+      "shares": 18834,
+      "value_usd": 283813,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Crossmark Global Holdings, Inc.",
+      "manager_cik": "0001539204",
+      "shares": 18818,
+      "value_usd": 236,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Kestra Advisory Services, LLC",
+      "manager_cik": "0001830819",
+      "shares": 17893,
+      "value_usd": 224020,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BLAIR WILLIAM & CO/IL",
+      "manager_cik": "0000902367",
+      "shares": 15389,
+      "value_usd": 192670,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Merit Financial Group, LLC",
+      "manager_cik": "0001621225",
+      "shares": 14805,
+      "value_usd": 243838,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Utah Retirement Systems",
+      "manager_cik": "0001548392",
+      "shares": 14700,
+      "value_usd": 184044,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "DEUTSCHE BANK AG\\",
+      "manager_cik": "0000948046",
+      "shares": 14006,
+      "value_usd": 175355,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Skandinaviska Enskilda Banken AB (publ)",
+      "manager_cik": "0001534653",
+      "shares": 13418,
+      "value_usd": 167993,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "ProShare Advisors LLC",
+      "manager_cik": "0001357955",
+      "shares": 13104,
+      "value_usd": 164063,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NEUBERGER BERMAN GROUP LLC",
+      "manager_cik": "0001465109",
+      "shares": 13007,
+      "value_usd": 162848,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "HEALTHCARE OF ONTARIO PENSION PLAN TRUST FUND",
+      "manager_cik": "0001535845",
+      "shares": 12314,
+      "value_usd": 154171,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Cornerstone Wealth Management, LLC",
+      "manager_cik": "0001674117",
+      "shares": 12308,
+      "value_usd": 154098,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Cornerstone Investment Partners, LLC",
+      "manager_cik": "0001328062",
+      "shares": 12205,
+      "value_usd": 152807,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PNC FINANCIAL SERVICES GROUP, INC.",
+      "manager_cik": "0000713676",
+      "shares": 12025,
+      "value_usd": 210798,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SCOTIA CAPITAL INC.",
+      "manager_cik": "0001335644",
+      "shares": 11975,
+      "value_usd": 149927,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SEI INVESTMENTS CO",
+      "manager_cik": "0000350894",
+      "shares": 11879,
+      "value_usd": 148725,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PNC Financial Services Group, Inc.",
+      "manager_cik": "0000713676",
+      "shares": 11861,
+      "value_usd": 148500,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Marathon Trading Investment Management LLC",
+      "manager_cik": "0001572748",
+      "shares": 11641,
+      "value_usd": 145745,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SHELTON CAPITAL MANAGEMENT",
+      "manager_cik": "0001002784",
+      "shares": 11585,
+      "value_usd": 145044,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Cetera Advisor Networks LLC",
+      "manager_cik": "0001534468",
+      "shares": 11358,
+      "value_usd": 142202,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "OSAIC HOLDINGS, INC.",
+      "manager_cik": "0001677044",
+      "shares": 11180,
+      "value_usd": 139913,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Graham Capital Management, L.P.",
+      "manager_cik": "0001315421",
+      "shares": 11129,
+      "value_usd": 139335,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CITIGROUP INC",
+      "manager_cik": "0000831001",
+      "shares": 10456,
+      "value_usd": 130910,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CTC LLC",
+      "manager_cik": "0001445893",
+      "shares": 10356,
+      "value_usd": 12965712,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Waverly Advisors, LLC",
+      "manager_cik": "0001568787",
+      "shares": 10046,
+      "value_usd": 125776,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "HSBC HOLDINGS PLC",
+      "manager_cik": "0000873630",
+      "shares": 10042,
+      "value_usd": 125625,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SG Americas Securities, LLC",
+      "manager_cik": "0001313360",
+      "shares": 9293,
+      "value_usd": 116,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "TD Waterhouse Canada Inc.",
+      "manager_cik": "0001999606",
+      "shares": 8432,
+      "value_usd": 124969,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "EQUITEC PROPRIETARY MARKETS, LLC",
+      "manager_cik": "0001143261",
+      "shares": 8200,
+      "value_usd": 102664,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "WELLS FARGO & COMPANY/MN",
+      "manager_cik": "0000072971",
+      "shares": 7953,
+      "value_usd": 99570,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Handelsinvest Investeringsforvaltning",
+      "manager_cik": "0001659997",
+      "shares": 6899,
+      "value_usd": 86,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "KBC Group NV",
+      "manager_cik": "0001411133",
+      "shares": 6219,
+      "value_usd": 78,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Steward Partners Investment Advisory, LLC",
+      "manager_cik": "0001723397",
+      "shares": 6016,
+      "value_usd": 75320,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Russell Investments Group, Ltd.",
+      "manager_cik": "0001692234",
+      "shares": 5080,
+      "value_usd": 64901,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SHELL ASSET MANAGEMENT CO",
+      "manager_cik": "0001211028",
+      "shares": 4927,
+      "value_usd": 62,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Royal Bank of Canada",
+      "manager_cik": "0001000275",
+      "shares": 4431,
+      "value_usd": 55000,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "FIFTH THIRD BANCORP",
+      "manager_cik": "0000035527",
+      "shares": 4345,
+      "value_usd": 54399,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NISA INVESTMENT ADVISORS, LLC",
+      "manager_cik": "0000937615",
+      "shares": 4035,
+      "value_usd": 50518,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "FIRST UNITED BANK & TRUST",
+      "manager_cik": "0001214183",
+      "shares": 4000,
+      "value_usd": 50080,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Nalls Sherbakoff Group, LLC",
+      "manager_cik": "0001767500",
+      "shares": 2499,
+      "value_usd": 43808,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "TCTC Holdings, LLC",
+      "manager_cik": "0001483870",
+      "shares": 2400,
+      "value_usd": 30048,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "US BANCORP \\DE\\",
+      "manager_cik": "0000036104",
+      "shares": 2040,
+      "value_usd": 25541,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SIGNATUREFD, LLC",
+      "manager_cik": "0001456048",
+      "shares": 1990,
+      "value_usd": 24915,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Larson Financial Group LLC",
+      "manager_cik": "0001731061",
+      "shares": 1879,
+      "value_usd": 23525,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Capital Analysts, LLC",
+      "manager_cik": "0001624758",
+      "shares": 1874,
+      "value_usd": 23,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Brown Shipley& Co Ltd",
+      "manager_cik": "0001912970",
+      "shares": 1763,
+      "value_usd": 25464,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NOMURA ASSET MANAGEMENT CO LTD",
+      "manager_cik": "0001055964",
+      "shares": 1610,
+      "value_usd": 20157,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "GAMMA Investing LLC",
+      "manager_cik": "0002010235",
+      "shares": 1553,
+      "value_usd": 19444,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Covestor Ltd",
+      "manager_cik": "0001909846",
+      "shares": 1269,
+      "value_usd": 16,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CWM, LLC",
+      "manager_cik": "0001535847",
+      "shares": 1234,
+      "value_usd": 15,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CREATIVE FINANCIAL DESIGNS INC /ADV",
+      "manager_cik": "0000819864",
+      "shares": 1032,
+      "value_usd": 12921,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Parallel Advisors, LLC",
+      "manager_cik": "0001690010",
+      "shares": 968,
+      "value_usd": 18421,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Fortitude Family Office, LLC",
+      "manager_cik": "0001950506",
+      "shares": 950,
+      "value_usd": 11894,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "AlphaMark Advisors, LLC",
+      "manager_cik": "0001348183",
+      "shares": 949,
+      "value_usd": 12,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SITTNER & NELSON, LLC",
+      "manager_cik": "0001846138",
+      "shares": 916,
+      "value_usd": 11468,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Plante Moran Financial Advisors, LLC",
+      "manager_cik": "0001424717",
+      "shares": 800,
+      "value_usd": 10016,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "QUADRANT CAPITAL GROUP LLC",
+      "manager_cik": "0001650717",
+      "shares": 798,
+      "value_usd": 9991,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Global Wealth Strategies & Associates",
+      "manager_cik": "0001912297",
+      "shares": 788,
+      "value_usd": 9866,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CIBC Private Wealth Group, LLC",
+      "manager_cik": "0001298088",
+      "shares": 758,
+      "value_usd": 9088,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Blue Trust, Inc.",
+      "manager_cik": "0001856022",
+      "shares": 700,
+      "value_usd": 8766,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BESSEMER GROUP INC",
+      "manager_cik": "0001054074",
+      "shares": 654,
+      "value_usd": 8,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PRINCIPAL SECURITIES, INC.",
+      "manager_cik": "0000012600",
+      "shares": 630,
+      "value_usd": 9466,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Iron Horse Wealth Management, LLC",
+      "manager_cik": "0001836270",
+      "shares": 600,
+      "value_usd": 7512,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Global Retirement Partners, LLC",
+      "manager_cik": "0001749744",
+      "shares": 560,
+      "value_usd": 7011,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "MASSMUTUAL TRUST CO FSB/ADV",
+      "manager_cik": "0001103653",
+      "shares": 536,
+      "value_usd": 6711,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CI INVESTMENTS INC.",
+      "manager_cik": "0001163648",
+      "shares": 530,
+      "value_usd": 7,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Federation des caisses Desjardins du Quebec",
+      "manager_cik": "0002022297",
+      "shares": 456,
+      "value_usd": 5710,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NATIXIS",
+      "manager_cik": "0001274981",
+      "shares": 451,
+      "value_usd": 5647,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "WOLFF WIESE MAGANA LLC",
+      "manager_cik": "0001832097",
+      "shares": 408,
+      "value_usd": 5109,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Spotlight Asset Group, Inc.",
+      "manager_cik": "0001809159",
+      "shares": 400,
+      "value_usd": 5008,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Hexagon Capital Partners LLC",
+      "manager_cik": "0001831542",
+      "shares": 370,
+      "value_usd": 4632,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Mitsubishi UFJ Asset Management Co., Ltd.",
+      "manager_cik": "0001466546",
+      "shares": 306,
+      "value_usd": 3831,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Geneos Wealth Management Inc.",
+      "manager_cik": "0001764754",
+      "shares": 228,
+      "value_usd": 2855,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Rakuten Securities, Inc.",
+      "manager_cik": "0002009539",
+      "shares": 220,
+      "value_usd": 2754,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NORTHWESTERN MUTUAL WEALTH MANAGEMENT CO",
+      "manager_cik": "0001141802",
+      "shares": 212,
+      "value_usd": 2654,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PACIFIC CAPITAL WEALTH ADVISORS, INC",
+      "manager_cik": "0001803523",
+      "shares": 200,
+      "value_usd": 2504,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "DiNuzzo Private Wealth, Inc.",
+      "manager_cik": "0001994563",
+      "shares": 200,
+      "value_usd": 3005,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CONCOURSE FINANCIAL GROUP SECURITIES, INC.",
+      "manager_cik": "0000752798",
+      "shares": 200,
+      "value_usd": 2504,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Sandy Spring Bank",
+      "manager_cik": "0001457833",
+      "shares": 192,
+      "value_usd": 2404,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "NewEdge Advisors, LLC",
+      "manager_cik": "0001633516",
+      "shares": 188,
+      "value_usd": 2354,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Quent Capital, LLC",
+      "manager_cik": "0001912338",
+      "shares": 164,
+      "value_usd": 2053,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "ARMSTRONG ADVISORY GROUP, INC",
+      "manager_cik": "0001932952",
+      "shares": 160,
+      "value_usd": 2805,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Robbins Farley",
+      "manager_cik": "0001847820",
+      "shares": 156,
+      "value_usd": 1954,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Smartleaf Asset Management LLC",
+      "manager_cik": "0002010393",
+      "shares": 149,
+      "value_usd": 1896,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Farther Finance Advisors, LLC",
+      "manager_cik": "0001992825",
+      "shares": 127,
+      "value_usd": 1793,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Allworth Financial LP",
+      "manager_cik": "0001555170",
+      "shares": 125,
+      "value_usd": 1570,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BROWN BROTHERS HARRIMAN & CO",
+      "manager_cik": "0000014661",
+      "shares": 120,
+      "value_usd": 1502,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BLUE BELL PRIVATE WEALTH MANAGEMENT, LLC",
+      "manager_cik": "0001352860",
+      "shares": 120,
+      "value_usd": 1502,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "FARMERS & MERCHANTS INVESTMENTS INC",
+      "manager_cik": "0001259969",
+      "shares": 110,
+      "value_usd": 1377,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Tyler-Stone Wealth Management",
+      "manager_cik": "0001912584",
+      "shares": 100,
+      "value_usd": 1252,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SUMMIT SECURITIES GROUP LLC",
+      "manager_cik": "0001531593",
+      "shares": 100,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Signature Resources Capital Management, LLC",
+      "manager_cik": "0001940917",
+      "shares": 100,
+      "value_usd": 1753,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SRS Capital Advisors, Inc.",
+      "manager_cik": "0001586767",
+      "shares": 96,
+      "value_usd": 1202,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Quest Partners LLC",
+      "manager_cik": "0001883897",
+      "shares": 85,
+      "value_usd": 1064,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PITTENGER & ANDERSON INC",
+      "manager_cik": "0001034886",
+      "shares": 80,
+      "value_usd": 1002,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BARRETT & COMPANY, INC.",
+      "manager_cik": "0000887602",
+      "shares": 80,
+      "value_usd": 1002,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "City State Bank",
+      "manager_cik": "0001910666",
+      "shares": 80,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "UMB Bank, n.a.",
+      "manager_cik": "0000933429",
+      "shares": 77,
+      "value_usd": 964,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "VisionPoint Advisory Group, LLC",
+      "manager_cik": "0001750924",
+      "shares": 60,
+      "value_usd": 751,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "TRUST CO OF VERMONT",
+      "manager_cik": "0001134008",
+      "shares": 56,
+      "value_usd": 842,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Prestige Wealth Management Group LLC",
+      "manager_cik": "0001772715",
+      "shares": 52,
+      "value_usd": 1261,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "AdvisorNet Financial, Inc",
+      "manager_cik": "0001409362",
+      "shares": 48,
+      "value_usd": 601,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CAROLINAS WEALTH CONSULTING LLC",
+      "manager_cik": "0001803425",
+      "shares": 40,
+      "value_usd": 501,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "WealthCollab, LLC",
+      "manager_cik": "0002017870",
+      "shares": 40,
+      "value_usd": 602,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Sunbelt Securities, Inc.",
+      "manager_cik": "0001632932",
+      "shares": 40,
+      "value_usd": 501,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Versant Capital Management, Inc",
+      "manager_cik": "0001735057",
+      "shares": 37,
+      "value_usd": 463,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Manchester Capital Management LLC",
+      "manager_cik": "0001393389",
+      "shares": 29,
+      "value_usd": 364,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Lindbrook Capital, LLC",
+      "manager_cik": "0001767045",
+      "shares": 28,
+      "value_usd": 351,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "ADIRONDACK TRUST CO",
+      "manager_cik": "0001054257",
+      "shares": 24,
+      "value_usd": 321,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "LAZARD ASSET MANAGEMENT LLC",
+      "manager_cik": "0001207017",
+      "shares": 22,
+      "value_usd": 0,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "TORONTO DOMINION BANK",
+      "manager_cik": "0000947263",
+      "shares": 20,
+      "value_usd": 250,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "PSI Advisors, LLC",
+      "manager_cik": "0001779040",
+      "shares": 20,
+      "value_usd": 250,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "VOISARD ASSET MANAGEMENT GROUP, INC.",
+      "manager_cik": "0002011215",
+      "shares": 20,
+      "value_usd": 251,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Tanglewood Legacy Advisors, LLC",
+      "manager_cik": "0001965616",
+      "shares": 20,
+      "value_usd": 250,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Founders Capital Management",
+      "manager_cik": "0001704300",
+      "shares": 20,
+      "value_usd": 250,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CALDWELL SUTTER CAPITAL, INC.",
+      "manager_cik": "0000702007",
+      "shares": 18,
+      "value_usd": 225,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Beaird Harris Wealth Management, LLC",
+      "manager_cik": "0001908938",
+      "shares": 16,
+      "value_usd": 201,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "TFC Financial Management, Inc.",
+      "manager_cik": "0001827844",
+      "shares": 16,
+      "value_usd": 201,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Moisand Fitzgerald Tamayo, LLC",
+      "manager_cik": "0001649107",
+      "shares": 16,
+      "value_usd": 201,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Sanctuary Wealth Management, L.L.C.",
+      "manager_cik": "0001728436",
+      "shares": 13,
+      "value_usd": 163,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "McClarren Financial Advisors, Inc.",
+      "manager_cik": "0001842974",
+      "shares": 13,
+      "value_usd": 2,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Ritter Daniher Financial Advisory LLC / DE",
+      "manager_cik": "0001936603",
+      "shares": 12,
+      "value_usd": 151,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "LORING WOLCOTT & COOLIDGE FIDUCIARY ADVISORS LLP/MA",
+      "manager_cik": "0000932974",
+      "shares": 12,
+      "value_usd": 120,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "LAM GROUP, INC.",
+      "manager_cik": "0001961944",
+      "shares": 12,
+      "value_usd": 150,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Mine & Arao Wealth Creation & Management, LLC.",
+      "manager_cik": "0001802994",
+      "shares": 8,
+      "value_usd": 101,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Financial Connections Group, Inc.",
+      "manager_cik": "0001907157",
+      "shares": 8,
+      "value_usd": 1,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Palisade Asset Management, LLC",
+      "manager_cik": "0001434323",
+      "shares": 8,
+      "value_usd": 101,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "SALEM INVESTMENT COUNSELORS INC",
+      "manager_cik": "0000884423",
+      "shares": 8,
+      "value_usd": 101,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Davis Capital Management",
+      "manager_cik": "0001811806",
+      "shares": 8,
+      "value_usd": 96,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Guardian Wealth Management, Inc.",
+      "manager_cik": "0001910205",
+      "shares": 5,
+      "value_usd": 63,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Pineridge Advisors LLC",
+      "manager_cik": "0002012421",
+      "shares": 5,
+      "value_usd": 88,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "BARTLETT & CO. WEALTH MANAGEMENT LLC",
+      "manager_cik": "0002010186",
+      "shares": 4,
+      "value_usd": 50,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Cornerstone Planning Group LLC",
+      "manager_cik": "0001822587",
+      "shares": 4,
+      "value_usd": 66,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Sachetta, LLC",
+      "manager_cik": "0002010574",
+      "shares": 4,
+      "value_usd": 71,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "CVA Family Office, LLC",
+      "manager_cik": "0001802084",
+      "shares": 4,
+      "value_usd": 50,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "MATHER GROUP, LLC.",
+      "manager_cik": "0001527641",
+      "shares": 3,
+      "value_usd": 53,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "Scarborough Advisors, LLC",
+      "manager_cik": "0001815355",
+      "shares": 1,
+      "value_usd": 13,
+      "share_class": "SH"
+    },
+    {
+      "filing_date": "2023-12-31",
+      "manager_name": "HUNTINGTON NATIONAL BANK",
+      "manager_cik": "0000049205",
+      "shares": 1,
+      "value_usd": 13,
+      "share_class": "SH"
+    }
+  ]
+}

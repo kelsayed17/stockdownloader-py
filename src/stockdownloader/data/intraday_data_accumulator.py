@@ -12,7 +12,7 @@ Typical usage::
 
     client = PolygonDataClient(api_key="YOUR_KEY")
     acc = IntradayDataAccumulator(client=client, fetch_days=730)
-    bars = acc.accumulate("SPY", "data/spy/5m_bars.csv")
+    bars = acc.accumulate("SPY", "data/SPY/5m_bars.csv")
     print(f"Total bars on disk: {len(bars)}")
 
 Or from the CLI::
@@ -50,7 +50,7 @@ class IntradayClient(Protocol):
 
 def default_csv_path(symbol: str) -> Path:
     """Return the default CSV path for *symbol*."""
-    return _DEFAULT_DIR / symbol.lower() / "5m_bars.csv"
+    return _DEFAULT_DIR / symbol.upper() / "5m_bars.csv"
 
 
 class IntradayDataAccumulator:
@@ -97,7 +97,7 @@ class IntradayDataAccumulator:
             Ticker symbol (e.g. ``"SPY"``).
         csv_path:
             Path to the CSV file.  If ``None``, uses
-            ``data/<symbol>_5m_bars.csv``.
+            ``data/{SYMBOL}/5m_bars.csv``.
 
         Returns
         -------
