@@ -10,6 +10,8 @@ from stockdownloader.model.symbol_info import (
     SymbolInfo,
     SYMBOL_REGISTRY,
     get_symbol_info,
+    get_variants,
+    get_family,
 )
 
 
@@ -176,3 +178,56 @@ class TestLookup:
 
     def test_empty_string_returns_none(self) -> None:
         assert get_symbol_info("") is None
+
+
+# ------------------------------------------------------------------
+# Tests: Variant support
+# ------------------------------------------------------------------
+
+
+class TestSymbolInfoVariants:
+    def test_default_parent_is_none(self):
+        info = get_symbol_info("GME")
+        assert info is not None
+        assert info.parent is None
+        assert info.security_type == "common"
+
+    def test_gmews_registered(self):
+        info = get_symbol_info("GMEWS")
+        assert info is not None
+        assert info.parent == "GME"
+        assert info.security_type == "warrant"
+        assert info.cusip == "36467W117"
+
+    def test_get_variants_returns_children(self):
+        variants = get_variants("GME")
+        symbols = [v.symbol for v in variants]
+        assert "GMEWS" in symbols
+
+    def test_get_variants_for_leaf_returns_empty(self):
+        assert get_variants("GMEWS") == []
+
+    def test_get_variants_unknown_returns_empty(self):
+        assert get_variants("ZZZZZZ") == []
+
+    def test_get_family_from_parent(self):
+        family = get_family("GME")
+        symbols = [f.symbol for f in family]
+        assert "GME" in symbols
+        assert "GMEWS" in symbols
+
+    def test_get_family_from_child(self):
+        family = get_family("GMEWS")
+        symbols = [f.symbol for f in family]
+        assert "GME" in symbols
+        assert "GMEWS" in symbols
+
+    def test_get_family_unknown_returns_empty(self):
+        assert get_family("ZZZZZZ") == []
+
+    def test_parent_field_preserved_frozen(self):
+        info = SymbolInfo("TEST", "000000000", date(2020, 1, 1),
+                          "Test Corp", "NYSE", parent="GME",
+                          security_type="warrant")
+        assert info.parent == "GME"
+        assert info.security_type == "warrant"

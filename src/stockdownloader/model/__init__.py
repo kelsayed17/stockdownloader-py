@@ -53,6 +53,8 @@ from stockdownloader.model.symbol_info import (
     SymbolInfo,
     SYMBOL_REGISTRY,
     get_symbol_info,
+    get_variants,
+    get_family,
 )
 
 __all__ = [
@@ -104,4 +106,6 @@ __all__ = [
     "SymbolInfo",
     "SYMBOL_REGISTRY",
     "get_symbol_info",
+    "get_variants",
+    "get_family",
 ]

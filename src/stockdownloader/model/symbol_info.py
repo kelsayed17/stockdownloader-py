@@ -40,6 +40,12 @@ class SymbolInfo:
     exchange:
         Primary exchange (e.g. ``"NYSE"``, ``"NASDAQ"``).
         Empty string if unknown.
+    parent:
+        Parent ticker for variant symbols (e.g. ``"GME"`` for GMEWS).
+        ``None`` for root/parent symbols.
+    security_type:
+        One of ``"common"``, ``"warrant"``, ``"when_issued"``,
+        ``"preferred"``.  Defaults to ``"common"``.
     """
 
     symbol: str
@@ -47,6 +53,8 @@ class SymbolInfo:
     ipo_date: date
     name: str
     exchange: str = ""
+    parent: str | None = None
+    security_type: str = "common"
 
     def __post_init__(self) -> None:
         if not self.symbol:
@@ -151,6 +159,18 @@ _register(
     ),
 )
 
+_register(
+    SymbolInfo(
+        symbol="GMEWS",
+        cusip="36467W117",
+        ipo_date=date(2025, 10, 7),
+        name="GameStop Corp Warrants",
+        exchange="NYSE",
+        parent="GME",
+        security_type="warrant",
+    ),
+)
+
 
 def get_symbol_info(symbol: str) -> SymbolInfo | None:
     """Look up metadata for *symbol*.
@@ -159,3 +179,26 @@ def get_symbol_info(symbol: str) -> SymbolInfo | None:
     to their existing defaults.
     """
     return SYMBOL_REGISTRY.get(symbol.upper())
+
+
+def get_variants(symbol: str) -> list[SymbolInfo]:
+    """Return all variant symbols whose parent is *symbol*."""
+    upper = symbol.upper()
+    return [info for info in SYMBOL_REGISTRY.values()
+            if info.parent == upper]
+
+
+def get_family(symbol: str) -> list[SymbolInfo]:
+    """Return *symbol* and all its variants (full family).
+
+    Works from either the parent or a child — always returns the
+    complete family rooted at the parent.
+    """
+    info = get_symbol_info(symbol)
+    if info is None:
+        return []
+    root = info.parent or info.symbol
+    root_info = get_symbol_info(root)
+    if root_info is None:
+        return [info]
+    return [root_info] + get_variants(root)
