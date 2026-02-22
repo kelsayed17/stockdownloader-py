@@ -141,23 +141,79 @@ class TestOccCacheRoundtrip:
         assert loaded[0].exchange == "A"
         assert loaded[1].exchange == "C"
 
+    def test_csv_roundtrip_preserves_types(self, tmp_path: Path) -> None:
+        """CSV save/load preserves int fields (not strings)."""
+        client = _make_client(tmp_path)
+        records = _sample_records()
+        client._save_cache("GME", records)
+        loaded = client._load_cache("GME")
+
+        assert loaded is not None
+        r = loaded[0]
+        assert isinstance(r.volume, int)
+        assert isinstance(r.exercised, int)
+        assert isinstance(r.open_interest, int)
+        assert r.volume == 5227
+        assert r.exercised == 0
+        assert r.open_interest == 5121
+
     def test_load_nonexistent_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
         assert client._load_cache("NOSYMBOL") is None
 
-    def test_load_corrupt_cache(self, tmp_path: Path) -> None:
+    def test_load_corrupt_csv_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
         sym_dir = client._data_dir / "BAD"
         sym_dir.mkdir(parents=True, exist_ok=True)
-        (sym_dir / "occ_open_interest.json").write_text(
+        (sym_dir / "occ_open_interest.csv").write_text(
             "{{invalid", encoding="utf-8",
         )
-        assert client._load_cache("BAD") is None
+        # Corrupt CSV with no valid rows returns empty list (not None)
+        result = client._load_cache("BAD")
+        assert result is not None
+        assert len(result) == 0
 
-    def test_cache_file_path(self, tmp_path: Path) -> None:
+    def test_cache_file_path_is_csv(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
         client._save_cache("GME", _sample_records())
-        assert (client._data_dir / "GME" / "occ_open_interest.json").exists()
+        assert (client._data_dir / "GME" / "occ_open_interest.csv").exists()
+
+    def test_json_fallback_migrates_to_csv(self, tmp_path: Path) -> None:
+        """Legacy JSON cache is read and migrated to CSV on first load."""
+        client = _make_client(tmp_path)
+        sym_dir = client._data_dir / "GME"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+
+        records = _sample_records()
+        json_path = sym_dir / "occ_open_interest.json"
+        json_path.write_text(
+            json.dumps([asdict(r) for r in records], indent=2),
+            encoding="utf-8",
+        )
+
+        # No CSV file yet
+        assert not (sym_dir / "occ_open_interest.csv").exists()
+
+        loaded = client._load_cache("GME")
+        assert loaded is not None
+        assert len(loaded) == 2
+        assert loaded[0].exchange == "A"
+        assert loaded[1].exchange == "C"
+
+        # Migration should have created CSV
+        assert (sym_dir / "occ_open_interest.csv").exists()
+
+    def test_json_fallback_corrupt_returns_none(self, tmp_path: Path) -> None:
+        """Corrupt JSON cache returns None without crashing."""
+        client = _make_client(tmp_path)
+        sym_dir = client._data_dir / "GME"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+
+        json_path = sym_dir / "occ_open_interest.json"
+        json_path.write_text("{{invalid json", encoding="utf-8")
+
+        loaded = client._load_cache("GME")
+        assert loaded is None
 
 
 class TestOccProgress:
@@ -178,7 +234,25 @@ class TestOccProgress:
     def test_progress_file_path(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
         client._save_progress("GME", {"2021-01-27"})
-        assert (client._data_dir / "GME" / "occ_options_progress.json").exists()
+        assert (client._data_dir / "GME" / ".progress" / "occ_options.json").exists()
+
+    def test_legacy_progress_migration(self, tmp_path: Path) -> None:
+        """Legacy occ_options_progress.json is moved to .progress/."""
+        client = _make_client(tmp_path)
+        sym_dir = client._data_dir / "GME"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+
+        legacy_path = sym_dir / "occ_options_progress.json"
+        legacy_path.write_text(
+            json.dumps(["2021-01-27", "2021-01-28"]), encoding="utf-8",
+        )
+
+        loaded = client._load_progress("GME")
+        assert loaded == {"2021-01-27", "2021-01-28"}
+
+        # Legacy file should have been moved
+        assert not legacy_path.exists()
+        assert (sym_dir / ".progress" / "occ_options.json").exists()
 
 
 class TestOccMergeRecords:

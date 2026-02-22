@@ -34,9 +34,7 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import asdict
 from datetime import date, timedelta
-from pathlib import Path
 
 from stockdownloader.data.base_client import BaseDataClient
 from stockdownloader.model.regulatory_records import OccOpenInterestRecord
@@ -67,7 +65,7 @@ class OccOptionsClient(BaseDataClient):
     ----------
     data_dir:
         Root data directory.  Per-symbol data is stored under
-        ``data_dir/{SYMBOL}/occ_open_interest.json``.
+        ``data_dir/{SYMBOL}/occ_open_interest.csv``.
     """
 
     def __init__(self, data_dir: str = "data") -> None:
@@ -324,36 +322,36 @@ class OccOptionsClient(BaseDataClient):
     def _load_cache(
         self, symbol: str,
     ) -> list[OccOpenInterestRecord] | None:
-        cache_file = self._symbol_dir(symbol) / "occ_open_interest.json"
-        if not cache_file.exists():
-            return None
-        try:
-            data = json.loads(cache_file.read_text(encoding="utf-8"))
-            records = [OccOpenInterestRecord(**r) for r in data]
+        records = self._load_csv(symbol, "occ_open_interest.csv", OccOpenInterestRecord)
+        if records is not None:
             records.sort(key=lambda r: (r.date, r.exchange, r.expiration))
             return records
+        # JSON fallback
+        json_path = self._symbol_dir(symbol) / "occ_open_interest.json"
+        if not json_path.exists():
+            return None
+        try:
+            data = json.loads(json_path.read_text(encoding="utf-8"))
+            records = [OccOpenInterestRecord(**r) for r in data]
+            records.sort(key=lambda r: (r.date, r.exchange, r.expiration))
+            self._save_cache(symbol, records)
+            logger.info("Migrated %s to CSV", json_path)
+            return records
         except (json.JSONDecodeError, KeyError, ValueError) as exc:
-            logger.warning(
-                "Failed to load OCC cache for %s: %s", symbol, exc,
-            )
+            logger.warning("Failed to load OCC cache for %s: %s", symbol, exc)
             return None
 
     def _save_cache(
         self, symbol: str, records: list[OccOpenInterestRecord],
     ) -> None:
-        cache_file = self._symbol_dir(symbol) / "occ_open_interest.json"
-        try:
-            cache_file.write_text(
-                json.dumps([asdict(r) for r in records], indent=2),
-                encoding="utf-8",
-            )
-        except OSError as exc:
-            logger.warning(
-                "Failed to save OCC cache for %s: %s", symbol, exc,
-            )
+        self._save_csv(symbol, "occ_open_interest.csv", records)
 
     def _load_progress(self, symbol: str) -> set[str]:
-        progress_file = self._symbol_dir(symbol) / "occ_options_progress.json"
+        progress_file = self._progress_dir(symbol) / "occ_options.json"
+        legacy = self._symbol_dir(symbol) / "occ_options_progress.json"
+        if not progress_file.exists() and legacy.exists():
+            legacy.rename(progress_file)
+            logger.info("Migrated %s -> %s", legacy, progress_file)
         if not progress_file.exists():
             return set()
         try:
@@ -362,7 +360,7 @@ class OccOptionsClient(BaseDataClient):
             return set()
 
     def _save_progress(self, symbol: str, dates: set[str]) -> None:
-        progress_file = self._symbol_dir(symbol) / "occ_options_progress.json"
+        progress_file = self._progress_dir(symbol) / "occ_options.json"
         try:
             progress_file.write_text(
                 json.dumps(sorted(dates)), encoding="utf-8",
