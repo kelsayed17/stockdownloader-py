@@ -39,3 +39,6 @@ Thumbs.db
 
 # Data cache (regenerable)
 data/cache/
+
+# Progress/cache files (rebuildable by re-running clients)
+data/**/.progress/
