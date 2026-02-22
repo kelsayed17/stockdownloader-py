@@ -41,7 +41,7 @@ import json
 import logging
 import os
 import time
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -502,26 +502,36 @@ class FinraShortVolumeClient(BaseDataClient):
         return merged
 
     def _load_cache(self, symbol: str) -> list[ShortVolumeRecord] | None:
-        sym_dir = self._symbol_dir(symbol)
-        cache_file = sym_dir / "short_volume.json"
+        # Primary: CSV
+        records = self._load_csv(symbol, "short_volume.csv", ShortVolumeRecord)
+        if records is not None:
+            records.sort(key=lambda r: r.date)
+            return records
 
-        # Legacy migration from old cache paths
-        if not cache_file.exists():
+        # Fallback: JSON (legacy migration)
+        sym_dir = self._symbol_dir(symbol)
+        json_path = sym_dir / "short_volume.json"
+
+        # Also check legacy paths
+        if not json_path.exists():
             for legacy_path in (
                 self._data_dir / "cache" / "short_volume" / symbol.upper() / "sv.json",
                 self._data_dir / "cache" / "short_volume" / f"{symbol}_sv.json",
             ):
                 if legacy_path.exists():
-                    legacy_path.rename(cache_file)
-                    logger.info("Migrated %s → %s", legacy_path, cache_file)
+                    legacy_path.rename(json_path)
+                    logger.info("Migrated %s → %s", legacy_path, json_path)
                     break
 
-        if not cache_file.exists():
+        if not json_path.exists():
             return None
         try:
-            data = json.loads(cache_file.read_text(encoding="utf-8"))
+            data = json.loads(json_path.read_text(encoding="utf-8"))
             records = [ShortVolumeRecord(**r) for r in data]
             records.sort(key=lambda r: r.date)
+            # Migrate: write CSV for future loads
+            self._save_cache(symbol, records)
+            logger.info("Migrated %s to CSV", json_path)
             return records
         except (json.JSONDecodeError, KeyError, ValueError) as exc:
             logger.warning(
@@ -532,16 +542,7 @@ class FinraShortVolumeClient(BaseDataClient):
     def _save_cache(
         self, symbol: str, records: list[ShortVolumeRecord]
     ) -> None:
-        cache_file = self._symbol_dir(symbol) / "short_volume.json"
-        try:
-            cache_file.write_text(
-                json.dumps([asdict(r) for r in records], indent=2),
-                encoding="utf-8",
-            )
-        except OSError as exc:
-            logger.warning(
-                "Failed to save short volume cache for %s: %s", symbol, exc,
-            )
+        self._save_csv(symbol, "short_volume.csv", records)
 
     # ------------------------------------------------------------------
     # Rate limiting
