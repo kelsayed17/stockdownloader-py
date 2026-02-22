@@ -1153,11 +1153,11 @@ class TestEftsQuarterSnapshotCache:
         )
 
     def test_save_creates_correct_file(self, tmp_path: Path) -> None:
-        """_save_quarter_snapshot writes {SYMBOL}/ownership/{YYYY}Q{Q}.json."""
+        """_save_quarter_snapshot writes {SYMBOL}/.progress/ownership/{YYYY}Q{Q}.json."""
         client = _make_client(tmp_path)
         snap = self._make_snapshot()
         client._save_quarter_snapshot("GME", 2024, 1, snap)
-        expected = client._data_dir / "GME" / "ownership" / "2024Q1.json"
+        expected = client._data_dir / "GME" / ".progress" / "ownership" / "2024Q1.json"
         assert expected.exists()
         data = json.loads(expected.read_text(encoding="utf-8"))
         assert data["quarter_end"] == "2024-03-31"
@@ -1184,13 +1184,78 @@ class TestEftsQuarterSnapshotCache:
     def test_load_corrupt_returns_none(self, tmp_path: Path) -> None:
         """Loading a corrupt quarter file returns None."""
         client = _make_client(tmp_path)
-        sym_dir = client._symbol_dir("GME")
-        ownership_dir = sym_dir / "ownership"
-        ownership_dir.mkdir(parents=True, exist_ok=True)
-        corrupt = ownership_dir / "2024Q1.json"
+        progress_dir = client._progress_dir("GME") / "ownership"
+        progress_dir.mkdir(parents=True, exist_ok=True)
+        corrupt = progress_dir / "2024Q1.json"
         corrupt.write_text("{{{bad json", encoding="utf-8")
         loaded = client._load_quarter_snapshot("GME", 2024, 1)
         assert loaded is None
+
+    def test_legacy_symbol_ownership_dir_migration(self, tmp_path: Path) -> None:
+        """Legacy {SYMBOL}/ownership/{YYYY}Q{Q}.json migrates to .progress/ownership/."""
+        client = _make_client(tmp_path)
+        snap = self._make_snapshot()
+
+        # Write a snapshot at the old location ({SYMBOL}/ownership/)
+        old_dir = client._symbol_dir("GME") / "ownership"
+        old_dir.mkdir(parents=True, exist_ok=True)
+        old_file = old_dir / "2024Q1.json"
+        old_file.write_text(json.dumps({
+            "quarter_end": "2024-03-31",
+            "symbol": "GME",
+            "total_institutional_shares": 5000,
+            "num_institutions": 1,
+            "top_10_concentration": 1.0,
+            "holdings": [{
+                "filing_date": "2024-03-31",
+                "manager_name": "TestFund",
+                "manager_cik": "999",
+                "shares": 5000,
+                "value_usd": 150,
+                "share_class": "COM",
+            }],
+        }), encoding="utf-8")
+
+        loaded = client._load_quarter_snapshot("GME", 2024, 1)
+        assert loaded is not None
+        assert loaded.total_institutional_shares == 5000
+        # Old file should be gone, new path should exist
+        assert not old_file.exists()
+        new_file = client._progress_dir("GME") / "ownership" / "2024Q1.json"
+        assert new_file.exists()
+
+    def test_legacy_cache_ownership_dir_migration(self, tmp_path: Path) -> None:
+        """Legacy cache/ownership/{SYMBOL}/{YYYY}Q{Q}.json migrates to .progress/ownership/."""
+        client = _make_client(tmp_path)
+
+        # Write a snapshot at the old cache location
+        old_dir = client._data_dir / "cache" / "ownership" / "GME"
+        old_dir.mkdir(parents=True, exist_ok=True)
+        old_file = old_dir / "2024Q1.json"
+        old_file.write_text(json.dumps({
+            "quarter_end": "2024-03-31",
+            "symbol": "GME",
+            "total_institutional_shares": 7000,
+            "num_institutions": 2,
+            "top_10_concentration": 0.8,
+            "holdings": [{
+                "filing_date": "2024-03-31",
+                "manager_name": "LegacyFund",
+                "manager_cik": "888",
+                "shares": 7000,
+                "value_usd": 200,
+                "share_class": "COM",
+            }],
+        }), encoding="utf-8")
+
+        loaded = client._load_quarter_snapshot("GME", 2024, 1)
+        assert loaded is not None
+        assert loaded.total_institutional_shares == 7000
+        assert loaded.holdings[0].manager_name == "LegacyFund"
+        # Old file should be gone, new path should exist
+        assert not old_file.exists()
+        new_file = client._progress_dir("GME") / "ownership" / "2024Q1.json"
+        assert new_file.exists()
 
     def test_force_refresh_preserves_quarter_snapshots(
         self, tmp_path: Path,
@@ -1204,7 +1269,7 @@ class TestEftsQuarterSnapshotCache:
         client._save_cache("GME", [snap])
 
         merged = client._symbol_dir("GME") / "ownership_13f.json"
-        quarter = client._symbol_dir("GME") / "ownership" / "2024Q1.json"
+        quarter = client._progress_dir("GME") / "ownership" / "2024Q1.json"
         assert merged.exists()
         assert quarter.exists()
 

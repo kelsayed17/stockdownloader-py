@@ -1079,6 +1079,12 @@ class SecOwnershipClient:
         d.mkdir(parents=True, exist_ok=True)
         return d
 
+    def _progress_dir(self, symbol: str) -> Path:
+        """Return the ``.progress/`` directory for *symbol*, creating it if needed."""
+        d = self._symbol_dir(symbol) / ".progress"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
     def _load_cache(self, symbol: str) -> list[OwnershipSnapshot] | None:
         """Load cached ownership snapshots for *symbol*."""
         sym_dir = self._symbol_dir(symbol)
@@ -1177,8 +1183,8 @@ class SecOwnershipClient:
         quarter: int,
         snapshot: OwnershipSnapshot,
     ) -> None:
-        """Persist a single quarter snapshot as ``{SYMBOL}/ownership/{YYYY}Q{Q}.json``."""
-        quarter_dir = self._symbol_dir(symbol) / "ownership"
+        """Persist a single quarter snapshot as ``{SYMBOL}/.progress/ownership/{YYYY}Q{Q}.json``."""
+        quarter_dir = self._progress_dir(symbol) / "ownership"
         quarter_dir.mkdir(parents=True, exist_ok=True)
         cache_file = quarter_dir / f"{year}Q{quarter}.json"
         data = {
@@ -1215,17 +1221,21 @@ class SecOwnershipClient:
         year: int,
         quarter: int,
     ) -> OwnershipSnapshot | None:
-        """Load a single quarter snapshot from ``{SYMBOL}/ownership/{YYYY}Q{Q}.json``."""
-        quarter_dir = self._symbol_dir(symbol) / "ownership"
+        """Load a single quarter snapshot from ``{SYMBOL}/.progress/ownership/{YYYY}Q{Q}.json``."""
+        quarter_dir = self._progress_dir(symbol) / "ownership"
         cache_file = quarter_dir / f"{year}Q{quarter}.json"
 
-        # Legacy migration: move from old flat location
+        # Legacy migration: move from old locations
         if not cache_file.exists():
-            legacy = self._data_dir / "cache" / "ownership" / symbol.upper() / f"{year}Q{quarter}.json"
-            if legacy.exists():
-                quarter_dir.mkdir(parents=True, exist_ok=True)
-                legacy.rename(cache_file)
-                logger.info("Migrated %s → %s", legacy, cache_file)
+            for legacy in (
+                self._symbol_dir(symbol) / "ownership" / f"{year}Q{quarter}.json",
+                self._data_dir / "cache" / "ownership" / symbol.upper() / f"{year}Q{quarter}.json",
+            ):
+                if legacy.exists():
+                    quarter_dir.mkdir(parents=True, exist_ok=True)
+                    legacy.rename(cache_file)
+                    logger.info("Migrated %s → %s", legacy, cache_file)
+                    break
 
         if not cache_file.exists():
             return None
