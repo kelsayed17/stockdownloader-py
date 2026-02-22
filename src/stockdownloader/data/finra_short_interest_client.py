@@ -55,7 +55,7 @@ class FinraShortInterestClient(BaseDataClient):
         FINRA API client secret.  Falls back to ``FINRA_CLIENT_SECRET`` env var.
     data_dir:
         Root data directory.  Per-symbol data is stored under
-        ``data_dir/{SYMBOL}/short_interest.json``.
+        ``data_dir/{SYMBOL}/short_interest.csv``.
     """
 
     def __init__(
@@ -295,27 +295,37 @@ class FinraShortInterestClient(BaseDataClient):
     def _load_cache(self, symbol: str) -> list[ShortInterestRecord] | None:
         """Load cached short interest records for *symbol*.
 
+        Tries CSV first, then falls back to legacy JSON files and
+        migrates them to CSV on successful read.
+
         Returns ``None`` if no cache exists.
         """
-        sym_dir = self._symbol_dir(symbol)
-        cache_file = sym_dir / "short_interest.json"
+        # Primary: CSV
+        records = self._load_csv(symbol, "short_interest.csv", ShortInterestRecord)
+        if records is not None:
+            records.sort(key=lambda r: r.settlement_date)
+            return records
 
-        # Legacy migration from old cache paths
-        if not cache_file.exists():
+        # Fallback: JSON (legacy migration)
+        sym_dir = self._symbol_dir(symbol)
+        json_path = sym_dir / "short_interest.json"
+
+        # Also check legacy paths
+        if not json_path.exists():
             for legacy_path in (
                 self._data_dir / "cache" / "short_interest" / symbol.upper() / "si.json",
                 self._data_dir / "cache" / "short_interest" / f"{symbol}_si.json",
             ):
                 if legacy_path.exists():
-                    legacy_path.rename(cache_file)
-                    logger.info("Migrated %s → %s", legacy_path, cache_file)
+                    legacy_path.rename(json_path)
+                    logger.info("Migrated %s → %s", legacy_path, json_path)
                     break
 
-        if not cache_file.exists():
+        if not json_path.exists():
             return None
 
         try:
-            data = json.loads(cache_file.read_text(encoding="utf-8"))
+            data = json.loads(json_path.read_text(encoding="utf-8"))
             records = [
                 ShortInterestRecord(
                     settlement_date=r["settlement_date"],
@@ -328,6 +338,8 @@ class FinraShortInterestClient(BaseDataClient):
                 for r in data
             ]
             records.sort(key=lambda r: r.settlement_date)
+            self._save_cache(symbol, records)
+            logger.info("Migrated %s to CSV", json_path)
             return records
         except (json.JSONDecodeError, KeyError, ValueError) as exc:
             logger.warning("Failed to load SI cache for %s: %s", symbol, exc)
@@ -338,25 +350,8 @@ class FinraShortInterestClient(BaseDataClient):
         symbol: str,
         records: list[ShortInterestRecord],
     ) -> None:
-        """Persist short interest records to JSON cache."""
-        cache_file = self._symbol_dir(symbol) / "short_interest.json"
-        data = [
-            {
-                "settlement_date": r.settlement_date,
-                "symbol": r.symbol,
-                "short_interest": r.short_interest,
-                "avg_daily_volume": r.avg_daily_volume,
-                "days_to_cover": r.days_to_cover,
-                "short_interest_pct": r.short_interest_pct,
-            }
-            for r in records
-        ]
-        try:
-            cache_file.write_text(
-                json.dumps(data, indent=2), encoding="utf-8",
-            )
-        except OSError as exc:
-            logger.warning("Failed to save SI cache for %s: %s", symbol, exc)
+        """Persist short interest records to CSV cache."""
+        self._save_csv(symbol, "short_interest.csv", records)
 
     # ------------------------------------------------------------------
     # Rate limiting

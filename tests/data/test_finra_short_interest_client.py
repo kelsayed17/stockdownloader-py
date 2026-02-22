@@ -462,7 +462,17 @@ class TestCaching:
         loaded = client._load_cache("NOSYMBOL")
         assert loaded is None
 
-    def test_load_corrupt_cache(self, tmp_path: Path) -> None:
+    def test_load_corrupt_csv_cache(self, tmp_path: Path) -> None:
+        client = _make_client(tmp_path)
+        sym_dir = client._data_dir / "BAD"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        cache_file = sym_dir / "short_interest.csv"
+        cache_file.write_text("not,valid,csv\ngarbage", encoding="utf-8")
+        loaded = client._load_cache("BAD")
+        assert loaded is None
+
+    def test_load_corrupt_json_fallback(self, tmp_path: Path) -> None:
+        """Corrupt JSON fallback returns None when no CSV exists."""
         client = _make_client(tmp_path)
         sym_dir = client._data_dir / "BAD"
         sym_dir.mkdir(parents=True, exist_ok=True)
@@ -484,7 +494,7 @@ class TestCaching:
             ),
         ]
         client._save_cache("AAPL", records)
-        assert (client._data_dir / "AAPL" / "short_interest.json").exists()
+        assert (client._data_dir / "AAPL" / "short_interest.csv").exists()
 
     def test_save_creates_symbol_subdir(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
@@ -501,7 +511,7 @@ class TestCaching:
         client._save_cache("TSLA", records)
         sym_dir = client._data_dir / "TSLA"
         assert sym_dir.is_dir()
-        assert (sym_dir / "short_interest.json").exists()
+        assert (sym_dir / "short_interest.csv").exists()
 
     def test_legacy_migration_on_load(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
@@ -537,9 +547,103 @@ class TestCaching:
         assert loaded is not None
         assert len(loaded) == 1
         assert loaded[0].symbol == "MSFT"
-        # Legacy file should have been moved
+        # Legacy file should have been moved to JSON then migrated to CSV
         assert not legacy_file.exists()
-        assert (client._data_dir / "MSFT" / "short_interest.json").exists()
+        assert (client._data_dir / "MSFT" / "short_interest.csv").exists()
+
+    def test_json_fallback_migrates_to_csv(self, tmp_path: Path) -> None:
+        """When only short_interest.json exists, _load_cache reads it and writes CSV."""
+        import json as _json
+
+        client = _make_client(tmp_path)
+        sym_dir = client._data_dir / "TICKER"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        json_file = sym_dir / "short_interest.json"
+        json_file.write_text(
+            _json.dumps([{
+                "settlement_date": "2024-03-01",
+                "symbol": "TICKER",
+                "short_interest": 42000,
+                "avg_daily_volume": 8000,
+                "days_to_cover": 5.25,
+                "short_interest_pct": 12.5,
+            }]),
+            encoding="utf-8",
+        )
+
+        loaded = client._load_cache("TICKER")
+        assert loaded is not None
+        assert len(loaded) == 1
+        assert loaded[0].settlement_date == "2024-03-01"
+        assert loaded[0].short_interest_pct == 12.5
+        # CSV file should now exist
+        assert (sym_dir / "short_interest.csv").exists()
+
+    def test_json_fallback_preserves_missing_short_interest_pct(self, tmp_path: Path) -> None:
+        """Old JSON without short_interest_pct field defaults to 0.0."""
+        import json as _json
+
+        client = _make_client(tmp_path)
+        sym_dir = client._data_dir / "OLD"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        json_file = sym_dir / "short_interest.json"
+        json_file.write_text(
+            _json.dumps([{
+                "settlement_date": "2023-06-15",
+                "symbol": "OLD",
+                "short_interest": 1000,
+                "avg_daily_volume": 500,
+                "days_to_cover": 2.0,
+                # no short_interest_pct key
+            }]),
+            encoding="utf-8",
+        )
+
+        loaded = client._load_cache("OLD")
+        assert loaded is not None
+        assert len(loaded) == 1
+        assert loaded[0].short_interest_pct == 0.0
+
+    def test_csv_preferred_over_json(self, tmp_path: Path) -> None:
+        """When both CSV and JSON exist, CSV takes precedence."""
+        import json as _json
+
+        client = _make_client(tmp_path)
+        sym_dir = client._data_dir / "BOTH"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+
+        # Write JSON with one record
+        json_file = sym_dir / "short_interest.json"
+        json_file.write_text(
+            _json.dumps([{
+                "settlement_date": "2024-01-01",
+                "symbol": "BOTH",
+                "short_interest": 111,
+                "avg_daily_volume": 222,
+                "days_to_cover": 0.5,
+                "short_interest_pct": 0.0,
+            }]),
+            encoding="utf-8",
+        )
+
+        # Write CSV with a different record
+        csv_records = [
+            ShortInterestRecord(
+                settlement_date="2024-02-01",
+                symbol="BOTH",
+                short_interest=999,
+                avg_daily_volume=888,
+                days_to_cover=1.1,
+                short_interest_pct=5.0,
+            ),
+        ]
+        client._save_csv("BOTH", "short_interest.csv", csv_records)
+
+        loaded = client._load_cache("BOTH")
+        assert loaded is not None
+        assert len(loaded) == 1
+        # Should get the CSV data, not the JSON data
+        assert loaded[0].short_interest == 999
 
 
 # ------------------------------------------------------------------
