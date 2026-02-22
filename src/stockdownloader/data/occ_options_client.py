@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import json
 import logging
-import time
 from dataclasses import asdict
 from datetime import date, timedelta
 from pathlib import Path
@@ -253,7 +252,7 @@ class OccOptionsClient(BaseDataClient):
                 break
 
             try:
-                self._rate_limit()
+                # _fetch_with_retry already calls _rate_limit internally
                 day_records = self._download_day(date_str, symbol_upper)
 
                 progress.add(date_str)
