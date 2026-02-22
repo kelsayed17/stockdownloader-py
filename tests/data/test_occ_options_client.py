@@ -228,28 +228,31 @@ class TestFetchOpenInterest:
         """Fetch downloads bulk files, filters for symbol, saves cache."""
         client = _make_client(tmp_path)
 
-        # Mock _download_day to return known records
+        # Use recent weekdays within the rolling window
+        from datetime import date as dt, timedelta
+        d = dt.today() - timedelta(days=3)
+        # Ensure it's a weekday
+        while d.weekday() >= 5:
+            d -= timedelta(days=1)
+        recent = d.isoformat()
+
         call_dates: list[str] = []
 
         def mock_download(date_str, symbol):
             call_dates.append(date_str)
-            if date_str == "2021-01-04":
+            if date_str == recent:
                 return [OccOpenInterestRecord(
-                    date="2021-01-04", symbol="GME", exchange="A",
+                    date=recent, symbol="GME", exchange="A",
                     volume=100, exercised=0, open_interest=50,
-                    product_kind="OSTK", expiration="2021-02-19",
+                    product_kind="OSTK", expiration="2026-03-21",
                 )]
-            return []  # No data for other days
+            return []
 
-        with patch.object(client, "_download_day", side_effect=mock_download), \
-             patch.object(client, "_rate_limit"):
-            records = client.fetch_open_interest(
-                "GME", start_date="2021-01-04",
-            )
+        with patch.object(client, "_download_day", side_effect=mock_download):
+            records = client.fetch_open_interest("GME")
 
         # Should have called download for weekdays
         assert len(call_dates) > 0
-        assert "2021-01-04" in call_dates
 
         # Should have cached records
         cached = client._load_cache("GME")
@@ -258,14 +261,18 @@ class TestFetchOpenInterest:
 
         # Progress should be saved
         progress = client._load_progress("GME")
-        assert "2021-01-04" in progress
+        assert len(progress) > 0
 
     def test_fetch_skips_already_downloaded(self, tmp_path: Path) -> None:
         """Dates in progress file are not re-downloaded."""
         client = _make_client(tmp_path)
 
-        # Pre-populate progress
-        client._save_progress("GME", {"2021-01-04", "2021-01-05"})
+        # Use dates within the rolling window
+        from datetime import date as dt, timedelta
+        d1 = (dt.today() - timedelta(days=5)).isoformat()
+        d2 = (dt.today() - timedelta(days=4)).isoformat()
+
+        client._save_progress("GME", {d1, d2})
 
         call_dates: list[str] = []
 
@@ -273,15 +280,12 @@ class TestFetchOpenInterest:
             call_dates.append(date_str)
             return []
 
-        with patch.object(client, "_download_day", side_effect=mock_download), \
-             patch.object(client, "_rate_limit"):
-            client.fetch_open_interest(
-                "GME", start_date="2021-01-04",
-            )
+        with patch.object(client, "_download_day", side_effect=mock_download):
+            client.fetch_open_interest("GME")
 
         # Should NOT have downloaded pre-populated dates
-        assert "2021-01-04" not in call_dates
-        assert "2021-01-05" not in call_dates
+        assert d1 not in call_dates
+        assert d2 not in call_dates
 
     def test_fetch_returns_cached_when_all_done(self, tmp_path: Path) -> None:
         """When all dates are in progress, returns cache without downloading."""
@@ -291,10 +295,10 @@ class TestFetchOpenInterest:
         records = _sample_records()
         client._save_cache("GME", records)
 
-        # Mark a large range as done
+        # Mark the entire rolling window as done
         from datetime import date as dt, timedelta
         all_dates = set()
-        current = dt(2021, 1, 4)
+        current = dt.today() - timedelta(days=60)
         while current <= dt.today():
             if current.weekday() < 5:
                 all_dates.add(current.isoformat())

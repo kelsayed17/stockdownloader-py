@@ -50,7 +50,10 @@ _OCC_URL_TEMPLATE = (
 
 _BATCH_SIZE = 25
 _MAX_CONSECUTIVE_FAILURES = 15
-_OCC_EARLIEST = date(2021, 1, 4)  # Earliest available OCC data
+# OCC cont-volume-download keeps a rolling ~6-week window.
+# Dates outside this window return 200 with "File requested does not
+# exist."  We start 60 days back to capture the full window.
+_OCC_LOOKBACK_DAYS = 60
 
 
 class OccOptionsClient(BaseDataClient):
@@ -170,7 +173,9 @@ class OccOptionsClient(BaseDataClient):
             return []
 
         text = resp.text
-        if not text or len(text) < 50:
+        if not text or len(text) < 100:
+            # OCC returns "File requested does not exist." (200) for
+            # dates outside the rolling window
             return []
 
         return self._parse_bulk_text(text, symbol, date_str)
@@ -196,7 +201,7 @@ class OccOptionsClient(BaseDataClient):
             Ticker symbol (e.g. ``"GME"``).
         start_date:
             Earliest date to fetch (``"YYYY-MM-DD"``).  Defaults to
-            ``2021-01-04`` (earliest OCC data).
+            60 days ago (OCC keeps a rolling ~6-week window).
 
         Returns
         -------
@@ -204,13 +209,12 @@ class OccOptionsClient(BaseDataClient):
         """
         symbol_upper = symbol.upper()
 
-        # Determine date range
-        earliest = _OCC_EARLIEST
+        # OCC keeps a rolling ~6-week window; default to 60 days back
+        end = date.today()
+        earliest = end - timedelta(days=_OCC_LOOKBACK_DAYS)
         if start_date:
             parsed = date.fromisoformat(start_date)
-            earliest = max(parsed, _OCC_EARLIEST)
-
-        end = date.today()
+            earliest = max(parsed, earliest)
 
         # Generate all weekdays in range
         all_dates: list[str] = []
