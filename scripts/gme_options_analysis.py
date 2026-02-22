@@ -15,6 +15,7 @@ Usage:
 
 from __future__ import annotations
 
+import csv
 import json
 import logging
 import sys
@@ -35,22 +36,43 @@ FREE_FLOAT = 50_650_000  # Consistent with SEC "~140%" statement
 CONTRACT_MULTIPLIER = 100  # Each options contract = 100 shares
 
 
+def _load_csv_records(path: Path, int_fields: tuple = (), float_fields: tuple = ()) -> list[dict]:
+    """Load records from a CSV file, converting numeric fields."""
+    records = []
+    with path.open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            for k in int_fields:
+                if k in row:
+                    row[k] = int(row[k]) if row[k] else 0
+            for k in float_fields:
+                if k in row:
+                    row[k] = float(row[k]) if row[k] else 0.0
+            records.append(row)
+    return records
+
+
 def load_occ_data(symbol: str = "GME") -> list[dict]:
     """Load OCC open interest records."""
-    oi_file = DATA_DIR / symbol / "occ_open_interest.json"
-    if not oi_file.exists():
-        logger.error("OCC data not found: %s", oi_file)
-        logger.info(
-            "Run the OCC backfill first:\n"
-            "  python3 -c \"\n"
-            "from stockdownloader.data.occ_options_client import OccOptionsClient\n"
-            "c = OccOptionsClient()\n"
-            "records = c.fetch_open_interest('GME')\n"
-            "print(f'Records: {len(records)}')\n"
-            "\""
+    csv_file = DATA_DIR / symbol / "occ_open_interest.csv"
+    json_file = DATA_DIR / symbol / "occ_open_interest.json"
+    if csv_file.exists():
+        return _load_csv_records(
+            csv_file,
+            int_fields=("volume", "exercised", "open_interest"),
         )
-        return []
-    return json.loads(oi_file.read_text(encoding="utf-8"))
+    if json_file.exists():
+        return json.loads(json_file.read_text(encoding="utf-8"))
+    logger.error("OCC data not found: %s", csv_file)
+    logger.info(
+        "Run the OCC backfill first:\n"
+        "  python3 -c \"\n"
+        "from stockdownloader.data.occ_options_client import OccOptionsClient\n"
+        "c = OccOptionsClient()\n"
+        "records = c.fetch_open_interest('GME')\n"
+        "print(f'Records: {len(records)}')\n"
+        "\""
+    )
+    return []
 
 
 def load_ftd_data(symbol: str = "GME") -> list[dict]:
@@ -63,10 +85,17 @@ def load_ftd_data(symbol: str = "GME") -> list[dict]:
 
 def load_short_volume(symbol: str = "GME") -> list[dict]:
     """Load short volume data."""
-    sv_file = DATA_DIR / symbol / "short_volume.json"
-    if not sv_file.exists():
-        return []
-    return json.loads(sv_file.read_text(encoding="utf-8"))
+    csv_file = DATA_DIR / symbol / "short_volume.csv"
+    json_file = DATA_DIR / symbol / "short_volume.json"
+    if csv_file.exists():
+        return _load_csv_records(
+            csv_file,
+            int_fields=("short_volume", "total_volume", "short_exempt_volume"),
+            float_fields=("short_volume_ratio",),
+        )
+    if json_file.exists():
+        return json.loads(json_file.read_text(encoding="utf-8"))
+    return []
 
 
 def analyze_daily_oi(records: list[dict]) -> dict[str, dict]:

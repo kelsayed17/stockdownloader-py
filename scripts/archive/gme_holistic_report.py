@@ -82,15 +82,38 @@ def load_ftd_data():
     return dict(ftd_by_date)
 
 
+def _load_csv_or_json(stem, int_fields=(), float_fields=()):
+    """Load records from CSV (preferred) or JSON (fallback)."""
+    csv_path = GME_DIR / f"{stem}.csv"
+    json_path = GME_DIR / f"{stem}.json"
+    if csv_path.exists():
+        records = []
+        with open(csv_path, encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                for k in int_fields:
+                    if k in row:
+                        row[k] = int(row[k]) if row[k] else 0
+                for k in float_fields:
+                    if k in row:
+                        row[k] = float(row[k]) if row[k] else 0.0
+                records.append(row)
+        return records
+    if json_path.exists():
+        with open(json_path, encoding="utf-8") as f:
+            return json.load(f)
+    return None
+
+
 def load_short_interest():
     """Load short interest from per-symbol data dir."""
-    cache_path = GME_DIR / "short_interest.json"
-    if not cache_path.exists():
+    records = _load_csv_or_json(
+        "short_interest",
+        int_fields=("short_interest", "avg_daily_volume"),
+        float_fields=("days_to_cover", "short_interest_pct"),
+    )
+    if records is None:
         print("  WARNING: No short interest cache found")
         return {}
-
-    with open(cache_path) as f:
-        records = json.load(f)
 
     si_by_date = {}
     for r in records:
@@ -106,13 +129,14 @@ def load_short_interest():
 
 def load_dark_pool():
     """Load dark pool / ATS data from per-symbol data dir."""
-    cache_path = GME_DIR / "dark_pool.json"
-    if not cache_path.exists():
+    records = _load_csv_or_json(
+        "dark_pool",
+        int_fields=("total_weekly_volume", "ats_volume", "otc_volume"),
+        float_fields=("ats_pct",),
+    )
+    if records is None:
         print("  WARNING: No dark pool cache found")
         return {}
-
-    with open(cache_path) as f:
-        records = json.load(f)
 
     dp_by_week = {}
     for r in records:
@@ -151,13 +175,14 @@ def load_ownership():
 
 def load_short_volume():
     """Load daily short volume from per-symbol data dir."""
-    cache_path = GME_DIR / "short_volume.json"
-    if not cache_path.exists():
+    records = _load_csv_or_json(
+        "short_volume",
+        int_fields=("short_volume", "total_volume", "short_exempt_volume"),
+        float_fields=("short_volume_ratio",),
+    )
+    if records is None:
         print("  WARNING: No short volume cache found")
         return {}
-
-    with open(cache_path) as f:
-        records = json.load(f)
 
     sv_by_date = {}
     for r in records:
@@ -173,13 +198,13 @@ def load_short_volume():
 
 def load_regsho_threshold():
     """Load Reg SHO threshold list from per-symbol data dir."""
-    cache_path = GME_DIR / "regsho_threshold.json"
-    if not cache_path.exists():
+    records = _load_csv_or_json(
+        "regsho_threshold",
+        int_fields=("threshold_shares", "consecutive_days"),
+    )
+    if records is None:
         print("  WARNING: No Reg SHO threshold cache found")
         return {}
-
-    with open(cache_path) as f:
-        records = json.load(f)
 
     threshold_dates = set()
     for r in records:
@@ -190,24 +215,42 @@ def load_regsho_threshold():
 
 def load_insider_transactions():
     """Load insider transactions from per-symbol data dir."""
-    insider_dir = GME_DIR / "insider"
-    txn_file = GME_DIR / "insider_transactions.json"
+    progress_insider_dir = GME_DIR / ".progress" / "insider"
+    legacy_insider_dir = GME_DIR / "insider"
+    csv_file = GME_DIR / "insider_transactions.csv"
+    json_file = GME_DIR / "insider_transactions.json"
 
-    # Check merged file first
-    if txn_file.exists():
-        with open(txn_file) as f:
+    # Check merged CSV first, then JSON
+    if csv_file.exists():
+        records = _load_csv_or_json(
+            "insider_transactions",
+            int_fields=("shares", "shares_owned_after"),
+            float_fields=("price_per_share",),
+        )
+        if records is not None:
+            # Convert boolean string fields from CSV
+            for r in records:
+                for bk in ("is_director", "is_officer", "is_ten_pct_owner"):
+                    if bk in r:
+                        r[bk] = r[bk] in ("True", "true", "1", True)
+            print(f"  Insider transactions loaded: {len(records)}")
+            return records
+
+    if json_file.exists():
+        with open(json_file, encoding="utf-8") as f:
             records = json.load(f)
         print(f"  Insider transactions loaded: {len(records)}")
         return records
 
-    # Fall back to per-quarter files
+    # Fall back to per-quarter files (.progress/ then legacy)
+    insider_dir = progress_insider_dir if progress_insider_dir.exists() else legacy_insider_dir
     if not insider_dir.exists():
         print("  WARNING: No insider transaction data found")
         return []
 
     all_txns = []
     for qf in sorted(insider_dir.glob("*.json")):
-        with open(qf) as f:
+        with open(qf, encoding="utf-8") as f:
             all_txns.extend(json.load(f))
 
     print(f"  Insider transactions loaded: {len(all_txns)} (from {len(list(insider_dir.glob('*.json')))} quarter files)")
@@ -216,13 +259,18 @@ def load_insider_transactions():
 
 def load_beneficial_owners():
     """Load beneficial ownership data (13D/13G) from per-symbol data dir."""
-    cache_path = GME_DIR / "beneficial_owners.json"
-    if not cache_path.exists():
+    records = _load_csv_or_json(
+        "beneficial_owners",
+        int_fields=(
+            "shares_beneficially_owned", "sole_voting_power",
+            "shared_voting_power", "sole_dispositive_power",
+            "shared_dispositive_power",
+        ),
+        float_fields=("percent_of_class",),
+    )
+    if records is None:
         print("  WARNING: No beneficial ownership cache found")
         return []
-
-    with open(cache_path) as f:
-        records = json.load(f)
 
     print(f"  Beneficial owners loaded: {len(records)}")
     return records
