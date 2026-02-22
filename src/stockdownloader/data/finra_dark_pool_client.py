@@ -70,7 +70,7 @@ class FinraDarkPoolClient(BaseDataClient):
         FINRA API client secret.  Falls back to ``FINRA_CLIENT_SECRET`` env var.
     data_dir:
         Root data directory.  Per-symbol data is stored under
-        ``data_dir/{SYMBOL}/dark_pool.json``.
+        ``data_dir/{SYMBOL}/dark_pool.csv``.
     """
 
     def __init__(
@@ -354,27 +354,36 @@ class FinraDarkPoolClient(BaseDataClient):
     def _load_cache(self, symbol: str) -> list[DarkPoolRecord] | None:
         """Load cached dark pool records for *symbol*.
 
+        Reads from CSV first.  Falls back to legacy JSON files and
+        migrates them to CSV on success.
+
         Returns ``None`` if no cache exists.
         """
-        sym_dir = self._symbol_dir(symbol)
-        cache_file = sym_dir / "dark_pool.json"
+        # Primary: CSV
+        records = self._load_csv(symbol, "dark_pool.csv", DarkPoolRecord)
+        if records is not None:
+            records.sort(key=lambda r: r.week_ending)
+            return records
 
-        # Legacy migration from old cache paths
-        if not cache_file.exists():
+        # Fallback: JSON (legacy migration)
+        sym_dir = self._symbol_dir(symbol)
+        json_path = sym_dir / "dark_pool.json"
+
+        if not json_path.exists():
             for legacy_path in (
                 self._data_dir / "cache" / "dark_pool" / symbol.upper() / "dp.json",
                 self._data_dir / "cache" / "dark_pool" / f"{symbol}_dp.json",
             ):
                 if legacy_path.exists():
-                    legacy_path.rename(cache_file)
-                    logger.info("Migrated %s → %s", legacy_path, cache_file)
+                    legacy_path.rename(json_path)
+                    logger.info("Migrated %s → %s", legacy_path, json_path)
                     break
 
-        if not cache_file.exists():
+        if not json_path.exists():
             return None
 
         try:
-            data = json.loads(cache_file.read_text(encoding="utf-8"))
+            data = json.loads(json_path.read_text(encoding="utf-8"))
             records = [
                 DarkPoolRecord(
                     week_ending=r["week_ending"],
@@ -387,6 +396,8 @@ class FinraDarkPoolClient(BaseDataClient):
                 for r in data
             ]
             records.sort(key=lambda r: r.week_ending)
+            self._save_cache(symbol, records)
+            logger.info("Migrated %s to CSV", json_path)
             return records
         except (json.JSONDecodeError, KeyError, ValueError) as exc:
             logger.warning(
@@ -399,27 +410,8 @@ class FinraDarkPoolClient(BaseDataClient):
         symbol: str,
         records: list[DarkPoolRecord],
     ) -> None:
-        """Persist dark pool records to JSON cache."""
-        cache_file = self._symbol_dir(symbol) / "dark_pool.json"
-        data = [
-            {
-                "week_ending": r.week_ending,
-                "symbol": r.symbol,
-                "total_weekly_volume": r.total_weekly_volume,
-                "ats_volume": r.ats_volume,
-                "otc_volume": r.otc_volume,
-                "ats_pct": r.ats_pct,
-            }
-            for r in records
-        ]
-        try:
-            cache_file.write_text(
-                json.dumps(data, indent=2), encoding="utf-8",
-            )
-        except OSError as exc:
-            logger.warning(
-                "Failed to save dark pool cache for %s: %s", symbol, exc,
-            )
+        """Persist dark pool records to CSV cache."""
+        self._save_csv(symbol, "dark_pool.csv", records)
 
     # ------------------------------------------------------------------
     # Rate limiting

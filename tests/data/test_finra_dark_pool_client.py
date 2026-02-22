@@ -567,21 +567,46 @@ class TestDPCaching:
         assert loaded[1].total_weekly_volume == 18_000_000
         assert loaded[0].ats_volume == 5_000_000
 
+    def test_csv_roundtrip_preserves_types(self, tmp_path: Path) -> None:
+        """CSV save/load preserves int and float field types."""
+        client = _make_client(tmp_path)
+        records = [
+            DarkPoolRecord(
+                week_ending="2024-01-12",
+                symbol="GME",
+                total_weekly_volume=15_000_000,
+                ats_volume=5_000_000,
+                otc_volume=10_000_000,
+                ats_pct=0.333,
+            ),
+        ]
+        client._save_cache("GME", records)
+        loaded = client._load_cache("GME")
+
+        assert loaded is not None
+        rec = loaded[0]
+        assert isinstance(rec.total_weekly_volume, int)
+        assert isinstance(rec.ats_volume, int)
+        assert isinstance(rec.otc_volume, int)
+        assert isinstance(rec.ats_pct, float)
+        assert rec.ats_pct == pytest.approx(0.333)
+
     def test_load_nonexistent_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
         loaded = client._load_cache("UNKNOWN")
         assert loaded is None
 
-    def test_load_corrupt_cache(self, tmp_path: Path) -> None:
+    def test_load_corrupt_csv_cache(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
         sym_dir = client._data_dir / "CORRUPT"
         sym_dir.mkdir(parents=True, exist_ok=True)
-        cache_file = sym_dir / "dark_pool.json"
-        cache_file.write_text("{{invalid json", encoding="utf-8")
+        cache_file = sym_dir / "dark_pool.csv"
+        cache_file.write_text("not,valid,csv,header\n\x00\x01\x02", encoding="utf-8")
         loaded = client._load_cache("CORRUPT")
         assert loaded is None
 
-    def test_cache_file_naming(self, tmp_path: Path) -> None:
+    def test_save_cache_creates_csv(self, tmp_path: Path) -> None:
+        """_save_cache writes dark_pool.csv (not .json)."""
         client = _make_client(tmp_path)
         records = [
             DarkPoolRecord(
@@ -594,7 +619,8 @@ class TestDPCaching:
             ),
         ]
         client._save_cache("AAPL", records)
-        assert (client._data_dir / "AAPL" / "dark_pool.json").exists()
+        assert (client._data_dir / "AAPL" / "dark_pool.csv").exists()
+        assert not (client._data_dir / "AAPL" / "dark_pool.json").exists()
 
     def test_save_creates_symbol_subdir(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
@@ -611,7 +637,60 @@ class TestDPCaching:
         client._save_cache("TSLA", records)
         sym_dir = client._data_dir / "TSLA"
         assert sym_dir.is_dir()
-        assert (sym_dir / "dark_pool.json").exists()
+        assert (sym_dir / "dark_pool.csv").exists()
+
+    def test_json_fallback_migration(self, tmp_path: Path) -> None:
+        """_load_cache migrates a dark_pool.json file to CSV and returns records."""
+        client = _make_client(tmp_path)
+        # Write a JSON cache file (the old format)
+        import json as _json
+        sym_dir = client._data_dir / "NVDA"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        json_path = sym_dir / "dark_pool.json"
+        json_path.write_text(
+            _json.dumps([{
+                "week_ending": "2024-01-12",
+                "symbol": "NVDA",
+                "total_weekly_volume": 500,
+                "ats_volume": 200,
+                "otc_volume": 300,
+                "ats_pct": 0.4,
+            }]),
+            encoding="utf-8",
+        )
+
+        loaded = client._load_cache("NVDA")
+        assert loaded is not None
+        assert len(loaded) == 1
+        assert loaded[0].symbol == "NVDA"
+        assert loaded[0].ats_pct == pytest.approx(0.4)
+        # CSV file should now exist (migration result)
+        assert (sym_dir / "dark_pool.csv").exists()
+
+    def test_json_fallback_migration_preserves_default_ats_pct(
+        self, tmp_path: Path,
+    ) -> None:
+        """JSON fallback uses .get('ats_pct', 0.0) for records missing ats_pct."""
+        client = _make_client(tmp_path)
+        import json as _json
+        sym_dir = client._data_dir / "META"
+        sym_dir.mkdir(parents=True, exist_ok=True)
+        json_path = sym_dir / "dark_pool.json"
+        # Intentionally omit ats_pct from JSON data
+        json_path.write_text(
+            _json.dumps([{
+                "week_ending": "2024-02-01",
+                "symbol": "META",
+                "total_weekly_volume": 1000,
+                "ats_volume": 400,
+                "otc_volume": 600,
+            }]),
+            encoding="utf-8",
+        )
+
+        loaded = client._load_cache("META")
+        assert loaded is not None
+        assert loaded[0].ats_pct == 0.0
 
     def test_legacy_migration_on_load(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
@@ -646,9 +725,11 @@ class TestDPCaching:
         assert loaded is not None
         assert len(loaded) == 1
         assert loaded[0].symbol == "MSFT"
-        # Legacy file should have been moved
+        # Legacy file should have been moved to JSON path
         assert not legacy_file.exists()
         assert (client._data_dir / "MSFT" / "dark_pool.json").exists()
+        # And CSV should now exist after migration
+        assert (client._data_dir / "MSFT" / "dark_pool.csv").exists()
 
 
 # ------------------------------------------------------------------
