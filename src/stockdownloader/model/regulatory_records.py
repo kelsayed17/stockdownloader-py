@@ -287,3 +287,37 @@ class InsiderOwnershipSnapshot:
             raise ValueError("as_of_date must not be empty")
         if not self.symbol:
             raise ValueError("symbol must not be empty")
+
+
+# ── OCC Options Open Interest ───────────────────────────────────────
+
+
+@dataclass(frozen=True, slots=True)
+class OccOpenInterestRecord:
+    """Daily per-symbol options open interest from OCC bulk download.
+
+    Each record represents one symbol + exchange + expiration combination
+    for a single trading day.  The OCC ``cont-volume-download`` endpoint
+    does not distinguish puts from calls — each row is aggregated across
+    option types.
+
+    Fields map to the fixed-width columns in the OCC bulk file:
+    ``symbol(6)|underlying(6)|exchange(1)|volume(9)|exercised(9)|oi(9)|kind(4)|exp(8)``
+    """
+
+    date: str              # "YYYY-MM-DD" — report date
+    symbol: str            # "GME" — option/underlying symbol
+    exchange: str          # Single-char exchange code ("A"=AMEX, etc.)
+    volume: int            # Daily contract volume
+    exercised: int         # Contracts exercised that day
+    open_interest: int     # End-of-day open interest (contracts)
+    product_kind: str      # "OSTK" (stock options), "OIND" (index), etc.
+    expiration: str        # "YYYY-MM-DD" — option expiration date
+
+    def __post_init__(self) -> None:
+        if not self.date:
+            raise ValueError("date must not be empty")
+        if not self.symbol:
+            raise ValueError("symbol must not be empty")
+        if self.open_interest < 0:
+            raise ValueError("open_interest must be non-negative")
