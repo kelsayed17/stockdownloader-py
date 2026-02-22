@@ -29,15 +29,45 @@ Usage::
 
 from __future__ import annotations
 
+import csv
 import json
 import logging
 import time
+from dataclasses import asdict, fields as dc_fields
+from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, Union, get_type_hints
 
 import requests
 
 logger = logging.getLogger(__name__)
+
+_BOOL_FALSE = frozenset({"false", "0", "no", ""})
+
+
+def _coerce_value(raw: str, field_type: type) -> Any:
+    """Convert a CSV string *raw* to the Python type indicated by *field_type*.
+
+    Handles ``int``, ``float``, ``bool``, ``Decimal``, ``str``, and
+    ``Optional[T]`` (``Union[T, None]``).
+    """
+    # Unwrap Optional / Union types -> extract the non-None type
+    origin = getattr(field_type, "__origin__", None)
+    if origin is Union:
+        args = [a for a in field_type.__args__ if a is not type(None)]
+        if args:
+            field_type = args[0]
+
+    if field_type is bool:
+        return raw.lower() not in _BOOL_FALSE
+    if field_type is int:
+        return int(raw)
+    if field_type is float:
+        return float(raw)
+    if field_type is Decimal:
+        return Decimal(raw)
+    # Default: keep as string
+    return raw
 
 
 class BaseDataClient:
@@ -179,3 +209,86 @@ class BaseDataClient:
             )
         except OSError as exc:
             logger.warning("Failed to save cache %s: %s", cache_file, exc)
+
+    # ------------------------------------------------------------------
+    # CSV helpers
+    # ------------------------------------------------------------------
+
+    def _save_csv(
+        self,
+        symbol: str,
+        filename: str,
+        records: list[Any],
+        record_cls: type | None = None,
+    ) -> None:
+        """Write a list of dataclass instances to a CSV file.
+
+        Parameters
+        ----------
+        symbol:
+            Ticker symbol (determines subdirectory).
+        filename:
+            CSV filename inside the symbol directory.
+        records:
+            List of dataclass instances to write.
+        record_cls:
+            Optional dataclass type.  Required when *records* is empty
+            so the header row can still be written.
+        """
+        if not records and record_cls is None:
+            return
+
+        if record_cls is None:
+            record_cls = type(records[0])
+
+        fieldnames = [f.name for f in dc_fields(record_cls)]
+        path = self._symbol_dir(symbol) / filename
+
+        with path.open("w", newline="", encoding="utf-8") as fh:
+            writer = csv.DictWriter(fh, fieldnames=fieldnames)
+            writer.writeheader()
+            for rec in records:
+                writer.writerow(asdict(rec))
+
+    def _load_csv(
+        self,
+        symbol: str,
+        filename: str,
+        record_cls: type,
+    ) -> list[Any] | None:
+        """Read a CSV file back into a list of *record_cls* dataclass instances.
+
+        Returns ``None`` if the file does not exist or is corrupt /
+        incompatible.
+        """
+        path = self._symbol_dir(symbol) / filename
+        if not path.exists():
+            return None
+
+        try:
+            # Resolve type hints (handles ``from __future__ import annotations``)
+            hints = get_type_hints(record_cls)
+
+            with path.open(newline="", encoding="utf-8") as fh:
+                reader = csv.DictReader(fh)
+                result: list[Any] = []
+                for row in reader:
+                    kwargs = {}
+                    for f in dc_fields(record_cls):
+                        raw = row[f.name]
+                        kwargs[f.name] = _coerce_value(raw, hints[f.name])
+                    result.append(record_cls(**kwargs))
+                return result
+        except Exception as exc:
+            logger.warning("Failed to load CSV %s: %s", path, exc)
+            return None
+
+    # ------------------------------------------------------------------
+    # Progress directory helper
+    # ------------------------------------------------------------------
+
+    def _progress_dir(self, symbol: str) -> Path:
+        """Return the ``.progress/`` directory for *symbol*, creating it if needed."""
+        d = self._symbol_dir(symbol) / ".progress"
+        d.mkdir(parents=True, exist_ok=True)
+        return d
