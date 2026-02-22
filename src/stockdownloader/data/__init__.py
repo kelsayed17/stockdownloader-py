@@ -26,6 +26,7 @@ from stockdownloader.data.full_history_fetcher import FullHistoryFetcher
 from stockdownloader.data.regsho_threshold_client import RegShoThresholdClient
 from stockdownloader.data.finra_short_volume_client import FinraShortVolumeClient
 from stockdownloader.data.tradier_options_client import TradierOptionsClient
+from stockdownloader.data.occ_options_client import OccOptionsClient
 
 __all__ = [
     "CsvPriceDataLoader",
@@ -55,4 +56,5 @@ __all__ = [
     "RegShoThresholdClient",
     "FinraShortVolumeClient",
     "TradierOptionsClient",
+    "OccOptionsClient",
 ]
