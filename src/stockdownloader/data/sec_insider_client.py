@@ -46,6 +46,7 @@ from pathlib import Path
 
 import requests
 
+from stockdownloader.data.base_client import BaseDataClient
 from stockdownloader.data.sec_ftd_client import SplitAdjustment, _KNOWN_SPLITS
 from stockdownloader.model.regulatory_records import (
     BeneficialOwner,
@@ -80,7 +81,7 @@ _ACQUIRE_CODES = frozenset({"P", "A", "M", "J", "K", "I", "L", "G"})
 _DISPOSE_CODES = frozenset({"S", "D", "F", "W"})
 
 
-class SecInsiderClient:
+class SecInsiderClient(BaseDataClient):
     """Downloads and parses SEC insider ownership data.
 
     Uses SEC bulk insider transaction data sets (TSV) as the primary
@@ -93,14 +94,15 @@ class SecInsiderClient:
         user_agent: str = "StockDownloader admin@example.com",
         data_dir: str = "data",
     ) -> None:
-        self._session = requests.Session()
-        self._session.headers.update({
-            "User-Agent": user_agent,
-            "Accept-Encoding": "gzip, deflate",
-        })
-        self._last_request_time: float = 0.0
-        self._data_dir = Path(data_dir)
-        self._data_dir.mkdir(parents=True, exist_ok=True)
+        super().__init__(
+            rate_limit_delay=_RATE_LIMIT_DELAY,
+            max_retries=_MAX_RETRIES,
+            data_dir=data_dir,
+            default_headers={
+                "User-Agent": user_agent,
+                "Accept-Encoding": "gzip, deflate",
+            },
+        )
         # Bulk ZIP files are multi-ticker, keep under cache/
         self._bulk_dir = self._data_dir / "cache" / "bulk_insider"
         self._bulk_dir.mkdir(parents=True, exist_ok=True)
@@ -1325,46 +1327,29 @@ class SecInsiderClient:
     # Caching
     # ------------------------------------------------------------------
 
-    def _symbol_dir(self, symbol: str) -> Path:
-        """Return per-symbol data directory, creating it if needed."""
-        d = self._data_dir / symbol.upper()
-        d.mkdir(parents=True, exist_ok=True)
-        return d
-
     def _load_transaction_cache(
         self, symbol: str,
     ) -> list[InsiderTransaction] | None:
         """Load cached insider transactions for *symbol*."""
-        cache_file = self._symbol_dir(symbol) / "insider_transactions.json"
-        if not cache_file.exists():
+        records = self._load_csv(symbol, "insider_transactions.csv", InsiderTransaction)
+        if records is not None:
+            return records
+        # JSON fallback
+        json_path = self._symbol_dir(symbol) / "insider_transactions.json"
+        if not json_path.exists():
             return None
         try:
-            data = json.loads(cache_file.read_text(encoding="utf-8"))
-            return [
-                InsiderTransaction(**r)
-                for r in data
-            ]
+            data = json.loads(json_path.read_text(encoding="utf-8"))
+            records = [InsiderTransaction(**r) for r in data]
+            self._save_transaction_cache(symbol, records)
+            logger.info("Migrated %s to CSV", json_path)
+            return records
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
-            logger.warning(
-                "Failed to load insider cache for %s: %s", symbol, exc,
-            )
+            logger.warning("Failed to load insider cache for %s: %s", symbol, exc)
             return None
 
-    def _save_transaction_cache(
-        self,
-        symbol: str,
-        transactions: list[InsiderTransaction],
-    ) -> None:
-        cache_file = self._symbol_dir(symbol) / "insider_transactions.json"
-        data = [asdict(t) for t in transactions]
-        try:
-            cache_file.write_text(
-                json.dumps(data, indent=2), encoding="utf-8",
-            )
-        except OSError as exc:
-            logger.warning(
-                "Failed to save insider cache for %s: %s", symbol, exc,
-            )
+    def _save_transaction_cache(self, symbol, transactions):
+        self._save_csv(symbol, "insider_transactions.csv", transactions)
 
     def _save_quarter_transactions(
         self,
@@ -1374,19 +1359,14 @@ class SecInsiderClient:
         transactions: list[InsiderTransaction],
     ) -> None:
         """Save per-quarter insider transaction cache."""
-        quarter_dir = self._symbol_dir(symbol) / "insider"
+        quarter_dir = self._progress_dir(symbol) / "insider"
         quarter_dir.mkdir(parents=True, exist_ok=True)
         cache_file = quarter_dir / f"{year}Q{quarter}.json"
         data = [asdict(t) for t in transactions]
         try:
-            cache_file.write_text(
-                json.dumps(data, indent=2), encoding="utf-8",
-            )
+            cache_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
         except OSError as exc:
-            logger.warning(
-                "Failed to save quarter insider cache %dQ%d: %s",
-                year, quarter, exc,
-            )
+            logger.warning("Failed to save quarter insider cache %dQ%d: %s", year, quarter, exc)
 
     def _load_quarter_transactions(
         self,
@@ -1395,9 +1375,13 @@ class SecInsiderClient:
         quarter: int,
     ) -> list[InsiderTransaction] | None:
         """Load per-quarter cached insider transactions."""
-        cache_file = (
-            self._symbol_dir(symbol) / "insider" / f"{year}Q{quarter}.json"
-        )
+        cache_file = self._progress_dir(symbol) / "insider" / f"{year}Q{quarter}.json"
+        # Legacy migration
+        legacy = self._symbol_dir(symbol) / "insider" / f"{year}Q{quarter}.json"
+        if not cache_file.exists() and legacy.exists():
+            cache_file.parent.mkdir(parents=True, exist_ok=True)
+            legacy.rename(cache_file)
+            logger.info("Migrated %s → %s", legacy, cache_file)
         if not cache_file.exists():
             return None
         try:
@@ -1413,47 +1397,25 @@ class SecInsiderClient:
     def _load_beneficial_owners_cache(
         self, symbol: str,
     ) -> list[BeneficialOwner] | None:
-        cache_file = self._symbol_dir(symbol) / "beneficial_owners.json"
-        if not cache_file.exists():
+        records = self._load_csv(symbol, "beneficial_owners.csv", BeneficialOwner)
+        if records is not None:
+            return records
+        json_path = self._symbol_dir(symbol) / "beneficial_owners.json"
+        if not json_path.exists():
             return None
         try:
-            data = json.loads(cache_file.read_text(encoding="utf-8"))
-            return [BeneficialOwner(**r) for r in data]
+            data = json.loads(json_path.read_text(encoding="utf-8"))
+            records = [BeneficialOwner(**r) for r in data]
+            self._save_beneficial_owners_cache(symbol, records)
+            logger.info("Migrated %s to CSV", json_path)
+            return records
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
-            logger.warning(
-                "Failed to load beneficial owners cache for %s: %s",
-                symbol, exc,
-            )
+            logger.warning("Failed to load beneficial owners cache for %s: %s", symbol, exc)
             return None
 
-    def _save_beneficial_owners_cache(
-        self,
-        symbol: str,
-        owners: list[BeneficialOwner],
-    ) -> None:
-        cache_file = self._symbol_dir(symbol) / "beneficial_owners.json"
-        data = [asdict(o) for o in owners]
-        try:
-            cache_file.write_text(
-                json.dumps(data, indent=2), encoding="utf-8",
-            )
-        except OSError as exc:
-            logger.warning(
-                "Failed to save beneficial owners cache for %s: %s",
-                symbol, exc,
-            )
+    def _save_beneficial_owners_cache(self, symbol, owners):
+        self._save_csv(symbol, "beneficial_owners.csv", owners)
 
-    # ------------------------------------------------------------------
-    # Rate limiting
-    # ------------------------------------------------------------------
-
-    def _rate_limit(self) -> None:
-        """Sleep if needed to maintain the SEC 10 req/sec rate limit."""
-        now = time.monotonic()
-        elapsed = now - self._last_request_time
-        if elapsed < _RATE_LIMIT_DELAY:
-            time.sleep(_RATE_LIMIT_DELAY - elapsed)
-        self._last_request_time = time.monotonic()
 
 
 # ------------------------------------------------------------------
