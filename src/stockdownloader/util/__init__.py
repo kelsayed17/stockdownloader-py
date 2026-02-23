@@ -42,7 +42,7 @@ from stockdownloader.util.indicators import (
     session_vwap,
     session_vwap_bands,
 )
-from stockdownloader.util.black_scholes_calculator import (
+from stockdownloader.util.options.black_scholes import (
     delta,
     estimate_volatility,
     intrinsic_value,
@@ -104,7 +104,7 @@ __all__ = [
     "SessionVWAP",
     "session_vwap",
     "session_vwap_bands",
-    # black_scholes_calculator
+    # options.black_scholes
     "delta",
     "estimate_volatility",
     "intrinsic_value",

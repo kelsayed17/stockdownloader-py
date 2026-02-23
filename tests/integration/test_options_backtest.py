@@ -21,7 +21,7 @@ from stockdownloader.model.unified_market_data import (
 )
 from stockdownloader.strategy.options.options_strategies import CoveredCallStrategy, ProtectivePutStrategy
 from stockdownloader.strategy.options.options_strategies import OptionsStrategy
-from stockdownloader.util.black_scholes_calculator import (
+from stockdownloader.util.options.black_scholes import (
     price as bs_price,
     estimate_volatility,
     delta as bs_delta,

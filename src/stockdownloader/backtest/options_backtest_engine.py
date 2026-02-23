@@ -22,7 +22,7 @@ from stockdownloader.backtest.backtest_result import OptionsBacktestResult
 from stockdownloader.model import OptionsTrade, OptionsDirection, OptionsTradeStatus
 from stockdownloader.model.price_data import PriceData
 from stockdownloader.strategy.options.options_strategies import OptionsStrategy, OptionsSignal
-from stockdownloader.util import black_scholes_calculator as bsc
+from stockdownloader.util.options import black_scholes as bsc
 
 _CONTRACT_MULTIPLIER = 100
 _DEFAULT_RISK_FREE_RATE = Decimal("0.05")
