@@ -250,6 +250,22 @@ def run_regsho(symbols: list[str]) -> None:
             logger.error("  FAILED: %s", e)
 
 
+def _move_alias_data(alias: str, canonical: str) -> None:
+    """Move data files created under an alias dir to the canonical dir."""
+    alias_dir = Path(DATA_DIR) / alias.upper()
+    canonical_dir = Path(DATA_DIR) / canonical.upper()
+    if not alias_dir.exists() or alias_dir == canonical_dir:
+        return
+    canonical_dir.mkdir(parents=True, exist_ok=True)
+    import shutil
+    for f in alias_dir.iterdir():
+        dest = canonical_dir / f.name
+        shutil.move(str(f), str(dest))
+        logger.info("  Moved %s -> %s", f, dest)
+    alias_dir.rmdir()
+    logger.info("  Removed alias dir %s", alias_dir)
+
+
 def run_polygon(symbols: list[str]) -> None:
     """Polygon daily + intraday price data."""
     from stockdownloader.data.full_history_fetcher import FullHistoryFetcher
@@ -260,11 +276,11 @@ def run_polygon(symbols: list[str]) -> None:
         try:
             records = fetcher.fetch_full_daily_history(sym)
             if not records:
-                # Try aliases
                 for alias in get_all_tickers(sym)[1:]:
                     logger.info("  Trying alias %r for daily bars", alias)
                     records = fetcher.fetch_full_daily_history(alias)
                     if records:
+                        _move_alias_data(alias, sym)
                         break
             logger.info("  -> %d daily bars", len(records))
         except Exception as e:
@@ -278,6 +294,7 @@ def run_polygon(symbols: list[str]) -> None:
                     logger.info("  Trying alias %r for 5m bars", alias)
                     records = fetcher.fetch_intraday_history(alias)
                     if records:
+                        _move_alias_data(alias, sym)
                         break
             logger.info("  -> %d 5m bars", len(records))
         except Exception as e:
@@ -320,6 +337,28 @@ def main() -> None:
     # --- Price data (GME + GMEWS) ---
     logger.info("\n>>> PRICE DATA (GME + GMEWS)")
     run_polygon(all_symbols)
+
+    # --- Cleanup: remove any stale alias directories created by clients ---
+    from stockdownloader.model.symbol_info import get_symbol_info
+    data_path = Path(DATA_DIR)
+    for sym in all_symbols:
+        info = get_symbol_info(sym)
+        if info is not None:
+            for alias in info.aliases:
+                alias_dir = data_path / alias.upper()
+                if alias_dir.exists() and alias_dir.is_dir():
+                    import shutil
+                    # Move any files to canonical, then remove
+                    canonical_dir = data_path / sym.upper()
+                    for f in alias_dir.iterdir():
+                        dest = canonical_dir / f.name
+                        if not dest.exists():
+                            shutil.move(str(f), str(dest))
+                    try:
+                        shutil.rmtree(str(alias_dir))
+                        logger.info("Cleaned up stale alias dir: %s", alias_dir)
+                    except OSError:
+                        pass
 
     elapsed = time.time() - start
     logger.info("=" * 60)
