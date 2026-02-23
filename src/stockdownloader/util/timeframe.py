@@ -6,7 +6,7 @@ session boundaries are excluded.
 
 Usage::
 
-    from stockdownloader.util.timeframe_aggregator import TimeframeAggregator
+    from stockdownloader.util.timeframe import TimeframeAggregator
 
     agg = TimeframeAggregator(data)  # data = list[IntradayPriceData]
     bars_15m = agg.get_bars(Timeframe.M15)

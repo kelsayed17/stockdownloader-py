@@ -32,12 +32,12 @@ from stockdownloader.strategy.signals.signal_generator import (
     SignalResult,
 )
 from stockdownloader.util.indicator_hub import IndicatorHub
-from stockdownloader.util.timeframe_aggregator import Timeframe
+from stockdownloader.util.timeframe import Timeframe
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from stockdownloader.model.price_data import PriceData
-    from stockdownloader.util.timeframe_aggregator import TimeframeAggregator
+    from stockdownloader.util.timeframe import TimeframeAggregator
 
 
 @dataclass(frozen=True, slots=True)

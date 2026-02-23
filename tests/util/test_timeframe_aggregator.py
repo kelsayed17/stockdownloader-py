@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.timeframe_aggregator import (
+from stockdownloader.util.timeframe import (
     AggregatedBar,
     Timeframe,
     TimeframeAggregator,

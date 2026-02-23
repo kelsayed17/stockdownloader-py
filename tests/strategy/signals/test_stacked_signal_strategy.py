@@ -24,7 +24,7 @@ from stockdownloader.strategy.signals.stacked_daily_strategy import (
 )
 from stockdownloader.strategy.trading_strategy import Signal
 from stockdownloader.util.indicator_hub import IndicatorHub
-from stockdownloader.util.timeframe_aggregator import Timeframe
+from stockdownloader.util.timeframe import Timeframe
 
 
 # ======================================================================

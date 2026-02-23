@@ -27,7 +27,7 @@ from stockdownloader.util.config import (
     OPTIONS_COMMISSION,
     RISK_PER_TRADE,
 )
-from stockdownloader.util.timeframe_aggregator import Timeframe
+from stockdownloader.util.timeframe import Timeframe
 
 logger = logging.getLogger(__name__)
 

@@ -152,7 +152,7 @@ def _load_intraday_data(csv_path: str, out) -> list[IntradayPriceData]:
 
 def _load_daily_data(intraday_data: list[IntradayPriceData], out):
     """Aggregate 5-min bars to daily PriceData for options backtesting."""
-    from stockdownloader.util.timeframe_aggregator import TimeframeAggregator, Timeframe
+    from stockdownloader.util.timeframe import TimeframeAggregator, Timeframe
     out("Aggregating 5-min bars to daily for options strategies...")
     agg = TimeframeAggregator(intraday_data)
     daily = agg.as_price_data(Timeframe.DAILY)

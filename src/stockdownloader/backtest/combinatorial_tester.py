@@ -58,7 +58,7 @@ from stockdownloader.strategy.signals.stacked_signal_engine import (
 from stockdownloader.strategy.signals.stacked_intraday_strategy import (
     StackedIntradayStrategy,
 )
-from stockdownloader.util.timeframe_aggregator import Timeframe
+from stockdownloader.util.timeframe import Timeframe
 
 logger = logging.getLogger(__name__)
 

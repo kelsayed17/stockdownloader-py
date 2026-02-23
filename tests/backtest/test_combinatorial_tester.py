@@ -27,7 +27,7 @@ from stockdownloader.strategy.signals.stacked_signal_engine import (
     AggregationMode,
 )
 from stockdownloader.util.indicator_hub import IndicatorHub
-from stockdownloader.util.timeframe_aggregator import Timeframe
+from stockdownloader.util.timeframe import Timeframe
 
 
 # ======================================================================

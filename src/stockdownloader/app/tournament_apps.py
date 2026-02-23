@@ -65,7 +65,7 @@ from stockdownloader.strategy.exit_mechanisms import (
 )
 from stockdownloader.strategy.signals.stacked_signal_engine import AggregationMode
 from stockdownloader.util.io import TeeWriter
-from stockdownloader.util.timeframe_aggregator import Timeframe
+from stockdownloader.util.timeframe import Timeframe
 
 from stockdownloader.util.config import (
     DEFAULT_DATA_FILE as _DATA_FILE,

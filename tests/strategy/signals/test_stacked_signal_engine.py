@@ -16,7 +16,7 @@ from stockdownloader.strategy.signals.stacked_signal_engine import (
     StackedSignalEngine,
     StackResult,
 )
-from stockdownloader.util.timeframe_aggregator import Timeframe
+from stockdownloader.util.timeframe import Timeframe
 
 
 # ======================================================================

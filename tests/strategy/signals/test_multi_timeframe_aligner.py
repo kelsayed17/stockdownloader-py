@@ -18,7 +18,7 @@ from stockdownloader.strategy.signals.multi_timeframe_aligner import (
     TimeframeSignalSpec,
 )
 from stockdownloader.util.indicator_hub import IndicatorHub
-from stockdownloader.util.timeframe_aggregator import Timeframe, TimeframeAggregator
+from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
 
 
 # ======================================================================

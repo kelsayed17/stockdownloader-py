@@ -46,7 +46,7 @@ from stockdownloader.backtest.walk_forward import WalkForwardValidator
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.util.io import TeeWriter
 from stockdownloader.util.indicator_hub import IndicatorHub
-from stockdownloader.util.timeframe_aggregator import Timeframe, TimeframeAggregator
+from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
 
 from stockdownloader.app.app_helpers import (
     DEFAULT_DATA_FILE as _DATA_FILE,
