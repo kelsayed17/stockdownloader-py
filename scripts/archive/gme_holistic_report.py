@@ -1246,8 +1246,10 @@ def main():
         print_insider_analysis(insider_txns, beneficial_owners, aligned)
 
     # 15. Export
-    csv_path = GME_DIR / "holistic_aligned.csv"
-    json_path = GME_DIR / "report_data.json"
+    reports_dir = PROJECT_ROOT / "reports" / "GME"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = reports_dir / "holistic_aligned.csv"
+    json_path = reports_dir / "report_data.json"
     export_csv(aligned, csv_path)
     export_tradingview_json(aligned, si_by_date, dp_by_week, own_by_quarter, json_path)
 
