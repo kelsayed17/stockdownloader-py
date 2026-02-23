@@ -12,6 +12,7 @@ from stockdownloader.model.symbol_info import (
     get_symbol_info,
     get_variants,
     get_family,
+    get_all_tickers,
 )
 
 
@@ -231,3 +232,44 @@ class TestSymbolInfoVariants:
                           security_type="warrant")
         assert info.parent == "GME"
         assert info.security_type == "warrant"
+
+
+# ------------------------------------------------------------------
+# Tests: Aliases
+# ------------------------------------------------------------------
+
+
+class TestAliases:
+    def test_default_aliases_empty(self):
+        info = get_symbol_info("GME")
+        assert info is not None
+        assert info.aliases == ()
+
+    def test_gmews_has_aliases(self):
+        info = get_symbol_info("GMEWS")
+        assert info is not None
+        assert "GME WS" in info.aliases
+        assert "GME-WS" in info.aliases
+        assert "GME.WS" in info.aliases
+
+    def test_get_all_tickers_parent(self):
+        tickers = get_all_tickers("GME")
+        assert tickers == ["GME"]
+
+    def test_get_all_tickers_variant(self):
+        tickers = get_all_tickers("GMEWS")
+        assert tickers[0] == "GMEWS"
+        assert "GME WS" in tickers
+        assert "GME-WS" in tickers
+        assert "GME.WS" in tickers
+        assert "GME/WS" in tickers
+        assert "GME+WS" in tickers
+
+    def test_get_all_tickers_unknown(self):
+        tickers = get_all_tickers("ZZZZZZ")
+        assert tickers == ["ZZZZZZ"]
+
+    def test_aliases_frozen(self):
+        info = get_symbol_info("GMEWS")
+        assert info is not None
+        assert isinstance(info.aliases, tuple)

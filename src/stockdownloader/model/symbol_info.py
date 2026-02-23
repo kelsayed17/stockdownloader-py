@@ -46,6 +46,9 @@ class SymbolInfo:
     security_type:
         One of ``"common"``, ``"warrant"``, ``"when_issued"``,
         ``"preferred"``.  Defaults to ``"common"``.
+    aliases:
+        Alternative ticker strings used by various data providers
+        (e.g. ``("GME WS", "GME-WS")``).  Defaults to empty tuple.
     """
 
     symbol: str
@@ -55,6 +58,7 @@ class SymbolInfo:
     exchange: str = ""
     parent: str | None = None
     security_type: str = "common"
+    aliases: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.symbol:
@@ -168,6 +172,7 @@ _register(
         exchange="NYSE",
         parent="GME",
         security_type="warrant",
+        aliases=("GME WS", "GME-WS", "GME.WS", "GME/WS", "GME+WS"),
     ),
 )
 
@@ -202,3 +207,14 @@ def get_family(symbol: str) -> list[SymbolInfo]:
     if root_info is None:
         return [info]
     return [root_info] + get_variants(root)
+
+
+def get_all_tickers(symbol: str) -> list[str]:
+    """Return canonical ticker plus all aliases for *symbol*.
+
+    Unknown symbols return a single-element list with the symbol itself.
+    """
+    info = get_symbol_info(symbol)
+    if info is None:
+        return [symbol.upper()]
+    return [info.symbol, *info.aliases]
