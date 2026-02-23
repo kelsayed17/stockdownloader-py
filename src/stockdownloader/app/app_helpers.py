@@ -289,3 +289,42 @@ def print_data_summary(
         for line in extra_lines:
             print(line)
     print()
+
+
+# ======================================================================
+# Output formatting helpers
+# ======================================================================
+
+
+def status_label(degradation: float) -> str:
+    """Map walk-forward degradation ratio to a human-readable label.
+
+    Parameters
+    ----------
+    degradation:
+        Walk-forward degradation ratio (0.0 to 1.0+).
+        >= 0.8 is ROBUST, >= 0.5 is ACCEPTABLE, below is OVERFIT.
+    """
+    if degradation >= 0.8:
+        return "ROBUST"
+    if degradation >= 0.5:
+        return "ACCEPTABLE"
+    return "OVERFIT"
+
+
+def box_title(title: str, width: int = 100) -> str:
+    """Render a Unicode box around a title string.
+
+    Parameters
+    ----------
+    title:
+        Text to display centered inside the box.
+    width:
+        Interior width in characters (default 100).
+    """
+    lines = [
+        "\u2554" + "\u2550" * width + "\u2557",
+        "\u2551" + title.center(width) + "\u2551",
+        "\u255a" + "\u2550" * width + "\u255d",
+    ]
+    return "\n".join(lines)

@@ -41,6 +41,7 @@ import time
 from decimal import Decimal
 
 from stockdownloader.app.app_helpers import add_intraday_csv_arg, add_log_arg
+from stockdownloader.app.app_helpers import status_label as _status_label
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.strategy_optimizer import StrategyOptimizer
 from stockdownloader.backtest.walk_forward import WalkForwardValidator
@@ -308,15 +309,6 @@ def main_walk_forward() -> None:
     print("  Legend: Degradation = OOS / IS score ratio")
     print("    >= 0.8 = ROBUST   0.5-0.8 = ACCEPTABLE   < 0.5 = OVERFIT")
     print()
-
-
-def _status_label(degradation: float) -> str:
-    """Map degradation ratio to a human-readable label."""
-    if degradation >= 0.8:
-        return "ROBUST"
-    if degradation >= 0.5:
-        return "ACCEPTABLE"
-    return "OVERFIT"
 
 
 def _print_status(result) -> None:  # noqa: ANN001

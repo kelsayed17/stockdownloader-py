@@ -51,6 +51,7 @@ from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
 from stockdownloader.app.app_helpers import (
     DEFAULT_DATA_FILE as _DATA_FILE,
     DEFAULT_OUTPUT_DIR as _OUTPUT_DIR,
+    box_title as _box_title,
 )
 
 
@@ -73,20 +74,6 @@ _DEFAULT_GAP: dict[str, int] = {
     "4h": 5,      # ~20 hours
     "1d": 5,      # 5 days
 }
-
-
-# ======================================================================
-# Output helpers
-# ======================================================================
-
-
-def _box_title(title: str, width: int = 100) -> str:
-    lines = [
-        "\u2554" + "\u2550" * width + "\u2557",
-        "\u2551" + title.center(width) + "\u2551",
-        "\u255a" + "\u2550" * width + "\u255d",
-    ]
-    return "\n".join(lines)
 
 
 # ======================================================================

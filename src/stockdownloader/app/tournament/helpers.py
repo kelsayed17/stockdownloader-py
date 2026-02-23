@@ -4,32 +4,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from stockdownloader.app.app_helpers import STANDARD_TIMEFRAMES as _TIMEFRAMES
+from stockdownloader.app.app_helpers import box_title as _box_title, status_label as _status_label
 from stockdownloader.backtest.tournament_engine import ComboKey, ComboResult
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
-
-
-# ======================================================================
-# Output helpers
-# ======================================================================
-
-
-def _box_title(title: str, width: int = 100) -> str:
-    lines = [
-        "\u2554" + "\u2550" * width + "\u2557",
-        "\u2551" + title.center(width) + "\u2551",
-        "\u255a" + "\u2550" * width + "\u255d",
-    ]
-    return "\n".join(lines)
-
-
-def _status_label(degradation: float) -> str:
-    if degradation >= 0.8:
-        return "ROBUST"
-    if degradation >= 0.5:
-        return "ACCEPTABLE"
-    return "OVERFIT"
 
 
 # ======================================================================
