@@ -14,16 +14,12 @@ from decimal import Decimal
 from unittest.mock import patch
 
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.indicator_hub import IndicatorHub
-from stockdownloader.util import technical as ti
-from stockdownloader.util.technical import sma as _sma, ema as _ema
-from stockdownloader.util.streaming import (
-    StreamingADX,
-    StreamingATR,
-    StreamingEMA,
-    StreamingMACD,
-    StreamingRSI,
-)
+from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.util import indicators as ti
+from stockdownloader.util.indicators import sma as _sma, ema as _ema
+from stockdownloader.util.indicators.momentum import StreamingMACD, StreamingRSI
+from stockdownloader.util.indicators.volatility import StreamingATR, StreamingEMA
+from stockdownloader.util.indicators.trend import StreamingADX
 
 
 def _generate_test_data(days: int) -> list[PriceData]:
@@ -122,8 +118,11 @@ def test_clear_empties_cache():
 
 def test_underlying_function_called_only_once():
     # Use a cache-based indicator to test function call counting
+    # Patch the momentum module object that hub.py imported, since hub
+    # calls `momentum.cci(...)`.
+    from stockdownloader.util.indicators import momentum as _mom
     hub = IndicatorHub()
-    with patch.object(ti, "cci", wraps=ti.cci) as mock_cci:
+    with patch.object(_mom, "cci", wraps=_mom.cci) as mock_cci:
         hub.cci(DATA, 50, period=20)
         hub.cci(DATA, 50, period=20)
         hub.cci(DATA, 50, period=20)

@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
 from stockdownloader.ml.feature_extractor import FeatureExtractor
-from stockdownloader.util.indicator_hub import IndicatorHub
+from stockdownloader.util.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import PriceData

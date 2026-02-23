@@ -23,7 +23,7 @@ from stockdownloader.model.alert_result import AlertResult, AlertDirection, Opti
 from stockdownloader.model.indicator_values import IndicatorValues
 from stockdownloader.model.options import OptionType
 from stockdownloader.util import black_scholes_calculator as bsc
-from stockdownloader.util import technical as ti
+from stockdownloader.util import indicators as ti
 from stockdownloader.util.math import ZERO
 
 if TYPE_CHECKING:

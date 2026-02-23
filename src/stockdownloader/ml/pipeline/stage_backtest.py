@@ -473,7 +473,7 @@ class BacktestStage:
         from stockdownloader.ml.trainer import MLTrainer
         from stockdownloader.strategy.registration_loader import ensure_registered
         from stockdownloader.strategy.base_registry import StrategyRegistry
-        from stockdownloader.util.indicator_hub import IndicatorHub
+        from stockdownloader.util.indicators.hub import IndicatorHub
 
         ensure_registered()
 

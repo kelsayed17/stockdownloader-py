@@ -10,7 +10,7 @@ from stockdownloader.strategy.signals.signal_generator import (
     SignalResult,
 )
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.indicator_hub import IndicatorHub
+from stockdownloader.util.indicators.hub import IndicatorHub
 
 
 # ======================================================================

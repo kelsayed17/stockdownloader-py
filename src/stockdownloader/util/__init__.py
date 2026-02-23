@@ -6,8 +6,8 @@ from stockdownloader.util.math import (
     percent_change,
     scale2,
 )
-from stockdownloader.util.technical import ema, sma
-from stockdownloader.util.technical import (
+from stockdownloader.util.indicators import ema, sma
+from stockdownloader.util.indicators import (
     ADXResult,
     BollingerBands,
     FibonacciLevels,

@@ -7,7 +7,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.smc_indicators import (
+from stockdownloader.util.indicators.smc import (
     StructureState,
     SwingPoint,
     _EMPTY_STRUCTURE,

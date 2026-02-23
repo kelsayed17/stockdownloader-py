@@ -39,7 +39,7 @@ from stockdownloader.util.io import (
     write_content,
     write_lines,
 )
-from stockdownloader.util.technical import ema, sma
+from stockdownloader.util.indicators import ema, sma
 
 
 @pytest.fixture(scope="module")

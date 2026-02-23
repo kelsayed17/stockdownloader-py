@@ -23,7 +23,7 @@ from stockdownloader.strategy.signals.stacked_signal_engine import (
     StackedSignalEngine,
 )
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
-from stockdownloader.util.indicator_hub import IndicatorHub
+from stockdownloader.util.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import PriceData

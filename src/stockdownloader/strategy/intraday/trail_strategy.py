@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData
     from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
     from stockdownloader.strategy.intraday.session_state import SessionState
-    from stockdownloader.util.intraday_indicators import ExtendedSessionVWAP
+    from stockdownloader.util.indicators.volume import ExtendedSessionVWAP
 
 _BE_BUF = Decimal("0.05")
 

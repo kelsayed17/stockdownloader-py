@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.indicator_hub import IndicatorHub
+from stockdownloader.util.indicators.hub import IndicatorHub
 
 
 # ======================================================================

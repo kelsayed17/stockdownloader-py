@@ -38,7 +38,7 @@ from stockdownloader.strategy.regime.regime_detector import (
     RegimeClassification,
 )
 from stockdownloader.strategy.regime.regime_strategy_map import RegimeStrategyMapper
-from stockdownloader.util.indicator_hub import IndicatorHub
+from stockdownloader.util.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

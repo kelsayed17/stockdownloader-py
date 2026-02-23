@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.util.technical import (
+from stockdownloader.util.indicators import (
     crossed_above,
     crossed_below,
     crossed_above_series,

@@ -9,11 +9,9 @@ import random
 from decimal import Decimal
 
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util import technical as ti
-from stockdownloader.util.streaming import (
-    StreamingOBV,
-    StreamingSAR,
-)
+from stockdownloader.util import indicators as ti
+from stockdownloader.util.indicators.momentum import StreamingOBV
+from stockdownloader.util.indicators.trend import StreamingSAR
 
 
 def _generate_test_data(days: int, seed: int = 42) -> list[PriceData]:
@@ -202,7 +200,7 @@ class TestHubStreamingIntegration:
     and produce results matching the raw functions."""
 
     def test_hub_obv_matches_raw(self):
-        from stockdownloader.util.indicator_hub import IndicatorHub
+        from stockdownloader.util.indicators.hub import IndicatorHub
 
         hub = IndicatorHub()
         for i in [10, 50, 100, 150]:
@@ -213,7 +211,7 @@ class TestHubStreamingIntegration:
             )
 
     def test_hub_is_obv_rising_matches_raw(self):
-        from stockdownloader.util.indicator_hub import IndicatorHub
+        from stockdownloader.util.indicators.hub import IndicatorHub
 
         hub = IndicatorHub()
         # Need to compute OBV first for all bars up to 100
@@ -226,7 +224,7 @@ class TestHubStreamingIntegration:
             )
 
     def test_hub_parabolic_sar_matches_raw(self):
-        from stockdownloader.util.indicator_hub import IndicatorHub
+        from stockdownloader.util.indicators.hub import IndicatorHub
 
         hub = IndicatorHub()
         for i in [10, 50, 100, 150]:
@@ -237,7 +235,7 @@ class TestHubStreamingIntegration:
             )
 
     def test_hub_is_sar_bullish_matches_raw(self):
-        from stockdownloader.util.indicator_hub import IndicatorHub
+        from stockdownloader.util.indicators.hub import IndicatorHub
 
         hub = IndicatorHub()
         # SAR needs to be computed up to the index

@@ -29,7 +29,7 @@ from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal
 from stockdownloader.util.io import CsvParser
-from stockdownloader.util.technical import sma, ema
+from stockdownloader.util.indicators import sma, ema
 
 
 @pytest.fixture(scope="module")

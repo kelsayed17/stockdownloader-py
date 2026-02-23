@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
-from stockdownloader.util.indicator_hub import IndicatorHub
+from stockdownloader.util.indicators.hub import IndicatorHub
 from stockdownloader.util.pinescript_models import (
     Condition, Indicator, Input, StrategyDefinition,
 )

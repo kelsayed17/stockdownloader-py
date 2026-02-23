@@ -18,8 +18,8 @@ from stockdownloader.strategy.intraday.trail_strategy import (
     TrailStrategy,
 )
 from stockdownloader.util.math import ZERO
-from stockdownloader.util.intraday_indicators import (
-    ExtendedSessionVWAP,
+from stockdownloader.util.indicators.volume import ExtendedSessionVWAP
+from stockdownloader.util.indicators.intraday import (
     is_bear_engulfing,
     is_bull_engulfing,
     is_hammer,

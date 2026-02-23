@@ -32,7 +32,7 @@ from stockdownloader.strategy.intraday.session_state import BarContext
 from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import AtrChandelierTrail
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
-from stockdownloader.util.intraday_indicators import candle_strength
+from stockdownloader.util.indicators.intraday import candle_strength
 from stockdownloader.util.math import ZERO
 from stockdownloader.util.pinescript_models import ModeDefinition
 from stockdownloader.util.pinescript_modes import orb_mode

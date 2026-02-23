@@ -33,7 +33,7 @@ from stockdownloader.strategy.signals.stacked_signal_engine import (
     StackConfig,
     StackedSignalEngine,
 )
-from stockdownloader.util.indicator_hub import IndicatorHub
+from stockdownloader.util.indicators.hub import IndicatorHub
 from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
 from stockdownloader.util.math import ZERO
 

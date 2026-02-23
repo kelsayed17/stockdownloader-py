@@ -1,21 +1,20 @@
 """Cached indicator calculator for strategies.
 
-Wraps all functions from :mod:`technical_indicators`,
-:mod:`intraday_indicators`, and :mod:`moving_average_calculator` with
+Wraps all functions from the unified :mod:`indicators` package with
 per-``(indicator, index, params)`` caching.
 
 **Performance**: For indicators that dominate backtest runtime (OBV, EMA,
 ATR, ADX, RSI, MACD, Parabolic SAR), the hub uses *streaming accumulators*
-from :mod:`incremental_indicators`.  These maintain running state and
-update in O(1) per bar instead of recomputing from scratch (O(n)).  This
-drops Multi-Indicator backtests from ~1400s to ~10s on 40K bars.
+that maintain running state and update in O(1) per bar instead of
+recomputing from scratch (O(n)).  This drops Multi-Indicator backtests
+from ~1400s to ~10s on 40K bars.
 
 Each strategy holds its own hub instance.  The cache auto-clears when
 the underlying data reference changes (new backtest run).
 
 Usage::
 
-    from stockdownloader.util.indicator_hub import IndicatorHub
+    from stockdownloader.util.indicators.hub import IndicatorHub
 
     class MyStrategy(TradingStrategy):
         def __init__(self):
@@ -32,24 +31,34 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
-from stockdownloader.util.math import ZERO
-from stockdownloader.util import technical as ti
-from stockdownloader.util import intraday_indicators as ii
-from stockdownloader.util.technical import sma as _sma, ema as _ema
-from stockdownloader.util.streaming import (
-    StreamingADX,
-    StreamingAnchoredVWAP,
-    StreamingATR,
-    StreamingCVD,
-    StreamingEMA,
-    StreamingHTFResample,
+from stockdownloader.util.math import ZERO, quantize as _quantize
+
+# Batch indicator functions — imported from specific modules
+from stockdownloader.util.indicators._core import sma as _sma, ema as _ema
+from stockdownloader.util.indicators import momentum, volatility, trend, volume
+from stockdownloader.util.indicators import intraday as ii
+
+# Streaming accumulators — imported from specific modules
+from stockdownloader.util.indicators.momentum import (
     StreamingMACD,
     StreamingOBV,
     StreamingRSI,
+)
+from stockdownloader.util.indicators.volatility import (
+    StreamingATR,
+    StreamingEMA,
+)
+from stockdownloader.util.indicators.trend import (
+    StreamingADX,
     StreamingSAR,
+)
+from stockdownloader.util.indicators.volume import (
+    StreamingAnchoredVWAP,
+    StreamingCVD,
     StreamingSessionVWAP,
 )
-from stockdownloader.util.streaming_structure import StreamingStructureTracker
+from stockdownloader.util.indicators.htf import StreamingHTFResample
+from stockdownloader.util.indicators.smc import StreamingStructureTracker
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -255,7 +264,7 @@ class IndicatorHub:
         """Rate of Change."""
         return self._get(
             ("roc", index, period),
-            data, ti.roc, data, index, period,
+            data, momentum.roc, data, index, period,
         )
 
     def williams_r(
@@ -267,7 +276,7 @@ class IndicatorHub:
         """Williams %R."""
         return self._get(
             ("williams_r", index, period),
-            data, ti.williams_r, data, index, period,
+            data, momentum.williams_r, data, index, period,
         )
 
     # ==================================================================
@@ -280,11 +289,11 @@ class IndicatorHub:
         index: int,
         period: int = 20,
         num_std_dev: float = 2.0,
-    ) -> ti.BollingerBands:
+    ) -> volatility.BollingerBands:
         """Bollinger Bands."""
         return self._get(
             ("bollinger_bands", index, period, num_std_dev),
-            data, ti.bollinger_bands, data, index, period, num_std_dev,
+            data, volatility.bollinger_bands, data, index, period, num_std_dev,
         )
 
     def bollinger_percent_b(
@@ -298,7 +307,7 @@ class IndicatorHub:
         self._ensure_bound(data)
         if key not in self._cache:
             bb = self.bollinger_bands(data, index, period, 2.0)
-            self._cache[key] = ti._bollinger_percent_b_from_bands(
+            self._cache[key] = volatility._bollinger_percent_b_from_bands(
                 data[index].close, bb,
             )
         return self._cache[key]
@@ -313,11 +322,11 @@ class IndicatorHub:
         index: int,
         k_period: int = 14,
         d_period: int = 3,
-    ) -> ti.Stochastic:
+    ) -> momentum.Stochastic:
         """Stochastic Oscillator (%K, %D)."""
         return self._get(
             ("stochastic", index, k_period, d_period),
-            data, ti.stochastic, data, index, k_period, d_period,
+            data, momentum.stochastic, data, index, k_period, d_period,
         )
 
     # ==================================================================
@@ -342,9 +351,10 @@ class IndicatorHub:
         index: int,
     ) -> Decimal:
         """True Range for a single bar."""
+        from stockdownloader.util.indicators._core import true_range as _true_range
         return self._get(
             ("true_range", index),
-            data, ti.true_range, data, index,
+            data, _true_range, data, index,
         )
 
     def standard_deviation(
@@ -354,9 +364,10 @@ class IndicatorHub:
         period: int,
     ) -> Decimal:
         """Standard deviation of close prices."""
+        from stockdownloader.util.indicators._core import standard_deviation as _std
         return self._get(
             ("standard_deviation", index, period),
-            data, ti.standard_deviation, data, index, period,
+            data, _std, data, index, period,
         )
 
     # ==================================================================
@@ -397,7 +408,7 @@ class IndicatorHub:
         """Average volume over *period* bars."""
         return self._get(
             ("average_volume", index, period),
-            data, ti.average_volume, data, index, period,
+            data, momentum.average_volume, data, index, period,
         )
 
     def mfi(
@@ -409,7 +420,7 @@ class IndicatorHub:
         """Money Flow Index."""
         return self._get(
             ("mfi", index, period),
-            data, ti.mfi, data, index, period,
+            data, momentum.mfi, data, index, period,
         )
 
     # ==================================================================
@@ -421,13 +432,13 @@ class IndicatorHub:
         data: Sequence[PriceData],
         index: int,
         period: int = 14,
-    ) -> ti.ADXResult:
+    ) -> trend.ADXResult:
         """Average Directional Index (ADX, +DI, -DI) (streaming)."""
         self._ensure_bound(data)
         if period not in self._s_adx:
             self._s_adx[period] = StreamingADX(period)
         vals = self._s_adx[period].update(data, index)
-        return ti.ADXResult(adx=vals[0], plus_di=vals[1], minus_di=vals[2])
+        return trend.ADXResult(adx=vals[0], plus_di=vals[1], minus_di=vals[2])
 
     def parabolic_sar(
         self,
@@ -464,11 +475,11 @@ class IndicatorHub:
         self,
         data: Sequence[PriceData],
         index: int,
-    ) -> ti.IchimokuCloud:
+    ) -> trend.IchimokuCloud:
         """Ichimoku Cloud components."""
         return self._get(
             ("ichimoku", index),
-            data, ti.ichimoku, data, index,
+            data, trend.ichimoku, data, index,
         )
 
     # ==================================================================
@@ -484,7 +495,7 @@ class IndicatorHub:
         """Commodity Channel Index."""
         return self._get(
             ("cci", index, period),
-            data, ti.cci, data, index, period,
+            data, momentum.cci, data, index, period,
         )
 
     # ==================================================================
@@ -500,7 +511,7 @@ class IndicatorHub:
         """Volume-Weighted Average Price (rolling lookback)."""
         return self._get(
             ("vwap", index, lookback),
-            data, ti.vwap, data, index, lookback,
+            data, trend.vwap, data, index, lookback,
         )
 
     # ==================================================================
@@ -512,11 +523,11 @@ class IndicatorHub:
         data: Sequence[PriceData],
         index: int,
         lookback: int = 50,
-    ) -> ti.FibonacciLevels:
+    ) -> trend.FibonacciLevels:
         """Fibonacci retracement levels."""
         return self._get(
             ("fibonacci_retracement", index, lookback),
-            data, ti.fibonacci_retracement, data, index, lookback,
+            data, trend.fibonacci_retracement, data, index, lookback,
         )
 
     # ==================================================================
@@ -529,11 +540,11 @@ class IndicatorHub:
         index: int,
         lookback: int,
         window: int,
-    ) -> ti.SupportResistance:
+    ) -> trend.SupportResistance:
         """Detect support and resistance levels."""
         return self._get(
             ("support_resistance", index, lookback, window),
-            data, ti.support_resistance, data, index, lookback, window,
+            data, trend.support_resistance, data, index, lookback, window,
         )
 
     # ==================================================================
@@ -568,18 +579,17 @@ class IndicatorHub:
         self,
         data: Sequence[PriceData],
         index: int,
-    ) -> ti.SessionVWAP:
+    ) -> volume.SessionVWAP:
         """Intraday session VWAP with standard deviation bands (streaming)."""
         key = ("session_vwap_bands", index)
         self._ensure_bound(data)
         if key not in self._cache:
             vwap_val, std_val = self._vwap_core(data, index)
-            from stockdownloader.util.technical import _quantize
             if vwap_val == ZERO and std_val == ZERO:
-                self._cache[key] = ti.SessionVWAP(ZERO, ZERO, ZERO, ZERO, ZERO, ZERO)
+                self._cache[key] = volume.SessionVWAP(ZERO, ZERO, ZERO, ZERO, ZERO, ZERO)
             else:
                 half_std = _quantize(std_val * Decimal("0.5"))
-                self._cache[key] = ti.SessionVWAP(
+                self._cache[key] = volume.SessionVWAP(
                     vwap=vwap_val,
                     std_dev=std_val,
                     upper_1=_quantize(vwap_val + std_val),
@@ -593,21 +603,20 @@ class IndicatorHub:
         self,
         data: Sequence[PriceData],
         index: int,
-    ) -> ii.ExtendedSessionVWAP:
+    ) -> volume.ExtendedSessionVWAP:
         """Extended session VWAP with multi-sigma bands (streaming)."""
         key = ("extended_session_vwap_bands", index)
         self._ensure_bound(data)
         if key not in self._cache:
             vwap_val, std_val = self._vwap_core(data, index)
-            from stockdownloader.util.technical import _quantize
             if vwap_val == ZERO and std_val == ZERO:
-                self._cache[key] = ii._EMPTY_VWAP
+                self._cache[key] = volume._EMPTY_VWAP
             else:
                 s05 = _quantize(std_val * Decimal("0.5"))
                 s15 = _quantize(std_val * Decimal("1.5"))
                 s2 = _quantize(std_val * Decimal("2"))
                 s3 = _quantize(std_val * Decimal("3"))
-                self._cache[key] = ii.ExtendedSessionVWAP(
+                self._cache[key] = volume.ExtendedSessionVWAP(
                     vwap=vwap_val,
                     std_dev=std_val,
                     upper_05=_quantize(vwap_val + s05),
@@ -644,10 +653,10 @@ class IndicatorHub:
         data: Sequence[PriceData],
         index: int,
         anchor_type: str = "fomc",
-    ) -> ii.AnchoredVWAPBands:
-        """Anchored VWAP with +-1σ and +-2σ bands (streaming).
+    ) -> volume.AnchoredVWAPBands:
+        """Anchored VWAP with +-1sigma and +-2sigma bands (streaming).
 
-        Returns :data:`~intraday_indicators._EMPTY_AVWAP` when no anchor
+        Returns :data:`~volume._EMPTY_AVWAP` when no anchor
         has been reached yet.
         """
         key = ("anchored_vwap_bands", index, anchor_type)
@@ -658,9 +667,8 @@ class IndicatorHub:
             # Get metadata from the streaming accumulator
             acc = self._s_avwap[anchor_type]
             if not acc.valid or avwap_val == ZERO:
-                self._cache[key] = ii._EMPTY_AVWAP
+                self._cache[key] = volume._EMPTY_AVWAP
             else:
-                from stockdownloader.util.technical import _quantize
                 from stockdownloader.util.config import days_since_anchor
 
                 anchor_date = acc.current_anchor
@@ -672,7 +680,7 @@ class IndicatorHub:
                 s1 = std_val
                 s2 = _quantize(std_val * Decimal("2"))
 
-                self._cache[key] = ii.AnchoredVWAPBands(
+                self._cache[key] = volume.AnchoredVWAPBands(
                     avwap=avwap_val,
                     std_dev=std_val,
                     upper_1=_quantize(avwap_val + s1),
@@ -738,7 +746,6 @@ class IndicatorHub:
                 if denom <= ZERO:
                     self._cache[key] = ZERO
                 else:
-                    from stockdownloader.util.technical import _quantize
                     self._cache[key] = _quantize(cvd / denom)
         return self._cache[key]
 
@@ -827,10 +834,9 @@ class IndicatorHub:
             if len(htf_bars) < slow_period + 1:
                 self._cache[key] = 0
             else:
-                from stockdownloader.util.technical import ema as _raw_ema
                 htf_idx = len(htf_bars) - 1
-                fast_val = _raw_ema(htf_bars, htf_idx, fast_period)
-                slow_val = _raw_ema(htf_bars, htf_idx, slow_period)
+                fast_val = _ema(htf_bars, htf_idx, fast_period)
+                slow_val = _ema(htf_bars, htf_idx, slow_period)
                 if fast_val > slow_val:
                     self._cache[key] = 1
                 elif fast_val < slow_val:
@@ -866,10 +872,10 @@ class IndicatorHub:
     ):
         """Market structure state (streaming).
 
-        Returns a :class:`~smc_indicators.StructureState` with swing levels,
+        Returns a :class:`~indicators.smc.StructureState` with swing levels,
         BoS flags, and supply/demand zones.
         """
-        from stockdownloader.util.smc_indicators import StructureState
+        from stockdownloader.util.indicators.smc import StructureState
 
         key = ("structure_state", index, lookback, min_impulse, zone_bars)
         self._ensure_bound(data)

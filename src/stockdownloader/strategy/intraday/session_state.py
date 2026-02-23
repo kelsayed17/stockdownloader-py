@@ -20,11 +20,11 @@ from stockdownloader.util.math import ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData
-    from stockdownloader.util.intraday_indicators import (
+    from stockdownloader.util.indicators.volume import (
         AnchoredVWAPBands,
         ExtendedSessionVWAP,
     )
-    from stockdownloader.util.smc_indicators import StructureState
+    from stockdownloader.util.indicators.smc import StructureState
 
 _INF = Decimal("999999")
 
