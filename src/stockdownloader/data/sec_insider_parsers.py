@@ -15,6 +15,7 @@ import zipfile
 from pathlib import Path
 
 from stockdownloader.data.sec_common import SplitAdjustment
+from stockdownloader.data.sec_parser_utils import MONTH_ABBREVS, normalize_date, xml_text
 from stockdownloader.model.regulatory_records import InsiderTransaction
 
 logger = logging.getLogger(__name__)
@@ -23,72 +24,11 @@ logger = logging.getLogger(__name__)
 # Constants
 # ------------------------------------------------------------------
 
-MONTH_ABBREVS: dict[str, str] = {
-    "JAN": "01", "FEB": "02", "MAR": "03", "APR": "04",
-    "MAY": "05", "JUN": "06", "JUL": "07", "AUG": "08",
-    "SEP": "09", "OCT": "10", "NOV": "11", "DEC": "12",
-}
-
 #: Transaction codes that represent share acquisitions.
 ACQUIRE_CODES = frozenset({"P", "A", "M", "J", "K", "I", "L", "G"})
 
 #: Transaction codes that represent share dispositions.
 DISPOSE_CODES = frozenset({"S", "D", "F", "W"})
-
-
-# ------------------------------------------------------------------
-# Date / XML helpers
-# ------------------------------------------------------------------
-
-
-def normalize_date(raw: str) -> str:
-    """Normalize a date string to YYYY-MM-DD format.
-
-    Handles:
-    - ``2024-01-15`` (already ISO)
-    - ``15-JAN-2024`` (SEC bulk TSV format)
-    - ``01/15/2024`` (US slash format)
-    - ``20240115`` (compact format)
-    """
-    raw = raw.strip()
-    if not raw:
-        return ""
-    # Already ISO
-    if len(raw) == 10 and raw[4] == "-" and raw[7] == "-":
-        return raw
-    # DD-MON-YYYY (e.g. 02-JAN-2024)
-    parts = raw.split("-")
-    if len(parts) == 3 and len(parts[1]) == 3:
-        month = MONTH_ABBREVS.get(parts[1].upper(), "")
-        if month:
-            try:
-                return f"{int(parts[2]):04d}-{month}-{int(parts[0]):02d}"
-            except ValueError:
-                pass
-    # MM/DD/YYYY
-    if "/" in raw:
-        slash_parts = raw.split("/")
-        if len(slash_parts) == 3:
-            try:
-                m, d, y = int(slash_parts[0]), int(slash_parts[1]), int(slash_parts[2])
-                return f"{y:04d}-{m:02d}-{d:02d}"
-            except ValueError:
-                pass
-    # YYYYMMDD
-    if len(raw) == 8 and raw.isdigit():
-        return f"{raw[:4]}-{raw[4:6]}-{raw[6:8]}"
-    return raw
-
-
-def xml_text(content: str, tag: str) -> str | None:
-    """Extract text content from a simple XML tag (no nested children)."""
-    match = re.search(
-        rf"<{tag}>(.*?)</{tag}>",
-        content, re.DOTALL | re.IGNORECASE,
-    )
-    if match:
-        return match.group(1).strip()
-    return None
 
 
 # ------------------------------------------------------------------
