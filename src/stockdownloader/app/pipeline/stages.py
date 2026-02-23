@@ -6,20 +6,13 @@ import logging
 import os
 import time
 import multiprocessing
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from decimal import Decimal
-from operator import attrgetter
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from stockdownloader.app.app_helpers import status_label
 from stockdownloader.app.pipeline.helpers import unique_days
 from stockdownloader.app.pipeline.models import SlotResult
-from stockdownloader.backtest.backtest_result import (
-    BacktestResult,
-    BaseBacktestResult,
-    OptionsBacktestResult,
-)
+from stockdownloader.backtest.backtest_result import BaseBacktestResult
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.backtest.optimizer_scoring import score_v2
 from stockdownloader.backtest.walk_forward import WalkForwardResult, WalkForwardValidator
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter

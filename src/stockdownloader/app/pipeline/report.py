@@ -1,9 +1,6 @@
 """Holistic pipeline report formatter."""
 from __future__ import annotations
 
-from decimal import Decimal
-from operator import attrgetter
-
 from stockdownloader.app.app_helpers import status_label
 from stockdownloader.app.pipeline.helpers import unique_days
 from stockdownloader.app.pipeline.models import SlotResult
