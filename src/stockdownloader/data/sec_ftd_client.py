@@ -40,13 +40,13 @@ import io
 import logging
 import time
 import zipfile
-from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 import requests
 
+from stockdownloader.data.sec_common import SplitAdjustment, _KNOWN_SPLITS
 from stockdownloader.model.regulatory_records import FtdRecord
 
 logger = logging.getLogger(__name__)
@@ -132,84 +132,6 @@ def _ftd_url(year: int, month: int, half: str) -> str:
     if suffix:
         url = url.replace(".zip", f"{suffix}.zip")
     return url
-
-
-# ---------------------------------------------------------------------------
-# Generic split-adjustment support
-# ---------------------------------------------------------------------------
-
-
-@dataclass(frozen=True)
-class SplitAdjustment:
-    """Stock split event for adjusting historical FTD data.
-
-    Attributes
-    ----------
-    symbol:
-        Upper-cased ticker symbol (e.g. ``"GME"``).
-    split_date:
-        Effective date of the split.  Records *before* this date are
-        adjusted.
-    split_ratio:
-        The split multiplier.  For a 4-for-1 split use ``Decimal("4")``.
-        Pre-split quantities are **multiplied** and prices **divided**
-        by this value.
-    """
-
-    symbol: str
-    split_date: date
-    split_ratio: Decimal
-
-
-# Registry of well-known stock splits that affect FTD and 13F data.
-# Callers can extend this at runtime via the *extra_splits* parameter.
-_KNOWN_SPLITS: list[SplitAdjustment] = [
-    SplitAdjustment(
-        symbol="GME",
-        split_date=date(2022, 7, 22),
-        split_ratio=Decimal("4"),
-    ),
-    SplitAdjustment(
-        symbol="AAPL",
-        split_date=date(2020, 8, 31),
-        split_ratio=Decimal("4"),
-    ),
-    SplitAdjustment(
-        symbol="TSLA",
-        split_date=date(2022, 8, 25),
-        split_ratio=Decimal("3"),
-    ),
-    SplitAdjustment(
-        symbol="TSLA",
-        split_date=date(2020, 8, 31),
-        split_ratio=Decimal("5"),
-    ),
-    SplitAdjustment(
-        symbol="AMZN",
-        split_date=date(2022, 6, 6),
-        split_ratio=Decimal("20"),
-    ),
-    SplitAdjustment(
-        symbol="GOOGL",
-        split_date=date(2022, 7, 18),
-        split_ratio=Decimal("20"),
-    ),
-    SplitAdjustment(
-        symbol="GOOG",
-        split_date=date(2022, 7, 18),
-        split_ratio=Decimal("20"),
-    ),
-    SplitAdjustment(
-        symbol="NVDA",
-        split_date=date(2024, 6, 10),
-        split_ratio=Decimal("10"),
-    ),
-    SplitAdjustment(
-        symbol="NVDA",
-        split_date=date(2021, 7, 20),
-        split_ratio=Decimal("4"),
-    ),
-]
 
 
 class SecFtdClient:

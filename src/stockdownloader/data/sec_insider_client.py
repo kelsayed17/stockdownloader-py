@@ -45,7 +45,7 @@ import requests
 from stockdownloader.data.base_client import BaseDataClient
 from stockdownloader.data import sec_common
 from stockdownloader.data import sec_insider_parsers as parsers
-from stockdownloader.data.sec_ftd_client import SplitAdjustment, _KNOWN_SPLITS
+from stockdownloader.data.sec_common import SplitAdjustment, splits_for_symbol
 from stockdownloader.model.regulatory_records import (
     BeneficialOwner,
     InsiderOwnershipSnapshot,
@@ -212,10 +212,7 @@ class SecInsiderClient(BaseDataClient):
             year, quarter = sec_common.prev_quarter(year, quarter)
 
         # Apply split adjustments
-        all_splits = _KNOWN_SPLITS + (extra_splits or [])
-        symbol_splits = [
-            s for s in all_splits if s.symbol == symbol_upper
-        ]
+        symbol_splits = splits_for_symbol(symbol_upper, extra_splits)
         if symbol_splits:
             all_transactions = [
                 parsers.apply_split_to_transaction(t, symbol_splits)

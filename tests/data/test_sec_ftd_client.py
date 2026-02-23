@@ -11,7 +11,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from stockdownloader.data.sec_ftd_client import SecFtdClient, SplitAdjustment
+from stockdownloader.data.sec_common import SplitAdjustment
+from stockdownloader.data.sec_ftd_client import SecFtdClient
 from stockdownloader.model.regulatory_records import FtdRecord
 
 # Reusable split adjustment matching the well-known GME 4:1 split.

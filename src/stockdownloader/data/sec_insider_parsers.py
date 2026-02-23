@@ -14,7 +14,7 @@ import re
 import zipfile
 from pathlib import Path
 
-from stockdownloader.data.sec_ftd_client import SplitAdjustment, _KNOWN_SPLITS
+from stockdownloader.data.sec_common import SplitAdjustment
 from stockdownloader.model.regulatory_records import InsiderTransaction
 
 logger = logging.getLogger(__name__)

@@ -12,6 +12,9 @@ from __future__ import annotations
 import json
 import logging
 import time
+from dataclasses import dataclass
+from datetime import date
+from decimal import Decimal
 from typing import Callable
 
 import requests
@@ -42,6 +45,93 @@ def prev_quarter(year: int, quarter: int) -> tuple[int, int]:
     if quarter == 1:
         return year - 1, 4
     return year, quarter - 1
+
+
+# ------------------------------------------------------------------
+# Generic split-adjustment support
+# ------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class SplitAdjustment:
+    """Stock split event for adjusting historical FTD data.
+
+    Attributes
+    ----------
+    symbol:
+        Upper-cased ticker symbol (e.g. ``"GME"``).
+    split_date:
+        Effective date of the split.  Records *before* this date are
+        adjusted.
+    split_ratio:
+        The split multiplier.  For a 4-for-1 split use ``Decimal("4")``.
+        Pre-split quantities are **multiplied** and prices **divided**
+        by this value.
+    """
+
+    symbol: str
+    split_date: date
+    split_ratio: Decimal
+
+
+# Registry of well-known stock splits that affect FTD and 13F data.
+# Callers can extend this at runtime via the *extra_splits* parameter.
+_KNOWN_SPLITS: list[SplitAdjustment] = [
+    SplitAdjustment(
+        symbol="GME",
+        split_date=date(2022, 7, 22),
+        split_ratio=Decimal("4"),
+    ),
+    SplitAdjustment(
+        symbol="AAPL",
+        split_date=date(2020, 8, 31),
+        split_ratio=Decimal("4"),
+    ),
+    SplitAdjustment(
+        symbol="TSLA",
+        split_date=date(2022, 8, 25),
+        split_ratio=Decimal("3"),
+    ),
+    SplitAdjustment(
+        symbol="TSLA",
+        split_date=date(2020, 8, 31),
+        split_ratio=Decimal("5"),
+    ),
+    SplitAdjustment(
+        symbol="AMZN",
+        split_date=date(2022, 6, 6),
+        split_ratio=Decimal("20"),
+    ),
+    SplitAdjustment(
+        symbol="GOOGL",
+        split_date=date(2022, 7, 18),
+        split_ratio=Decimal("20"),
+    ),
+    SplitAdjustment(
+        symbol="GOOG",
+        split_date=date(2022, 7, 18),
+        split_ratio=Decimal("20"),
+    ),
+    SplitAdjustment(
+        symbol="NVDA",
+        split_date=date(2024, 6, 10),
+        split_ratio=Decimal("10"),
+    ),
+    SplitAdjustment(
+        symbol="NVDA",
+        split_date=date(2021, 7, 20),
+        split_ratio=Decimal("4"),
+    ),
+]
+
+
+def splits_for_symbol(
+    symbol: str,
+    extra_splits: list[SplitAdjustment] | None = None,
+) -> list[SplitAdjustment]:
+    """Return known + extra splits filtered for *symbol*."""
+    all_splits = _KNOWN_SPLITS + (extra_splits or [])
+    return [s for s in all_splits if s.symbol == symbol.upper()]
 
 
 # ------------------------------------------------------------------

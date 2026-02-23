@@ -31,7 +31,7 @@ from pathlib import Path
 from stockdownloader.data.base_client import BaseDataClient
 from stockdownloader.data import sec_common
 from stockdownloader.data import sec_ownership_parsers as parsers
-from stockdownloader.data.sec_ftd_client import SplitAdjustment, _KNOWN_SPLITS
+from stockdownloader.data.sec_common import SplitAdjustment, splits_for_symbol
 from stockdownloader.model.regulatory_records import (
     InstitutionalHolding,
     OwnershipSnapshot,
@@ -103,7 +103,7 @@ class SecOwnershipClient(BaseDataClient):
             If ``True``, ignore the JSON cache and re-download.
         extra_splits:
             Additional stock splits to apply.  Well-known splits
-            (see :data:`_KNOWN_SPLITS` in ``sec_ftd_client``) are
+            (see :data:`_KNOWN_SPLITS` in ``sec_common``) are
             applied automatically.
 
         Returns
@@ -236,10 +236,7 @@ class SecOwnershipClient(BaseDataClient):
         # Apply split adjustments so pre-split share counts are
         # comparable to post-split counts.  A stock may have multiple
         # historical splits (e.g. TSLA 5:1 in 2020 and 3:1 in 2022).
-        all_splits = _KNOWN_SPLITS + (extra_splits or [])
-        symbol_splits = [
-            s for s in all_splits if s.symbol == symbol_upper
-        ]
+        symbol_splits = splits_for_symbol(symbol_upper, extra_splits)
         for split in symbol_splits:
             snapshots = [
                 parsers.apply_split_to_snapshot(snap, split)

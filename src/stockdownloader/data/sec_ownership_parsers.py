@@ -22,7 +22,7 @@ from typing import Callable
 
 import requests
 
-from stockdownloader.data.sec_ftd_client import SplitAdjustment, _KNOWN_SPLITS
+from stockdownloader.data.sec_common import SplitAdjustment
 from stockdownloader.model.regulatory_records import (
     InstitutionalHolding,
     OwnershipSnapshot,
