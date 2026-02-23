@@ -20,6 +20,7 @@ from stockdownloader.data.sec_edgar_client import SecEdgarClient
 from stockdownloader.data.sec_ftd_client import SecFtdClient
 from stockdownloader.data.finra_short_interest_client import FinraShortInterestClient
 from stockdownloader.data.finra_dark_pool_client import FinraDarkPoolClient
+from stockdownloader.data.sec_insider_client import SecInsiderClient
 from stockdownloader.data.sec_ownership_client import SecOwnershipClient
 from stockdownloader.data.borrow_rate import BorrowRateProxy, IbkrBorrowRateClient
 from stockdownloader.data.full_history_fetcher import FullHistoryFetcher
@@ -49,6 +50,7 @@ __all__ = [
     "SecFtdClient",
     "FinraShortInterestClient",
     "FinraDarkPoolClient",
+    "SecInsiderClient",
     "SecOwnershipClient",
     "BorrowRateProxy",
     "FullHistoryFetcher",
