@@ -136,43 +136,19 @@ class SecInsiderClient(BaseDataClient):
         current_quarter = (today.month - 1) // 3 + 1
         current_year = today.year
 
-        # IPO-aware floor — skip quarters before the company existed.
-        # SEC bulk data starts Q1 2006; for earlier filings we use
-        # the EDGAR submissions API to fetch individual Forms 3/4/5.
-        from stockdownloader.model.symbol_info import get_symbol_info
-        _info = get_symbol_info(symbol_upper)
-
-        # Default: earliest data is Q1 2003 (EDGAR individual filings)
-        min_year, min_quarter = 2003, 1
-        if _info is not None:
-            ipo_y = _info.ipo_date.year
-            ipo_q = (_info.ipo_date.month - 1) // 3 + 1
-            if (ipo_y, ipo_q) > (min_year, min_quarter):
-                min_year, min_quarter = ipo_y, ipo_q
+        min_y, min_q = sec_common.ipo_quarter_floor(symbol_upper)
 
         all_transactions: list[InsiderTransaction] = []
 
-        # Work backwards from current quarter
-        year, quarter = current_year, current_quarter
-        quarters_fetched = 0
-
-        while quarters_fetched < num_quarters:
-            if year < min_year or (year == min_year and quarter < min_quarter):
-                break
-
-            # Skip future quarters
-            if (year, quarter) > (current_year, current_quarter):
-                year, quarter = sec_common.prev_quarter(year, quarter)
-                continue
-
+        for year, quarter in sec_common.quarter_iterator(
+            num_quarters, min_year=min_y, min_quarter=min_q,
+        ):
             # Check per-quarter cache
             cached_q = self._load_quarter_transactions(
                 symbol_upper, year, quarter,
             )
             if cached_q is not None:
                 all_transactions.extend(cached_q)
-                quarters_fetched += 1
-                year, quarter = sec_common.prev_quarter(year, quarter)
                 continue
 
             logger.info(
@@ -207,9 +183,6 @@ class SecInsiderClient(BaseDataClient):
                 self._save_quarter_transactions(
                     symbol_upper, year, quarter, txns,
                 )
-
-            quarters_fetched += 1
-            year, quarter = sec_common.prev_quarter(year, quarter)
 
         # Apply split adjustments
         symbol_splits = splits_for_symbol(symbol_upper, extra_splits)
@@ -537,22 +510,9 @@ class SecInsiderClient(BaseDataClient):
             f"&forms={forms.replace(' ', '%20').replace(',', '%2C')}"
         )
 
-        all_hits: list[dict] = []
-        page_size = 100
-        offset = 0
-        max_results = 5000
-
-        while offset < max_results:
-            url = f"{base_url}&from={offset}&size={page_size}"
-            page = sec_common.fetch_efts_page(
-                self._session, url, rate_limit_fn=self._rate_limit,
-            )
-            if page is None or not page:
-                break
-            all_hits.extend(page)
-            if len(page) < page_size:
-                break
-            offset += page_size
+        all_hits = sec_common.fetch_all_efts_hits(
+            self._session, base_url, rate_limit_fn=self._rate_limit,
+        )
 
         if not all_hits:
             logger.info("No 13D/13G filings found for CUSIP %s", cusip)

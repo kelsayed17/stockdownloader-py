@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+from datetime import date
+from decimal import Decimal
 from unittest.mock import MagicMock, call, patch
 
 import pytest
@@ -12,10 +14,15 @@ from stockdownloader.data.sec_common import (
     ARCHIVE_BASE,
     EFTS_BASE_URL,
     SEC_RATE_LIMIT_DELAY,
+    SplitAdjustment,
     download_with_retry,
+    fetch_all_efts_hits,
     fetch_efts_page,
     fetch_url_text,
+    ipo_quarter_floor,
     prev_quarter,
+    quarter_iterator,
+    splits_for_symbol,
 )
 
 
@@ -291,3 +298,220 @@ class TestConstants:
 
     def test_archive_base(self) -> None:
         assert ARCHIVE_BASE == "https://www.sec.gov/Archives/edgar/data"
+
+
+# ------------------------------------------------------------------
+# quarter_iterator
+# ------------------------------------------------------------------
+
+
+class TestQuarterIterator:
+    """quarter_iterator yields (year, quarter) tuples backwards."""
+
+    @patch("stockdownloader.data.sec_common.date")
+    def test_quarter_iterator_basic(self, mock_date: MagicMock) -> None:
+        """Yields correct quarters in reverse from the current quarter."""
+        mock_date.today.return_value = date(2025, 5, 15)
+        mock_date.side_effect = lambda *a, **kw: date(*a, **kw)
+
+        result = list(quarter_iterator(4))
+        assert result == [
+            (2025, 2),
+            (2025, 1),
+            (2024, 4),
+            (2024, 3),
+        ]
+
+    @patch("stockdownloader.data.sec_common.date")
+    def test_quarter_iterator_ipo_floor(self, mock_date: MagicMock) -> None:
+        """Stops at min_year/min_quarter before exhausting num_quarters."""
+        mock_date.today.return_value = date(2025, 5, 15)
+        mock_date.side_effect = lambda *a, **kw: date(*a, **kw)
+
+        result = list(quarter_iterator(
+            100, min_year=2025, min_quarter=1,
+        ))
+        assert result == [
+            (2025, 2),
+            (2025, 1),
+        ]
+
+    @patch("stockdownloader.data.sec_common.date")
+    def test_quarter_iterator_zero(self, mock_date: MagicMock) -> None:
+        """Yields nothing for num_quarters=0."""
+        mock_date.today.return_value = date(2025, 5, 15)
+        mock_date.side_effect = lambda *a, **kw: date(*a, **kw)
+
+        result = list(quarter_iterator(0))
+        assert result == []
+
+
+# ------------------------------------------------------------------
+# ipo_quarter_floor
+# ------------------------------------------------------------------
+
+
+class TestIpoQuarterFloor:
+    """ipo_quarter_floor returns the earliest useful quarter."""
+
+    @patch("stockdownloader.model.symbol_info.get_symbol_info")
+    def test_ipo_quarter_floor_known_symbol(
+        self, mock_get_info: MagicMock,
+    ) -> None:
+        """Returns IPO quarter for a known symbol (e.g. TSLA)."""
+        from stockdownloader.model.symbol_info import SymbolInfo
+
+        mock_get_info.return_value = SymbolInfo(
+            symbol="TSLA",
+            cusip="88160R101",
+            ipo_date=date(2010, 6, 29),
+            name="Tesla Inc",
+        )
+        result = ipo_quarter_floor("TSLA")
+        assert result == (2010, 2)
+
+    @patch("stockdownloader.model.symbol_info.get_symbol_info")
+    def test_ipo_quarter_floor_unknown(
+        self, mock_get_info: MagicMock,
+    ) -> None:
+        """Returns (2003, 1) default for unknown symbol."""
+        mock_get_info.return_value = None
+        result = ipo_quarter_floor("ZZZZ")
+        assert result == (2003, 1)
+
+    @patch("stockdownloader.model.symbol_info.get_symbol_info")
+    def test_ipo_quarter_floor_pre_2003(
+        self, mock_get_info: MagicMock,
+    ) -> None:
+        """Returns (2003, 1) when IPO is before 2003."""
+        from stockdownloader.model.symbol_info import SymbolInfo
+
+        mock_get_info.return_value = SymbolInfo(
+            symbol="AAPL",
+            cusip="037833100",
+            ipo_date=date(1980, 12, 12),
+            name="Apple Inc",
+        )
+        result = ipo_quarter_floor("AAPL")
+        assert result == (2003, 1)
+
+
+# ------------------------------------------------------------------
+# splits_for_symbol
+# ------------------------------------------------------------------
+
+
+class TestSplitsForSymbol:
+    """splits_for_symbol filters splits correctly."""
+
+    def test_splits_for_symbol(self) -> None:
+        """Returns only splits matching the requested symbol."""
+        gme_splits = splits_for_symbol("GME")
+        assert len(gme_splits) == 1
+        assert gme_splits[0].symbol == "GME"
+        assert gme_splits[0].split_ratio == Decimal("4")
+
+    def test_splits_for_symbol_case_insensitive(self) -> None:
+        """Handles case-insensitive symbol lookup."""
+        gme_splits = splits_for_symbol("gme")
+        assert len(gme_splits) == 1
+        assert gme_splits[0].symbol == "GME"
+
+    def test_splits_for_symbol_multiple(self) -> None:
+        """Returns multiple splits for symbols with multiple events."""
+        nvda_splits = splits_for_symbol("NVDA")
+        assert len(nvda_splits) == 2
+
+    def test_splits_for_symbol_none(self) -> None:
+        """Returns empty list for symbol with no known splits."""
+        result = splits_for_symbol("ZZZZ")
+        assert result == []
+
+    def test_splits_for_symbol_extra(self) -> None:
+        """Includes extra splits passed by the caller."""
+        extra = [
+            SplitAdjustment(
+                symbol="ZZZZ",
+                split_date=date(2024, 1, 1),
+                split_ratio=Decimal("2"),
+            ),
+        ]
+        result = splits_for_symbol("ZZZZ", extra_splits=extra)
+        assert len(result) == 1
+        assert result[0].split_ratio == Decimal("2")
+
+
+# ------------------------------------------------------------------
+# fetch_all_efts_hits
+# ------------------------------------------------------------------
+
+
+class TestFetchAllEftsHits:
+    """fetch_all_efts_hits paginates through EFTS results."""
+
+    @patch("stockdownloader.data.sec_common.fetch_efts_page")
+    def test_fetch_all_efts_hits_pagination(
+        self, mock_fetch: MagicMock,
+    ) -> None:
+        """Paginates correctly across multiple pages."""
+        page1 = [{"_id": str(i)} for i in range(100)]
+        page2 = [{"_id": str(i)} for i in range(100, 150)]
+
+        mock_fetch.side_effect = [page1, page2]
+
+        session = _mock_session()
+        result = fetch_all_efts_hits(
+            session, "https://efts.sec.gov/search?q=test",
+        )
+        assert len(result) == 150
+        assert mock_fetch.call_count == 2
+
+        # Verify URL construction
+        first_url = mock_fetch.call_args_list[0][0][1]
+        assert "&from=0&size=100" in first_url
+        second_url = mock_fetch.call_args_list[1][0][1]
+        assert "&from=100&size=100" in second_url
+
+    @patch("stockdownloader.data.sec_common.fetch_efts_page")
+    def test_fetch_all_efts_hits_empty(
+        self, mock_fetch: MagicMock,
+    ) -> None:
+        """Returns empty list when first page has no results."""
+        mock_fetch.return_value = []
+
+        session = _mock_session()
+        result = fetch_all_efts_hits(
+            session, "https://efts.sec.gov/search?q=nothing",
+        )
+        assert result == []
+        assert mock_fetch.call_count == 1
+
+    @patch("stockdownloader.data.sec_common.fetch_efts_page")
+    def test_fetch_all_efts_hits_none_response(
+        self, mock_fetch: MagicMock,
+    ) -> None:
+        """Returns empty list when fetch_efts_page returns None."""
+        mock_fetch.return_value = None
+
+        session = _mock_session()
+        result = fetch_all_efts_hits(
+            session, "https://efts.sec.gov/search?q=fail",
+        )
+        assert result == []
+
+    @patch("stockdownloader.data.sec_common.fetch_efts_page")
+    def test_fetch_all_efts_hits_rate_limit(
+        self, mock_fetch: MagicMock,
+    ) -> None:
+        """Passes rate_limit_fn through to fetch_efts_page."""
+        mock_fetch.return_value = [{"_id": "1"}]  # partial page stops loop
+        rate_fn = MagicMock()
+
+        session = _mock_session()
+        fetch_all_efts_hits(
+            session, "https://efts.sec.gov/search?q=test",
+            rate_limit_fn=rate_fn,
+        )
+        # rate_limit_fn is passed through (not called directly)
+        _, kwargs = mock_fetch.call_args
+        assert kwargs["rate_limit_fn"] is rate_fn

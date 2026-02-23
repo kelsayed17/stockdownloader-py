@@ -153,36 +153,14 @@ class SecOwnershipClient(BaseDataClient):
                     "force_refresh: deleted merged cache %s", merged,
                 )
 
-        # Determine quarter range to fetch
-        today = date.today()
-        current_quarter = (today.month - 1) // 3 + 1
-        current_year = today.year
-
-        # Compute the earliest useful quarter.  EFTS full-text search can
-        # find 13F-HR filings back to ~2001, and the legacy text parser
-        # handles pre-2013 non-XML formats.  We use Q1 2003 as the
-        # absolute floor (earlier filings are sparse and unreliable).
-        min_year, min_quarter = 2003, 1
-        if _info is not None:
-            ipo_y = _info.ipo_date.year
-            ipo_q = (_info.ipo_date.month - 1) // 3 + 1
-            if (ipo_y, ipo_q) > (min_year, min_quarter):
-                min_year, min_quarter = ipo_y, ipo_q
+        min_y, min_q = sec_common.ipo_quarter_floor(symbol_upper)
 
         snapshots: list[OwnershipSnapshot] = []
 
-        # Work backwards from the current quarter
-        year, quarter = current_year, current_quarter
-        quarters_fetched = 0
-
-        while quarters_fetched < num_quarters:
+        for year, quarter in sec_common.quarter_iterator(
+            num_quarters, min_year=min_y, min_quarter=min_q,
+        ):
             quarter_end_str = f"{year}-{parsers.QUARTER_ENDS[quarter]}"
-            quarter_end_date = date.fromisoformat(quarter_end_str)
-
-            # Skip future quarters
-            if quarter_end_date > today:
-                year, quarter = sec_common.prev_quarter(year, quarter)
-                continue
 
             # Check per-quarter cache first (covers both bulk and EFTS)
             snap = self._load_quarter_snapshot(symbol_upper, year, quarter)
@@ -192,10 +170,6 @@ class SecOwnershipClient(BaseDataClient):
                     symbol_upper, quarter, year,
                 )
                 snapshots.append(snap)
-                quarters_fetched += 1
-                year, quarter = sec_common.prev_quarter(year, quarter)
-                if year < min_year or (year == min_year and quarter < min_quarter):
-                    break
                 continue
 
             logger.info(
@@ -225,13 +199,6 @@ class SecOwnershipClient(BaseDataClient):
                 self._save_quarter_snapshot(
                     symbol_upper, year, quarter, snap,
                 )
-
-            quarters_fetched += 1
-            year, quarter = sec_common.prev_quarter(year, quarter)
-
-            # Stop if we've gone before the earliest useful quarter
-            if year < min_year or (year == min_year and quarter < min_quarter):
-                break
 
         # Apply split adjustments so pre-split share counts are
         # comparable to post-split counts.  A stock may have multiple
@@ -342,23 +309,9 @@ class SecOwnershipClient(BaseDataClient):
             f"&startdt={start_str}&enddt={end_str}"
         )
 
-        # Page through results
-        all_hits: list[dict] = []
-        page_size = 100
-        offset = 0
-        max_results = 5000  # Generous limit per quarter
-
-        while offset < max_results:
-            url = f"{base_url}&from={offset}&size={page_size}"
-            page = sec_common.fetch_efts_page(
-                self._session, url, rate_limit_fn=self._rate_limit,
-            )
-            if page is None or not page:
-                break
-            all_hits.extend(page)
-            if len(page) < page_size:
-                break
-            offset += page_size
+        all_hits = sec_common.fetch_all_efts_hits(
+            self._session, base_url, rate_limit_fn=self._rate_limit,
+        )
 
         if not all_hits:
             return None

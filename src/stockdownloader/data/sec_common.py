@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import logging
 import time
+from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -45,6 +46,50 @@ def prev_quarter(year: int, quarter: int) -> tuple[int, int]:
     if quarter == 1:
         return year - 1, 4
     return year, quarter - 1
+
+
+def quarter_iterator(
+    num_quarters: int,
+    *,
+    min_year: int = 2003,
+    min_quarter: int = 1,
+) -> Iterator[tuple[int, int]]:
+    """Yield *(year, quarter)* tuples backwards from current quarter.
+
+    Stops after *num_quarters* or when reaching *min_year*/*min_quarter*
+    (whichever comes first).  Skips future quarters automatically.
+    """
+    today = date.today()
+    current_year = today.year
+    current_quarter = (today.month - 1) // 3 + 1
+
+    year, quarter = current_year, current_quarter
+    yielded = 0
+
+    while yielded < num_quarters:
+        if year < min_year or (year == min_year and quarter < min_quarter):
+            break
+        if (year, quarter) <= (current_year, current_quarter):
+            yield year, quarter
+            yielded += 1
+        year, quarter = prev_quarter(year, quarter)
+
+
+def ipo_quarter_floor(symbol: str) -> tuple[int, int]:
+    """Return the earliest useful *(year, quarter)* for *symbol*.
+
+    Uses the symbol registry IPO date.  Returns ``(2003, 1)`` as the
+    default floor (EDGAR data starts around 2003).
+    """
+    from stockdownloader.model.symbol_info import get_symbol_info
+
+    info = get_symbol_info(symbol.upper())
+    if info is not None and info.ipo_date:
+        y = info.ipo_date.year
+        q = (info.ipo_date.month - 1) // 3 + 1
+        if (y, q) > (2003, 1):
+            return y, q
+    return 2003, 1
 
 
 # ------------------------------------------------------------------
@@ -289,3 +334,28 @@ def fetch_efts_page(
         if attempt < max_retries - 1:
             time.sleep(1.0)
     return None
+
+
+def fetch_all_efts_hits(
+    session: requests.Session,
+    base_url: str,
+    *,
+    rate_limit_fn: Callable[[], None] | None = None,
+    page_size: int = 100,
+    max_results: int = 5000,
+) -> list[dict]:
+    """Paginate through EFTS search results, returning all hits."""
+    all_hits: list[dict] = []
+    offset = 0
+
+    while offset < max_results:
+        url = f"{base_url}&from={offset}&size={page_size}"
+        page = fetch_efts_page(session, url, rate_limit_fn=rate_limit_fn)
+        if page is None or not page:
+            break
+        all_hits.extend(page)
+        if len(page) < page_size:
+            break
+        offset += page_size
+
+    return all_hits
