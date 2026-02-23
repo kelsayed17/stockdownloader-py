@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from stockdownloader.backtest.backtest_result import BacktestResult, BaseBacktestResult
+from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.optimizer_scoring import score_v2
 from stockdownloader.backtest.walk_forward import WalkForwardResult
 from stockdownloader.strategy.regime.regime_detector import MarketRegime

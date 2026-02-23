@@ -3,8 +3,6 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-import pytest
-
 from stockdownloader.backtest.report_helpers import scale2, scale3
 
 

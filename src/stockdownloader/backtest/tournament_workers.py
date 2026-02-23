@@ -12,7 +12,6 @@ from typing import Any
 
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.backtest.optimizer_scoring import score_v2
 from stockdownloader.backtest.tournament_models import ComboKey, ComboResult
 from stockdownloader.backtest.walk_forward import WalkForwardResult, WalkForwardValidator
 from stockdownloader.model.price_data import IntradayPriceData

@@ -5,7 +5,6 @@ Follows the same module-level function pattern as
 """
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
 from operator import attrgetter
 from stockdownloader.backtest.report_helpers import scale2 as _s2, scale3 as _s3
 
