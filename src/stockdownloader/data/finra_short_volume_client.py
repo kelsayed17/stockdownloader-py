@@ -41,7 +41,6 @@ import logging
 import time
 from dataclasses import dataclass
 from datetime import date, timedelta
-from pathlib import Path
 
 import requests
 
