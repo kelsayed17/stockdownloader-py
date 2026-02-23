@@ -2,7 +2,7 @@
 
 from decimal import Decimal, ROUND_HALF_UP
 
-from stockdownloader.util.big_decimal_math import (
+from stockdownloader.util.math import (
     divide,
     scale2,
     average,

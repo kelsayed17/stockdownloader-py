@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData

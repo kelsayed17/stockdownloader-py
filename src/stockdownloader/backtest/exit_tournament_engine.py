@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 from stockdownloader.backtest.exit_tournament_result import ExitTournamentResult
 from stockdownloader.model.exit_mechanism_result import ExitMechanismTradeResult
 from stockdownloader.model.trade import Direction
-from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
+from stockdownloader.util.math import HUNDRED, ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData

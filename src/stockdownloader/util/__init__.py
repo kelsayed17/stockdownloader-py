@@ -1,6 +1,6 @@
 """Utility functions for calculations and helpers."""
 
-from stockdownloader.util.big_decimal_math import (
+from stockdownloader.util.math import (
     average,
     divide,
     percent_change,
@@ -62,7 +62,7 @@ from stockdownloader.util.io_helpers import (
 from stockdownloader.util.io_helpers import execute, execute_with_result
 
 __all__ = [
-    # big_decimal_math
+    # math
     "average",
     "divide",
     "percent_change",

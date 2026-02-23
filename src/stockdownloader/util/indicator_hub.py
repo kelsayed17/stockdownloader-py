@@ -32,7 +32,7 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 from stockdownloader.util import technical as ti
 from stockdownloader.util import intraday_indicators as ii
 from stockdownloader.util.technical import sma as _sma, ema as _ema

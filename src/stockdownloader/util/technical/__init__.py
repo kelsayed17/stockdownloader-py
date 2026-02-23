@@ -15,7 +15,7 @@ import math
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -147,7 +147,7 @@ def _period_midpoint(
         if data[i].low < lowest:
             lowest = data[i].low
 
-    from stockdownloader.util.big_decimal_math import TWO
+    from stockdownloader.util.math import TWO
     return _quantize((highest + lowest) / TWO)
 
 

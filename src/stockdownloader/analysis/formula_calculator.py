@@ -7,7 +7,7 @@ import math
 from dataclasses import dataclass, field
 from decimal import Decimal, ROUND_HALF_UP
 
-from stockdownloader.util.big_decimal_math import (
+from stockdownloader.util.math import (
     ONE,
     ZERO,
     average,

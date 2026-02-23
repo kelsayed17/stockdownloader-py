@@ -9,7 +9,7 @@ from __future__ import annotations
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

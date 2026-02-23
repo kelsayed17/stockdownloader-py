@@ -27,7 +27,7 @@ from stockdownloader.strategy.intraday.session_state import BarContext
 from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import VwapRatchetTrail
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
-from stockdownloader.util.big_decimal_math import TWO, ZERO
+from stockdownloader.util.math import TWO, ZERO
 from stockdownloader.util.pinescript_models import ModeDefinition
 from stockdownloader.util.pinescript_modes import orr_mode
 

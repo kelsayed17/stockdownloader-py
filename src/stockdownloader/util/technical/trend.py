@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.big_decimal_math import HUNDRED, TWO, ZERO
+from stockdownloader.util.math import HUNDRED, TWO, ZERO
 from stockdownloader.util.technical import (
     _deduplicate_levels,
     _period_midpoint,

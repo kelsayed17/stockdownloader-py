@@ -34,7 +34,7 @@ from stockdownloader.model.trade import (
     IntradaySignal,
 )
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 from stockdownloader.util.indicator_hub import IndicatorHub
 from stockdownloader.util.pinescript_models import (
     Condition, Indicator, Input, StrategyDefinition,

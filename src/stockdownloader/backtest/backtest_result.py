@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from stockdownloader.model import PriceData
 
 from stockdownloader.model import OptionsTrade, OptionsTradeStatus, Trade, TradeStatus
-from stockdownloader.util.big_decimal_math import HUNDRED
+from stockdownloader.util.math import HUNDRED
 
 
 # ======================================================================

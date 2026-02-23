@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.model.trade import Direction
-from stockdownloader.util.big_decimal_math import HUNDRED, ZERO
+from stockdownloader.util.math import HUNDRED, ZERO
 
 @dataclass(frozen=True, slots=True)
 class ExitMechanismTradeResult:

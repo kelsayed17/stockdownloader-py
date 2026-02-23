@@ -17,7 +17,7 @@ from stockdownloader.strategy.intraday.trail_strategy import (
     BreakevenTrail,
     TrailStrategy,
 )
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 from stockdownloader.util.intraday_indicators import (
     ExtendedSessionVWAP,
     is_bear_engulfing,

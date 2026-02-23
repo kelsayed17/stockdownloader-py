@@ -8,7 +8,7 @@ from decimal import Decimal
 from operator import attrgetter
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.big_decimal_math import divide, scale2
+from stockdownloader.util.math import divide, scale2
 
 if TYPE_CHECKING:
     from stockdownloader.model.alert_result import PatternResult

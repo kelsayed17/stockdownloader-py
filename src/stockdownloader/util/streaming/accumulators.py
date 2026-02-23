@@ -4,7 +4,7 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.big_decimal_math import ONE, ZERO
+from stockdownloader.util.math import ONE, ZERO
 from stockdownloader.util.streaming import _quantize, _true_range
 
 if TYPE_CHECKING:

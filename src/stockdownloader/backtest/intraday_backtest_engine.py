@@ -50,7 +50,7 @@ from stockdownloader.model import Trade, Direction, TradeStatus
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.trade import IntradayAction, IntradaySignal
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
-from stockdownloader.util.big_decimal_math import ZERO, ONE
+from stockdownloader.util.math import ZERO, ONE
 
 logger = logging.getLogger(__name__)
 

@@ -2,8 +2,9 @@
 
 Public constants
 ----------------
-``ZERO``, ``ONE``, ``TWO``, ``HUNDRED`` — pre-constructed :class:`Decimal`
-sentinels used across the codebase to avoid repeated ``Decimal("0")`` allocations.
+``ZERO``, ``ONE``, ``TWO``, ``THREE``, ``HALF``, ``TEN``, ``HUNDRED`` —
+pre-constructed :class:`Decimal` sentinels used across the codebase to avoid
+repeated ``Decimal("0")`` allocations.
 """
 from __future__ import annotations
 
@@ -16,6 +17,9 @@ ZERO = Decimal("0")
 ONE = Decimal("1")
 TWO = Decimal("2")
 HUNDRED = Decimal("100")
+HALF = Decimal("0.5")
+THREE = Decimal("3")
+TEN = Decimal("10")
 
 
 def divide(dividend: Decimal, divisor: Decimal, scale: int = DEFAULT_SCALE) -> Decimal:
@@ -33,7 +37,7 @@ def divide(dividend: Decimal, divisor: Decimal, scale: int = DEFAULT_SCALE) -> D
     if divisor == Decimal('0'):
         return Decimal('0')
     result = dividend / divisor
-    return _quantize(result, scale)
+    return quantize(result, scale)
 
 
 
@@ -50,7 +54,7 @@ def quantize_decimal(value: Decimal, places: str = "0.01") -> Decimal:
 
 def scale2(value: Decimal) -> Decimal:
     """Round a Decimal to 2 decimal places using ROUND_HALF_UP."""
-    return _quantize(value, 2)
+    return quantize(value, 2)
 
 
 def average(*values: Decimal | None) -> Decimal:
@@ -69,7 +73,7 @@ def average(*values: Decimal | None) -> Decimal:
             count += 1
     if count == 0:
         return Decimal('0')
-    return _quantize(total / Decimal(str(count)), DEFAULT_SCALE)
+    return quantize(total / Decimal(str(count)), DEFAULT_SCALE)
 
 
 def percent_change(from_val: Decimal, to_val: Decimal) -> Decimal:
@@ -80,13 +84,35 @@ def percent_change(from_val: Decimal, to_val: Decimal) -> Decimal:
     if from_val == Decimal('0'):
         return Decimal('0')
     change = to_val - from_val
-    return _quantize(change / from_val, 6) * Decimal('100')
+    return quantize(change / from_val, 6) * Decimal('100')
 
 
 # ---------------------------------------------------------------------------
-# Internal helper
+# Public helper
 # ---------------------------------------------------------------------------
 
-def _quantize(value: Decimal, scale: int) -> Decimal:
+def quantize(value: Decimal, scale: int = DEFAULT_SCALE) -> Decimal:
     """Quantize *value* to the given number of decimal places."""
     return value.quantize(Decimal(10) ** -scale, rounding=ROUND_HALF_UP)
+
+
+# Backward-compatible alias for internal util callers.
+_quantize = quantize
+
+
+__all__ = [
+    "DEFAULT_SCALE",
+    "ZERO",
+    "ONE",
+    "TWO",
+    "HUNDRED",
+    "HALF",
+    "THREE",
+    "TEN",
+    "divide",
+    "quantize_decimal",
+    "scale2",
+    "average",
+    "percent_change",
+    "quantize",
+]

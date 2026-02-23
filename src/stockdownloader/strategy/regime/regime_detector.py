@@ -24,7 +24,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 from stockdownloader.util.indicator_hub import IndicatorHub
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

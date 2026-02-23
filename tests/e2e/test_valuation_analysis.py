@@ -17,7 +17,7 @@ import pytest
 from stockdownloader.analysis.formula_calculator import FormulaCalculator, ValuationInputs
 from stockdownloader.model.financial_models import QuoteData
 from stockdownloader.model.unified_market_data import FinancialData, HistoricalData
-from stockdownloader.util.big_decimal_math import average, divide, scale2
+from stockdownloader.util.math import average, divide, scale2
 
 
 @pytest.fixture(scope="module")

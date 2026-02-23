@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import BinaryIO
 
 from stockdownloader.model.trade import Direction, TournamentTrade
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 
 logger = logging.getLogger(__name__)
 

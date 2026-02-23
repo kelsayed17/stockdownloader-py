@@ -24,7 +24,7 @@ from stockdownloader.model.indicator_values import IndicatorValues
 from stockdownloader.model.options import OptionType
 from stockdownloader.util import black_scholes_calculator as bsc
 from stockdownloader.util import technical as ti
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import PriceData

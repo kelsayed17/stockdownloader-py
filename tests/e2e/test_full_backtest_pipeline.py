@@ -22,7 +22,7 @@ from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
 from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import TradingStrategy
-from stockdownloader.util.big_decimal_math import percent_change
+from stockdownloader.util.math import percent_change
 from stockdownloader.util.technical import sma, ema
 
 INITIAL_CAPITAL = Decimal("100000.00")

@@ -33,7 +33,7 @@ from stockdownloader.strategy.regime.regime_detector import (
     RegimeClassification,
 )
 from stockdownloader.strategy.regime.regime_strategy_map import RegimeStrategyMapper
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 
 
 # ------------------------------------------------------------------

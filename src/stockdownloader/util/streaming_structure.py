@@ -17,7 +17,7 @@ from collections import deque
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 from stockdownloader.util.smc_indicators import (
     StructureState,
     SwingPoint,

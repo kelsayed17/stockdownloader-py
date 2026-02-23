@@ -35,7 +35,7 @@ from stockdownloader.strategy.signals.stacked_signal_engine import (
 )
 from stockdownloader.util.indicator_hub import IndicatorHub
 from stockdownloader.util.timeframe_aggregator import Timeframe, TimeframeAggregator
-from stockdownloader.util.big_decimal_math import ZERO
+from stockdownloader.util.math import ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData
