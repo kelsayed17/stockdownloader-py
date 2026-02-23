@@ -8,10 +8,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from stockdownloader.data.sec_ownership_client import (
-    SecOwnershipClient,
-    _filing_date_to_quarter_end,
-    _get_xml_text,
+from stockdownloader.data.sec_ownership_client import SecOwnershipClient
+from stockdownloader.data.sec_ownership_parsers import (
+    filing_date_to_quarter_end,
+    get_xml_text,
+    parse_13f_xml,
+    parse_13f_text,
+    find_infotable_url,
 )
 from stockdownloader.model.regulatory_records import (
     InstitutionalHolding,
@@ -160,40 +163,40 @@ def _mock_response(
 
 
 class TestFilingDateToQuarterEnd:
-    """Tests for _filing_date_to_quarter_end helper."""
+    """Tests for filing_date_to_quarter_end helper."""
 
     def test_january_maps_to_q4_prior_year(self) -> None:
-        assert _filing_date_to_quarter_end("2024-01-15") == "2023-12-31"
+        assert filing_date_to_quarter_end("2024-01-15") == "2023-12-31"
 
     def test_february_maps_to_q4_prior_year(self) -> None:
-        assert _filing_date_to_quarter_end("2024-02-14") == "2023-12-31"
+        assert filing_date_to_quarter_end("2024-02-14") == "2023-12-31"
 
     def test_march_maps_to_q1(self) -> None:
-        assert _filing_date_to_quarter_end("2024-03-15") == "2024-03-31"
+        assert filing_date_to_quarter_end("2024-03-15") == "2024-03-31"
 
     def test_may_maps_to_q1(self) -> None:
-        assert _filing_date_to_quarter_end("2024-05-10") == "2024-03-31"
+        assert filing_date_to_quarter_end("2024-05-10") == "2024-03-31"
 
     def test_june_maps_to_q2(self) -> None:
-        assert _filing_date_to_quarter_end("2024-06-15") == "2024-06-30"
+        assert filing_date_to_quarter_end("2024-06-15") == "2024-06-30"
 
     def test_august_maps_to_q2(self) -> None:
-        assert _filing_date_to_quarter_end("2024-08-10") == "2024-06-30"
+        assert filing_date_to_quarter_end("2024-08-10") == "2024-06-30"
 
     def test_september_maps_to_q3(self) -> None:
-        assert _filing_date_to_quarter_end("2024-09-15") == "2024-09-30"
+        assert filing_date_to_quarter_end("2024-09-15") == "2024-09-30"
 
     def test_november_maps_to_q3(self) -> None:
-        assert _filing_date_to_quarter_end("2024-11-10") == "2024-09-30"
+        assert filing_date_to_quarter_end("2024-11-10") == "2024-09-30"
 
     def test_december_maps_to_q4(self) -> None:
-        assert _filing_date_to_quarter_end("2024-12-15") == "2024-12-31"
+        assert filing_date_to_quarter_end("2024-12-15") == "2024-12-31"
 
     def test_empty_string_passthrough(self) -> None:
-        assert _filing_date_to_quarter_end("") == ""
+        assert filing_date_to_quarter_end("") == ""
 
     def test_short_string_passthrough(self) -> None:
-        assert _filing_date_to_quarter_end("2024") == "2024"
+        assert filing_date_to_quarter_end("2024") == "2024"
 
 
 # ------------------------------------------------------------------
@@ -202,31 +205,31 @@ class TestFilingDateToQuarterEnd:
 
 
 class TestGetXmlText:
-    """Tests for _get_xml_text helper."""
+    """Tests for get_xml_text helper."""
 
     def test_extracts_text(self) -> None:
         import xml.etree.ElementTree as ET
 
         root = ET.fromstring("<root><child>hello</child></root>")
-        assert _get_xml_text(root, "child") == "hello"
+        assert get_xml_text(root, "child") == "hello"
 
     def test_returns_none_for_missing_element(self) -> None:
         import xml.etree.ElementTree as ET
 
         root = ET.fromstring("<root><child>hello</child></root>")
-        assert _get_xml_text(root, "missing") is None
+        assert get_xml_text(root, "missing") is None
 
     def test_returns_none_for_empty_text(self) -> None:
         import xml.etree.ElementTree as ET
 
         root = ET.fromstring("<root><child></child></root>")
-        assert _get_xml_text(root, "child") is None
+        assert get_xml_text(root, "child") is None
 
     def test_strips_whitespace(self) -> None:
         import xml.etree.ElementTree as ET
 
         root = ET.fromstring("<root><child>  spaced  </child></root>")
-        assert _get_xml_text(root, "child") == "spaced"
+        assert get_xml_text(root, "child") == "spaced"
 
 
 # ------------------------------------------------------------------
@@ -235,23 +238,23 @@ class TestGetXmlText:
 
 
 class TestParse13fXml:
-    """Tests for _parse_13f_xml static method."""
+    """Tests for parse_13f_xml standalone function."""
 
     def test_parses_matching_cusip(self) -> None:
-        holdings = SecOwnershipClient._parse_13f_xml(
+        holdings = parse_13f_xml(
             _SAMPLE_13F_XML, "36467W109",
         )
         assert len(holdings) == 2
 
     def test_filters_by_cusip(self) -> None:
-        holdings = SecOwnershipClient._parse_13f_xml(
+        holdings = parse_13f_xml(
             _SAMPLE_13F_XML, "36467W109",
         )
         # Should not include AAPL
         assert all(h.manager_name == "GAMESTOP CORP NEW" for h in holdings)
 
     def test_parses_shares_and_value(self) -> None:
-        holdings = SecOwnershipClient._parse_13f_xml(
+        holdings = parse_13f_xml(
             _SAMPLE_13F_XML, "36467W109",
         )
         assert holdings[0].shares == 5_000_000
@@ -260,53 +263,53 @@ class TestParse13fXml:
         assert holdings[1].value_usd == 75_000
 
     def test_parses_share_class(self) -> None:
-        holdings = SecOwnershipClient._parse_13f_xml(
+        holdings = parse_13f_xml(
             _SAMPLE_13F_XML, "36467W109",
         )
         assert holdings[0].share_class == "SH"
 
     def test_filing_date_is_empty_placeholder(self) -> None:
-        """_parse_13f_xml sets filing_date='' as a placeholder."""
-        holdings = SecOwnershipClient._parse_13f_xml(
+        """parse_13f_xml sets filing_date='' as a placeholder."""
+        holdings = parse_13f_xml(
             _SAMPLE_13F_XML, "36467W109",
         )
         assert all(h.filing_date == "" for h in holdings)
 
     def test_parses_no_namespace_xml(self) -> None:
-        holdings = SecOwnershipClient._parse_13f_xml(
+        holdings = parse_13f_xml(
             _SAMPLE_13F_XML_NO_NS, "36467W109",
         )
         assert len(holdings) == 1
         assert holdings[0].shares == 3_000_000
 
     def test_invalid_xml_returns_empty(self) -> None:
-        holdings = SecOwnershipClient._parse_13f_xml(
+        holdings = parse_13f_xml(
             _SAMPLE_13F_XML_INVALID, "36467W109",
         )
         assert holdings == []
 
     def test_no_matching_cusip_returns_empty(self) -> None:
-        holdings = SecOwnershipClient._parse_13f_xml(
+        holdings = parse_13f_xml(
             _SAMPLE_13F_XML, "000000000",
         )
         assert holdings == []
 
     def test_empty_xml(self) -> None:
-        holdings = SecOwnershipClient._parse_13f_xml(
+        holdings = parse_13f_xml(
             "<root></root>", "36467W109",
         )
         assert holdings == []
 
 
 # ------------------------------------------------------------------
-# Tests: EDGAR search for 13F filings
+# Tests: EDGAR search for 13F filings (sec_common.fetch_efts_page)
 # ------------------------------------------------------------------
 
 
 class TestFetchEftsPage:
-    """Tests for _fetch_efts_page (EDGAR search API)."""
+    """Tests for sec_common.fetch_efts_page called via client._fetch_from_efts."""
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.sec_common.time")
     def test_returns_hits(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -317,7 +320,11 @@ class TestFetchEftsPage:
             client._session, "get",
             return_value=_mock_response(_SAMPLE_EFTS_RESPONSE),
         ):
-            results = client._fetch_efts_page("https://efts.sec.gov/test")
+            from stockdownloader.data import sec_common
+            results = sec_common.fetch_efts_page(
+                client._session, "https://efts.sec.gov/test",
+                rate_limit_fn=client._rate_limit,
+            )
 
         assert results is not None
         assert len(results) == 2
@@ -329,7 +336,7 @@ class TestFetchEftsPage:
         # _id contains the XML filename
         assert "infotable.xml" in results[0]["_id"]
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.sec_common.time")
     def test_handles_network_error(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -342,11 +349,15 @@ class TestFetchEftsPage:
             client._session, "get",
             side_effect=requests.RequestException("timeout"),
         ):
-            results = client._fetch_efts_page("https://efts.sec.gov/test")
+            from stockdownloader.data import sec_common
+            results = sec_common.fetch_efts_page(
+                client._session, "https://efts.sec.gov/test",
+                rate_limit_fn=client._rate_limit,
+            )
 
         assert results is None
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.sec_common.time")
     def test_handles_empty_hits(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -357,7 +368,11 @@ class TestFetchEftsPage:
             client._session, "get",
             return_value=_mock_response({"hits": {"hits": []}}),
         ):
-            results = client._fetch_efts_page("https://efts.sec.gov/test")
+            from stockdownloader.data import sec_common
+            results = sec_common.fetch_efts_page(
+                client._session, "https://efts.sec.gov/test",
+                rate_limit_fn=client._rate_limit,
+            )
 
         assert results == []
 
@@ -368,9 +383,9 @@ class TestFetchEftsPage:
 
 
 class TestFindInfotableUrl:
-    """Tests for _find_infotable_url."""
+    """Tests for find_infotable_url standalone function."""
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.sec_ownership_parsers.time")
     def test_finds_infotable_xml(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -381,14 +396,16 @@ class TestFindInfotableUrl:
             client._session, "get",
             return_value=_mock_response(_SAMPLE_INDEX_JSON),
         ):
-            url = client._find_infotable_url(
+            url = find_infotable_url(
+                client._session,
                 "https://www.sec.gov/Archives/edgar/data/1234567/000123456724000001/",
+                rate_limit_fn=client._rate_limit,
             )
 
         assert url is not None
         assert "infotable.xml" in url
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.sec_ownership_parsers.time")
     def test_falls_back_to_any_xml(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -399,14 +416,16 @@ class TestFindInfotableUrl:
             client._session, "get",
             return_value=_mock_response(_SAMPLE_INDEX_JSON_NO_INFOTABLE),
         ):
-            url = client._find_infotable_url(
+            url = find_infotable_url(
+                client._session,
                 "https://www.sec.gov/Archives/edgar/data/1234567/000123456724000001/",
+                rate_limit_fn=client._rate_limit,
             )
 
         assert url is not None
         assert "holdings.xml" in url
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.sec_ownership_parsers.time")
     def test_returns_none_on_failure(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -417,13 +436,15 @@ class TestFindInfotableUrl:
             client._session, "get",
             return_value=_mock_response(None, status_code=404),
         ):
-            url = client._find_infotable_url(
+            url = find_infotable_url(
+                client._session,
                 "https://www.sec.gov/Archives/edgar/data/1234567/000123456724000001/",
+                rate_limit_fn=client._rate_limit,
             )
 
         assert url is None
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.sec_ownership_parsers.time")
     def test_finds_txt_when_no_xml(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -442,20 +463,21 @@ class TestFindInfotableUrl:
             },
         }
 
-        with patch.object(client, "_session") as mock_session:
-            mock_resp = MagicMock()
-            mock_resp.status_code = 200
-            mock_resp.json.return_value = index_json
-            mock_session.get.return_value = mock_resp
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = index_json
 
-            result = client._find_infotable_url(
+        with patch.object(client._session, "get", return_value=mock_resp):
+            result = find_infotable_url(
+                client._session,
                 "https://www.sec.gov/Archives/edgar/data/12345/0001234/",
+                rate_limit_fn=client._rate_limit,
             )
 
         assert result is not None
         assert result.endswith("/infotable.txt")
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.sec_ownership_parsers.time")
     def test_prefers_xml_over_txt(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -474,14 +496,15 @@ class TestFindInfotableUrl:
             },
         }
 
-        with patch.object(client, "_session") as mock_session:
-            mock_resp = MagicMock()
-            mock_resp.status_code = 200
-            mock_resp.json.return_value = index_json
-            mock_session.get.return_value = mock_resp
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.json.return_value = index_json
 
-            result = client._find_infotable_url(
+        with patch.object(client._session, "get", return_value=mock_resp):
+            result = find_infotable_url(
+                client._session,
                 "https://www.sec.gov/Archives/edgar/data/12345/0001234/",
+                rate_limit_fn=client._rate_limit,
             )
 
         assert result is not None
@@ -496,13 +519,16 @@ class TestFindInfotableUrl:
 class TestEftsTextFallback:
     """Verify _fetch_from_efts falls back to text parsing when XML fails."""
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.sec_common.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_text_fallback_when_xml_empty(
-        self, mock_time: MagicMock, tmp_path: Path,
+        self, mock_base_time: MagicMock, mock_common_time: MagicMock, tmp_path: Path,
     ) -> None:
         """When XML parsing returns nothing, text parsing should kick in."""
-        mock_time.monotonic.return_value = 100.0
-        mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
+        mock_common_time.monotonic.return_value = 100.0
+        mock_common_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
 
@@ -523,8 +549,8 @@ class TestEftsTextFallback:
             "GAMESTOP CORP\tCOM\t36467W109\t5000\t200000\tSH\n"
         )
 
-        with patch.object(client, "_fetch_efts_page", return_value=fake_hits), \
-             patch.object(client, "_fetch_url_text", return_value=text_content):
+        with patch("stockdownloader.data.sec_common.fetch_efts_page", return_value=fake_hits), \
+             patch("stockdownloader.data.sec_common.fetch_url_text", return_value=text_content):
             result = client._fetch_from_efts(
                 "GME", "36467W109", 2005, 1, "2005-03-31",
             )
@@ -833,7 +859,7 @@ class TestFetchOwnershipSnapshots:
         assert len(result) == 1
         assert result[0].quarter_end == "2024-03-31"
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_returns_empty_when_no_filings_found(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -844,15 +870,12 @@ class TestFetchOwnershipSnapshots:
 
         # Bulk data returns None (not available), EFTS returns empty
         with patch.object(client, "_fetch_from_bulk", return_value=None), \
-             patch.object(
-                 client._session, "get",
-                 return_value=_mock_response({"hits": {"hits": []}}),
-             ):
+             patch("stockdownloader.data.sec_common.fetch_efts_page", return_value=[]):
             result = client.fetch_ownership_snapshots("GME", cusip="36467W109")
 
         assert result == []
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_aggregates_holdings_into_snapshots(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -945,7 +968,7 @@ class TestFetchOwnershipSnapshots:
 class TestCusipAutoResolution:
     """Verify that CUSIP auto-resolves from the symbol registry."""
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_aapl_auto_resolves_cusip(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -968,7 +991,7 @@ class TestCusipAutoResolution:
             assert cusip_arg == "037833100"  # AAPL CUSIP
             assert cusip_arg != "36467W109"  # Not GME CUSIP
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_gme_uses_default_cusip(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -988,7 +1011,7 @@ class TestCusipAutoResolution:
             _, cusip_arg, _, _, _ = mock_bulk.call_args[0]
             assert cusip_arg == "36467W109"
 
-    @patch("stockdownloader.data.sec_ownership_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_explicit_cusip_not_overridden(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -1016,7 +1039,7 @@ class TestCusipAutoResolution:
 
 
 class TestLegacyTextParsing:
-    """Tests for _parse_13f_text() — extracts holdings from non-XML tables."""
+    """Tests for parse_13f_text() — extracts holdings from non-XML tables."""
 
     _CUSIP = "36467W109"
 
@@ -1027,7 +1050,7 @@ class TestLegacyTextParsing:
             "GAMESTOP CORP\tCOM\t36467W109\t5000\t200000\tSH\n"
             "APPLE INC\tCOM\t037833100\t999999\t50000\tSH\n"
         )
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert len(result) == 1
         assert result[0].shares == 200000
         assert result[0].value_usd == 5000
@@ -1038,7 +1061,7 @@ class TestLegacyTextParsing:
             "GAMESTOP CORP NEW       COM        36467W109      3500       150000   SH\n"
             "MICROSOFT CORP          COM        594918104     99000      1200000   SH\n"
         )
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert len(result) == 1
         assert result[0].shares == 150000
         assert result[0].value_usd == 3500
@@ -1048,7 +1071,7 @@ class TestLegacyTextParsing:
         content = (
             "GAMESTOP CORP,COM,36467W109,7200,300000,SH\n"
         )
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert len(result) == 1
         assert result[0].shares == 300000
         assert result[0].value_usd == 7200
@@ -1056,29 +1079,29 @@ class TestLegacyTextParsing:
     def test_cusip_not_found_returns_empty(self) -> None:
         """When the CUSIP doesn't appear, return empty list."""
         content = "APPLE INC\tCOM\t037833100\t999\t50000\tSH\n"
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert result == []
 
     def test_empty_content_returns_empty(self) -> None:
-        result = SecOwnershipClient._parse_13f_text("", self._CUSIP)
+        result = parse_13f_text("", self._CUSIP)
         assert result == []
 
     def test_xml_content_returns_empty(self) -> None:
-        """XML content should not match (handled by _parse_13f_xml)."""
+        """XML content should not match (handled by parse_13f_xml)."""
         content = '<?xml version="1.0"?>\n<root><cusip>36467W109</cusip></root>'
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert result == []
 
     def test_html_content_returns_empty(self) -> None:
         """HTML content should be rejected."""
         content = "<html><body>36467W109\t5000\t200000</body></html>"
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert result == []
 
     def test_html_uppercase_returns_empty(self) -> None:
         """Uppercase <HTML> (common in early EDGAR filings) should be rejected."""
         content = "<HTML><BODY>36467W109\t5000\t200000</BODY></HTML>"
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert result == []
 
     def test_sgml_wrapped_content_is_accepted(self) -> None:
@@ -1089,7 +1112,7 @@ class TestLegacyTextParsing:
             "GAMESTOP CORP\tCOM\t36467W109\t5000\t200000\tSH\n"
             "</DOCUMENT>\n"
         )
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert len(result) == 1
         assert result[0].shares == 200000
 
@@ -1099,7 +1122,7 @@ class TestLegacyTextParsing:
             "FUND A\tCOM\t36467W109\t1000\t50000\tSH\n"
             "FUND B\tCOM\t36467W109\t2000\t80000\tSH\n"
         )
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert len(result) == 2
         total = sum(h.shares for h in result)
         assert total == 130000
@@ -1107,7 +1130,7 @@ class TestLegacyTextParsing:
     def test_cusip_case_insensitive(self) -> None:
         """CUSIP matching should be case-insensitive."""
         content = "GAMESTOP CORP\tCOM\t36467w109\t5000\t200000\tSH\n"
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert len(result) == 1
 
     def test_value_with_commas_in_number(self) -> None:
@@ -1115,7 +1138,7 @@ class TestLegacyTextParsing:
         content = (
             "GAMESTOP CORP    COM    36467W109    1,500    50,000    SH\n"
         )
-        result = SecOwnershipClient._parse_13f_text(content, self._CUSIP)
+        result = parse_13f_text(content, self._CUSIP)
         assert len(result) == 1
         assert result[0].shares == 50000
         assert result[0].value_usd == 1500
@@ -1314,8 +1337,8 @@ class TestEftsSnapshotIntegration:
         )
         client._save_quarter_snapshot("GME", 2024, 1, snap)
 
-        with patch.object(
-            client, "_fetch_efts_page",
+        with patch(
+            "stockdownloader.data.sec_common.fetch_efts_page",
             side_effect=AssertionError("Should not be called"),
         ):
             result = client._fetch_from_efts(
@@ -1337,7 +1360,7 @@ class TestOwnershipRateLimiting:
 
     def test_rate_limit_sleeps_when_too_fast(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        with patch("stockdownloader.data.sec_ownership_client.time") as mock_time:
+        with patch("stockdownloader.data.base_client.time") as mock_time:
             mock_time.monotonic.side_effect = [
                 0.0,    # first check
                 0.0,    # set _last_request_time
