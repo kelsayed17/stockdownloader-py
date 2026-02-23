@@ -392,10 +392,13 @@ class TestReadZip:
 class TestDownloadHalfMonth:
     """Tests for _download_half_month method."""
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
-    def test_downloads_and_caches(self, mock_time: MagicMock, tmp_path: Path) -> None:
+    def test_downloads_and_caches(self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
         zip_bytes = _create_zip_bytes(_FTD_ROWS_GME)
@@ -410,10 +413,13 @@ class TestDownloadHalfMonth:
         assert path.exists()
         assert path.name == "cnsfails202401a.zip"
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
-    def test_returns_cached_file(self, mock_time: MagicMock, tmp_path: Path) -> None:
+    def test_returns_cached_file(self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
         # Pre-populate the cache
@@ -429,10 +435,13 @@ class TestDownloadHalfMonth:
 
         assert path == cached_file
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
-    def test_returns_none_on_404(self, mock_time: MagicMock, tmp_path: Path) -> None:
+    def test_returns_none_on_404(self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
         with patch.object(
@@ -443,10 +452,13 @@ class TestDownloadHalfMonth:
 
         assert path is None
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
-    def test_retries_on_server_error(self, mock_time: MagicMock, tmp_path: Path) -> None:
+    def test_retries_on_server_error(self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         zip_bytes = _create_zip_bytes(_FTD_ROWS_GME)
         client = _make_client(tmp_path)
@@ -461,10 +473,13 @@ class TestDownloadHalfMonth:
 
         assert path is not None
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
-    def test_returns_none_on_network_failure(self, mock_time: MagicMock, tmp_path: Path) -> None:
+    def test_returns_none_on_network_failure(self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         import requests
 
@@ -486,12 +501,15 @@ class TestDownloadHalfMonth:
 class TestFetchFtdData:
     """Tests for the full fetch_ftd_data pipeline."""
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
     def test_fetches_and_filters_by_symbol(
-        self, mock_time: MagicMock, tmp_path: Path,
+        self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path,
     ) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
         zip_bytes = _create_zip_bytes(_FTD_ROWS_GME)
@@ -506,12 +524,15 @@ class TestFetchFtdData:
         # we just need to ensure symbol filtering works
         assert all(r.symbol == "GME" for r in records)
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
     def test_results_sorted_ascending(
-        self, mock_time: MagicMock, tmp_path: Path,
+        self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path,
     ) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
         zip_bytes = _create_zip_bytes(_FTD_ROWS_GME)
@@ -525,12 +546,15 @@ class TestFetchFtdData:
         dates = [r.settlement_date for r in records]
         assert dates == sorted(dates)
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
     def test_handles_all_zips_failing(
-        self, mock_time: MagicMock, tmp_path: Path,
+        self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path,
     ) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
 
@@ -542,12 +566,15 @@ class TestFetchFtdData:
 
         assert records == []
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
     def test_handles_corrupt_zip_gracefully(
-        self, mock_time: MagicMock, tmp_path: Path,
+        self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path,
     ) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
 
@@ -565,12 +592,15 @@ class TestFetchFtdData:
         # Should not crash — just skip the corrupt file
         assert isinstance(records, list)
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
     def test_gme_split_adjustment_applied(
-        self, mock_time: MagicMock, tmp_path: Path,
+        self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path,
     ) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
         zip_bytes = _create_zip_bytes(_FTD_ROWS_PRE_SPLIT)
@@ -596,13 +626,16 @@ class TestFetchFtdData:
 class TestIpoDateNarrowing:
     """Verify that fetch_ftd_data auto-narrows start_year from IPO date."""
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
     def test_tsla_skips_quarterly_era(
-        self, mock_time: MagicMock, tmp_path: Path,
+        self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path,
     ) -> None:
         """TSLA IPO'd in 2010; quarterly era (2004-2009) should be skipped."""
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
         with patch.object(client, "_fetch_quarterly_era") as mock_q, \
@@ -614,13 +647,16 @@ class TestIpoDateNarrowing:
         # Quarterly era is 2004-2009; TSLA IPO'd 2010 -> should be skipped
         mock_q.assert_not_called()
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
     def test_gme_includes_quarterly_era(
-        self, mock_time: MagicMock, tmp_path: Path,
+        self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path,
     ) -> None:
         """GME IPO'd in 2002; quarterly era should be fetched."""
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
         with patch.object(client, "_fetch_quarterly_era") as mock_q, \
@@ -632,13 +668,16 @@ class TestIpoDateNarrowing:
         # GME IPO'd 2002, FTD starts 2004 -> quarterly era IS fetched
         mock_q.assert_called_once()
 
+    @patch("stockdownloader.data.base_client.time")
     @patch("stockdownloader.data.sec_ftd_client.time")
     def test_explicit_start_year_overrides_ipo(
-        self, mock_time: MagicMock, tmp_path: Path,
+        self, mock_time: MagicMock, mock_base_time: MagicMock, tmp_path: Path,
     ) -> None:
         """An explicit start_year=2004 should still fetch from 2004."""
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
+        mock_base_time.monotonic.return_value = 100.0
+        mock_base_time.sleep = MagicMock()
 
         client = _make_client(tmp_path)
         with patch.object(client, "_fetch_quarterly_era") as mock_q, \
@@ -663,12 +702,12 @@ class TestFtdRateLimiting:
 
     def test_rate_limit_sleeps_when_too_fast(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        with patch("stockdownloader.data.sec_ftd_client.time") as mock_time:
+        with patch("stockdownloader.data.base_client.time") as mock_time:
             mock_time.monotonic.side_effect = [
                 0.0,    # first check
                 0.0,    # set _last_request_time
-                0.05,   # second check — only 50ms elapsed (< 110ms)
-                0.11,   # set _last_request_time after sleep
+                0.05,   # second check — only 50ms elapsed (< 250ms)
+                0.25,   # set _last_request_time after sleep
             ]
             mock_time.sleep = MagicMock()
 

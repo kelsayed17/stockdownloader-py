@@ -36,7 +36,6 @@ Usage::
 
 from __future__ import annotations
 
-import io
 import logging
 import time
 import zipfile
@@ -46,6 +45,7 @@ from pathlib import Path
 
 import requests
 
+from stockdownloader.data.base_client import BaseDataClient
 from stockdownloader.data.sec_common import SplitAdjustment, _KNOWN_SPLITS
 from stockdownloader.model.regulatory_records import FtdRecord
 
@@ -134,22 +134,24 @@ def _ftd_url(year: int, month: int, half: str) -> str:
     return url
 
 
-class SecFtdClient:
+class SecFtdClient(BaseDataClient):
     """Downloads and caches SEC Failure-to-Deliver data."""
 
     def __init__(
         self,
         user_agent: str = "StockDownloader admin@example.com",
-        cache_dir: str = "data/cache/ftd",
+        cache_dir: str = "data",
     ) -> None:
-        self._session = requests.Session()
-        self._session.headers.update({
-            "User-Agent": user_agent,
-            "Accept-Encoding": "gzip, deflate",
-        })
-        self._last_request_time: float = 0.0
-        # FTD bulk ZIPs are multi-ticker; keep them in a cache directory
-        self._cache_dir = Path(cache_dir)
+        super().__init__(
+            rate_limit_delay=_RATE_LIMIT_DELAY,
+            max_retries=_MAX_RETRIES,
+            data_dir=cache_dir,
+            default_headers={
+                "User-Agent": user_agent,
+                "Accept-Encoding": "gzip, deflate",
+            },
+        )
+        self._cache_dir = self._data_dir / "cache" / "ftd"
         self._cache_dir.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------
@@ -525,10 +527,3 @@ class SecFtdClient:
 
         return records
 
-    def _rate_limit(self) -> None:
-        """Sleep if needed to maintain the SEC 10 req/sec rate limit."""
-        now = time.monotonic()
-        elapsed = now - self._last_request_time
-        if elapsed < _RATE_LIMIT_DELAY:
-            time.sleep(_RATE_LIMIT_DELAY - elapsed)
-        self._last_request_time = time.monotonic()
