@@ -38,6 +38,20 @@ from pathlib import Path
 import requests
 
 from stockdownloader.data.base_client import BaseDataClient
+from stockdownloader.data.regsho_sources import (
+    NYSE_429_BACKOFF_RANGE,
+    NYSE_BATCH_SIZE,
+    NYSE_URL_TEMPLATE,
+    cffi_get,
+    incremental_nyse_save,
+    load_nyse_progress,
+    nyse_rate_limit,
+    query_cboe,
+    query_nasdaq,
+    query_nyse,
+    query_occ,
+    save_nyse_progress,
+)
 
 try:
     from curl_cffi import requests as curl_requests
@@ -48,47 +62,7 @@ except ImportError:  # pragma: no cover – optional dependency
 
 logger = logging.getLogger(__name__)
 
-# Retry limits
-_MAX_CONSECUTIVE_FAILURES = 15
-
-# Rate-limiting delays (seconds) — randomised to avoid pattern detection
-_NYSE_DELAY_RANGE = (1.5, 3.0)     # NYSE — slower to avoid Cloudflare blocks
-_NYSE_BATCH_SIZE = 25              # Requests per batch before a long pause
-_NYSE_BATCH_PAUSE_RANGE = (30, 60) # Seconds between batches
-_NYSE_429_BACKOFF_RANGE = (120, 180)  # Seconds to back off on 429
-_OCC_RATE_LIMIT_DELAY = 0.5       # OCC — polite pacing
-_CBOE_RATE_LIMIT_DELAY = 0.3      # CBOE
 _RATE_LIMIT_DELAY = 0.3           # Nasdaq / general
-
-# NYSE threshold list API — primary source for NYSE/Arca/American stocks
-_NYSE_URL_TEMPLATE = (
-    "https://www.nyse.com/api/regulatory/threshold-securities/"
-    "download?selectedDate={date}"
-)
-# Nasdaq daily threshold text files — Nasdaq-listed securities only
-_NASDAQ_URL_TEMPLATE = (
-    "https://www.nasdaqtrader.com/dynamic/symdir/regsho/nasdaqth{date}.txt"
-)
-# OCC combined threshold list — all exchanges, but only ~4-6 weeks history
-_OCC_URL_TEMPLATE = (
-    "https://marketdata.theocc.com/threshold-securities?reportDate={date}"
-)
-# CBOE BZX threshold list — BZX-listed ETFs, from 2015 onward
-_CBOE_URL_TEMPLATE = (
-    "https://www.cboe.com/us/equities/market_statistics/"
-    "reg_sho_threshold/{date}/csv/"
-)
-
-# Browser-like headers for curl_cffi requests (Sec-Fetch-* headers).
-# User-Agent and sec-ch-ua are set automatically by curl_cffi impersonation.
-_BROWSER_HEADERS = {
-    "Accept": "text/plain, text/csv, */*",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-    "Sec-Fetch-User": "?1",
-}
 
 
 @dataclass(frozen=True, slots=True)
@@ -150,9 +124,6 @@ class RegShoThresholdClient(BaseDataClient):
             self._curl_session = None
 
         self._last_request_time: float = 0.0
-        self._last_nyse_request_time: float = 0.0
-        self._last_occ_request_time: float = 0.0
-        self._last_cboe_request_time: float = 0.0
         self._nyse_request_count: int = 0
         self._data_dir = Path(data_dir)
         self._data_dir.mkdir(parents=True, exist_ok=True)
@@ -292,7 +263,7 @@ class RegShoThresholdClient(BaseDataClient):
             return cached or []
 
         records: list[ThresholdRecord] = []
-        self._nyse_request_count = 0
+        rate_state: dict = {"request_count": 0, "last_request_time": 0.0}
         consecutive_429s = 0
         max_429s = 10  # More tolerant for targeted queries
 
@@ -304,15 +275,15 @@ class RegShoThresholdClient(BaseDataClient):
                 )
                 break
 
-            url = _NYSE_URL_TEMPLATE.format(date=date_str)
+            url = NYSE_URL_TEMPLATE.format(date=date_str)
 
             try:
-                self._nyse_rate_limit()
+                nyse_rate_limit(rate_state)
 
                 # Incremental save after each batch
                 if (
-                    self._nyse_request_count > 0
-                    and self._nyse_request_count % _NYSE_BATCH_SIZE == 0
+                    rate_state["request_count"] > 0
+                    and rate_state["request_count"] % NYSE_BATCH_SIZE == 0
                 ):
                     self._incremental_nyse_save(
                         symbol_upper, records, cached_dates, queried_dates,
@@ -344,7 +315,7 @@ class RegShoThresholdClient(BaseDataClient):
                 elif status in (403, 429):
                     consecutive_429s += 1
                     if consecutive_429s in (5, 10):
-                        wait_secs = random.uniform(*_NYSE_429_BACKOFF_RANGE)
+                        wait_secs = random.uniform(*NYSE_429_BACKOFF_RANGE)
                         logger.info(
                             "NYSE rate limited — pausing %.0fs (429 #%d)",
                             wait_secs, consecutive_429s,
@@ -391,7 +362,7 @@ class RegShoThresholdClient(BaseDataClient):
         logger.info(
             "NYSE targeted: %d new threshold records found, "
             "%d total records, %d requests made",
-            len(records), len(merged_cache), self._nyse_request_count,
+            len(records), len(merged_cache), rate_state["request_count"],
         )
         return merged_cache
 
@@ -410,7 +381,7 @@ class RegShoThresholdClient(BaseDataClient):
         return len(recent) > 0
 
     # ------------------------------------------------------------------
-    # NYSE threshold list (primary deep-history source)
+    # Delegation to regsho_sources standalone functions
     # ------------------------------------------------------------------
 
     def _query_nyse(
@@ -420,153 +391,44 @@ class RegShoThresholdClient(BaseDataClient):
         *,
         cached_dates: set[str] | None = None,
     ) -> list[ThresholdRecord]:
-        """Query NYSE daily threshold list API.
+        """Delegate to :func:`regsho_sources.query_nyse`."""
+        return query_nyse(
+            symbol,
+            lookback_days,
+            cached_dates=cached_dates,
+            curl_session=self._curl_session,
+            session=self._session,
+            load_cache_fn=self._load_cache,
+            save_cache_fn=self._save_cache,
+            progress_dir_fn=self._progress_dir,
+            symbol_dir_fn=self._symbol_dir,
+        )
 
-        The NYSE API returns pipe-delimited text covering NYSE, NYSE Arca,
-        and NYSE American listed securities.  Data is available from ~2010
-        onward.  Format::
+    def _query_occ(
+        self, symbol: str, lookback_days: int = 60
+    ) -> list[ThresholdRecord]:
+        """Delegate to :func:`regsho_sources.query_occ`."""
+        return query_occ(symbol, lookback_days, session=self._session)
 
-            Symbol|Security Name|Market Category|Reg SHO Threshold Flag||
+    def _query_nasdaq(
+        self, symbol: str, lookback_days: int = 5500
+    ) -> list[ThresholdRecord]:
+        """Delegate to :func:`regsho_sources.query_nasdaq`."""
+        return query_nasdaq(
+            symbol, lookback_days,
+            session=self._session,
+            rate_limit_fn=self._rate_limit,
+        )
 
-        The ``Market Category`` column contains the actual exchange
-        (e.g. ``"NYSE"``, ``"NYSE Arca"``, ``"NYSE American"``).
+    def _query_cboe(
+        self, symbol: str, lookback_days: int = 5500
+    ) -> list[ThresholdRecord]:
+        """Delegate to :func:`regsho_sources.query_cboe`."""
+        return query_cboe(symbol, lookback_days, session=self._session)
 
-        Uses ``curl_cffi`` with Chrome TLS impersonation to bypass
-        Cloudflare JA3/JA4 TLS fingerprint blocking.  Randomised delays
-        and batch pausing avoid triggering rate limits.
-
-        Saves incrementally after every batch to preserve progress if the
-        process is interrupted.
-        """
-        if cached_dates is None:
-            cached_dates = set()
-
-        # Load dates already queried in prior (interrupted) runs so we
-        # can skip them entirely — even dates where GME wasn't found.
-        queried_dates: set[str] = self._load_nyse_progress(symbol)
-        if queried_dates:
-            logger.info(
-                "NYSE: resuming — %d dates already queried in prior runs",
-                len(queried_dates),
-            )
-
-        records: list[ThresholdRecord] = []
-        today = date.today()
-        consecutive_failures = 0
-        self._nyse_request_count = 0
-
-        for offset in range(lookback_days):
-            check_date = today - timedelta(days=offset)
-            if check_date.weekday() >= 5:
-                continue
-
-            if consecutive_failures >= _MAX_CONSECUTIVE_FAILURES:
-                logger.warning(
-                    "Too many consecutive NYSE failures (%d), "
-                    "stopping at %s",
-                    consecutive_failures, check_date.isoformat(),
-                )
-                break
-
-            date_str = check_date.strftime("%Y-%m-%d")
-
-            # Skip dates we already have cached or queried in prior runs
-            if date_str in cached_dates or date_str in queried_dates:
-                consecutive_failures = 0  # known date = data exists or was checked
-                continue
-
-            url = _NYSE_URL_TEMPLATE.format(date=date_str)
-
-            try:
-                self._nyse_rate_limit()
-                # Incremental save after each batch pause to preserve
-                # progress if the process is interrupted.
-                if (
-                    self._nyse_request_count > 0
-                    and self._nyse_request_count % _NYSE_BATCH_SIZE == 0
-                ):
-                    self._incremental_nyse_save(
-                        symbol, records, cached_dates, queried_dates,
-                    )
-
-                text, status = self._cffi_get(url)
-
-                if status == 200 and text:
-                    queried_dates.add(date_str)
-                    lines = text.strip().splitlines()
-                    if len(lines) <= 2:
-                        # Just header + timestamp — no threshold securities
-                        consecutive_failures = 0
-                        continue
-                    consecutive_failures = 0
-                    for line in lines:
-                        parts = line.split("|")
-                        if len(parts) >= 4 and parts[0].strip() == symbol:
-                            market = parts[2].strip() or "NYSE"
-                            records.append(ThresholdRecord(
-                                date=check_date.isoformat(),
-                                symbol=symbol,
-                                market=market,
-                                threshold_shares=0,
-                                consecutive_days=0,
-                            ))
-                            break
-                elif status in (404, 204):
-                    queried_dates.add(date_str)
-                    consecutive_failures = 0
-                elif status in (403, 429):
-                    consecutive_failures += 1
-                    if consecutive_failures in (5, 10):
-                        # Extended backoff on persistent rate limiting
-                        wait_secs = random.uniform(*_NYSE_429_BACKOFF_RANGE)
-                        logger.info(
-                            "NYSE rate limited — pausing %.0fs before retry "
-                            "(failure %d)",
-                            wait_secs, consecutive_failures,
-                        )
-                        time.sleep(wait_secs)
-                        text2, status2 = self._cffi_get(url)
-                        if status2 == 200:
-                            queried_dates.add(date_str)
-                            consecutive_failures = 0
-                            lines = text2.strip().splitlines()
-                            for line in lines:
-                                parts = line.split("|")
-                                if (
-                                    len(parts) >= 4
-                                    and parts[0].strip() == symbol
-                                ):
-                                    market = parts[2].strip() or "NYSE"
-                                    records.append(ThresholdRecord(
-                                        date=check_date.isoformat(),
-                                        symbol=symbol,
-                                        market=market,
-                                        threshold_shares=0,
-                                        consecutive_days=0,
-                                    ))
-                                    break
-                            continue
-                    logger.info(
-                        "NYSE %d on %s (failures: %d)",
-                        status, date_str, consecutive_failures,
-                    )
-                else:
-                    consecutive_failures += 1
-            except Exception as exc:
-                consecutive_failures += 1
-                logger.debug("NYSE request error for %s: %s", date_str, exc)
-
-        if records:
-            logger.info(
-                "NYSE Reg SHO: %d threshold dates for %s", len(records), symbol,
-            )
-        # Final save to ensure all progress is persisted (even if no
-        # new threshold records were found, we still save queried_dates)
-        if queried_dates:
-            self._incremental_nyse_save(
-                symbol, records, cached_dates, queried_dates,
-            )
-        return records
+    def _cffi_get(self, url: str, timeout: int = 15) -> tuple[str, int]:
+        """Delegate to :func:`regsho_sources.cffi_get`."""
+        return cffi_get(self._curl_session, url, timeout)
 
     def _incremental_nyse_save(
         self,
@@ -575,401 +437,26 @@ class RegShoThresholdClient(BaseDataClient):
         cached_dates: set[str],
         queried_dates: set[str],
     ) -> None:
-        """Merge *new_records* with existing cache and save.
-
-        Called periodically during long NYSE backfills so that progress
-        is preserved if the process is interrupted.  Also saves the set
-        of all *queried_dates* (including dates where the symbol was NOT
-        on the threshold list) so that re-runs can skip already-checked
-        dates entirely.
-        """
-        try:
-            cached = self._load_cache(symbol) or []
-            by_key: dict[tuple[str, str], ThresholdRecord] = {}
-            for r in cached:
-                by_key[(r.date, r.market)] = r
-            for r in new_records:
-                by_key[(r.date, r.market)] = r
-            merged = sorted(by_key.values(), key=lambda r: r.date)
-            self._save_cache(symbol, merged)
-            # Update cached_dates so future iterations skip saved dates
-            for r in new_records:
-                cached_dates.add(r.date)
-            # Save queried-dates progress file
-            self._save_nyse_progress(symbol, queried_dates)
-            logger.info(
-                "NYSE incremental save: %d threshold records, %d dates queried for %s",
-                len(merged), len(queried_dates), symbol,
-            )
-        except Exception as exc:
-            logger.warning(
-                "NYSE incremental save failed for %s: %s", symbol, exc,
-            )
+        """Delegate to :func:`regsho_sources.incremental_nyse_save`."""
+        progress_dir = self._progress_dir(symbol)
+        incremental_nyse_save(
+            symbol, new_records, cached_dates, queried_dates,
+            load_cache_fn=self._load_cache,
+            save_cache_fn=self._save_cache,
+            save_progress_fn=lambda qd: save_nyse_progress(progress_dir, qd),
+        )
 
     def _save_nyse_progress(
         self, symbol: str, queried_dates: set[str]
     ) -> None:
-        """Persist set of NYSE dates already queried for *symbol*."""
-        progress_file = self._progress_dir(symbol) / "regsho_nyse.json"
-        try:
-            existing: set[str] = set()
-            if progress_file.exists():
-                existing = set(json.loads(
-                    progress_file.read_text(encoding="utf-8")
-                ))
-            combined = sorted(existing | queried_dates)
-            progress_file.write_text(
-                json.dumps(combined), encoding="utf-8",
-            )
-        except Exception as exc:
-            logger.debug("Failed to save NYSE progress for %s: %s", symbol, exc)
+        """Delegate to :func:`regsho_sources.save_nyse_progress`."""
+        save_nyse_progress(self._progress_dir(symbol), queried_dates)
 
     def _load_nyse_progress(self, symbol: str) -> set[str]:
-        """Load previously queried NYSE dates for *symbol*."""
-        progress_file = self._progress_dir(symbol) / "regsho_nyse.json"
-        legacy = self._symbol_dir(symbol) / "regsho_nyse_progress.json"
-        if not progress_file.exists() and legacy.exists():
-            legacy.rename(progress_file)
-            logger.info("Migrated %s → %s", legacy, progress_file)
-        if not progress_file.exists():
-            return set()
-        try:
-            return set(json.loads(progress_file.read_text(encoding="utf-8")))
-        except Exception:
-            return set()
-
-    def _cffi_get(self, url: str, timeout: int = 15) -> tuple[str, int]:
-        """HTTP GET via ``curl_cffi`` with Chrome TLS impersonation.
-
-        ``curl_cffi`` uses ``curl-impersonate`` under the hood — a patched
-        ``libcurl`` that replaces OpenSSL with Chrome's BoringSSL and mimics
-        real browser TLS handshakes, HTTP/2 frames, and cipher suites.  This
-        produces JA3/JA4 fingerprints that match actual Chrome browsers,
-        bypassing Cloudflare TLS fingerprint detection.
-
-        Falls back to system ``curl`` via subprocess if ``curl_cffi`` is not
-        available.
-
-        Returns ``(body_text, http_status_code)``.
-        """
-        if self._curl_session is not None:
-            try:
-                resp = self._curl_session.get(
-                    url, timeout=timeout, headers=_BROWSER_HEADERS,
-                )
-                return resp.text, resp.status_code
-            except Exception:
-                return "", 0
-        else:
-            # Fallback: subprocess curl
-            return self._curl_get(url, timeout=timeout)
-
-    @staticmethod
-    def _curl_get(url: str, timeout: int = 15) -> tuple[str, int]:
-        """HTTP GET via system ``curl`` binary (fallback).
-
-        Used when ``curl_cffi`` is not installed.  Spawns a subprocess for
-        each request, which is slower but still bypasses Cloudflare TLS
-        fingerprinting since the system curl has a different TLS
-        implementation than Python's ``requests`` library.
-
-        Returns ``(body_text, http_status_code)``.
-        """
-        import subprocess
-
-        try:
-            result = subprocess.run(
-                [
-                    "curl", "-s",
-                    "-o", "-",               # body to stdout
-                    "-w", "\n%{http_code}",   # status code after body
-                    "--max-time", str(timeout),
-                    url,
-                ],
-                capture_output=True, text=True, timeout=timeout + 5,
-            )
-            output = result.stdout
-            # Last line is the HTTP status code
-            lines = output.rsplit("\n", 1)
-            if len(lines) == 2:
-                body = lines[0]
-                try:
-                    status = int(lines[1].strip())
-                except ValueError:
-                    status = 0
-            else:
-                body = output
-                status = 0
-            return body, status
-        except (subprocess.TimeoutExpired, FileNotFoundError):
-            return "", 0
-
-    def _nyse_rate_limit(self, delay: float | None = None) -> None:
-        """Rate limit for NYSE requests with randomised delay and batch pausing.
-
-        Implements two layers of pacing:
-
-        1. **Intra-batch delay**: randomised 1.5-3.0s between individual
-           requests to avoid pattern detection by Cloudflare.
-        2. **Batch pause**: every 25 requests, pause 30-60s to let
-           Cloudflare's sliding-window rate counter decay.
-        """
-        self._nyse_request_count += 1
-
-        # Batch pause every _NYSE_BATCH_SIZE requests
-        if self._nyse_request_count % _NYSE_BATCH_SIZE == 0:
-            pause = random.uniform(*_NYSE_BATCH_PAUSE_RANGE)
-            logger.info(
-                "NYSE batch pause: %.0fs after %d requests",
-                pause, self._nyse_request_count,
-            )
-            time.sleep(pause)
-            self._last_nyse_request_time = time.monotonic()
-            return
-
-        # Normal intra-batch delay (randomised)
-        actual_delay = delay or random.uniform(*_NYSE_DELAY_RANGE)
-        now = time.monotonic()
-        elapsed = now - self._last_nyse_request_time
-        if elapsed < actual_delay:
-            time.sleep(actual_delay - elapsed)
-        self._last_nyse_request_time = time.monotonic()
-
-    # ------------------------------------------------------------------
-    # OCC combined threshold list (supplemental — recent only)
-    # ------------------------------------------------------------------
-
-    def _query_occ(
-        self, symbol: str, lookback_days: int = 60
-    ) -> list[ThresholdRecord]:
-        """Query the OCC combined threshold list.
-
-        The OCC (Options Clearing Corporation) publishes a combined
-        threshold list covering NYSE, NASDAQ, NYSE Arca, NYSE American,
-        and other exchanges.  Pipe-delimited format::
-
-            Symbol|Security Name|Market Category|Reg SHO Flag|...
-
-        .. note::
-            OCC only retains approximately 4-6 weeks of history.
-            Older dates return ``"File requested does not exist."``.
-            The lookback is capped at 60 days by default.
-        """
-        # OCC only has ~4-6 weeks of data, so cap lookback
-        effective_lookback = min(lookback_days, 60)
-        records: list[ThresholdRecord] = []
-        today = date.today()
-        consecutive_failures = 0
-
-        for offset in range(effective_lookback):
-            check_date = today - timedelta(days=offset)
-            if check_date.weekday() >= 5:
-                continue
-
-            if consecutive_failures >= _MAX_CONSECUTIVE_FAILURES:
-                logger.debug(
-                    "OCC: %d consecutive failures, stopping at %s",
-                    consecutive_failures, check_date.isoformat(),
-                )
-                break
-
-            date_str = check_date.strftime("%Y%m%d")
-            url = _OCC_URL_TEMPLATE.format(date=date_str)
-
-            try:
-                self._occ_rate_limit()
-                resp = self._session.get(url, timeout=15)
-                if resp.status_code == 200:
-                    text = resp.text.strip()
-                    # OCC returns "File requested does not exist." for old dates
-                    if "does not exist" in text.lower():
-                        consecutive_failures += 1
-                        continue
-                    consecutive_failures = 0
-                    for line in text.splitlines():
-                        parts = line.split("|")
-                        if len(parts) >= 4 and parts[0].strip() == symbol:
-                            market = parts[2].strip() or "OCC"
-                            records.append(ThresholdRecord(
-                                date=check_date.isoformat(),
-                                symbol=symbol,
-                                market=market,
-                                threshold_shares=0,
-                                consecutive_days=0,
-                            ))
-                            break
-                elif resp.status_code in (404, 204):
-                    consecutive_failures = 0
-                else:
-                    consecutive_failures += 1
-            except requests.RequestException:
-                consecutive_failures += 1
-
-        if records:
-            logger.info(
-                "OCC Reg SHO: %d threshold dates for %s",
-                len(records), symbol,
-            )
-        return records
-
-    def _occ_rate_limit(self) -> None:
-        """Rate limit for OCC requests."""
-        now = time.monotonic()
-        elapsed = now - self._last_occ_request_time
-        if elapsed < _OCC_RATE_LIMIT_DELAY:
-            time.sleep(_OCC_RATE_LIMIT_DELAY - elapsed)
-        self._last_occ_request_time = time.monotonic()
-
-    # ------------------------------------------------------------------
-    # Nasdaq text file query
-    # ------------------------------------------------------------------
-
-    def _query_nasdaq(
-        self, symbol: str, lookback_days: int = 5500
-    ) -> list[ThresholdRecord]:
-        """Check Nasdaq daily threshold list text files.
-
-        Nasdaq publishes pipe-delimited threshold lists at a predictable
-        URL pattern.  Available from ~2006 onward but only covers
-        Nasdaq-listed securities (market categories Q, G, S).
-        """
-        records: list[ThresholdRecord] = []
-        today = date.today()
-        consecutive_failures = 0
-
-        for offset in range(lookback_days):
-            check_date = today - timedelta(days=offset)
-            if check_date.weekday() >= 5:
-                continue
-
-            if consecutive_failures >= _MAX_CONSECUTIVE_FAILURES:
-                logger.warning(
-                    "Too many consecutive Nasdaq failures, stopping at %s",
-                    check_date.isoformat(),
-                )
-                break
-
-            date_str = check_date.strftime("%Y%m%d")
-            url = _NASDAQ_URL_TEMPLATE.format(date=date_str)
-
-            try:
-                self._rate_limit()
-                resp = self._session.get(url, timeout=10)
-                if resp.status_code == 200 and "text" in resp.headers.get(
-                    "Content-Type", ""
-                ):
-                    consecutive_failures = 0
-                    for line in resp.text.splitlines():
-                        parts = line.split("|")
-                        if len(parts) >= 2 and parts[0].strip() == symbol:
-                            # Extract market category if available
-                            market = "NASDAQ"
-                            if len(parts) >= 3:
-                                cat = parts[2].strip()
-                                if cat in ("Q", "G", "S"):
-                                    market = f"NASDAQ ({cat})"
-                            records.append(ThresholdRecord(
-                                date=check_date.isoformat(),
-                                symbol=symbol,
-                                market=market,
-                                threshold_shares=0,
-                                consecutive_days=0,
-                            ))
-                            break
-                elif resp.status_code in (302, 404):
-                    # 302 redirect = file doesn't exist
-                    consecutive_failures = 0
-                else:
-                    consecutive_failures += 1
-            except requests.RequestException:
-                consecutive_failures += 1
-
-        if records:
-            logger.info(
-                "Nasdaq Reg SHO: %d threshold dates for %s",
-                len(records), symbol,
-            )
-        return records
-
-    # ------------------------------------------------------------------
-    # CBOE BZX threshold list
-    # ------------------------------------------------------------------
-
-    def _query_cboe(
-        self, symbol: str, lookback_days: int = 5500
-    ) -> list[ThresholdRecord]:
-        """Query CBOE BZX daily threshold list.
-
-        CBOE publishes pipe-delimited threshold lists for BZX-listed
-        securities (mostly leveraged/buffer ETFs).  Available from
-        ~2015 onward.  Format::
-
-            Symbol|CompanyName
-            MSTU|T-Rex 2X Long MSTR Daily Target ETF
-
-        Last line is a timestamp (``YYYYMMDDHHMMSS``).
-        """
-        records: list[ThresholdRecord] = []
-        today = date.today()
-        consecutive_failures = 0
-
-        # CBOE data starts around 2015
-        earliest = date(2015, 1, 1)
-
-        for offset in range(lookback_days):
-            check_date = today - timedelta(days=offset)
-            if check_date < earliest:
-                break
-            if check_date.weekday() >= 5:
-                continue
-
-            if consecutive_failures >= _MAX_CONSECUTIVE_FAILURES:
-                logger.debug(
-                    "CBOE: %d consecutive failures, stopping at %s",
-                    consecutive_failures, check_date.isoformat(),
-                )
-                break
-
-            date_str = check_date.strftime("%Y-%m-%d")
-            url = _CBOE_URL_TEMPLATE.format(date=date_str)
-
-            try:
-                self._cboe_rate_limit()
-                resp = self._session.get(url, timeout=10)
-                if resp.status_code == 200:
-                    consecutive_failures = 0
-                    for line in resp.text.splitlines():
-                        parts = line.split("|")
-                        if len(parts) >= 2 and parts[0].strip() == symbol:
-                            records.append(ThresholdRecord(
-                                date=check_date.isoformat(),
-                                symbol=symbol,
-                                market="CBOE BZX",
-                                threshold_shares=0,
-                                consecutive_days=0,
-                            ))
-                            break
-                elif resp.status_code in (404, 204):
-                    consecutive_failures = 0
-                else:
-                    consecutive_failures += 1
-            except requests.RequestException:
-                consecutive_failures += 1
-
-        if records:
-            logger.info(
-                "CBOE Reg SHO: %d threshold dates for %s",
-                len(records), symbol,
-            )
-        return records
-
-    def _cboe_rate_limit(self) -> None:
-        """Rate limit for CBOE requests."""
-        now = time.monotonic()
-        elapsed = now - self._last_cboe_request_time
-        if elapsed < _CBOE_RATE_LIMIT_DELAY:
-            time.sleep(_CBOE_RATE_LIMIT_DELAY - elapsed)
-        self._last_cboe_request_time = time.monotonic()
+        """Delegate to :func:`regsho_sources.load_nyse_progress`."""
+        return load_nyse_progress(
+            self._progress_dir(symbol), self._symbol_dir(symbol),
+        )
 
     # ------------------------------------------------------------------
     # Caching

@@ -12,10 +12,14 @@ import pytest
 from stockdownloader.data.regsho_threshold_client import (
     RegShoThresholdClient,
     ThresholdRecord,
-    _CBOE_URL_TEMPLATE,
-    _NASDAQ_URL_TEMPLATE,
-    _NYSE_URL_TEMPLATE,
-    _OCC_URL_TEMPLATE,
+)
+from stockdownloader.data.regsho_sources import (
+    CBOE_URL_TEMPLATE,
+    NASDAQ_URL_TEMPLATE,
+    NYSE_URL_TEMPLATE,
+    OCC_URL_TEMPLATE,
+    cffi_get,
+    curl_get,
 )
 
 
@@ -247,28 +251,28 @@ class TestUrlTemplates:
     """Tests that URL templates produce correct URLs."""
 
     def test_nyse_url_template(self) -> None:
-        url = _NYSE_URL_TEMPLATE.format(date="2021-01-25")
+        url = NYSE_URL_TEMPLATE.format(date="2021-01-25")
         assert url == (
             "https://www.nyse.com/api/regulatory/threshold-securities/"
             "download?selectedDate=2021-01-25"
         )
 
     def test_nasdaq_url_template(self) -> None:
-        url = _NASDAQ_URL_TEMPLATE.format(date="20210125")
+        url = NASDAQ_URL_TEMPLATE.format(date="20210125")
         assert url == (
             "https://www.nasdaqtrader.com/dynamic/symdir/regsho/"
             "nasdaqth20210125.txt"
         )
 
     def test_occ_url_template(self) -> None:
-        url = _OCC_URL_TEMPLATE.format(date="20260220")
+        url = OCC_URL_TEMPLATE.format(date="20260220")
         assert url == (
             "https://marketdata.theocc.com/threshold-securities"
             "?reportDate=20260220"
         )
 
     def test_cboe_url_template(self) -> None:
-        url = _CBOE_URL_TEMPLATE.format(date="2021-01-25")
+        url = CBOE_URL_TEMPLATE.format(date="2021-01-25")
         assert url == (
             "https://www.cboe.com/us/equities/market_statistics/"
             "reg_sho_threshold/2021-01-25/csv/"
@@ -301,8 +305,8 @@ class TestNyseQuery:
         """NYSE response correctly parses symbol and market category."""
         client = _make_client(tmp_path)
 
-        with patch.object(
-            client, "_cffi_get",
+        with patch(
+            "stockdownloader.data.regsho_sources.cffi_get",
             return_value=(_NYSE_SAMPLE_RESPONSE, 200),
         ):
             records = client._query_nyse("GME", lookback_days=7)
@@ -315,8 +319,8 @@ class TestNyseQuery:
         """NYSE Arca market category is preserved."""
         client = _make_client(tmp_path)
 
-        with patch.object(
-            client, "_cffi_get",
+        with patch(
+            "stockdownloader.data.regsho_sources.cffi_get",
             return_value=(_NYSE_SAMPLE_RESPONSE, 200),
         ):
             records = client._query_nyse("DFAE", lookback_days=7)
@@ -328,8 +332,8 @@ class TestNyseQuery:
         """Symbol not in NYSE response returns empty list."""
         client = _make_client(tmp_path)
 
-        with patch.object(
-            client, "_cffi_get",
+        with patch(
+            "stockdownloader.data.regsho_sources.cffi_get",
             return_value=(_NYSE_SAMPLE_RESPONSE, 200),
         ):
             records = client._query_nyse("TSLA", lookback_days=7)
@@ -340,8 +344,8 @@ class TestNyseQuery:
         """Header-only NYSE response (no threshold securities) is handled."""
         client = _make_client(tmp_path)
 
-        with patch.object(
-            client, "_cffi_get",
+        with patch(
+            "stockdownloader.data.regsho_sources.cffi_get",
             return_value=(_NYSE_HEADER_ONLY, 200),
         ):
             records = client._query_nyse("GME", lookback_days=7)
@@ -354,8 +358,8 @@ class TestNyseQuery:
 
         # Some requests fail with 403, others succeed — should keep going
         side_effects = [("", 403), (_NYSE_SAMPLE_RESPONSE, 200)] * 5
-        with patch.object(
-            client, "_cffi_get",
+        with patch(
+            "stockdownloader.data.regsho_sources.cffi_get",
             side_effect=side_effects,
         ):
             records = client._query_nyse("GME", lookback_days=14)
@@ -384,7 +388,10 @@ class TestNyseQuery:
             if d.weekday() < 5:
                 cached.add(d.strftime("%Y-%m-%d"))
 
-        with patch.object(client, "_cffi_get", side_effect=counting_cffi_get):
+        with patch(
+            "stockdownloader.data.regsho_sources.cffi_get",
+            side_effect=counting_cffi_get,
+        ):
             records = client._query_nyse(
                 "GME", lookback_days=7, cached_dates=cached,
             )
@@ -414,8 +421,8 @@ class TestNyseQuery:
         client = _make_client(tmp_path)
         client._curl_session = None  # Simulate curl_cffi not available
 
-        with patch.object(
-            RegShoThresholdClient, "_curl_get",
+        with patch(
+            "stockdownloader.data.regsho_sources.curl_get",
             return_value=("fallback body", 200),
         ):
             text, status = client._cffi_get("https://example.com")
@@ -423,9 +430,9 @@ class TestNyseQuery:
             assert text == "fallback body"
 
     def test_curl_get_static_method(self) -> None:
-        """_curl_get is a static method that parses curl output correctly."""
+        """curl_get parses curl output correctly."""
         # This tests the actual curl integration (requires curl binary)
-        body, status = RegShoThresholdClient._curl_get(
+        body, status = curl_get(
             "https://httpbin.org/status/200", timeout=5,
         )
         assert status == 200
