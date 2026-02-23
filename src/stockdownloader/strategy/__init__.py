@@ -8,14 +8,71 @@ intraday : Standalone intraday strategies and shared infrastructure
 regime : Market regime detection and adaptive ensemble meta-strategy
 exit_mechanisms : Exit mechanism implementations for tournaments
 signals : Signal filtering and routing
+
+Core ABCs & enums
+-----------------
+- :class:`TradingStrategy` -- ABC for daily strategies
+- :class:`IntradayTradingStrategy` -- ABC for intraday strategies
+- :class:`Signal` -- BUY / SELL / HOLD enum for daily strategies
+
+Registries
+----------
+- :class:`StrategyRegistry` -- auto-discovery for strategies
+- :class:`SignalGeneratorRegistry` -- auto-discovery for signal generators
+- :class:`RegistryEntry` -- dataclass entry stored in both registries
+- :func:`ensure_registered` -- idempotent loader for built-in strategies
+
+Signal stack
+------------
+- :class:`AtomicSignalGenerator` -- ABC for single-indicator generators
+- :class:`StackedSignalEngine` -- composable multi-signal aggregator
+- :class:`StackedDailyStrategy` -- daily wrapper for signal stacks
+- :class:`StackedIntradayStrategy` -- intraday wrapper for signal stacks
+
+Regime
+------
+- :class:`EnsembleIntradayStrategy` -- adaptive regime-aware meta-strategy
+
+Exit mechanisms
+---------------
+- :class:`ExitMechanism` -- ABC for tournament exit mechanisms
 """
 
+from stockdownloader.strategy.trading_strategy import (
+    IntradayTradingStrategy,
+    Signal,
+    TradingStrategy,
+)
+from stockdownloader.strategy.base_registry import (
+    RegistryEntry,
+    SignalGeneratorRegistry,
+    StrategyRegistry,
+)
+from stockdownloader.strategy.registration_loader import ensure_registered
+from stockdownloader.strategy.signals.signal_generator import AtomicSignalGenerator
+from stockdownloader.strategy.signals.stacked_signal_engine import StackedSignalEngine
+from stockdownloader.strategy.signals.stacked_daily_strategy import StackedDailyStrategy
+from stockdownloader.strategy.signals.stacked_intraday_strategy import StackedIntradayStrategy
+from stockdownloader.strategy.regime.ensemble_strategy import EnsembleIntradayStrategy
 from stockdownloader.strategy.exit_mechanisms.trailing_exit_base import ExitMechanism
-from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
-from stockdownloader.strategy.base_registry import StrategyRegistry
 
 __all__ = [
-    "ExitMechanism",
+    # Core ABCs & enums
     "IntradayTradingStrategy",
+    "Signal",
+    "TradingStrategy",
+    # Registries
+    "RegistryEntry",
+    "SignalGeneratorRegistry",
     "StrategyRegistry",
+    "ensure_registered",
+    # Signal stack
+    "AtomicSignalGenerator",
+    "StackedDailyStrategy",
+    "StackedIntradayStrategy",
+    "StackedSignalEngine",
+    # Regime
+    "EnsembleIntradayStrategy",
+    # Exit mechanisms
+    "ExitMechanism",
 ]
