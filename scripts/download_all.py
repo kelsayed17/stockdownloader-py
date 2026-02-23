@@ -61,8 +61,10 @@ def _fetch_with_aliases(
     fetch_fn,
     label: str,
     dedup_key=None,
+    *,
+    try_all: bool = True,
 ) -> list:
-    """Try canonical ticker first, then aliases if zero results.
+    """Try canonical ticker first, then aliases.
 
     Args:
         symbol: Canonical ticker (e.g. "GMEWS").
@@ -70,9 +72,12 @@ def _fetch_with_aliases(
         label: Human label for logging.
         dedup_key: Optional callable(record) -> hashable for deduplication.
             If None, no dedup — results are concatenated.
+        try_all: If True (default), try every alias and merge/dedup all
+            results.  If False, stop after the first alias that returns
+            data (useful for slow sources where aliases are equivalent).
 
     Returns:
-        Merged, deduplicated list of records from all aliases that returned data.
+        Merged, deduplicated list of records from aliases that returned data.
     """
     tickers = get_all_tickers(symbol)
     all_records = []
@@ -89,6 +94,8 @@ def _fetch_with_aliases(
                             continue
                         seen.add(key)
                     all_records.append(r)
+                if not try_all:
+                    break
         except Exception as e:
             logger.warning("  %s: ticker %r failed: %s", label, ticker, e)
     return all_records
@@ -105,15 +112,17 @@ def run_finra(symbols: list[str]) -> None:
     dp = FinraDarkPoolClient(data_dir=DATA_DIR)
 
     for sym in symbols:
+        # Short volume uses CDN scanning (~8 min per ticker) so stop at first hit.
         logger.info("=== FINRA Short Volume: %s ===", sym)
         records = _fetch_with_aliases(
             sym, sv.fetch_short_volume, "ShortVol",
-            dedup_key=lambda r: r.date,
+            dedup_key=lambda r: r.date, try_all=False,
         )
         if records:
             _save_records_csv(sym, "short_volume.csv", records)
         logger.info("  -> %d short volume records", len(records))
 
+        # Short interest uses API only — fast, try all aliases and merge.
         logger.info("=== FINRA Short Interest: %s ===", sym)
         records = _fetch_with_aliases(
             sym, si.fetch_short_interest, "ShortInt",
@@ -123,6 +132,7 @@ def run_finra(symbols: list[str]) -> None:
             _save_records_csv(sym, "short_interest.csv", records)
         logger.info("  -> %d short interest records", len(records))
 
+        # Dark pool uses API — try all aliases and merge.
         logger.info("=== FINRA Dark Pool: %s ===", sym)
         records = _fetch_with_aliases(
             sym, dp.fetch_dark_pool_volume, "DarkPool",
