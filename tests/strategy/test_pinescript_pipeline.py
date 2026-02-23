@@ -245,7 +245,7 @@ class TestIntradayModeRoundTrip:
 
     def _mode_to_pine(self, mode: "ModeDefinition") -> str:
         from stockdownloader.util.pinescript import mode_to_strategy
-        from stockdownloader.util.pinescript_modes import (
+        from stockdownloader.util.pinescript.modes import (
             vwap_shared_infrastructure as _vwap_shared_infrastructure,
         )
         defn = mode_to_strategy(

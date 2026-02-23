@@ -14,7 +14,7 @@ and :mod:`pinescript_composites` (multi-mode).
 Usage::
 
     from stockdownloader.util.pinescript.generator import PineScriptGenerator
-    from stockdownloader.util.pinescript_models import (
+    from stockdownloader.util.pinescript.models import (
         StrategyDefinition, Indicator, Condition, Input,
     )
 
@@ -39,7 +39,7 @@ Usage::
 
 from __future__ import annotations
 
-from stockdownloader.util.pinescript_models import (
+from stockdownloader.util.pinescript.models import (
     CompositeStrategyDefinition,
     Indicator,
     Input,

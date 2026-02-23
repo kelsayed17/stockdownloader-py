@@ -19,7 +19,7 @@ from stockdownloader.strategy.intraday.trade_management import clamp_sl_dist, di
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategyConfig
 from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
-from stockdownloader.util.pinescript_modes import pb_mode as _pb_mode
+from stockdownloader.util.pinescript.modes import pb_mode as _pb_mode
 
 _ZERO = Decimal("0")
 _D = Decimal

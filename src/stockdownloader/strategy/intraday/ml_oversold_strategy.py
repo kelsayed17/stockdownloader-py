@@ -30,8 +30,8 @@ from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import BreakevenTrail
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.util.math import ZERO
-from stockdownloader.util.pinescript_models import ModeDefinition
-from stockdownloader.util.pinescript_modes import ml_oversold_mode
+from stockdownloader.util.pinescript.models import ModeDefinition
+from stockdownloader.util.pinescript.modes import ml_oversold_mode
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData

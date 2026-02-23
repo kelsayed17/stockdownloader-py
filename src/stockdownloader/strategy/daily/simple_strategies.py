@@ -20,7 +20,7 @@ from stockdownloader.util.indicators import (
     crossed_below_series,
 )
 from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.pinescript_models import (
+from stockdownloader.util.pinescript.models import (
     Condition, Indicator, Input, StrategyDefinition,
 )
 

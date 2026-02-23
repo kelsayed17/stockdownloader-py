@@ -6,7 +6,7 @@ to render Pine Script v6 code.
 
 Typical usage::
 
-    from stockdownloader.util.pinescript_models import (
+    from stockdownloader.util.pinescript.models import (
         Condition, Indicator, Input, StrategyDefinition,
     )
 """

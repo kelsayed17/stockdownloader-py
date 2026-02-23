@@ -301,7 +301,7 @@ def _export_pinescript(
     from pathlib import Path
 
     from stockdownloader.util.pinescript import PineScriptGenerator
-    from stockdownloader.util.pinescript_ml_strategy import (
+    from stockdownloader.util.pinescript.ml_export import (
         DecisionTreeExporter,
         ml_signal_strategy,
     )

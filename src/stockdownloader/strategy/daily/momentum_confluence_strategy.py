@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.pinescript_models import (
+from stockdownloader.util.pinescript.models import (
     Condition, Indicator, Input, StrategyDefinition,
 )
 

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.util.pinescript_models import (
+from stockdownloader.util.pinescript.models import (
     ModeDefinition,
     StrategyDefinition,
 )

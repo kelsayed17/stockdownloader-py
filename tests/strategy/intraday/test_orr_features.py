@@ -27,7 +27,7 @@ from stockdownloader.strategy.intraday.trade_management import IntradayExitManag
 from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategyConfig
 from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
-from stockdownloader.util.pinescript_modes import orr_mode as _orr_mode
+from stockdownloader.util.pinescript.modes import orr_mode as _orr_mode
 
 from .conftest import make_bar, make_long_position_state, make_short_position_state, make_vwap_bands
 

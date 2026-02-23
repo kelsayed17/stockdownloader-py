@@ -15,7 +15,7 @@ from abc import ABC, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.pinescript_models import StrategyDefinition
+from stockdownloader.util.pinescript.models import StrategyDefinition
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData, PriceData

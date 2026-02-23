@@ -28,8 +28,8 @@ from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import VwapRatchetTrail
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.util.math import TWO, ZERO
-from stockdownloader.util.pinescript_models import ModeDefinition
-from stockdownloader.util.pinescript_modes import orr_mode
+from stockdownloader.util.pinescript.models import ModeDefinition
+from stockdownloader.util.pinescript.modes import orr_mode
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData

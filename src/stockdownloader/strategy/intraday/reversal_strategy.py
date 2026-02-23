@@ -23,8 +23,8 @@ from stockdownloader.strategy.intraday.trail_strategy import BreakevenTrail
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.util.indicators.intraday import candle_strength
 from stockdownloader.util.math import ZERO
-from stockdownloader.util.pinescript_models import ModeDefinition
-from stockdownloader.util.pinescript_modes import rev_mode
+from stockdownloader.util.pinescript.models import ModeDefinition
+from stockdownloader.util.pinescript.modes import rev_mode
 
 if TYPE_CHECKING:
     from stockdownloader.model.price_data import IntradayPriceData

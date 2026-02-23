@@ -38,7 +38,7 @@ Usage::
 
 from __future__ import annotations
 
-from stockdownloader.util.pinescript_models import (
+from stockdownloader.util.pinescript.models import (
     Condition,
     Indicator,
     Input,

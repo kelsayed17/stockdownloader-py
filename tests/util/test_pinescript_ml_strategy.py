@@ -6,12 +6,12 @@ import numpy as np
 import pytest
 
 from stockdownloader.ml.dataset_builder import LabelConfig, MLDataset
-from stockdownloader.util.pinescript_ml_strategy import (
+from stockdownloader.util.pinescript.ml_export import (
     FEATURE_PINE_MAP,
     DecisionTreeExporter,
     ml_signal_strategy,
 )
-from stockdownloader.util.pinescript_models import StrategyDefinition
+from stockdownloader.util.pinescript.models import StrategyDefinition
 
 
 # ------------------------------------------------------------------

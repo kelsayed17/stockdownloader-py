@@ -13,7 +13,7 @@ from stockdownloader.app.pinescript_catalog.catalogs import (
     sma_crossover_strategy,
     vwap_composite_strategy,
 )
-from stockdownloader.util.pinescript_models import (
+from stockdownloader.util.pinescript.models import (
     CompositeStrategyDefinition,
     Condition,
     Indicator,
@@ -26,7 +26,7 @@ from stockdownloader.util.pinescript import (
     mode_to_strategy,
     strategy_to_mode,
 )
-from stockdownloader.util.pinescript_modes import (
+from stockdownloader.util.pinescript.modes import (
     orb_mode as _orb_mode,
     orr_mode as _orr_mode,
     pb_mode as _pb_mode,

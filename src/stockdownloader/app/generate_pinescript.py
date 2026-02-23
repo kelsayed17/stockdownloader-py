@@ -253,7 +253,7 @@ def _handle_ml_signal(args: argparse.Namespace, gen: PineScriptGenerator) -> Non
         from stockdownloader.ml.dataset_builder import DatasetBuilder, LabelConfig
         from stockdownloader.ml.feature_extractor import FeatureExtractor
         from stockdownloader.ml.trainer import MLModelConfig, MLTrainer
-        from stockdownloader.util.pinescript_ml_strategy import (
+        from stockdownloader.util.pinescript.ml_export import (
             DecisionTreeExporter,
             ml_signal_strategy,
         )

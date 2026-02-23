@@ -20,7 +20,7 @@ from stockdownloader.app.pinescript_catalog.catalogs import (
     vwap_or_reversal_strategy,
     vwap_pattern_scalp_strategy,
 )
-from stockdownloader.util.pinescript_models import (
+from stockdownloader.util.pinescript.models import (
     Condition,
     Indicator,
     Input,

@@ -8,7 +8,7 @@ predicted probability using only native TradingView indicators.
 
 Usage::
 
-    from stockdownloader.util.pinescript_ml_strategy import (
+    from stockdownloader.util.pinescript.ml_export import (
         DecisionTreeExporter,
         ml_signal_strategy,
     )
@@ -27,7 +27,7 @@ import logging
 import warnings
 from typing import Any, TYPE_CHECKING
 
-from stockdownloader.util.pinescript_models import (
+from stockdownloader.util.pinescript.models import (
     Condition,
     Indicator,
     Input,
