@@ -12,13 +12,15 @@ from stockdownloader.app.app_helpers import (
 )
 from stockdownloader.app.tournament.helpers import _box_title, _load_data
 from stockdownloader.app.tournament.stages import (
-    _run_bracket,
-    _run_monte_carlo_stage,
     _run_optimization,
-    _run_portfolio,
-    _run_regime_analysis,
     _run_round_robin,
     _run_walkforward,
+)
+from stockdownloader.app.tournament.stages_advanced import (
+    _run_bracket,
+    _run_monte_carlo_stage,
+    _run_portfolio,
+    _run_regime_analysis,
 )
 from stockdownloader.backtest.tournament_engine import (
     TournamentResult,
