@@ -28,7 +28,7 @@ from stockdownloader.analysis.alert_store import AlertStore
 from stockdownloader.analysis.signal_advisor import AdvisorConfig, SignalAdvisor
 from stockdownloader.app.app_helpers import fetch_daily_data
 from stockdownloader.model.signal_advisory import AdvisoryAction, SignalAdvisory
-from stockdownloader.util.config_loader import DEFAULT_ALERT_HISTORY
+from stockdownloader.util.config import DEFAULT_ALERT_HISTORY
 
 logger = logging.getLogger(__name__)
 

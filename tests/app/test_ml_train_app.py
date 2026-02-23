@@ -10,7 +10,7 @@ import pytest
 
 from stockdownloader.app.ml_train_app import _build_parser, main
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.config_loader import DEFAULT_MODELS_DIR
+from stockdownloader.util.config import DEFAULT_MODELS_DIR
 
 
 # ------------------------------------------------------------------

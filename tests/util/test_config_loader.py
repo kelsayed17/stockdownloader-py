@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from stockdownloader.util.config_loader import Config, load_config, _deep_merge
+from stockdownloader.util.config import Config, load_config, _deep_merge
 
 
 class TestConfig:

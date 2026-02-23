@@ -661,7 +661,7 @@ class IndicatorHub:
                 self._cache[key] = ii._EMPTY_AVWAP
             else:
                 from stockdownloader.util.technical import _quantize
-                from stockdownloader.util.event_calendar import days_since_anchor
+                from stockdownloader.util.config import days_since_anchor
 
                 anchor_date = acc.current_anchor
                 trading_date = data[index].date[:10]

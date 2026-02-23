@@ -34,7 +34,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from stockdownloader.util.config_loader import DEFAULT_PINESCRIPT_DIR
+from stockdownloader.util.config import DEFAULT_PINESCRIPT_DIR
 from stockdownloader.app.pinescript_catalog.catalogs import (
     COMPOSITE_STRATEGY_CATALOG,
     STRATEGY_CATALOG,

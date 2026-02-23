@@ -20,7 +20,7 @@ from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.data.yahoo_data_client import YahooDataClient
 from stockdownloader.model.price_data import IntradayPriceData
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.config_loader import (
+from stockdownloader.util.config import (
     DEFAULT_DATA_FILE,
     DEFAULT_OUTPUT_DIR,
     INITIAL_CAPITAL,

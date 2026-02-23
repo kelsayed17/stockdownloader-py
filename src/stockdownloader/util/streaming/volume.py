@@ -178,7 +178,7 @@ class StreamingAnchoredVWAP:
             return ZERO, ZERO
 
         # Lazy import to avoid circular dependency
-        from stockdownloader.util.event_calendar import get_anchor_date
+        from stockdownloader.util.config import get_anchor_date
 
         start = self._last_index + 1
         for i in range(start, index + 1):
