@@ -31,7 +31,7 @@ from stockdownloader.strategy.intraday.avwap_pullback_strategy import AVWAPPullb
 from stockdownloader.strategy.intraday.session_state import BarContext
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
-from stockdownloader.strategy.intraday.infra import DayTracker
+from stockdownloader.strategy.intraday.day_tracker import DayTracker
 from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
 from stockdownloader.strategy.intraday.trade_management import (
     IntradayExitManager,
