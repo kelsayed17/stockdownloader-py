@@ -112,14 +112,18 @@ def run_finra(symbols: list[str]) -> None:
     dp = FinraDarkPoolClient(data_dir=DATA_DIR)
 
     for sym in symbols:
-        # Short volume uses CDN scanning (~8 min per ticker) so stop at first hit.
+        # Short volume CDN scan downloads ~1700 daily files (~8 min) and
+        # filters by ticker.  Only worth running once per symbol — aliases
+        # would be identical lines in the same files.  Use canonical only.
         logger.info("=== FINRA Short Volume: %s ===", sym)
-        records = _fetch_with_aliases(
-            sym, sv.fetch_short_volume, "ShortVol",
-            dedup_key=lambda r: r.date, try_all=False,
-        )
-        if records:
-            _save_records_csv(sym, "short_volume.csv", records)
+        try:
+            records = sv.fetch_short_volume(sym)
+            if records:
+                logger.info("  ShortVol: %d records from ticker %r", len(records), sym)
+                _save_records_csv(sym, "short_volume.csv", records)
+        except Exception as e:
+            records = []
+            logger.warning("  ShortVol: ticker %r failed: %s", sym, e)
         logger.info("  -> %d short volume records", len(records))
 
         # Short interest uses API only — fast, try all aliases and merge.
