@@ -28,7 +28,7 @@ from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
 from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal
-from stockdownloader.util.parsers import CsvParser
+from stockdownloader.util.io import CsvParser
 from stockdownloader.util.technical import sma, ema
 
 

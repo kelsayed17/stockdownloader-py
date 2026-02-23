@@ -8,7 +8,7 @@ from datetime import date
 
 import pytest
 
-from stockdownloader.util.parsers import DateHelper, adjust_to_market_day
+from stockdownloader.util.io import DateHelper, adjust_to_market_day
 
 
 def test_weekday_reference_date():

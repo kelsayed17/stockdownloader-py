@@ -64,7 +64,7 @@ from stockdownloader.strategy.exit_mechanisms import (
     VwapCrossExit,
 )
 from stockdownloader.strategy.signals.stacked_signal_engine import AggregationMode
-from stockdownloader.util.io_helpers import TeeWriter
+from stockdownloader.util.io import TeeWriter
 from stockdownloader.util.timeframe_aggregator import Timeframe
 
 from stockdownloader.util.config import (

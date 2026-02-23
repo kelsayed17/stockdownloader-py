@@ -47,7 +47,7 @@ from stockdownloader.strategy.registration_loader import ensure_registered
 from stockdownloader.strategy.base_registry import StrategyRegistry
 from stockdownloader.app.app_helpers import add_intraday_csv_arg, add_log_arg
 from stockdownloader.util.config import INITIAL_CAPITAL, OPTIONS_COMMISSION, RISK_PER_TRADE
-from stockdownloader.util.io_helpers import TeeWriter
+from stockdownloader.util.io import TeeWriter
 
 logger = logging.getLogger(__name__)
 

@@ -84,7 +84,7 @@ class _TeeWriter:
     """
 
     def __init__(self, log_path: str | None = None) -> None:
-        from stockdownloader.util.io_helpers import TeeWriter
+        from stockdownloader.util.io import TeeWriter
 
         self._file = open(log_path, "w") if log_path else None  # noqa: SIM115
         self._tee: TeeWriter | None = TeeWriter(self._file) if self._file else None

@@ -11,7 +11,7 @@ import pytest
 
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
 from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.parsers import CsvParser
+from stockdownloader.util.io import CsvParser
 
 
 def test_parse_csv_to_price_data_end_to_end():
