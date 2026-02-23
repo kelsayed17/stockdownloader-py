@@ -9,10 +9,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from stockdownloader.data.finra_short_interest_client import (
-    FinraShortInterestClient,
-    _normalize_date,
-)
+from stockdownloader.data.finra_base_client import normalize_finra_date
+from stockdownloader.data.finra_short_interest_client import FinraShortInterestClient
 from stockdownloader.model.regulatory_records import ShortInterestRecord
 
 
@@ -98,32 +96,32 @@ def _mock_response(
 
 
 class TestNormalizeDate:
-    """Tests for the _normalize_date helper."""
+    """Tests for the normalize_finra_date helper."""
 
     def test_iso_format_passthrough(self) -> None:
-        assert _normalize_date("2024-01-15") == "2024-01-15"
+        assert normalize_finra_date("2024-01-15") == "2024-01-15"
 
     def test_slash_format(self) -> None:
-        assert _normalize_date("01/15/2024") == "2024-01-15"
+        assert normalize_finra_date("01/15/2024") == "2024-01-15"
 
     def test_slash_format_single_digit(self) -> None:
-        assert _normalize_date("1/5/2024") == "2024-01-05"
+        assert normalize_finra_date("1/5/2024") == "2024-01-05"
 
     def test_compact_yyyymmdd_format(self) -> None:
-        assert _normalize_date("20240115") == "2024-01-15"
+        assert normalize_finra_date("20240115") == "2024-01-15"
 
     def test_empty_string(self) -> None:
-        assert _normalize_date("") == ""
+        assert normalize_finra_date("") == ""
 
     def test_unrecognizable_format(self) -> None:
-        assert _normalize_date("Jan 15 2024") == ""
+        assert normalize_finra_date("Jan 15 2024") == ""
 
     def test_invalid_slash_format(self) -> None:
-        assert _normalize_date("abc/def/ghi") == ""
+        assert normalize_finra_date("abc/def/ghi") == ""
 
     def test_none_handled(self) -> None:
         # The function expects a string, but should handle empty gracefully
-        assert _normalize_date("") == ""
+        assert normalize_finra_date("") == ""
 
 
 # ------------------------------------------------------------------
@@ -137,7 +135,7 @@ class TestAuthentication:
     def test_successful_auth_sets_bearer_token(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
 
-        with patch("stockdownloader.data.finra_short_interest_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.return_value = _mock_response(_SAMPLE_TOKEN_RESPONSE)
             result = client._authenticate()
 
@@ -148,7 +146,7 @@ class TestAuthentication:
     def test_auth_sends_basic_auth_header(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path, client_id="myid", client_secret="mysecret")
 
-        with patch("stockdownloader.data.finra_short_interest_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.return_value = _mock_response(_SAMPLE_TOKEN_RESPONSE)
             client._authenticate()
 
@@ -166,7 +164,7 @@ class TestAuthentication:
     def test_auth_failure_bad_response(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
 
-        with patch("stockdownloader.data.finra_short_interest_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.return_value = _mock_response(
                 {"error": "invalid_client"}, status_code=401, text="Unauthorized",
             )
@@ -178,7 +176,7 @@ class TestAuthentication:
     def test_auth_failure_exception(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
 
-        with patch("stockdownloader.data.finra_short_interest_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.side_effect = ConnectionError("network failure")
             result = client._authenticate()
 
@@ -188,7 +186,7 @@ class TestAuthentication:
     def test_auth_failure_missing_access_token_in_response(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
 
-        with patch("stockdownloader.data.finra_short_interest_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.return_value = _mock_response({"other": "value"})
             result = client._authenticate()
 
@@ -204,8 +202,8 @@ class TestAuthentication:
 class TestAutoAuth:
     """Tests that authentication happens automatically before API query."""
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
-    @patch("stockdownloader.data.finra_short_interest_client.requests.post")
+    @patch("stockdownloader.data.base_client.time")
+    @patch("stockdownloader.data.finra_base_client.requests.post")
     def test_fetch_triggers_auth_when_no_token(
         self, mock_post: MagicMock, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -241,7 +239,7 @@ class TestAutoAuth:
 class TestQueryApi:
     """Tests for the _query_api method (paginated domainFilter query)."""
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_successful_query(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -257,7 +255,7 @@ class TestQueryApi:
         assert raw is not None
         assert len(raw) == 2
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_query_uses_domain_filters(self, mock_time: MagicMock, tmp_path: Path) -> None:
         """Verify payload uses domainFilters with symbolCode."""
         mock_time.monotonic.return_value = 100.0
@@ -279,7 +277,7 @@ class TestQueryApi:
         # No compareFilters should be present
         assert "compareFilters" not in payload
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_query_retries_on_failure(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -299,7 +297,7 @@ class TestQueryApi:
         assert raw is not None
         assert len(raw) == 2
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_query_returns_none_after_max_retries(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -317,7 +315,7 @@ class TestQueryApi:
 
         assert raw is None
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_query_handles_request_exception(self, mock_time: MagicMock, tmp_path: Path) -> None:
         mock_time.monotonic.return_value = 100.0
         mock_time.sleep = MagicMock()
@@ -333,7 +331,7 @@ class TestQueryApi:
 
         assert raw is None
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_pagination_stops_on_empty(self, mock_time: MagicMock, tmp_path: Path) -> None:
         """Verify pagination stops when API returns fewer than page_size."""
         mock_time.monotonic.return_value = 100.0
@@ -654,8 +652,8 @@ class TestCaching:
 class TestFallbackToCache:
     """Tests for falling back to cached data when API fails."""
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
-    @patch("stockdownloader.data.finra_short_interest_client.requests.post")
+    @patch("stockdownloader.data.base_client.time")
+    @patch("stockdownloader.data.finra_base_client.requests.post")
     def test_falls_back_to_cache_on_api_failure(
         self, mock_post: MagicMock, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -688,8 +686,8 @@ class TestFallbackToCache:
         assert len(records) == 1
         assert records[0].settlement_date == "2024-01-10"
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
-    @patch("stockdownloader.data.finra_short_interest_client.requests.post")
+    @patch("stockdownloader.data.base_client.time")
+    @patch("stockdownloader.data.finra_base_client.requests.post")
     def test_returns_empty_list_when_no_api_no_cache(
         self, mock_post: MagicMock, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -716,8 +714,8 @@ class TestFallbackToCache:
 class TestEmptyResponse:
     """Tests for handling empty API responses."""
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
-    @patch("stockdownloader.data.finra_short_interest_client.requests.post")
+    @patch("stockdownloader.data.base_client.time")
+    @patch("stockdownloader.data.finra_base_client.requests.post")
     def test_empty_api_response_falls_to_cache(
         self, mock_post: MagicMock, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -746,7 +744,7 @@ class TestRateLimiting:
 
     def test_rate_limit_sleeps_when_too_fast(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        with patch("stockdownloader.data.finra_short_interest_client.time") as mock_time:
+        with patch("stockdownloader.data.base_client.time") as mock_time:
             mock_time.monotonic.side_effect = [
                 0.0,   # first check
                 0.0,   # set _last_request_time
@@ -774,8 +772,8 @@ class TestRateLimiting:
 class TestSymbolNormalization:
     """Tests that symbols are normalized to uppercase."""
 
-    @patch("stockdownloader.data.finra_short_interest_client.time")
-    @patch("stockdownloader.data.finra_short_interest_client.requests.post")
+    @patch("stockdownloader.data.base_client.time")
+    @patch("stockdownloader.data.finra_base_client.requests.post")
     def test_fetch_uppercases_symbol(
         self, mock_post: MagicMock, mock_time: MagicMock, tmp_path: Path,
     ) -> None:

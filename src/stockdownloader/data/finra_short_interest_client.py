@@ -19,32 +19,27 @@ Usage::
 
 from __future__ import annotations
 
-import base64
 import json
 import logging
-import os
-import time
 from pathlib import Path
 
 import requests
 
-from stockdownloader.data.base_client import BaseDataClient
+from stockdownloader.data.finra_base_client import (
+    FinraBaseClient,
+    _MAX_RETRIES,
+    normalize_finra_date,
+)
 from stockdownloader.model.regulatory_records import ShortInterestRecord
 
 logger = logging.getLogger(__name__)
 
-_MAX_RETRIES = 3
-_RATE_LIMIT_DELAY = 0.5  # FINRA is more conservative than SEC
 _FINRA_SI_URL = (
     "https://api.finra.org/data/group/otcMarket/name/consolidatedShortInterest"
 )
-_FINRA_TOKEN_URL = (
-    "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token"
-    "?grant_type=client_credentials"
-)
 
 
-class FinraShortInterestClient(BaseDataClient):
+class FinraShortInterestClient(FinraBaseClient):
     """Fetches short interest data from FINRA.
 
     Parameters
@@ -64,64 +59,7 @@ class FinraShortInterestClient(BaseDataClient):
         client_secret: str | None = None,
         data_dir: str = "data",
     ) -> None:
-        super().__init__(
-            rate_limit_delay=_RATE_LIMIT_DELAY,
-            max_retries=_MAX_RETRIES,
-            data_dir=data_dir,
-            default_headers={
-                "User-Agent": "StockDownloader admin@example.com",
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            },
-        )
-        self._client_id = client_id or os.environ.get("FINRA_CLIENT_ID", "")
-        self._client_secret = client_secret or os.environ.get("FINRA_CLIENT_SECRET", "")
-        self._access_token: str | None = None
-
-    # ------------------------------------------------------------------
-    # OAuth2 authentication
-    # ------------------------------------------------------------------
-
-    def _authenticate(self) -> bool:
-        """Obtain an OAuth2 access token from FINRA FIP.
-
-        Returns ``True`` if authentication succeeds.
-        """
-        if not self._client_id or not self._client_secret:
-            logger.info(
-                "FINRA credentials not configured — "
-                "set FINRA_CLIENT_ID and FINRA_CLIENT_SECRET env vars"
-            )
-            return False
-
-        credentials = f"{self._client_id}:{self._client_secret}"
-        encoded = base64.b64encode(credentials.encode()).decode()
-
-        try:
-            resp = requests.post(
-                _FINRA_TOKEN_URL,
-                headers={
-                    "Authorization": f"Basic {encoded}",
-                },
-                timeout=15,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                self._access_token = data.get("access_token")
-                if self._access_token:
-                    self._session.headers["Authorization"] = (
-                        f"Bearer {self._access_token}"
-                    )
-                    logger.info("FINRA OAuth2 authentication successful")
-                    return True
-            logger.warning(
-                "FINRA OAuth2 failed: %d %s",
-                resp.status_code, resp.text[:200],
-            )
-        except Exception as exc:
-            logger.warning("FINRA OAuth2 error: %s", exc)
-
-        return False
+        super().__init__(client_id, client_secret, data_dir)
 
     # ------------------------------------------------------------------
     # Public API
@@ -259,7 +197,7 @@ class FinraShortInterestClient(BaseDataClient):
             try:
                 raw_date = row.get("settlementDate", "")
                 # FINRA dates may come as "YYYY-MM-DD" or "MM/DD/YYYY"
-                settlement_date = _normalize_date(raw_date)
+                settlement_date = normalize_finra_date(raw_date)
                 if not settlement_date:
                     continue
 
@@ -352,49 +290,3 @@ class FinraShortInterestClient(BaseDataClient):
     ) -> None:
         """Persist short interest records to CSV cache."""
         self._save_csv(symbol, "short_interest.csv", records)
-
-    # ------------------------------------------------------------------
-    # Rate limiting
-    # ------------------------------------------------------------------
-
-    def _rate_limit(self) -> None:
-        """Sleep if needed to maintain a conservative request rate."""
-        now = time.monotonic()
-        elapsed = now - self._last_request_time
-        if elapsed < _RATE_LIMIT_DELAY:
-            time.sleep(_RATE_LIMIT_DELAY - elapsed)
-        self._last_request_time = time.monotonic()
-
-
-# ------------------------------------------------------------------
-# Module-level helpers
-# ------------------------------------------------------------------
-
-def _normalize_date(raw: str) -> str:
-    """Normalize a date string to ``YYYY-MM-DD`` format.
-
-    Handles both ``YYYY-MM-DD`` and ``MM/DD/YYYY`` formats.
-    Returns an empty string for unrecognizable dates.
-    """
-    if not raw:
-        return ""
-
-    # Already in ISO format
-    if len(raw) == 10 and raw[4] == "-" and raw[7] == "-":
-        return raw
-
-    # Try MM/DD/YYYY
-    if "/" in raw:
-        parts = raw.split("/")
-        if len(parts) == 3:
-            try:
-                month, day, year = int(parts[0]), int(parts[1]), int(parts[2])
-                return f"{year:04d}-{month:02d}-{day:02d}"
-            except ValueError:
-                pass
-
-    # Try YYYYMMDD
-    if len(raw) == 8 and raw.isdigit():
-        return f"{raw[:4]}-{raw[4:6]}-{raw[6:8]}"
-
-    return ""

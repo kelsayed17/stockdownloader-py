@@ -36,10 +36,8 @@ Usage::
 
 from __future__ import annotations
 
-import base64
 import json
 import logging
-import os
 import time
 from dataclasses import dataclass
 from datetime import date, timedelta
@@ -47,19 +45,16 @@ from pathlib import Path
 
 import requests
 
-from stockdownloader.data.base_client import BaseDataClient
+from stockdownloader.data.finra_base_client import (
+    FinraBaseClient,
+    _MAX_RETRIES,
+    normalize_finra_date,
+)
 
 logger = logging.getLogger(__name__)
 
-_MAX_RETRIES = 3
-_RATE_LIMIT_DELAY = 0.5
-
 _FINRA_URL = (
     "https://api.finra.org/data/group/otcMarket/name/regShoDaily"
-)
-_FINRA_TOKEN_URL = (
-    "https://ews.fip.finra.org/fip/rest/ews/oauth2/access_token"
-    "?grant_type=client_credentials"
 )
 # FINRA CDN text files — consolidated short volume (no auth, 2019–present)
 _FINRA_CDN_TEMPLATE = (
@@ -85,7 +80,7 @@ class ShortVolumeRecord:
             raise ValueError("symbol must not be empty")
 
 
-class FinraShortVolumeClient(BaseDataClient):
+class FinraShortVolumeClient(FinraBaseClient):
     """Fetches daily Reg SHO short sale volume from FINRA API.
 
     Reuses the same FINRA OAuth2 credentials as the short interest
@@ -108,61 +103,7 @@ class FinraShortVolumeClient(BaseDataClient):
         client_secret: str | None = None,
         data_dir: str = "data",
     ) -> None:
-        super().__init__(
-            rate_limit_delay=_RATE_LIMIT_DELAY,
-            max_retries=_MAX_RETRIES,
-            data_dir=data_dir,
-            default_headers={
-                "User-Agent": "StockDownloader admin@example.com",
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            },
-        )
-        self._client_id = client_id or os.environ.get("FINRA_CLIENT_ID", "")
-        self._client_secret = client_secret or os.environ.get(
-            "FINRA_CLIENT_SECRET", ""
-        )
-        self._access_token: str | None = None
-
-    # ------------------------------------------------------------------
-    # OAuth2
-    # ------------------------------------------------------------------
-
-    def _authenticate(self) -> bool:
-        if not self._client_id or not self._client_secret:
-            logger.info(
-                "FINRA credentials not configured for short volume — "
-                "set FINRA_CLIENT_ID and FINRA_CLIENT_SECRET"
-            )
-            return False
-
-        credentials = f"{self._client_id}:{self._client_secret}"
-        encoded = base64.b64encode(credentials.encode()).decode()
-
-        try:
-            resp = requests.post(
-                _FINRA_TOKEN_URL,
-                headers={"Authorization": f"Basic {encoded}"},
-                timeout=15,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                self._access_token = data.get("access_token")
-                if self._access_token:
-                    self._session.headers["Authorization"] = (
-                        f"Bearer {self._access_token}"
-                    )
-                    logger.info(
-                        "FINRA OAuth2 authentication successful (short volume)"
-                    )
-                    return True
-            logger.warning(
-                "FINRA OAuth2 failed for short volume: %d",
-                resp.status_code,
-            )
-        except Exception as exc:
-            logger.warning("FINRA OAuth2 error: %s", exc)
-        return False
+        super().__init__(client_id, client_secret, data_dir)
 
     # ------------------------------------------------------------------
     # Public API
@@ -456,7 +397,7 @@ class FinraShortVolumeClient(BaseDataClient):
                     row.get("tradeReportDate", "")
                     or row.get("date", "")
                 )
-                dt = _normalize_date(raw_date)
+                dt = normalize_finra_date(raw_date)
                 if not dt:
                     continue
 
@@ -543,32 +484,3 @@ class FinraShortVolumeClient(BaseDataClient):
         self, symbol: str, records: list[ShortVolumeRecord]
     ) -> None:
         self._save_csv(symbol, "short_volume.csv", records)
-
-    # ------------------------------------------------------------------
-    # Rate limiting
-    # ------------------------------------------------------------------
-
-    def _rate_limit(self) -> None:
-        now = time.monotonic()
-        elapsed = now - self._last_request_time
-        if elapsed < _RATE_LIMIT_DELAY:
-            time.sleep(_RATE_LIMIT_DELAY - elapsed)
-        self._last_request_time = time.monotonic()
-
-
-def _normalize_date(raw: str) -> str:
-    if not raw:
-        return ""
-    if len(raw) == 10 and raw[4] == "-" and raw[7] == "-":
-        return raw
-    if "/" in raw:
-        parts = raw.split("/")
-        if len(parts) == 3:
-            try:
-                m, d, y = int(parts[0]), int(parts[1]), int(parts[2])
-                return f"{y:04d}-{m:02d}-{d:02d}"
-            except ValueError:
-                pass
-    if len(raw) == 8 and raw.isdigit():
-        return f"{raw[:4]}-{raw[4:6]}-{raw[6:8]}"
-    return ""

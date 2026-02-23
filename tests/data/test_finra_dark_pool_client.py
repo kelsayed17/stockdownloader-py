@@ -9,10 +9,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from stockdownloader.data.finra_dark_pool_client import (
-    FinraDarkPoolClient,
-    _normalize_date,
-)
+from stockdownloader.data.finra_base_client import normalize_finra_date
+from stockdownloader.data.finra_dark_pool_client import FinraDarkPoolClient
 from stockdownloader.model.regulatory_records import DarkPoolRecord
 
 
@@ -173,22 +171,22 @@ def _mock_response(
 
 
 class TestNormalizeDateDP:
-    """Tests for the dark pool _normalize_date helper."""
+    """Tests for the dark pool normalize_finra_date helper."""
 
     def test_iso_format_passthrough(self) -> None:
-        assert _normalize_date("2024-01-12") == "2024-01-12"
+        assert normalize_finra_date("2024-01-12") == "2024-01-12"
 
     def test_slash_format(self) -> None:
-        assert _normalize_date("01/12/2024") == "2024-01-12"
+        assert normalize_finra_date("01/12/2024") == "2024-01-12"
 
     def test_compact_format(self) -> None:
-        assert _normalize_date("20240112") == "2024-01-12"
+        assert normalize_finra_date("20240112") == "2024-01-12"
 
     def test_empty_string(self) -> None:
-        assert _normalize_date("") == ""
+        assert normalize_finra_date("") == ""
 
     def test_unrecognizable_returns_empty(self) -> None:
-        assert _normalize_date("Week of Jan 12") == ""
+        assert normalize_finra_date("Week of Jan 12") == ""
 
 
 # ------------------------------------------------------------------
@@ -202,7 +200,7 @@ class TestDPAuthentication:
     def test_successful_auth_sets_bearer_token(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
 
-        with patch("stockdownloader.data.finra_dark_pool_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.return_value = _mock_response(_SAMPLE_TOKEN_RESPONSE)
             result = client._authenticate()
 
@@ -213,7 +211,7 @@ class TestDPAuthentication:
     def test_auth_sends_correct_basic_header(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path, client_id="cid", client_secret="csec")
 
-        with patch("stockdownloader.data.finra_dark_pool_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.return_value = _mock_response(_SAMPLE_TOKEN_RESPONSE)
             client._authenticate()
 
@@ -230,7 +228,7 @@ class TestDPAuthentication:
     def test_auth_failure_bad_status(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
 
-        with patch("stockdownloader.data.finra_dark_pool_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.return_value = _mock_response(
                 {"error": "forbidden"}, status_code=403, text="Forbidden",
             )
@@ -241,7 +239,7 @@ class TestDPAuthentication:
     def test_auth_failure_network_exception(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
 
-        with patch("stockdownloader.data.finra_dark_pool_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.side_effect = ConnectionError("network down")
             result = client._authenticate()
 
@@ -250,7 +248,7 @@ class TestDPAuthentication:
     def test_auth_failure_missing_token_in_response(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
 
-        with patch("stockdownloader.data.finra_dark_pool_client.requests.post") as mock_post:
+        with patch("stockdownloader.data.finra_base_client.requests.post") as mock_post:
             mock_post.return_value = _mock_response({"status": "ok"})
             result = client._authenticate()
 
@@ -265,8 +263,8 @@ class TestDPAuthentication:
 class TestDPAutoAuth:
     """Tests that authentication happens automatically."""
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
-    @patch("stockdownloader.data.finra_dark_pool_client.requests.post")
+    @patch("stockdownloader.data.base_client.time")
+    @patch("stockdownloader.data.finra_base_client.requests.post")
     def test_fetch_triggers_auth_when_no_token(
         self, mock_post: MagicMock, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -296,7 +294,7 @@ class TestDPAutoAuth:
 class TestDPQueryApi:
     """Tests for _query_api."""
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_successful_query(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -313,7 +311,7 @@ class TestDPQueryApi:
         assert raw is not None
         assert len(raw) == 4  # 2 OTC + 2 ATS rows
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_query_tags_rows_by_summary_type(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -333,7 +331,7 @@ class TestDPQueryApi:
         assert len(ats_rows) == 2
         assert len(otc_rows) == 2
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_query_retries_on_failure(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -354,7 +352,7 @@ class TestDPQueryApi:
         assert raw is not None
         assert len(raw) == 4
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_query_returns_none_after_max_retries(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -370,7 +368,7 @@ class TestDPQueryApi:
 
         assert raw is None
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_query_uses_domain_filters(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -392,7 +390,7 @@ class TestDPQueryApi:
         assert "issueSymbolIdentifier" in field_names
         assert "summaryTypeCode" in field_names
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_query_requests_ats_and_otc_types(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -416,7 +414,7 @@ class TestDPQueryApi:
         assert len(type_filter) == 1
         assert set(type_filter[0]["values"]) == {"ATS_W_SMBL", "OTC_W_SMBL"}
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
+    @patch("stockdownloader.data.base_client.time")
     def test_pagination_stops_on_empty(
         self, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -740,8 +738,8 @@ class TestDPCaching:
 class TestDPFallbackToCache:
     """Tests for falling back to cached data when API fails."""
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
-    @patch("stockdownloader.data.finra_dark_pool_client.requests.post")
+    @patch("stockdownloader.data.base_client.time")
+    @patch("stockdownloader.data.finra_base_client.requests.post")
     def test_falls_back_to_cache_on_api_failure(
         self, mock_post: MagicMock, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -773,8 +771,8 @@ class TestDPFallbackToCache:
         assert len(records) == 1
         assert records[0].week_ending == "2024-01-05"
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
-    @patch("stockdownloader.data.finra_dark_pool_client.requests.post")
+    @patch("stockdownloader.data.base_client.time")
+    @patch("stockdownloader.data.finra_base_client.requests.post")
     def test_returns_empty_when_no_api_no_cache(
         self, mock_post: MagicMock, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
@@ -802,7 +800,7 @@ class TestDPRateLimiting:
 
     def test_rate_limit_sleeps_when_too_fast(self, tmp_path: Path) -> None:
         client = _make_client(tmp_path)
-        with patch("stockdownloader.data.finra_dark_pool_client.time") as mock_time:
+        with patch("stockdownloader.data.base_client.time") as mock_time:
             mock_time.monotonic.side_effect = [
                 0.0,   # first check
                 0.0,   # set _last_request_time
@@ -826,8 +824,8 @@ class TestDPRateLimiting:
 class TestDPSymbolNormalization:
     """Tests that symbols are normalized to uppercase."""
 
-    @patch("stockdownloader.data.finra_dark_pool_client.time")
-    @patch("stockdownloader.data.finra_dark_pool_client.requests.post")
+    @patch("stockdownloader.data.base_client.time")
+    @patch("stockdownloader.data.finra_base_client.requests.post")
     def test_fetch_uppercases_symbol(
         self, mock_post: MagicMock, mock_time: MagicMock, tmp_path: Path,
     ) -> None:
