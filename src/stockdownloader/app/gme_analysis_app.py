@@ -46,7 +46,7 @@ from stockdownloader.analysis.gme import (
     detect_volatility_regimes,
     run_event_study,
 )
-from stockdownloader.analysis.signal_generator import generate_alert
+from stockdownloader.analysis.alert_generator import generate_alert
 from stockdownloader.data.sec_edgar_client import SecEdgarClient
 from stockdownloader.data.yahoo_data_client import YahooDataClient
 from stockdownloader.data.yahoo_options_client import YahooOptionsClient

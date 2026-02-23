@@ -25,7 +25,7 @@ from stockdownloader.app.app_helpers import (
     OPTIONS_COMMISSION,
     fetch_daily_data,
 )
-from stockdownloader.analysis.signal_generator import generate_alert
+from stockdownloader.analysis.alert_generator import generate_alert
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.backtest import report_formatter
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine

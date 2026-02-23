@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.analysis.signal_generator import generate_alert
+from stockdownloader.analysis.alert_generator import generate_alert
 from stockdownloader.model.alert_result import (
     AlertDirection,
     AlertResult,
