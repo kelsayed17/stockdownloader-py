@@ -37,6 +37,7 @@ if TYPE_CHECKING:
 
 from stockdownloader.backtest.backtest_result import BacktestResult, OptionsBacktestResult
 from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.backtest.report_helpers import scale2
 
 _TRADING_DAYS_PER_YEAR = 252
 _BARS_PER_DAY = 78  # 5-minute bars in a 6.5-hour session
@@ -45,11 +46,6 @@ _BARS_PER_DAY = 78  # 5-minute bars in a 6.5-hour session
 # ======================================================================
 # Shared utility functions (from base_report_formatter)
 # ======================================================================
-
-
-def scale2(value: Decimal) -> Decimal:
-    """Round a Decimal to 2 decimal places."""
-    return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 # ------------------------------------------------------------------

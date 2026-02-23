@@ -7,19 +7,10 @@ from __future__ import annotations
 
 from decimal import Decimal, ROUND_HALF_UP
 from operator import attrgetter
+from stockdownloader.backtest.report_helpers import scale2 as _s2, scale3 as _s3
 
 from stockdownloader.backtest.exit_tournament_result import ExitTournamentResult
 from stockdownloader.model.exit_mechanism_result import ExitMechanismSummary
-
-
-def _s2(value: Decimal) -> Decimal:
-    """Round to 2 decimal places."""
-    return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-
-
-def _s3(value: Decimal) -> Decimal:
-    """Round to 3 decimal places."""
-    return value.quantize(Decimal("0.001"), rounding=ROUND_HALF_UP)
 
 
 # ------------------------------------------------------------------
