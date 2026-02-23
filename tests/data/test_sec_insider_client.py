@@ -6,17 +6,19 @@ import io
 import json
 import zipfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
-from stockdownloader.data.sec_insider_client import (
-    SecInsiderClient,
-    _extract_13d_13g_data,
-    _normalize_date,
-    _prev_quarter,
-    _xml_text,
+from stockdownloader.data.sec_insider_client import SecInsiderClient
+from stockdownloader.data.sec_insider_parsers import (
+    extract_13d_13g_data,
+    normalize_date,
+    parse_bulk_zip,
+    parse_form345_xml,
+    xml_text,
 )
+from stockdownloader.data.sec_common import prev_quarter
 from stockdownloader.model.regulatory_records import (
     BeneficialOwner,
     InsiderTransaction,
@@ -85,13 +87,13 @@ def _make_client(tmp_path: Path) -> SecInsiderClient:
 
 class TestPrevQuarter:
     def test_q4_wraps_to_q3(self) -> None:
-        assert _prev_quarter(2024, 4) == (2024, 3)
+        assert prev_quarter(2024, 4) == (2024, 3)
 
     def test_q1_wraps_to_prev_year_q4(self) -> None:
-        assert _prev_quarter(2024, 1) == (2023, 4)
+        assert prev_quarter(2024, 1) == (2023, 4)
 
     def test_q2_goes_to_q1(self) -> None:
-        assert _prev_quarter(2024, 2) == (2024, 1)
+        assert prev_quarter(2024, 2) == (2024, 1)
 
 
 # ------------------------------------------------------------------
@@ -100,11 +102,10 @@ class TestPrevQuarter:
 
 
 class TestBulkZipParsing:
-    def test_parses_gme_transactions(self, tmp_path: Path) -> None:
+    def test_parses_gme_transactions(self) -> None:
         """Parse sample ZIP and extract GME transactions only."""
-        client = _make_client(tmp_path)
         zip_data = _make_bulk_zip()
-        transactions = client._parse_bulk_zip(io.BytesIO(zip_data), "GME")
+        transactions = parse_bulk_zip(io.BytesIO(zip_data), "GME")
 
         assert len(transactions) == 2  # Two GME transactions, AAPL excluded
         # First transaction: Ryan Cohen purchase
@@ -118,11 +119,10 @@ class TestBulkZipParsing:
         assert cohen.is_director is True
         assert cohen.is_officer is False
 
-    def test_sale_has_negative_shares(self, tmp_path: Path) -> None:
+    def test_sale_has_negative_shares(self) -> None:
         """Dispositions should have negative share counts."""
-        client = _make_client(tmp_path)
         zip_data = _make_bulk_zip()
-        transactions = client._parse_bulk_zip(io.BytesIO(zip_data), "GME")
+        transactions = parse_bulk_zip(io.BytesIO(zip_data), "GME")
 
         # Second transaction: John Smith sale
         sale = transactions[1]
@@ -130,43 +130,37 @@ class TestBulkZipParsing:
         assert sale.shares == -5000  # negative for sale
         assert sale.owner_title == "CFO"
 
-    def test_filters_by_symbol(self, tmp_path: Path) -> None:
+    def test_filters_by_symbol(self) -> None:
         """Only transactions for the requested symbol are returned."""
-        client = _make_client(tmp_path)
         zip_data = _make_bulk_zip()
 
-        gme = client._parse_bulk_zip(io.BytesIO(zip_data), "GME")
-        aapl = client._parse_bulk_zip(io.BytesIO(zip_data), "AAPL")
+        gme = parse_bulk_zip(io.BytesIO(zip_data), "GME")
+        aapl = parse_bulk_zip(io.BytesIO(zip_data), "AAPL")
 
         assert len(gme) == 2
         assert len(aapl) == 1
         assert aapl[0].owner_name == "Cook Tim"
 
-    def test_empty_zip_returns_empty(self, tmp_path: Path) -> None:
+    def test_empty_zip_returns_empty(self) -> None:
         """ZIP with no data for symbol returns empty list."""
-        client = _make_client(tmp_path)
         zip_data = _make_bulk_zip()
-        result = client._parse_bulk_zip(io.BytesIO(zip_data), "MSFT")
+        result = parse_bulk_zip(io.BytesIO(zip_data), "MSFT")
         assert result == []
 
-    def test_bad_zip_returns_empty(self, tmp_path: Path) -> None:
+    def test_bad_zip_returns_empty(self) -> None:
         """Corrupt ZIP data returns empty list."""
-        client = _make_client(tmp_path)
-        result = client._parse_bulk_zip(io.BytesIO(b"not a zip"), "GME")
+        result = parse_bulk_zip(io.BytesIO(b"not a zip"), "GME")
         assert result == []
 
-    def test_missing_transaction_tsv_uses_holdings(
-        self, tmp_path: Path,
-    ) -> None:
+    def test_missing_transaction_tsv_uses_holdings(self) -> None:
         """If no transaction TSV, fall back to holdings TSV."""
-        client = _make_client(tmp_path)
         # Build ZIP without NON_DERIVATIVE_TRANSACTION.tsv
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as zf:
             zf.writestr("SUBMISSION.tsv", _SUBMISSION_TSV)
             zf.writestr("REPORTING_OWNER.tsv", _REPORTING_OWNER_TSV)
             zf.writestr("NON_DERIVATIVE_HOLDING.tsv", _NON_DERIVATIVE_HOLDING_TSV)
-        result = client._parse_bulk_zip(io.BytesIO(buf.getvalue()), "GME")
+        result = parse_bulk_zip(io.BytesIO(buf.getvalue()), "GME")
         assert len(result) >= 1
         assert result[0].transaction_code == "H"  # holding marker
         assert result[0].shares_owned_after == 9100000
@@ -216,29 +210,26 @@ def _make_real_bulk_zip() -> bytes:
 class TestRealBulkZipFormat:
     """Tests using abbreviated file names and column names (real SEC format)."""
 
-    def test_parses_abbreviated_file_names(self, tmp_path: Path) -> None:
+    def test_parses_abbreviated_file_names(self) -> None:
         """Parser finds TSV files with abbreviated names like NONDERIV_TRANS."""
-        client = _make_client(tmp_path)
         zip_data = _make_real_bulk_zip()
-        transactions = client._parse_bulk_zip(io.BytesIO(zip_data), "GME")
+        transactions = parse_bulk_zip(io.BytesIO(zip_data), "GME")
 
         assert len(transactions) == 1
         assert transactions[0].owner_name == "Cohen Ryan"
         assert transactions[0].shares == 100000
 
-    def test_rptowner_relationship_column(self, tmp_path: Path) -> None:
+    def test_rptowner_relationship_column(self) -> None:
         """RPTOWNER_RELATIONSHIP parses director/ten pct flags."""
-        client = _make_client(tmp_path)
         zip_data = _make_real_bulk_zip()
-        transactions = client._parse_bulk_zip(io.BytesIO(zip_data), "GME")
+        transactions = parse_bulk_zip(io.BytesIO(zip_data), "GME")
 
         assert transactions[0].is_director is True
         assert transactions[0].is_ten_pct_owner is True
         assert transactions[0].owner_title == "Chairman"
 
-    def test_trans_acquired_disp_cd_column(self, tmp_path: Path) -> None:
+    def test_trans_acquired_disp_cd_column(self) -> None:
         """TRANS_ACQUIRED_DISP_CD (abbreviated) correctly signs shares."""
-        client = _make_client(tmp_path)
         # Make a sale with abbreviated column name
         sale_tsv = (
             "ACCESSION_NUMBER\tTRANS_DATE\tTRANS_CODE\tTRANS_SHARES\t"
@@ -251,14 +242,13 @@ class TestRealBulkZipFormat:
             zf.writestr("SUBMISSION.tsv", _SUBMISSION_TSV_REAL)
             zf.writestr("REPORTINGOWNER.tsv", _REPORTING_OWNER_TSV_REAL)
             zf.writestr("NONDERIV_TRANS.tsv", sale_tsv)
-        transactions = client._parse_bulk_zip(io.BytesIO(buf.getvalue()), "GME")
-        assert transactions[0].shares == -5000  # Disposition → negative
+        transactions = parse_bulk_zip(io.BytesIO(buf.getvalue()), "GME")
+        assert transactions[0].shares == -5000  # Disposition -> negative
 
-    def test_date_normalization_dd_mon_yyyy(self, tmp_path: Path) -> None:
+    def test_date_normalization_dd_mon_yyyy(self) -> None:
         """DD-MON-YYYY dates are normalized to YYYY-MM-DD."""
-        client = _make_client(tmp_path)
         zip_data = _make_real_bulk_zip()
-        transactions = client._parse_bulk_zip(io.BytesIO(zip_data), "GME")
+        transactions = parse_bulk_zip(io.BytesIO(zip_data), "GME")
 
         assert transactions[0].filing_date == "2024-03-15"
         assert transactions[0].transaction_date == "2024-03-14"
@@ -271,23 +261,23 @@ class TestRealBulkZipFormat:
 
 class TestNormalizeDate:
     def test_iso_format_unchanged(self) -> None:
-        assert _normalize_date("2024-03-15") == "2024-03-15"
+        assert normalize_date("2024-03-15") == "2024-03-15"
 
     def test_dd_mon_yyyy(self) -> None:
-        assert _normalize_date("15-MAR-2024") == "2024-03-15"
-        assert _normalize_date("02-JAN-2024") == "2024-01-02"
+        assert normalize_date("15-MAR-2024") == "2024-03-15"
+        assert normalize_date("02-JAN-2024") == "2024-01-02"
 
     def test_us_slash_format(self) -> None:
-        assert _normalize_date("03/15/2024") == "2024-03-15"
+        assert normalize_date("03/15/2024") == "2024-03-15"
 
     def test_compact_yyyymmdd(self) -> None:
-        assert _normalize_date("20240315") == "2024-03-15"
+        assert normalize_date("20240315") == "2024-03-15"
 
     def test_empty_returns_empty(self) -> None:
-        assert _normalize_date("") == ""
+        assert normalize_date("") == ""
 
     def test_whitespace_stripped(self) -> None:
-        assert _normalize_date("  2024-03-15  ") == "2024-03-15"
+        assert normalize_date("  2024-03-15  ") == "2024-03-15"
 
 
 # ------------------------------------------------------------------
@@ -315,24 +305,24 @@ _SAMPLE_13D_HTML = """
 
 class TestExtract13d13gData:
     def test_extracts_shares_and_percent(self) -> None:
-        shares, pct, svp, shvp, sdp, shdp = _extract_13d_13g_data(
+        shares, pct, svp, shvp, sdp, shdp = extract_13d_13g_data(
             _SAMPLE_13D_HTML,
         )
         assert shares == 36300000
         assert pct == 11.9
 
     def test_extracts_voting_power(self) -> None:
-        _, _, svp, shvp, _, _ = _extract_13d_13g_data(_SAMPLE_13D_HTML)
+        _, _, svp, shvp, _, _ = extract_13d_13g_data(_SAMPLE_13D_HTML)
         assert svp == 36300000
         assert shvp == 0
 
     def test_extracts_dispositive_power(self) -> None:
-        _, _, _, _, sdp, shdp = _extract_13d_13g_data(_SAMPLE_13D_HTML)
+        _, _, _, _, sdp, shdp = extract_13d_13g_data(_SAMPLE_13D_HTML)
         assert sdp == 36300000
         assert shdp == 0
 
     def test_empty_content_returns_zeros(self) -> None:
-        result = _extract_13d_13g_data("")
+        result = extract_13d_13g_data("")
         assert result == (0, 0.0, 0, 0, 0, 0)
 
     def test_plain_text_format(self) -> None:
@@ -346,7 +336,7 @@ class TestExtract13d13gData:
         (e) Sole dispositive power: 9,001,000
         (f) Shared dispositive power: 0
         """
-        shares, pct, svp, shvp, sdp, shdp = _extract_13d_13g_data(text)
+        shares, pct, svp, shvp, sdp, shdp = extract_13d_13g_data(text)
         assert shares == 9001000
         assert pct == 12.5
         assert svp == 9001000
@@ -575,13 +565,13 @@ class TestInsiderCaching:
 
 class TestXmlText:
     def test_extracts_simple_tag(self) -> None:
-        assert _xml_text("<root><name>John</name></root>", "name") == "John"
+        assert xml_text("<root><name>John</name></root>", "name") == "John"
 
     def test_returns_none_for_missing_tag(self) -> None:
-        assert _xml_text("<root><name>John</name></root>", "missing") is None
+        assert xml_text("<root><name>John</name></root>", "missing") is None
 
     def test_case_insensitive(self) -> None:
-        assert _xml_text("<Root><Name>John</Name></Root>", "name") == "John"
+        assert xml_text("<Root><Name>John</Name></Root>", "name") == "John"
 
 
 # ------------------------------------------------------------------
@@ -648,16 +638,11 @@ _SAMPLE_FORM4_XML = """<?xml version="1.0"?>
 class TestForm345XmlParsing:
     """Tests for individual EDGAR Form 3/4/5 XML parsing."""
 
-    def test_form3_holdings(self, tmp_path: Path) -> None:
+    def test_form3_holdings(self) -> None:
         """Form 3 XML with holdings (no transactions) parses correctly."""
-        client = _make_client(tmp_path)
-
-        with patch.object(
-            client, "_fetch_url_text", return_value=_SAMPLE_FORM3_XML,
-        ):
-            txns = client._parse_form345_xml(
-                "http://fake.url", "GME", "2005-10-11", "3",
-            )
+        txns = parse_form345_xml(
+            _SAMPLE_FORM3_XML, "GME", "2005-10-11", "3",
+        )
 
         assert len(txns) == 1
         assert txns[0].owner_name == "Test Owner"
@@ -666,16 +651,11 @@ class TestForm345XmlParsing:
         assert txns[0].is_director is True
         assert txns[0].is_ten_pct_owner is True
 
-    def test_form4_transaction(self, tmp_path: Path) -> None:
+    def test_form4_transaction(self) -> None:
         """Form 4 XML with a purchase transaction."""
-        client = _make_client(tmp_path)
-
-        with patch.object(
-            client, "_fetch_url_text", return_value=_SAMPLE_FORM4_XML,
-        ):
-            txns = client._parse_form345_xml(
-                "http://fake.url", "GME", "2005-11-16", "4",
-            )
+        txns = parse_form345_xml(
+            _SAMPLE_FORM4_XML, "GME", "2005-11-16", "4",
+        )
 
         assert len(txns) == 1
         assert txns[0].owner_name == "Buyer Jane"
