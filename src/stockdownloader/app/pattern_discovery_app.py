@@ -37,11 +37,10 @@ from stockdownloader.analysis.pattern_encoder import BarEncoder
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.optimizer_scoring import score_v2
 from stockdownloader.backtest.tournament_engine import (
-    INITIAL_CAPITAL,
-    RISK_PER_TRADE,
+    classify_timeframe_bars,
     run_monte_carlo,
 )
-from stockdownloader.backtest.tournament_engine import classify_timeframe_bars
+from stockdownloader.util.config import INITIAL_CAPITAL, RISK_PER_TRADE
 from stockdownloader.backtest.walk_forward import WalkForwardValidator
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.util.io import TeeWriter
