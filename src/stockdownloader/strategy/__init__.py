@@ -22,6 +22,12 @@ Registries
 - :class:`RegistryEntry` -- dataclass entry stored in both registries
 - :func:`ensure_registered` -- idempotent loader for built-in strategies
 
+Intraday infrastructure
+-----------------------
+- :class:`BaseIntradayStrategy` -- template base with boilerplate delegation
+- :class:`IntradayInfra` -- shared per-session infrastructure (compose, don't inherit)
+- :class:`DailyToIntradayAdapter` -- wraps daily strategies for the intraday engine
+
 Signal stack
 ------------
 - :class:`AtomicSignalGenerator` -- ABC for single-indicator generators
@@ -49,6 +55,11 @@ from stockdownloader.strategy.base_registry import (
     StrategyRegistry,
 )
 from stockdownloader.strategy.registration_loader import ensure_registered
+from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
+from stockdownloader.strategy.intraday.infra import IntradayInfra
+from stockdownloader.strategy.intraday.daily_to_intraday_adapter import (
+    DailyToIntradayAdapter,
+)
 from stockdownloader.strategy.signals.signal_generator import AtomicSignalGenerator
 from stockdownloader.strategy.signals.stacked_signal_engine import StackedSignalEngine
 from stockdownloader.strategy.signals.stacked_daily_strategy import StackedDailyStrategy
@@ -66,6 +77,10 @@ __all__ = [
     "SignalGeneratorRegistry",
     "StrategyRegistry",
     "ensure_registered",
+    # Intraday infrastructure
+    "BaseIntradayStrategy",
+    "DailyToIntradayAdapter",
+    "IntradayInfra",
     # Signal stack
     "AtomicSignalGenerator",
     "StackedDailyStrategy",
