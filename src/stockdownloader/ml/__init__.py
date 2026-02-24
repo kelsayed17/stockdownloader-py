@@ -6,6 +6,9 @@ Training & Inference:
     MLTrainer, MLModelConfig, TrainingResult
     MLPredictor
 
+Ensemble:
+    EnsemblePredictor, EnsembleBuilder
+
 Feature Engineering:
     FeatureExtractor, FeatureVector
 
@@ -27,6 +30,7 @@ from stockdownloader.ml.alt_data_store import (
     AlternativeDataStore,
 )
 from stockdownloader.ml.dataset_builder import DatasetBuilder, LabelConfig, MLDataset
+from stockdownloader.ml.ensemble import EnsembleBuilder, EnsemblePredictor
 from stockdownloader.ml.feature_extractor import FeatureExtractor, FeatureVector
 from stockdownloader.ml.hmm_detector import HMMRegimeDetector, RegimeSnapshot
 from stockdownloader.ml.model_store import ModelMetadata, ModelStore
@@ -39,6 +43,9 @@ __all__ = [
     "MLModelConfig",
     "TrainingResult",
     "MLPredictor",
+    # Ensemble
+    "EnsemblePredictor",
+    "EnsembleBuilder",
     # Feature Engineering
     "FeatureExtractor",
     "FeatureVector",
