@@ -1,0 +1,113 @@
+"""Tests for spy-ml-mega CLI pipeline."""
+
+from __future__ import annotations
+
+import pytest
+
+from stockdownloader.app.spy_ml_mega import _build_parser, _FULL_GRID, _QUICK_GRID
+
+
+class TestMegaGrid:
+    """Tests for model grid definitions."""
+
+    def test_full_grid_has_18_configs(self) -> None:
+        assert len(_FULL_GRID) == 18
+
+    def test_quick_grid_has_6_configs(self) -> None:
+        assert len(_QUICK_GRID) == 6
+
+    def test_full_grid_tuples(self) -> None:
+        for item in _FULL_GRID:
+            assert len(item) == 2
+            assert isinstance(item[0], str)
+            assert isinstance(item[1], bool)
+
+    def test_full_grid_model_types(self) -> None:
+        types = {mt for mt, _ in _FULL_GRID}
+        expected = {
+            "gradient_boosting", "random_forest", "extra_trees",
+            "hist_gradient_boosting", "xgboost", "lightgbm",
+            "catboost", "logistic_regression", "svm", "mlp", "knn",
+        }
+        assert types == expected
+
+    def test_quick_grid_model_types(self) -> None:
+        types = {mt for mt, _ in _QUICK_GRID}
+        expected = {
+            "xgboost", "lightgbm", "catboost",
+            "random_forest", "logistic_regression", "svm",
+        }
+        assert types == expected
+
+    def test_full_grid_balanced_variants(self) -> None:
+        """Boosting models should have both balanced and unbalanced."""
+        for mt in ["gradient_boosting", "random_forest", "extra_trees",
+                    "hist_gradient_boosting", "xgboost", "lightgbm", "catboost"]:
+            variants = [(m, b) for m, b in _FULL_GRID if m == mt]
+            assert len(variants) == 2, f"{mt} should have 2 variants"
+            balanced_flags = {b for _, b in variants}
+            assert balanced_flags == {True, False}, f"{mt} missing balanced variant"
+
+    def test_quick_grid_all_unbalanced(self) -> None:
+        """Quick grid should only have unbalanced configs."""
+        for _, use_balance in _QUICK_GRID:
+            assert use_balance is False
+
+
+class TestMegaParser:
+    """Tests for argument parser."""
+
+    def test_defaults(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.top_models == 5
+        assert args.ensemble_method == "both"
+        assert args.diversity_weight == 0.4
+        assert args.depth == 10
+        assert args.buy_thresh == 0.55
+        assert args.sell_thresh == 0.45
+        assert args.initial_capital == 100_000.0
+        assert args.min_r2 == 0.70
+        assert args.no_tournament is False
+
+    def test_ensemble_method_choices(self) -> None:
+        parser = _build_parser()
+        for method in ["soft_vote", "stacking", "both"]:
+            args = parser.parse_args(["--ensemble-method", method])
+            assert args.ensemble_method == method
+
+    def test_quick_flag(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--quick"])
+        assert args.quick is True
+
+    def test_custom_diversity_weight(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--diversity-weight", "0.7"])
+        assert args.diversity_weight == 0.7
+
+    def test_custom_top_models(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--top-models", "7"])
+        assert args.top_models == 7
+
+    def test_output_dir(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--output-dir", "/tmp/test_mega"])
+        assert args.output_dir == "/tmp/test_mega"
+
+    def test_no_tournament_flag(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--no-tournament"])
+        assert args.no_tournament is True
+
+    def test_no_pine_flag(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--no-pine"])
+        assert args.no_pine is True
+
+    def test_custom_thresholds(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--buy-thresh", "0.60", "--sell-thresh", "0.40"])
+        assert args.buy_thresh == 0.60
+        assert args.sell_thresh == 0.40
