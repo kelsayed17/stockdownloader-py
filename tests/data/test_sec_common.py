@@ -354,12 +354,12 @@ class TestQuarterIterator:
 class TestIpoQuarterFloor:
     """ipo_quarter_floor returns the earliest useful quarter."""
 
-    @patch("stockdownloader.model.symbol_info.get_symbol_info")
+    @patch("stockdownloader.core.models.symbol.get_symbol_info")
     def test_ipo_quarter_floor_known_symbol(
         self, mock_get_info: MagicMock,
     ) -> None:
         """Returns IPO quarter for a known symbol (e.g. TSLA)."""
-        from stockdownloader.model.symbol_info import SymbolInfo
+        from stockdownloader.core.models.symbol import SymbolInfo
 
         mock_get_info.return_value = SymbolInfo(
             symbol="TSLA",
@@ -370,7 +370,7 @@ class TestIpoQuarterFloor:
         result = ipo_quarter_floor("TSLA")
         assert result == (2010, 2)
 
-    @patch("stockdownloader.model.symbol_info.get_symbol_info")
+    @patch("stockdownloader.core.models.symbol.get_symbol_info")
     def test_ipo_quarter_floor_unknown(
         self, mock_get_info: MagicMock,
     ) -> None:
@@ -379,12 +379,12 @@ class TestIpoQuarterFloor:
         result = ipo_quarter_floor("ZZZZ")
         assert result == (2003, 1)
 
-    @patch("stockdownloader.model.symbol_info.get_symbol_info")
+    @patch("stockdownloader.core.models.symbol.get_symbol_info")
     def test_ipo_quarter_floor_pre_2003(
         self, mock_get_info: MagicMock,
     ) -> None:
         """Returns (2003, 1) when IPO is before 2003."""
-        from stockdownloader.model.symbol_info import SymbolInfo
+        from stockdownloader.core.models.symbol import SymbolInfo
 
         mock_get_info.return_value = SymbolInfo(
             symbol="AAPL",

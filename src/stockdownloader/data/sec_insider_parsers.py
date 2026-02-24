@@ -13,7 +13,7 @@ import re
 from stockdownloader.data.bulk_insider_parser import parse_bulk_zip  # noqa: F401
 from stockdownloader.data.sec_common import SplitAdjustment
 from stockdownloader.data.sec_parser_utils import normalize_date, xml_text
-from stockdownloader.model.regulatory_records import InsiderTransaction
+from stockdownloader.core.models.regulatory import InsiderTransaction
 
 logger = logging.getLogger(__name__)
 

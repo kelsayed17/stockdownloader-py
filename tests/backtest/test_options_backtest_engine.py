@@ -6,7 +6,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.options.options_strategies import CoveredCallStrategy, ProtectivePutStrategy
 
 CAPITAL = Decimal("100000")

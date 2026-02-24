@@ -40,7 +40,7 @@ from stockdownloader.backtest.tournament_workers import (
     run_combo_rebacktest,
     run_combo_walkforward,
 )
-from stockdownloader.util.config import INITIAL_CAPITAL, RISK_PER_TRADE
+from stockdownloader.core.config import INITIAL_CAPITAL, RISK_PER_TRADE
 
 
 # ======================================================================

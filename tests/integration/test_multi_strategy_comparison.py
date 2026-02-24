@@ -10,7 +10,7 @@ import pytest
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
 from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy

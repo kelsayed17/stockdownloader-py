@@ -13,7 +13,7 @@ import random
 from decimal import Decimal
 from unittest.mock import patch
 
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.util.indicators.hub import IndicatorHub
 from stockdownloader.util import indicators as ti
 from stockdownloader.util.indicators import sma as _sma, ema as _ema

@@ -19,15 +19,15 @@ import math
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.alert_result import AlertResult, AlertDirection, OptionsRecommendation, Action
-from stockdownloader.model.indicator_values import IndicatorValues
-from stockdownloader.model.options import OptionType
+from stockdownloader.core.models.alert import AlertResult, AlertDirection, OptionsRecommendation, Action
+from stockdownloader.core.models.indicator import IndicatorValues
+from stockdownloader.core.models.options import OptionType
 from stockdownloader.util.options import black_scholes as bsc
 from stockdownloader.util import indicators as ti
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 _RISK_FREE_RATE = Decimal("0.05")
 _VOLATILITY_LOOKBACK = 20

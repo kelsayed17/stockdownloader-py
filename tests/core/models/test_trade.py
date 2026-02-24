@@ -4,7 +4,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 import pytest
 
-from stockdownloader.model.trade import Trade, Direction, TradeStatus
+from stockdownloader.core.models.trade import Trade, Direction, TradeStatus
 
 
 def test_create_long_trade():

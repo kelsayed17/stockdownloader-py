@@ -3,7 +3,7 @@
 import random
 from decimal import Decimal
 
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.util.indicators import (
     bollinger_bands,
     bollinger_percent_b,

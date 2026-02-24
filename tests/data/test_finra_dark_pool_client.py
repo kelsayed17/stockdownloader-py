@@ -11,7 +11,7 @@ import pytest
 
 from stockdownloader.data.finra_base_client import normalize_finra_date
 from stockdownloader.data.finra_dark_pool_client import FinraDarkPoolClient
-from stockdownloader.model.regulatory_records import DarkPoolRecord
+from stockdownloader.core.models.regulatory import DarkPoolRecord
 
 
 # ------------------------------------------------------------------

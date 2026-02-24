@@ -9,7 +9,7 @@ defaults (e.g. ``start_year=2004`` for FTD data).
 
 Usage::
 
-    from stockdownloader.model.symbol_info import get_symbol_info
+    from stockdownloader.core.models.symbol import get_symbol_info
 
     info = get_symbol_info("GME")
     if info is not None:

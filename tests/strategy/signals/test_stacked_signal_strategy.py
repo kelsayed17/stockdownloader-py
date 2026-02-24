@@ -6,7 +6,7 @@ from decimal import Decimal
 from typing import Any
 from collections.abc import Sequence
 
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.signals.signal_generator import (
     AtomicSignalGenerator,
     SignalDirection,
@@ -24,7 +24,7 @@ from stockdownloader.strategy.signals.stacked_daily_strategy import (
 )
 from stockdownloader.strategy.trading_strategy import Signal
 from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.timeframe import Timeframe
+from stockdownloader.core.timeframe import Timeframe
 
 
 # ======================================================================

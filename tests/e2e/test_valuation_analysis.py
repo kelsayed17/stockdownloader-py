@@ -15,9 +15,9 @@ from decimal import Decimal, ROUND_HALF_UP
 import pytest
 
 from stockdownloader.analysis.formula_calculator import FormulaCalculator, ValuationInputs
-from stockdownloader.model.financial_models import QuoteData
-from stockdownloader.model.unified_market_data import FinancialData, HistoricalData
-from stockdownloader.util.math import average, divide, scale2
+from stockdownloader.core.models.financial import QuoteData
+from stockdownloader.core.models.market_data import FinancialData, HistoricalData
+from stockdownloader.core.math import average, divide, scale2
 
 
 @pytest.fixture(scope="module")

@@ -11,7 +11,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from scipy.stats import norm
 
-from stockdownloader.model.options import OptionType
+from stockdownloader.core.models.options import OptionType
 
 
 def price(

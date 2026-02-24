@@ -4,7 +4,7 @@ Extracted from :mod:`options_gamma_analyzer` to keep the analyzer class
 focused on orchestration while housing the pure-computation logic here.
 
 All functions are stateless (no instance data) and operate on
-:class:`~stockdownloader.model.options.OptionsChain` objects or simple
+:class:`~stockdownloader.core.models.options.OptionsChain` objects or simple
 numeric inputs.
 """
 
@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from stockdownloader.model.options import OptionsChain
+from stockdownloader.core.models.options import OptionsChain
 
 # Contract multiplier (1 option = 100 shares)
 _MULT = 100

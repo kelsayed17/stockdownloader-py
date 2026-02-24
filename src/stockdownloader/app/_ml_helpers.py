@@ -23,7 +23,7 @@ import logging
 import sys
 from typing import Any
 
-from stockdownloader.util.config import DEFAULT_ML_PIPELINE_DIR
+from stockdownloader.core.config import DEFAULT_ML_PIPELINE_DIR
 
 
 # ======================================================================
@@ -231,7 +231,7 @@ def apply_config_defaults(args: argparse.Namespace) -> None:
     if not config_file:
         return
 
-    from stockdownloader.util.config import load_config
+    from stockdownloader.core.config import load_config
 
     cfg = load_config(config_file)
 

@@ -4,7 +4,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 
 
 # Path to real 5-minute data file

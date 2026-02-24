@@ -33,10 +33,10 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from stockdownloader.backtest.backtest_result import BaseBacktestResult
-    from stockdownloader.model import PriceData
+    from stockdownloader.core.models import PriceData
 
 from stockdownloader.backtest.backtest_result import BacktestResult, OptionsBacktestResult
-from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.backtest.report_helpers import scale2
 
 _TRADING_DAYS_PER_YEAR = 252

@@ -9,7 +9,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import pytest
 
 from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.model.trade import Trade, Direction
+from stockdownloader.core.models.trade import Trade, Direction
 
 
 # ---------------------------------------------------------------------------

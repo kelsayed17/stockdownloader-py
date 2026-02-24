@@ -10,7 +10,7 @@ from unittest.mock import patch
 import pytest
 
 from stockdownloader.data.occ_options_client import OccOptionsClient
-from stockdownloader.model.regulatory_records import OccOpenInterestRecord
+from stockdownloader.core.models.regulatory import OccOpenInterestRecord
 
 
 # ------------------------------------------------------------------

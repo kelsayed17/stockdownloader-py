@@ -29,7 +29,7 @@ from stockdownloader.data.finra_base_client import (
     _MAX_RETRIES,
     normalize_finra_date,
 )
-from stockdownloader.model.regulatory_records import ShortInterestRecord
+from stockdownloader.core.models.regulatory import ShortInterestRecord
 
 logger = logging.getLogger(__name__)
 

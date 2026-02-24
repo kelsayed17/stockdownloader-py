@@ -16,22 +16,22 @@ from decimal import Decimal, ROUND_HALF_UP
 import pytest
 
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.math import (
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.math import (
     average,
     divide,
     percent_change,
     scale2,
 )
-from stockdownloader.util.io import CsvParser
-from stockdownloader.util.io import (
+from stockdownloader.core.io import CsvParser
+from stockdownloader.core.io import (
     MORNINGSTAR_FORMAT,
     YAHOO_EARNINGS_FORMAT,
     YAHOO_FORMAT,
     DateHelper,
     adjust_to_market_day,
 )
-from stockdownloader.util.io import (
+from stockdownloader.core.io import (
     append_line,
     delete_file,
     read_csv_lines,

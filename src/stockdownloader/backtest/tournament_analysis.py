@@ -21,7 +21,7 @@ from stockdownloader.backtest.tournament_models import (
     RegimeAnalysis,
     RegimeTradeStats,
 )
-from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.strategy.regime.regime_detector import MarketRegime
 
 

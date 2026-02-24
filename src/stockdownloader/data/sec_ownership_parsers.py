@@ -27,7 +27,7 @@ from stockdownloader.data.sec_parser_utils import (
     is_leap_year,
     quarter_range,
 )
-from stockdownloader.model.regulatory_records import (
+from stockdownloader.core.models.regulatory import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )

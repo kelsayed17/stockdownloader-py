@@ -184,7 +184,7 @@ class BaseRegistry(Generic[T]):
         if not config_path:
             return 0
 
-        from stockdownloader.util.config import load_config
+        from stockdownloader.core.config import load_config
 
         cfg = load_config(config_path)
         count = 0

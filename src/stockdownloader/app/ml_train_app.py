@@ -23,7 +23,7 @@ import argparse
 import logging
 import sys
 
-from stockdownloader.util.config import DEFAULT_MODELS_DIR
+from stockdownloader.core.config import DEFAULT_MODELS_DIR
 
 try:
     from stockdownloader.ml.dataset_builder import DatasetBuilder, LabelConfig

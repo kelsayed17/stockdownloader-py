@@ -17,8 +17,8 @@ from stockdownloader.app.monitor_app import (
     _run_once,
     main,
 )
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.signal_advisory import (
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.signal import (
     AdvisoryAction,
     AdvisoryReasoning,
     OptionsAdvisory,

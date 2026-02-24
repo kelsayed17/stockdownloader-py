@@ -22,7 +22,7 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import BinaryIO
 
-from stockdownloader.model import PriceData
+from stockdownloader.core.models import PriceData
 
 logger = logging.getLogger(__name__)
 

@@ -18,7 +18,7 @@ from __future__ import annotations
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.trade import (
+from stockdownloader.core.models.trade import (
     IntradayAction,
     IntradaySignal,
     HOLD,
@@ -34,11 +34,11 @@ from stockdownloader.strategy.signals.stacked_signal_engine import (
     StackedSignalEngine,
 )
 from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.timeframe import Timeframe, TimeframeAggregator
+from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
+    from stockdownloader.core.models.price import IntradayPriceData
 
 class StackedIntradayStrategy(IntradayTradingStrategy):
     """Full multi-timeframe signal stacking strategy.

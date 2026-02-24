@@ -9,8 +9,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from stockdownloader.app.ml_train_app import _build_parser, main
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.config import DEFAULT_MODELS_DIR
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.config import DEFAULT_MODELS_DIR
 
 
 # ------------------------------------------------------------------

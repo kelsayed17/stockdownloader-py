@@ -8,10 +8,10 @@ from decimal import Decimal
 from operator import attrgetter
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import divide, scale2
+from stockdownloader.core.math import divide, scale2
 
 if TYPE_CHECKING:
-    from stockdownloader.model.alert_result import PatternResult
+    from stockdownloader.core.models.alert import PatternResult
 
 _TOP_N = 10
 
@@ -27,7 +27,7 @@ def analyze(frequency: dict[str, set[str]]) -> list[PatternResult]:
     Returns:
         A list of ``PatternResult`` objects sorted by pattern frequency (descending).
     """
-    from stockdownloader.model.alert_result import PatternResult
+    from stockdownloader.core.models.alert import PatternResult
 
     results: list[PatternResult] = []
 

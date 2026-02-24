@@ -17,7 +17,7 @@ from stockdownloader.analysis.gme.models import (
     ReturnDistribution,
     VolumeProfile,
 )
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 _ZERO = Decimal("0")
 

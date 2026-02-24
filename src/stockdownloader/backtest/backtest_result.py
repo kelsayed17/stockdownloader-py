@@ -15,10 +15,10 @@ from itertools import groupby, pairwise
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from stockdownloader.model import PriceData
+    from stockdownloader.core.models import PriceData
 
-from stockdownloader.model import OptionsTrade, OptionsTradeStatus, Trade, TradeStatus
-from stockdownloader.util.math import HUNDRED
+from stockdownloader.core.models import OptionsTrade, OptionsTradeStatus, Trade, TradeStatus
+from stockdownloader.core.math import HUNDRED
 
 
 # ======================================================================

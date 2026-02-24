@@ -37,7 +37,7 @@ import logging
 from datetime import date, timedelta
 
 from stockdownloader.data.base_client import BaseDataClient
-from stockdownloader.model.regulatory_records import OccOpenInterestRecord
+from stockdownloader.core.models.regulatory import OccOpenInterestRecord
 
 logger = logging.getLogger(__name__)
 

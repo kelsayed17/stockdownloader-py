@@ -17,14 +17,14 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
-from stockdownloader.model.indicator_values import IndicatorValues
+from stockdownloader.core.models.indicator import IndicatorValues
 from stockdownloader.util.indicators.hub import IndicatorHub
 from stockdownloader.util.pinescript.models import (
     Condition, Indicator, Input, StrategyDefinition,
 )
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 
 class MultiIndicatorStrategy(TradingStrategy):

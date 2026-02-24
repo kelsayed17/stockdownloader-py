@@ -26,8 +26,8 @@ from stockdownloader.app._ml_helpers import (
     init_ml_env,
     run_ml_pipeline,
 )
-from stockdownloader.util.config import AppConfig
-from stockdownloader.util.config import DEFAULT_ML_PIPELINE_DIR
+from stockdownloader.core.config import AppConfig
+from stockdownloader.core.config import DEFAULT_ML_PIPELINE_DIR
 
 logger = logging.getLogger(__name__)
 

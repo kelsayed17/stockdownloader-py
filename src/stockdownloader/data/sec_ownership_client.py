@@ -32,7 +32,7 @@ from stockdownloader.data.base_client import BaseDataClient
 from stockdownloader.data import sec_common
 from stockdownloader.data import sec_ownership_parsers as parsers
 from stockdownloader.data.sec_common import SplitAdjustment, splits_for_symbol
-from stockdownloader.model.regulatory_records import (
+from stockdownloader.core.models.regulatory import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )
@@ -117,7 +117,7 @@ class SecOwnershipClient(BaseDataClient):
         # Auto-resolve CUSIP from the symbol registry when the caller
         # used the default GME CUSIP.  This fixes a bug where non-GME
         # symbols silently queried with GME's CUSIP.
-        from stockdownloader.model.symbol_info import get_symbol_info
+        from stockdownloader.core.models.symbol import get_symbol_info
 
         _info = get_symbol_info(symbol_upper)
         if cusip == parsers.GME_CUSIP and symbol_upper != "GME":

@@ -1,6 +1,6 @@
 """Utility functions for calculations and helpers."""
 
-from stockdownloader.util.math import (
+from stockdownloader.core.math import (
     average,
     divide,
     percent_change,
@@ -49,9 +49,9 @@ from stockdownloader.util.options.black_scholes import (
     price,
     theta,
 )
-from stockdownloader.util.io import CsvParser
-from stockdownloader.util.io import DateHelper, adjust_to_market_day
-from stockdownloader.util.io import (
+from stockdownloader.core.io import CsvParser
+from stockdownloader.core.io import DateHelper, adjust_to_market_day
+from stockdownloader.core.io import (
     append_line,
     delete_file,
     read_csv_lines,

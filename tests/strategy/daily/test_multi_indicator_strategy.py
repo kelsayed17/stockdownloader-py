@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.daily.multi_indicator_strategy import MultiIndicatorStrategy
 from stockdownloader.strategy.trading_strategy import Signal
 

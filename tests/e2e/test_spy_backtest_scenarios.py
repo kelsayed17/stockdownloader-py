@@ -21,8 +21,8 @@ from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.backtest.report_formatter import print_daily_comparison
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.trade import Trade
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.trade import Trade
 from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
 from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy

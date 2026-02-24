@@ -11,7 +11,7 @@ from stockdownloader.analysis.gme import (
     detect_structural_breaks,
     detect_volatility_regimes,
 )
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 _D = Decimal
 

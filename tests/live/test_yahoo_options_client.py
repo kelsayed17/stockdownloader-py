@@ -7,7 +7,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.data.yahoo_options_client import YahooOptionsClient
-from stockdownloader.model.options import OptionContract, OptionsChain
+from stockdownloader.core.models.options import OptionContract, OptionsChain
 
 pytestmark = pytest.mark.live
 

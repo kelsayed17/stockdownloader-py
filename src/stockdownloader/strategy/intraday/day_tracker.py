@@ -6,11 +6,11 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.intraday.session_state import SessionState
-from stockdownloader.util.math import HUNDRED, ZERO
+from stockdownloader.core.math import HUNDRED, ZERO
 from stockdownloader.util.indicators.intraday import daily_atr_prior
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData, PriceData
+    from stockdownloader.core.models.price import IntradayPriceData, PriceData
     from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
     from stockdownloader.util.indicators.hub import IndicatorHub
 
@@ -64,7 +64,7 @@ class DayTracker:
             prev_start = self._session_start_index
             prev_slice = data[prev_start:current_index]
             if prev_slice:
-                from stockdownloader.model.price_data import PriceData as PD
+                from stockdownloader.core.models.price import PriceData as PD
 
                 p_date = prev_slice[0].date[:10]
                 p_open = prev_slice[0].open

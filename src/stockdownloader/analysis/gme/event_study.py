@@ -13,8 +13,8 @@ from collections import defaultdict
 from scipy.stats import t as t_dist
 
 from stockdownloader.analysis.gme.models import EventStudyResult, FilingImpact
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.regulatory_records import SecFiling
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.regulatory import SecFiling
 
 __all__ = [
     "correlate_filings_with_price",

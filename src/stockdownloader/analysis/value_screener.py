@@ -12,7 +12,7 @@ Scoring methodology includes:
 Usage::
 
     from stockdownloader.analysis.value_screener import ValueScreener
-    from stockdownloader.model import QuoteData
+    from stockdownloader.core.models import QuoteData
 
     screener = ValueScreener()
     quotes: dict[str, QuoteData] = ...            # from YahooFinanceClient
@@ -39,9 +39,9 @@ from stockdownloader.analysis.value_scoring import (
 )
 
 if TYPE_CHECKING:
-    from stockdownloader.model.financial_models import DetailedFinancialData
-    from stockdownloader.model.financial_models import QuoteData
-    from stockdownloader.model.financial_models import ValueScreenerResult
+    from stockdownloader.core.models.financial import DetailedFinancialData
+    from stockdownloader.core.models.financial import QuoteData
+    from stockdownloader.core.models.financial import ValueScreenerResult
 
 _ZERO = Decimal("0")
 _ONE = Decimal("1")
@@ -136,7 +136,7 @@ class ValueScreener:
         growth / valuation / income scores use quote-only data (Phase 1
         coarse scoring mode).
         """
-        from stockdownloader.model.financial_models import ValueScreenerResult
+        from stockdownloader.core.models.financial import ValueScreenerResult
 
         val_score = self._score_valuation(quote, detailed)
         growth_score = self._score_growth(quote, detailed)

@@ -19,8 +19,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from stockdownloader.model.signal_advisory import SignalAdvisory
-from stockdownloader.util.config import DEFAULT_ALERT_HISTORY
+from stockdownloader.core.models.signal import SignalAdvisory
+from stockdownloader.core.config import DEFAULT_ALERT_HISTORY
 
 logger = logging.getLogger(__name__)
 

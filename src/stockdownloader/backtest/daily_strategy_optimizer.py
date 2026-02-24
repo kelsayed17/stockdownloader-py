@@ -28,7 +28,7 @@ from typing import Any, TextIO
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.optimizer_base import OptimizerBase
-from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.base_registry import StrategyRegistry, StrategyEntry
 

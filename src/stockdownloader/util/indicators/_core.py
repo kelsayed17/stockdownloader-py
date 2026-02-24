@@ -11,11 +11,11 @@ import math
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import ZERO, TWO, quantize
+from stockdownloader.core.math import ZERO, TWO, quantize
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 # =========================================================================
 # Constants

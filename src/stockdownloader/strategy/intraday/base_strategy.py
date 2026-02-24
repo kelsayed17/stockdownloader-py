@@ -31,11 +31,11 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.trade import IntradaySignal
+from stockdownloader.core.models.trade import IntradaySignal
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
+    from stockdownloader.core.models.price import IntradayPriceData
     from stockdownloader.strategy.intraday.session_state import BarContext
     from stockdownloader.strategy.intraday.infra import IntradayInfra
 

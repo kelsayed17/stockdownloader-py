@@ -10,8 +10,8 @@ if TYPE_CHECKING:
     pass
 
 from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.model import Trade, Direction, TradeStatus
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models import Trade, Direction, TradeStatus
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.trading_strategy import TradingStrategy, Signal
 
 

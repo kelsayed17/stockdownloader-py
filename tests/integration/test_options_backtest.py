@@ -11,10 +11,10 @@ import pytest
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
 from stockdownloader.backtest.backtest_result import OptionsBacktestResult
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
-from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.financial_models import QuoteData
-from stockdownloader.model.unified_market_data import (
+from stockdownloader.core.models.options import OptionContract, OptionType, OptionsChain
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.financial import QuoteData
+from stockdownloader.core.models.market_data import (
     FinancialData,
     HistoricalData,
     UnifiedMarketData,

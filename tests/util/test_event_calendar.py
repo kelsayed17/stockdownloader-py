@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.util.config import (
+from stockdownloader.core.config import (
     FOMC_DATES,
     days_since_anchor,
     get_anchor_date,

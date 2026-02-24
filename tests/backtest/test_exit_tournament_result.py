@@ -3,8 +3,8 @@
 from decimal import Decimal
 
 from stockdownloader.backtest.exit_tournament_result import ExitTournamentResult
-from stockdownloader.model.exit_mechanism_result import ExitMechanismTradeResult
-from stockdownloader.model.trade import Direction
+from stockdownloader.core.models.exit_result import ExitMechanismTradeResult
+from stockdownloader.core.models.trade import Direction
 
 
 def _make_result(mechanism, trade_id, pnl, direction=Direction.LONG, signal_type="PB"):

@@ -23,7 +23,7 @@ from stockdownloader.data.data_parsers import (
     get_string,
 )
 from stockdownloader.data.yahoo_base_client import YahooAuthHelper, YahooBaseClient
-from stockdownloader.model import HistoricalData, QuoteData
+from stockdownloader.core.models import HistoricalData, QuoteData
 
 logger = logging.getLogger(__name__)
 _QUOTE_URL = "https://query1.finance.yahoo.com/v7/finance/quote?symbols={symbol}"

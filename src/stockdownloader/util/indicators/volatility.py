@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import ONE, ZERO, quantize
+from stockdownloader.core.math import ONE, ZERO, quantize
 from stockdownloader.util.indicators._core import (
     sma as _sma,
     standard_deviation,
@@ -19,7 +19,7 @@ from stockdownloader.util.indicators._core import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 # Re-export from _core so they remain accessible from this module
 true_range = true_range

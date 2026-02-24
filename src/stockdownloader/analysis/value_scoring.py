@@ -12,8 +12,8 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from stockdownloader.model.financial_models import DetailedFinancialData
-    from stockdownloader.model.financial_models import QuoteData
+    from stockdownloader.core.models.financial import DetailedFinancialData
+    from stockdownloader.core.models.financial import QuoteData
 
 _ZERO = Decimal("0")
 

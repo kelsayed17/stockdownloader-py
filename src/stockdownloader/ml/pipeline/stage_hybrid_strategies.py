@@ -32,7 +32,7 @@ from stockdownloader.ml.pipeline.results import (
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 logger = logging.getLogger(__name__)
 

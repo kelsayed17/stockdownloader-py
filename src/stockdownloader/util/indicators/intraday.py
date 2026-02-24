@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import ZERO, quantize
+from stockdownloader.core.math import ZERO, quantize
 from stockdownloader.util.indicators._core import (
     _compute_session_vwap_core,
     _find_session_start,
@@ -24,8 +24,8 @@ from stockdownloader.util.indicators.volatility import atr as _atr
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from stockdownloader.model.price_data import IntradayPriceData
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import IntradayPriceData
+    from stockdownloader.core.models.price import PriceData
 
 _HALF = Decimal("0.5")
 _THREE = Decimal("3")
@@ -249,7 +249,7 @@ def aggregate_to_daily(
     Returns a list of :class:`PriceData` with one entry per session,
     sorted chronologically.
     """
-    from stockdownloader.model.price_data import PriceData as PD
+    from stockdownloader.core.models.price import PriceData as PD
 
     if not data:
         return []
@@ -319,7 +319,7 @@ def resample_to_htf(
 
     Only complete groups within the same session are returned.
     """
-    from stockdownloader.model.price_data import PriceData as PD
+    from stockdownloader.core.models.price import PriceData as PD
 
     if end_index < 0:
         return []

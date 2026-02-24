@@ -11,7 +11,7 @@ import pytest
 
 from stockdownloader.data.finra_base_client import normalize_finra_date
 from stockdownloader.data.finra_short_interest_client import FinraShortInterestClient
-from stockdownloader.model.regulatory_records import ShortInterestRecord
+from stockdownloader.core.models.regulatory import ShortInterestRecord
 
 
 # ------------------------------------------------------------------

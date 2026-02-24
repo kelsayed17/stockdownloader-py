@@ -6,7 +6,7 @@ session boundaries are excluded.
 
 Usage::
 
-    from stockdownloader.util.timeframe import TimeframeAggregator
+    from stockdownloader.core.timeframe import TimeframeAggregator
 
     agg = TimeframeAggregator(data)  # data = list[IntradayPriceData]
     bars_15m = agg.get_bars(Timeframe.M15)
@@ -32,7 +32,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 
 class Timeframe(Enum):
@@ -198,7 +198,7 @@ class TimeframeAggregator:
         """Convert aggregated bars to ``PriceData`` objects for use with
         existing indicator functions that accept ``Sequence[PriceData]``.
         """
-        from stockdownloader.model.price_data import PriceData as PD
+        from stockdownloader.core.models.price import PriceData as PD
 
         return [
             PD(
@@ -228,7 +228,7 @@ class TimeframeAggregator:
             if len(htf_bars) >= 14:
                 atr_1h = hub.atr(htf_bars, len(htf_bars) - 1, period=14)
         """
-        from stockdownloader.model.price_data import PriceData as PD
+        from stockdownloader.core.models.price import PriceData as PD
 
         htf_bars = self.get_bars_through(tf, current_index)
         n = len(htf_bars)
@@ -273,7 +273,7 @@ class TimeframeAggregator:
         :class:`IntradayBacktestEngine` (which requires the ``trading_date``
         property that plain ``PriceData`` lacks).
         """
-        from stockdownloader.model.price_data import (
+        from stockdownloader.core.models.price import (
             IntradayPriceData as IPD,
         )
 

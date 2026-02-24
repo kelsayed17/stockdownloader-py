@@ -5,7 +5,7 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.backtest.backtest_result import OptionsBacktestResult
-from stockdownloader.model.options import OptionType, OptionsTrade, OptionsDirection
+from stockdownloader.core.models.options import OptionType, OptionsTrade, OptionsDirection
 
 
 def _make_trade(entry_premium, exit_premium):

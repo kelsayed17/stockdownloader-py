@@ -17,7 +17,7 @@ Design principles:
 
 Usage::
 
-    from stockdownloader.util.config import load_config
+    from stockdownloader.core.config import load_config
 
     # Load a named preset from the config directory
     cfg = load_config("backtest/spy_daily.json")

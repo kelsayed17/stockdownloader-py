@@ -11,14 +11,14 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from enum import Enum
 
-from stockdownloader.model.indicator_values import IndicatorValues
-from stockdownloader.model.options import OptionType
+from stockdownloader.core.models.indicator import IndicatorValues
+from stockdownloader.core.models.options import OptionType
 
 
 class AlertDirection(Enum):
     """Signal direction for trading alerts.
 
-    Not to be confused with :class:`~stockdownloader.model.trade.Direction`
+    Not to be confused with :class:`~stockdownloader.core.models.trade.Direction`
     which represents LONG/SHORT position direction.
     """
 

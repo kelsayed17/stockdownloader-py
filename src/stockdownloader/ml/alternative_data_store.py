@@ -34,13 +34,13 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from stockdownloader.model.regulatory_records import (
+    from stockdownloader.core.models.regulatory import (
         BorrowRateRecord,
         DarkPoolRecord,
         FtdRecord,
         ShortInterestRecord,
     )
-    from stockdownloader.model.regulatory_records import OwnershipSnapshot
+    from stockdownloader.core.models.regulatory import OwnershipSnapshot
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from stockdownloader.data.borrow_rate import BorrowRateProxy
-from stockdownloader.model.regulatory_records import BorrowRateRecord, ShortInterestRecord
+from stockdownloader.core.models.regulatory import BorrowRateRecord, ShortInterestRecord
 
 
 # ------------------------------------------------------------------

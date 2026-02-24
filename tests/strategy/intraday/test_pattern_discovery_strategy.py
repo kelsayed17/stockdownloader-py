@@ -8,8 +8,8 @@ import pytest
 
 from stockdownloader.analysis.pattern_discovery import DiscoveredPattern, PatternCatalog
 from stockdownloader.analysis.pattern_encoder import BarFeatures
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import IntradayAction, HOLD
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import IntradayAction, HOLD
 from stockdownloader.strategy.intraday.pattern_discovery_strategy import (
     PatternDiscoveryConfig,
     PatternDiscoveryStrategy,

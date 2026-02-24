@@ -12,7 +12,7 @@ import pytest
 from stockdownloader.ml.feature_extractor import FeatureExtractor
 from stockdownloader.ml.model_store import ModelMetadata
 from stockdownloader.ml.predictor import MLPredictor
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 
 # ------------------------------------------------------------------

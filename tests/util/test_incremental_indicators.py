@@ -8,7 +8,7 @@ IndicatorHub, but all streaming classes are tested for correctness.
 import random
 from decimal import Decimal
 
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.util import indicators as ti
 from stockdownloader.util.indicators.momentum import StreamingOBV
 from stockdownloader.util.indicators.trend import StreamingSAR

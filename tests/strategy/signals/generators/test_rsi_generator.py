@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 from decimal import Decimal
 
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.signals.generators import RSISignalGenerator
 from stockdownloader.strategy.signals.signal_generator import (
     AtomicSignalGenerator,

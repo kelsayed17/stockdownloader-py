@@ -12,8 +12,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import HOLD, IntradayAction
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import HOLD, IntradayAction
 
 _D = Decimal
 

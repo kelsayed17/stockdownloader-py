@@ -6,7 +6,7 @@ from datetime import date
 
 import pytest
 
-from stockdownloader.model.symbol_info import (
+from stockdownloader.core.models.symbol import (
     SymbolInfo,
     SYMBOL_REGISTRY,
     get_symbol_info,

@@ -2,7 +2,7 @@
 
 Combines :func:`generate_alert`, :class:`MarketRegimeDetector`, walk-forward
 validation scores, and ATR-based risk levels into a single
-:class:`~stockdownloader.model.signal_advisory.SignalAdvisory`.
+:class:`~stockdownloader.core.models.signal.SignalAdvisory`.
 
 Usage::
 
@@ -20,13 +20,13 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.analysis.alert_generator import generate_alert
-from stockdownloader.model.alert_result import (
+from stockdownloader.core.models.alert import (
     AlertDirection,
     AlertResult,
     Action,
     OptionsRecommendation,
 )
-from stockdownloader.model.signal_advisory import (
+from stockdownloader.core.models.signal import (
     AdvisoryAction,
     AdvisoryReasoning,
     OptionsAdvisory,
@@ -42,7 +42,7 @@ from stockdownloader.util.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 
 # ------------------------------------------------------------------

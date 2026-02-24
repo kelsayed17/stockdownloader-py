@@ -21,10 +21,10 @@ import pytest
 
 from stockdownloader.analysis.pattern_analyzer import analyze, print_results
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
-from stockdownloader.model.alert_result import PatternResult
-from stockdownloader.model.unified_market_data import HistoricalData
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.math import divide, scale2
+from stockdownloader.core.models.alert import PatternResult
+from stockdownloader.core.models.market_data import HistoricalData
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.math import divide, scale2
 
 PATTERN_DAYS = 7
 

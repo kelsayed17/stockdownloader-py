@@ -4,10 +4,10 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.financial_models import QuoteData
-from stockdownloader.model.unified_market_data import (
+from stockdownloader.core.models.options import OptionContract, OptionType, OptionsChain
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.financial import QuoteData
+from stockdownloader.core.models.market_data import (
     FinancialData,
     HistoricalData,
     UnifiedMarketData,

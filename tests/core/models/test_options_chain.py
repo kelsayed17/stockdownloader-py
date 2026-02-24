@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
+from stockdownloader.core.models.options import OptionContract, OptionType, OptionsChain
 
 
 def _make_contract(symbol, option_type, strike, exp, volume, oi):

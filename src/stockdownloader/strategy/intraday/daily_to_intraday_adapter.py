@@ -21,8 +21,8 @@ from __future__ import annotations
 
 from decimal import Decimal, ROUND_HALF_UP
 
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import (
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import (
     IntradayAction,
     IntradaySignal,
     HOLD,
@@ -30,7 +30,7 @@ from stockdownloader.model.trade import (
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 
 class DailyToIntradayAdapter(IntradayTradingStrategy):
     """Wraps a daily :class:`TradingStrategy` for use with :class:`IntradayBacktestEngine`.

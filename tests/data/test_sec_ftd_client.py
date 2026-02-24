@@ -13,7 +13,7 @@ import pytest
 
 from stockdownloader.data.sec_common import SplitAdjustment
 from stockdownloader.data.sec_ftd_client import SecFtdClient
-from stockdownloader.model.regulatory_records import FtdRecord
+from stockdownloader.core.models.regulatory import FtdRecord
 
 # Reusable split adjustment matching the well-known GME 4:1 split.
 _GME_SPLIT = SplitAdjustment(

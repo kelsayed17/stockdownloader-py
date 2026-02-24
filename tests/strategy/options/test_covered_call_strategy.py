@@ -4,8 +4,8 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.options import OptionType
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.options import OptionType
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.options.options_strategies import CoveredCallStrategy
 from stockdownloader.strategy.options.options_strategies import OptionsSignal
 

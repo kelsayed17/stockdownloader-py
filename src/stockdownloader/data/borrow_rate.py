@@ -31,7 +31,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-from stockdownloader.model.regulatory_records import BorrowRateRecord, ShortInterestRecord
+from stockdownloader.core.models.regulatory import BorrowRateRecord, ShortInterestRecord
 
 logger = logging.getLogger(__name__)
 

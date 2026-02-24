@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import THREE, ZERO, quantize
+from stockdownloader.core.math import THREE, ZERO, quantize
 from stockdownloader.util.indicators._core import (
     _compute_session_vwap_core,
     _find_session_start,
@@ -20,7 +20,7 @@ from stockdownloader.util.indicators._core import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 _HALF = Decimal("0.5")
 
@@ -436,7 +436,7 @@ class StreamingAnchoredVWAP:
             return ZERO, ZERO
 
         # Lazy import to avoid circular dependency
-        from stockdownloader.util.config import get_anchor_date
+        from stockdownloader.core.config import get_anchor_date
 
         start = self._last_index + 1
         for i in range(start, index + 1):

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 __all__ = ["StreamingHTFResample"]
 
@@ -56,7 +56,7 @@ class StreamingHTFResample:
             return []
 
         # Lazy import to avoid circular dependency
-        from stockdownloader.model.price_data import PriceData as PD
+        from stockdownloader.core.models.price import PriceData as PD
 
         start = self._last_index + 1
         for i in range(start, index + 1):

@@ -28,7 +28,7 @@ from stockdownloader.data.data_parsers import (
     get_string,
 )
 from stockdownloader.data.yahoo_base_client import YahooAuthHelper, YahooBaseClient
-from stockdownloader.model import OptionContract, OptionsChain, OptionType
+from stockdownloader.core.models import OptionContract, OptionsChain, OptionType
 
 logger = logging.getLogger(__name__)
 _OPTIONS_URL = "https://query1.finance.yahoo.com/v7/finance/options/{symbol}"

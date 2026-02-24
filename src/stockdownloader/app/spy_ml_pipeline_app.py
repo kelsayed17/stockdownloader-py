@@ -45,7 +45,7 @@ from stockdownloader.app._ml_helpers import (
     init_ml_env,
     run_ml_pipeline,
 )
-from stockdownloader.util.config import DEFAULT_ML_PIPELINE_DIR
+from stockdownloader.core.config import DEFAULT_ML_PIPELINE_DIR
 
 
 # ======================================================================
@@ -384,7 +384,7 @@ def main(argv: list[str] | None = None) -> None:
     # ── Intraday timeframes (resampled from 5m) ────────────────────
     if intraday_tfs and intraday_csv:
         from stockdownloader.data.intraday_csv import IntradayCsvLoader
-        from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
+        from stockdownloader.core.timeframe import Timeframe, TimeframeAggregator
 
         print("Loading 5-minute data for timeframe aggregation...")
         raw_5m = IntradayCsvLoader.load_from_file(intraday_csv)

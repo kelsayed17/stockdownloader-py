@@ -1,7 +1,7 @@
 """Data models for stock and options trading."""
 
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.options import (
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.options import (
     OptionType,
     OptionContract,
     OptionsTrade,
@@ -10,33 +10,33 @@ from stockdownloader.model.options import (
     CONTRACT_MULTIPLIER,
     OptionsChain,
 )
-from stockdownloader.model.trade import Trade, Direction, TradeStatus
-from stockdownloader.model.financial_models import QuoteData
-from stockdownloader.model.unified_market_data import HistoricalData, FinancialData, UnifiedMarketData
-from stockdownloader.model.indicator_values import IndicatorValues
-from stockdownloader.model.alert_result import (
+from stockdownloader.core.models.trade import Trade, Direction, TradeStatus
+from stockdownloader.core.models.financial import QuoteData
+from stockdownloader.core.models.market_data import HistoricalData, FinancialData, UnifiedMarketData
+from stockdownloader.core.models.indicator import IndicatorValues
+from stockdownloader.core.models.alert import (
     AlertResult,
     AlertDirection,
     Action,
     OptionsRecommendation,
     PatternResult,
 )
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import TournamentTrade
-from stockdownloader.model.exit_mechanism_result import (
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import TournamentTrade
+from stockdownloader.core.models.exit_result import (
     ExitMechanismTradeResult,
     ExitMechanismSummary,
 )
-from stockdownloader.model.trade import IntradaySignal, IntradayAction, HOLD
-from stockdownloader.model.financial_models import DetailedFinancialData
-from stockdownloader.model.financial_models import ValueScreenerResult
-from stockdownloader.model.signal_advisory import (
+from stockdownloader.core.models.trade import IntradaySignal, IntradayAction, HOLD
+from stockdownloader.core.models.financial import DetailedFinancialData
+from stockdownloader.core.models.financial import ValueScreenerResult
+from stockdownloader.core.models.signal import (
     SignalAdvisory,
     AdvisoryAction,
     AdvisoryReasoning,
     OptionsAdvisory,
 )
-from stockdownloader.model.regulatory_records import (
+from stockdownloader.core.models.regulatory import (
     FtdRecord,
     ShortInterestRecord,
     DarkPoolRecord,
@@ -49,7 +49,7 @@ from stockdownloader.model.regulatory_records import (
     InsiderOwnershipSnapshot,
     OccOpenInterestRecord,
 )
-from stockdownloader.model.symbol_info import (
+from stockdownloader.core.models.symbol import (
     SymbolInfo,
     SYMBOL_REGISTRY,
     get_symbol_info,

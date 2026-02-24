@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from stockdownloader.data.sec_edgar_client import SecEdgarClient
-from stockdownloader.model.regulatory_records import SecFiling
+from stockdownloader.core.models.regulatory import SecFiling
 
 
 # ------------------------------------------------------------------

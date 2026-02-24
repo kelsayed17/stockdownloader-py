@@ -47,7 +47,7 @@ import requests
 
 from stockdownloader.data.base_client import BaseDataClient
 from stockdownloader.data.sec_common import SplitAdjustment, _KNOWN_SPLITS
-from stockdownloader.model.regulatory_records import FtdRecord
+from stockdownloader.core.models.regulatory import FtdRecord
 
 logger = logging.getLogger(__name__)
 
@@ -194,7 +194,7 @@ class SecFtdClient(BaseDataClient):
         # Auto-narrow start year from IPO date when the caller used the
         # default.  This avoids downloading years of empty ZIPs for
         # symbols that IPO'd after 2004 (e.g. TSLA in 2010).
-        from stockdownloader.model.symbol_info import get_symbol_info
+        from stockdownloader.core.models.symbol import get_symbol_info
 
         _info = get_symbol_info(symbol_upper)
         if _info is not None:

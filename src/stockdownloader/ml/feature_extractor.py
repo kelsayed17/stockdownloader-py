@@ -21,7 +21,7 @@ import math
 from dataclasses import dataclass
 from typing import Any, ClassVar, TYPE_CHECKING
 
-from stockdownloader.model.indicator_values import IndicatorValues
+from stockdownloader.core.models.indicator import IndicatorValues
 from stockdownloader.strategy.regime.regime_detector import MarketRegimeDetector
 from stockdownloader.strategy.signals.signal_generator import AtomicSignalGenerator
 from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from stockdownloader.ml.alternative_data_store import AlternativeDataStore
     from stockdownloader.ml.hmm_regime_detector import RegimeSnapshot
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 
 # ------------------------------------------------------------------

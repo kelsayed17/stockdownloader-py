@@ -27,14 +27,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import (
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import (
     HOLD,
     IntradayAction,
     IntradaySignal,
 )
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 from stockdownloader.util.indicators.hub import IndicatorHub
 from stockdownloader.util.pinescript.models import (
     Condition, Indicator, Input, StrategyDefinition,

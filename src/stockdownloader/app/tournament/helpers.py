@@ -7,8 +7,8 @@ from stockdownloader.app.app_helpers import STANDARD_TIMEFRAMES as _TIMEFRAMES
 from stockdownloader.app.app_helpers import box_title as _box_title, status_label as _status_label
 from stockdownloader.backtest.tournament_engine import ComboResult
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.timeframe import Timeframe, TimeframeAggregator
 
 
 # ======================================================================

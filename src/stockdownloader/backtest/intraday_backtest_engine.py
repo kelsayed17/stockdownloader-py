@@ -46,11 +46,11 @@ import statistics
 from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.model import Trade, Direction, TradeStatus
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import IntradayAction, IntradaySignal
+from stockdownloader.core.models import Trade, Direction, TradeStatus
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import IntradayAction, IntradaySignal
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
-from stockdownloader.util.math import ZERO, ONE
+from stockdownloader.core.math import ZERO, ONE
 
 logger = logging.getLogger(__name__)
 

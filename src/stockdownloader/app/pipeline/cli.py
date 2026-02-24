@@ -23,7 +23,7 @@ from stockdownloader.app.pipeline.stages import (
 )
 from stockdownloader.strategy.registration_loader import ensure_registered
 from stockdownloader.strategy.base_registry import StrategyRegistry
-from stockdownloader.util.io import TeeWriter
+from stockdownloader.core.io import TeeWriter
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 
-from stockdownloader.model.trade import Direction
+from stockdownloader.core.models.trade import Direction
 from stockdownloader.strategy.intraday.session_state import SessionState
 
 

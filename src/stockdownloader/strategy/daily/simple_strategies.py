@@ -25,7 +25,7 @@ from stockdownloader.util.pinescript.models import (
 )
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 
 # ── RSIStrategy ─────────────────────────────────────────────────────────

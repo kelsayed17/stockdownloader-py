@@ -25,16 +25,16 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.trade import HOLD, IntradaySignal
+from stockdownloader.core.models.trade import HOLD, IntradaySignal
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.regime.regime_detector import (
     MarketRegime,
     MarketRegimeDetector,
 )
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
+    from stockdownloader.core.models.price import IntradayPriceData
 
 class DrawdownPositionScaler:
     """Scale position size based on recent equity drawdown.

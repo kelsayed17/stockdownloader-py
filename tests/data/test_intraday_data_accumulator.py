@@ -15,7 +15,7 @@ from stockdownloader.data.intraday_data_accumulator import (
     default_csv_path,
 )
 from stockdownloader.data.intraday_csv import write_to_file
-from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 
 
 def _bar(date: str, close: str = "600.00") -> IntradayPriceData:

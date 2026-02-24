@@ -9,9 +9,9 @@ from __future__ import annotations
 from collections import defaultdict
 from decimal import Decimal, ROUND_HALF_UP, ROUND_CEILING
 
-from stockdownloader.model.options import OptionsChain
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.financial_models import QuoteData
+from stockdownloader.core.models.options import OptionsChain
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.financial import QuoteData
 
 
 class HistoricalData:

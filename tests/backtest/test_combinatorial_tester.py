@@ -13,8 +13,8 @@ from stockdownloader.backtest.combinatorial_tester import (
     CombinatorialTester,
     ComboResult,
 )
-from stockdownloader.util.io import TeeWriter
-from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.core.io import TeeWriter
+from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.strategy.signals.signal_generator import (
     AtomicSignalGenerator,
     SignalDirection,
@@ -27,7 +27,7 @@ from stockdownloader.strategy.signals.stacked_signal_engine import (
     AggregationMode,
 )
 from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.timeframe import Timeframe
+from stockdownloader.core.timeframe import Timeframe
 
 
 # ======================================================================

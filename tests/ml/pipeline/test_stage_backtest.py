@@ -20,7 +20,7 @@ from stockdownloader.ml.pipeline.stage_backtest import BacktestStage
 from stockdownloader.ml.pipeline.stage_hybrid_strategies import (
     MLConfirmedStrategy,
 )
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 
 

@@ -5,8 +5,8 @@ from decimal import Decimal, ROUND_HALF_UP
 import pytest
 
 from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.trade import Trade, Direction
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.trade import Trade, Direction
 
 
 def test_total_return_calculation():

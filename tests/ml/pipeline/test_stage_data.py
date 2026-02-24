@@ -12,7 +12,7 @@ import pytest
 
 from stockdownloader.ml.pipeline.config import DataConfig
 from stockdownloader.ml.pipeline.stage_data import DataStage
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 
 # ------------------------------------------------------------------

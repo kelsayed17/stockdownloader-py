@@ -12,13 +12,13 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import IntradayAction
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import IntradayAction
 from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 # Real data file for integration tests
 _DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "SPY" / "5m_bars.csv"

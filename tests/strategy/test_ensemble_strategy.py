@@ -9,8 +9,8 @@ from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
 
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import (
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import (
     HOLD,
     IntradayAction,
     IntradaySignal,

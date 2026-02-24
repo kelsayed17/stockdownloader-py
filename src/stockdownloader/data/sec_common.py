@@ -81,7 +81,7 @@ def ipo_quarter_floor(symbol: str) -> tuple[int, int]:
     Uses the symbol registry IPO date.  Returns ``(2003, 1)`` as the
     default floor (EDGAR data starts around 2003).
     """
-    from stockdownloader.model.symbol_info import get_symbol_info
+    from stockdownloader.core.models.symbol import get_symbol_info
 
     info = get_symbol_info(symbol.upper())
     if info is not None and info.ipo_date:

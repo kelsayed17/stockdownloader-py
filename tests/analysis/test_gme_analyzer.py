@@ -10,9 +10,9 @@ from stockdownloader.analysis.gme import (
     detect_key_periods,
     run_event_study,
 )
-from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.regulatory_records import SecFiling
+from stockdownloader.core.models.options import OptionContract, OptionType, OptionsChain
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.regulatory import SecFiling
 
 _D = Decimal
 

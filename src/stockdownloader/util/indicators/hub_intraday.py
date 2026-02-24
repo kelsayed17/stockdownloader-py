@@ -14,7 +14,7 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
-from stockdownloader.util.math import ZERO, quantize as _quantize
+from stockdownloader.core.math import ZERO, quantize as _quantize
 from stockdownloader.util.indicators._core import ema as _ema
 from stockdownloader.util.indicators import volume, intraday as ii
 from stockdownloader.util.indicators.volume import (
@@ -27,7 +27,7 @@ from stockdownloader.util.indicators.smc import StreamingStructureTracker
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 
 class IntraDayHubMixin:
@@ -165,7 +165,7 @@ class IntraDayHubMixin:
             if not acc.valid or avwap_val == ZERO:
                 self._cache[key] = volume._EMPTY_AVWAP
             else:
-                from stockdownloader.util.config import days_since_anchor
+                from stockdownloader.core.config import days_since_anchor
 
                 anchor_date = acc.current_anchor
                 trading_date = data[index].date[:10]

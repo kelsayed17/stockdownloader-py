@@ -38,7 +38,7 @@ from stockdownloader.data.finra_base_client import (
     _MAX_RETRIES,
     normalize_finra_date,
 )
-from stockdownloader.model.regulatory_records import DarkPoolRecord
+from stockdownloader.core.models.regulatory import DarkPoolRecord
 
 logger = logging.getLogger(__name__)
 

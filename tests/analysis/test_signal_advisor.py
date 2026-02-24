@@ -15,16 +15,16 @@ from stockdownloader.analysis.signal_advisor import (
     _map_direction,
     _position_size,
 )
-from stockdownloader.model.alert_result import (
+from stockdownloader.core.models.alert import (
     Action,
     AlertDirection,
     AlertResult,
     OptionsRecommendation,
 )
-from stockdownloader.model.indicator_values import IndicatorValues
-from stockdownloader.model.options import OptionType
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.signal_advisory import (
+from stockdownloader.core.models.indicator import IndicatorValues
+from stockdownloader.core.models.options import OptionType
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.signal import (
     AdvisoryAction,
     SignalAdvisory as SignalAdvisoryModel,
 )
@@ -33,7 +33,7 @@ from stockdownloader.strategy.regime.regime_detector import (
     RegimeClassification,
 )
 from stockdownloader.strategy.regime.regime_strategy_map import RegimeStrategyMapper
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 
 
 # ------------------------------------------------------------------

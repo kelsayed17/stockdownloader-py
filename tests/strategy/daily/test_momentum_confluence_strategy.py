@@ -3,7 +3,7 @@
 import random
 from decimal import Decimal
 
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.daily.momentum_confluence_strategy import MomentumConfluenceStrategy
 from stockdownloader.strategy.trading_strategy import Signal
 

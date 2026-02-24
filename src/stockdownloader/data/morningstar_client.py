@@ -15,7 +15,7 @@ import requests
 
 from stockdownloader.data.data_parsers import get_raw_decimal, get_raw_long, get_raw_string
 from stockdownloader.data.yahoo_base_client import YahooAuthHelper, YahooBaseClient
-from stockdownloader.model import DetailedFinancialData, FinancialData
+from stockdownloader.core.models import DetailedFinancialData, FinancialData
 
 logger = logging.getLogger(__name__)
 _QUOTE_SUMMARY_URL = (

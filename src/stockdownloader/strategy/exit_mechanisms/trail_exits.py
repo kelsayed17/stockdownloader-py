@@ -5,12 +5,12 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.exit_mechanisms.trailing_exit_base import TrailingExitBase
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 from stockdownloader.util.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
-    from stockdownloader.model.trade import TournamentTrade
+    from stockdownloader.core.models.price import IntradayPriceData
+    from stockdownloader.core.models.trade import TournamentTrade
 
 
 # ============================================================================

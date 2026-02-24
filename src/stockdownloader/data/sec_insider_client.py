@@ -46,7 +46,7 @@ from stockdownloader.data.base_client import BaseDataClient
 from stockdownloader.data import sec_common
 from stockdownloader.data import sec_insider_parsers as parsers
 from stockdownloader.data.sec_common import SplitAdjustment, splits_for_symbol
-from stockdownloader.model.regulatory_records import (
+from stockdownloader.core.models.regulatory import (
     BeneficialOwner,
     InsiderOwnershipSnapshot,
     InsiderTransaction,
@@ -224,7 +224,7 @@ class SecInsiderClient(BaseDataClient):
 
         # Auto-resolve CUSIP from registry
         if cusip is None:
-            from stockdownloader.model.symbol_info import get_symbol_info
+            from stockdownloader.core.models.symbol import get_symbol_info
             _info = get_symbol_info(symbol_upper)
             if _info is not None and _info.cusip:
                 cusip = _info.cusip
@@ -526,7 +526,7 @@ class SecInsiderClient(BaseDataClient):
         owners: list[BeneficialOwner] = []
 
         # The issuer CIK — exclude from owner identification
-        from stockdownloader.model.symbol_info import get_symbol_info
+        from stockdownloader.core.models.symbol import get_symbol_info
         issuer_ciks: set[str] = set()
         _info = get_symbol_info(symbol)
         # GameStop's CIK is 0001326380

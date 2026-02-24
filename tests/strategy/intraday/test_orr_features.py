@@ -20,9 +20,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import IntradayAction
-from stockdownloader.model.trade import Direction
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import IntradayAction
+from stockdownloader.core.models.trade import Direction
 from stockdownloader.strategy.intraday.trade_management import IntradayExitManager
 from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategyConfig
 from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy

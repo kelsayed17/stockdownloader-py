@@ -15,7 +15,7 @@ import logging
 import zipfile
 from pathlib import Path
 
-from stockdownloader.model.regulatory_records import (
+from stockdownloader.core.models.regulatory import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )

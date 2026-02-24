@@ -16,7 +16,7 @@ from stockdownloader.analysis.gme.models import (
     StructuralBreak,
     VolatilityRegime,
 )
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 __all__ = [
     "detect_volatility_regimes",

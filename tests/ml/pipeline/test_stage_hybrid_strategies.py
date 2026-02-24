@@ -25,7 +25,7 @@ from stockdownloader.ml.pipeline.stage_hybrid_strategies import (
     MLWeightedStrategy,
 )
 from stockdownloader.ml.trainer import MLModelConfig
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 
 

@@ -43,7 +43,7 @@ def _make_result_with_trades(
     win_pct: float = 0.5,
 ) -> BacktestResult:
     """Build a BacktestResult with the given number of closed trades."""
-    from stockdownloader.model import Trade, Direction
+    from stockdownloader.core.models import Trade, Direction
 
     capital = Decimal("100000")
     r = BacktestResult(name, capital)
@@ -75,7 +75,7 @@ class TestScoreFunction:
         assert isinstance(s, float)
 
     def test_higher_sharpe_gives_higher_score(self):
-        from stockdownloader.model import Trade, Direction
+        from stockdownloader.core.models import Trade, Direction
 
         # Result with moderate performance
         r1 = BacktestResult("a", Decimal("100000"))

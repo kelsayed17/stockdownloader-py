@@ -17,12 +17,12 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.trade import Direction
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.models.trade import Direction
+from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
-    from stockdownloader.model.trade import TournamentTrade
+    from stockdownloader.core.models.price import IntradayPriceData
+    from stockdownloader.core.models.trade import TournamentTrade
 
 
 # =========================================================================

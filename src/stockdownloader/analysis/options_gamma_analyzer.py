@@ -50,7 +50,7 @@ from stockdownloader.analysis.options_gex import (
     interpret_pcr,
     interpret_pcr_volume_only,
 )
-from stockdownloader.model.options import OptionsChain
+from stockdownloader.core.models.options import OptionsChain
 
 logger = logging.getLogger(__name__)
 

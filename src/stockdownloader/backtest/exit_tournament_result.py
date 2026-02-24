@@ -9,11 +9,11 @@ from __future__ import annotations
 from decimal import Decimal
 from operator import attrgetter, itemgetter
 
-from stockdownloader.model.exit_mechanism_result import (
+from stockdownloader.core.models.exit_result import (
     ExitMechanismSummary,
     ExitMechanismTradeResult,
 )
-from stockdownloader.model.trade import Direction
+from stockdownloader.core.models.trade import Direction
 
 
 class ExitTournamentResult:

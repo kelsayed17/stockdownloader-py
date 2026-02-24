@@ -32,7 +32,7 @@ from typing import Any
 
 import requests
 
-from stockdownloader.model import OptionContract, OptionsChain, OptionType
+from stockdownloader.core.models import OptionContract, OptionsChain, OptionType
 
 logger = logging.getLogger(__name__)
 

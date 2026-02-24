@@ -4,10 +4,10 @@ Provides the base classes for both daily and intraday trading strategies:
 
 - :class:`Signal` — BUY/SELL/HOLD enum for daily strategies
 - :class:`TradingStrategy` — ABC for daily strategies operating on
-  :class:`~stockdownloader.model.price_data.PriceData` bars
+  :class:`~stockdownloader.core.models.price.PriceData` bars
 - :class:`IntradayTradingStrategy` — ABC for intraday strategies operating on
-  :class:`~stockdownloader.model.price_data.IntradayPriceData` bars and
-  returning rich :class:`~stockdownloader.model.trade.IntradaySignal` objects
+  :class:`~stockdownloader.core.models.price.IntradayPriceData` bars and
+  returning rich :class:`~stockdownloader.core.models.trade.IntradaySignal` objects
 """
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ from typing import TYPE_CHECKING
 from stockdownloader.util.pinescript.models import StrategyDefinition
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData, PriceData
-    from stockdownloader.model.trade import IntradaySignal
+    from stockdownloader.core.models.price import IntradayPriceData, PriceData
+    from stockdownloader.core.models.trade import IntradaySignal
 
 
 class Signal(Enum):

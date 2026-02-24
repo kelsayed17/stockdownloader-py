@@ -14,7 +14,7 @@ from stockdownloader.strategy.signals.signal_generator import (
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
     from stockdownloader.util.indicators.hub import IndicatorHub
 
 

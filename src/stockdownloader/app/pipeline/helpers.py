@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.util.io import TeeWriter
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.io import TeeWriter
 
 
 def make_print_fn(tee: TeeWriter | None):
@@ -31,7 +31,7 @@ def load_intraday_data(csv_path: str, out) -> list[IntradayPriceData]:
 
 def load_daily_data(intraday_data: list[IntradayPriceData], out):
     """Aggregate 5-min bars to daily PriceData for options backtesting."""
-    from stockdownloader.util.timeframe import TimeframeAggregator, Timeframe
+    from stockdownloader.core.timeframe import TimeframeAggregator, Timeframe
     out("Aggregating 5-min bars to daily for options strategies...")
     agg = TimeframeAggregator(intraday_data)
     daily = agg.as_price_data(Timeframe.DAILY)

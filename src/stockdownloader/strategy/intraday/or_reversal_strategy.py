@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.trade import IntradaySignal
+from stockdownloader.core.models.trade import IntradaySignal
 from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
 from stockdownloader.strategy.intraday.trade_management import (
     IntradayExitManager,
@@ -27,12 +27,12 @@ from stockdownloader.strategy.intraday.session_state import BarContext
 from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import VwapRatchetTrail
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
-from stockdownloader.util.math import TWO, ZERO
+from stockdownloader.core.math import TWO, ZERO
 from stockdownloader.util.pinescript.models import ModeDefinition
 from stockdownloader.util.pinescript.modes import orr_mode
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
+    from stockdownloader.core.models.price import IntradayPriceData
     from stockdownloader.strategy.intraday.session_state import SessionState
 
 

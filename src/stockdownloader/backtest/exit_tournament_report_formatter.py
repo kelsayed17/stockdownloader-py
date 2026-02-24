@@ -9,7 +9,7 @@ from operator import attrgetter
 from stockdownloader.backtest.report_helpers import scale2 as _s2, scale3 as _s3
 
 from stockdownloader.backtest.exit_tournament_result import ExitTournamentResult
-from stockdownloader.model.exit_mechanism_result import ExitMechanismSummary
+from stockdownloader.core.models.exit_result import ExitMechanismSummary
 
 
 # ------------------------------------------------------------------

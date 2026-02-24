@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 from stockdownloader.util.indicators.smc import _EMPTY_STRUCTURE
 from stockdownloader.util.indicators.smc import StreamingStructureTracker
 

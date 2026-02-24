@@ -5,8 +5,8 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.backtest.exit_tournament_engine import ExitTournamentEngine
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import Direction, TournamentTrade
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import Direction, TournamentTrade
 from stockdownloader.strategy.exit_mechanisms import TrailingStopExit
 
 

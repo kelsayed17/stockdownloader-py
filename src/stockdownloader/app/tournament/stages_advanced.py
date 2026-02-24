@@ -25,7 +25,7 @@ from stockdownloader.backtest.portfolio_analyzer import (
     portfolio_metrics,
     select_portfolio,
 )
-from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.strategy.regime.regime_detector import MarketRegime
 from stockdownloader.strategy.regime.regime_strategy_map import RegimeStrategyMapper
 

@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pytest
 
 from stockdownloader.data.sec_insider_client import SecInsiderClient
-from stockdownloader.model.regulatory_records import (
+from stockdownloader.core.models.regulatory import (
     BeneficialOwner,
     InsiderTransaction,
 )

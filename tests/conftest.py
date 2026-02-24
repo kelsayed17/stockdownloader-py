@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 
 TEST_DATA_DIR = Path(__file__).parent

@@ -4,11 +4,11 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.exit_mechanism_result import (
+from stockdownloader.core.models.exit_result import (
     ExitMechanismTradeResult,
     ExitMechanismSummary,
 )
-from stockdownloader.model.trade import Direction
+from stockdownloader.core.models.trade import Direction
 
 
 def _make_result(pnl, capture=50, mechanism="TEST", trade_id=1, direction=Direction.LONG,

@@ -7,9 +7,9 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.trade import IntradayAction, IntradaySignal, HOLD
-from stockdownloader.model.trade import Direction, TradeStatus
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.trade import IntradayAction, IntradaySignal, HOLD
+from stockdownloader.core.models.trade import Direction, TradeStatus
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 
 # All existing tests use slippage_pct=0 to verify core engine logic.

@@ -10,7 +10,7 @@ import pytest
 from stockdownloader.ml.pipeline.config import TrainingGridConfig
 from stockdownloader.ml.pipeline.results import DataResult
 from stockdownloader.ml.pipeline.stage_training import TrainingStage
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 
 # ------------------------------------------------------------------

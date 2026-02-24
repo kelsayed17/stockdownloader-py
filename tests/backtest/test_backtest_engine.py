@@ -5,8 +5,8 @@ from decimal import Decimal
 import pytest
 
 from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.trade import TradeStatus
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.trade import TradeStatus
 from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 

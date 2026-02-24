@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import HUNDRED, TWO, ZERO, quantize
+from stockdownloader.core.math import HUNDRED, TWO, ZERO, quantize
 from stockdownloader.util.indicators._core import (
     _deduplicate_levels,
     _period_midpoint,
@@ -22,7 +22,7 @@ from stockdownloader.util.indicators._core import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 __all__ = [
     # Batch

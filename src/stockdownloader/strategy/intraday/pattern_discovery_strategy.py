@@ -24,7 +24,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.analysis.pattern_encoder import BarEncoder, BarFeatures
-from stockdownloader.model.trade import IntradaySignal
+from stockdownloader.core.models.trade import IntradaySignal
 from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
 from stockdownloader.strategy.intraday.trade_management import (
     IntradayExitManager,
@@ -35,7 +35,7 @@ from stockdownloader.strategy.intraday.session_state import BarContext
 from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import VwapRatchetTrail
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 from stockdownloader.util.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
@@ -43,7 +43,7 @@ if TYPE_CHECKING:
         DiscoveredPattern,
         PatternCatalog,
     )
-    from stockdownloader.model.price_data import IntradayPriceData
+    from stockdownloader.core.models.price import IntradayPriceData
 
 
 @dataclass(frozen=True, slots=True)

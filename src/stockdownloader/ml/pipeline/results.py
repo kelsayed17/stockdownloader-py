@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from stockdownloader.backtest.backtest_result import BacktestResult
     from stockdownloader.ml.dataset_builder import LabelConfig, MLDataset
     from stockdownloader.ml.trainer import MLModelConfig, TrainingResult
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
     from stockdownloader.strategy.trading_strategy import TradingStrategy
 
 

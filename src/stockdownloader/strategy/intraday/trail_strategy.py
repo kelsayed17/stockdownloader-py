@@ -11,10 +11,10 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
+    from stockdownloader.core.models.price import IntradayPriceData
     from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
     from stockdownloader.strategy.intraday.session_state import SessionState
     from stockdownloader.util.indicators.volume import ExtendedSessionVWAP

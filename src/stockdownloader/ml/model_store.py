@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from stockdownloader.util.config import DEFAULT_MODELS_DIR
+from stockdownloader.core.config import DEFAULT_MODELS_DIR
 
 try:
     import joblib

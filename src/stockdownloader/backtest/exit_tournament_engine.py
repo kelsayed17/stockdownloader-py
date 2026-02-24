@@ -14,13 +14,13 @@ from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
 from stockdownloader.backtest.exit_tournament_result import ExitTournamentResult
-from stockdownloader.model.exit_mechanism_result import ExitMechanismTradeResult
-from stockdownloader.model.trade import Direction
-from stockdownloader.util.math import HUNDRED, ZERO
+from stockdownloader.core.models.exit_result import ExitMechanismTradeResult
+from stockdownloader.core.models.trade import Direction
+from stockdownloader.core.math import HUNDRED, ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
-    from stockdownloader.model.trade import TournamentTrade
+    from stockdownloader.core.models.price import IntradayPriceData
+    from stockdownloader.core.models.trade import TournamentTrade
     from stockdownloader.strategy.exit_mechanisms.trailing_exit_base import ExitMechanism
 
 logger = logging.getLogger(__name__)

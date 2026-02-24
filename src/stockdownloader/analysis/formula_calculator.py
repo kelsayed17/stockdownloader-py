@@ -7,7 +7,7 @@ import math
 from dataclasses import dataclass, field
 from decimal import Decimal, ROUND_HALF_UP
 
-from stockdownloader.util.math import (
+from stockdownloader.core.math import (
     ONE,
     ZERO,
     average,
@@ -19,8 +19,8 @@ from stockdownloader.util.math import (
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from stockdownloader.model.unified_market_data import FinancialData, HistoricalData
-    from stockdownloader.model.financial_models import QuoteData
+    from stockdownloader.core.models.market_data import FinancialData, HistoricalData
+    from stockdownloader.core.models.financial import QuoteData
 
 DEFAULT_FIXED_EPS_GROWTH = Decimal("0.06")
 DEFAULT_DESIRED_RETURN = Decimal("0.05")

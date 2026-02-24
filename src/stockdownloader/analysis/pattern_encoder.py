@@ -23,10 +23,10 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
+    from stockdownloader.core.models.price import IntradayPriceData
     from stockdownloader.strategy.regime.regime_detector import MarketRegime
     from stockdownloader.util.indicators.hub import IndicatorHub
 

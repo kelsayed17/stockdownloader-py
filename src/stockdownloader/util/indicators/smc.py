@@ -11,12 +11,12 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 __all__ = [
     # Data structures

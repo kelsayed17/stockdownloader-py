@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 from stockdownloader.data.sec_ownership_client import SecOwnershipClient
 from stockdownloader.data.sec_ownership_parsers import find_infotable_url
-from stockdownloader.model.regulatory_records import (
+from stockdownloader.core.models.regulatory import (
     InstitutionalHolding,
     OwnershipSnapshot,
 )

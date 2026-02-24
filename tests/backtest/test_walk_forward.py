@@ -13,7 +13,7 @@ from stockdownloader.backtest.walk_forward import (
     WalkForwardWindow,
     WalkForwardResult,
 )
-from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 
 
 # ---------------------------------------------------------------------------

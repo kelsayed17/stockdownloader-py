@@ -10,7 +10,7 @@ import pytest
 
 from stockdownloader.ml.dataset_builder import DatasetBuilder, LabelConfig, MLDataset
 from stockdownloader.ml.feature_extractor import FeatureExtractor
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 
 # ------------------------------------------------------------------

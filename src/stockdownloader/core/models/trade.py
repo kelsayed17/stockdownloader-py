@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from enum import Enum
 
-from stockdownloader.util.math import HUNDRED, ZERO
+from stockdownloader.core.math import HUNDRED, ZERO
 
 
 class Direction(Enum):

@@ -19,7 +19,7 @@ from stockdownloader.ml.feature_extractor import (
     _SIGNAL_NAMES,
     _safe_div,
 )
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 
 # ------------------------------------------------------------------

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.model.regulatory_records import OccOpenInterestRecord
+from stockdownloader.core.models.regulatory import OccOpenInterestRecord
 
 
 class TestOccOpenInterestRecord:

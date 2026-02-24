@@ -7,7 +7,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
     from stockdownloader.util.indicators.hub import IndicatorHub
 
 

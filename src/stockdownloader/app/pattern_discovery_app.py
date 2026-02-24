@@ -40,12 +40,12 @@ from stockdownloader.backtest.tournament_engine import (
     classify_timeframe_bars,
     run_monte_carlo,
 )
-from stockdownloader.util.config import INITIAL_CAPITAL, RISK_PER_TRADE
+from stockdownloader.core.config import INITIAL_CAPITAL, RISK_PER_TRADE
 from stockdownloader.backtest.walk_forward import WalkForwardValidator
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.util.io import TeeWriter
+from stockdownloader.core.io import TeeWriter
 from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
+from stockdownloader.core.timeframe import Timeframe, TimeframeAggregator
 
 from stockdownloader.app.app_helpers import (
     DEFAULT_DATA_FILE as _DATA_FILE,

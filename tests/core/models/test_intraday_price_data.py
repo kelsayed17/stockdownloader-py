@@ -4,8 +4,8 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.price import PriceData
 
 
 def _make_intraday(dt_str="2025-11-13 09:30:00-05:00", close="680.06"):

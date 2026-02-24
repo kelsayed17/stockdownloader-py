@@ -12,7 +12,7 @@ from stockdownloader.backtest.walk_forward_optimizer import (
     WalkForwardOptimizer,
     WFOptResult,
 )
-from stockdownloader.model.price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 
 
 # ---------------------------------------------------------------------------

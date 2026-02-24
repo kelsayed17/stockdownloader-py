@@ -35,7 +35,7 @@ from stockdownloader.data.morningstar_client import MorningstarClient
 from stockdownloader.data.stock_list_downloader import StockListDownloader
 from stockdownloader.data.yahoo_base_client import YahooAuthHelper
 from stockdownloader.data.yahoo_finance_client import YahooFinanceClient
-from stockdownloader.model.financial_models import ValueScreenerResult
+from stockdownloader.core.models.financial import ValueScreenerResult
 
 logger = logging.getLogger(__name__)
 

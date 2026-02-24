@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from stockdownloader.model.signal_advisory import (
+from stockdownloader.core.models.signal import (
     AdvisoryAction,
     AdvisoryReasoning,
     OptionsAdvisory,

@@ -12,7 +12,7 @@ from stockdownloader.app.spy_ml_pipeline_app import (
     _build_generic_parser as _build_parser,
     main_generic as main,
 )
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 
 # ------------------------------------------------------------------

@@ -60,7 +60,7 @@ from stockdownloader.util.indicators.smc import StreamingStructureTracker
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 
 class IndicatorHub(IntraDayHubMixin):

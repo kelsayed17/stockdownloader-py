@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.model.options import (
+from stockdownloader.core.models.options import (
     OptionType,
     OptionsTrade,
     OptionsDirection,

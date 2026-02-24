@@ -17,7 +17,7 @@ import zipfile
 from pathlib import Path
 
 from stockdownloader.data.sec_parser_utils import normalize_date
-from stockdownloader.model.regulatory_records import InsiderTransaction
+from stockdownloader.core.models.regulatory import InsiderTransaction
 
 logger = logging.getLogger(__name__)
 

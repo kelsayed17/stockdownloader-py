@@ -1,0 +1,17 @@
+{
+  "stockdownloader.model.financial_models": "stockdownloader.core.models.financial",
+  "stockdownloader.model.price_data": "stockdownloader.core.models.price",
+  "stockdownloader.model.options": "stockdownloader.core.models.options",
+  "stockdownloader.model.trade": "stockdownloader.core.models.trade",
+  "stockdownloader.model.regulatory_records": "stockdownloader.core.models.regulatory",
+  "stockdownloader.model.alert_result": "stockdownloader.core.models.alert",
+  "stockdownloader.model.signal_advisory": "stockdownloader.core.models.signal",
+  "stockdownloader.model.unified_market_data": "stockdownloader.core.models.market_data",
+  "stockdownloader.model.symbol_info": "stockdownloader.core.models.symbol",
+  "stockdownloader.model.indicator_values": "stockdownloader.core.models.indicator",
+  "stockdownloader.model.exit_mechanism_result": "stockdownloader.core.models.exit_result",
+  "stockdownloader.util.math": "stockdownloader.core.math",
+  "stockdownloader.util.config": "stockdownloader.core.config",
+  "stockdownloader.util.io": "stockdownloader.core.io",
+  "stockdownloader.util.timeframe": "stockdownloader.core.timeframe"
+}

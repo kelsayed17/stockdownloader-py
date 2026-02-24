@@ -24,7 +24,7 @@ from stockdownloader.ml.feature_extractor import FeatureExtractor
 from stockdownloader.util.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 try:
     import numpy as np

@@ -26,7 +26,7 @@ from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 from stockdownloader.util.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 
 class StackedDailyStrategy(TradingStrategy):

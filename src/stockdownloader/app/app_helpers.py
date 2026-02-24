@@ -18,16 +18,16 @@ from typing import Callable
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.data.yahoo_data_client import YahooDataClient
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.config import (
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.config import (
     DEFAULT_DATA_FILE,
     DEFAULT_OUTPUT_DIR,
     INITIAL_CAPITAL,
     OPTIONS_COMMISSION,
     RISK_PER_TRADE,
 )
-from stockdownloader.util.timeframe import Timeframe
+from stockdownloader.core.timeframe import Timeframe
 
 logger = logging.getLogger(__name__)
 

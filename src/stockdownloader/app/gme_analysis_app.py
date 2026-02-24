@@ -50,11 +50,11 @@ from stockdownloader.analysis.alert_generator import generate_alert
 from stockdownloader.data.sec_edgar_client import SecEdgarClient
 from stockdownloader.data.yahoo_data_client import YahooDataClient
 from stockdownloader.data.yahoo_options_client import YahooOptionsClient
-from stockdownloader.model.alert_result import AlertResult
-from stockdownloader.model.price_data import IntradayPriceData
-from stockdownloader.model.options import OptionsChain
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.regulatory_records import SecFiling
+from stockdownloader.core.models.alert import AlertResult
+from stockdownloader.core.models.price import IntradayPriceData
+from stockdownloader.core.models.options import OptionsChain
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.regulatory import SecFiling
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ class _TeeWriter:
     """
 
     def __init__(self, log_path: str | None = None) -> None:
-        from stockdownloader.util.io import TeeWriter
+        from stockdownloader.core.io import TeeWriter
 
         self._file = open(log_path, "w") if log_path else None  # noqa: SIM115
         self._tee: TeeWriter | None = TeeWriter(self._file) if self._file else None

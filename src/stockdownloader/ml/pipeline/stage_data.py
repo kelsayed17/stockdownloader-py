@@ -17,7 +17,7 @@ from typing import Callable
 
 from stockdownloader.ml.pipeline.config import AltDataConfig, DataConfig
 from stockdownloader.ml.pipeline.results import DataResult
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.core.models.price import PriceData
 
 logger = logging.getLogger(__name__)
 

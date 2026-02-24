@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.model.trade import IntradaySignal
+from stockdownloader.core.models.trade import IntradaySignal
 from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
 from stockdownloader.strategy.intraday.trade_management import (
     IntradayExitManager,
@@ -29,10 +29,10 @@ from stockdownloader.util.indicators.smc import (
     is_liquidity_sweep_high,
     is_liquidity_sweep_low,
 )
-from stockdownloader.util.math import ZERO
+from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:
-    from stockdownloader.model.price_data import IntradayPriceData
+    from stockdownloader.core.models.price import IntradayPriceData
 
 
 @dataclass(frozen=True, slots=True)

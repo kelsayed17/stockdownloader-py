@@ -10,13 +10,13 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.math import HUNDRED, ONE, ZERO, quantize
+from stockdownloader.core.math import HUNDRED, ONE, ZERO, quantize
 from stockdownloader.util.indicators._core import ema as _ema
 from stockdownloader.util.indicators.volatility import StreamingEMA
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from stockdownloader.model.price_data import PriceData
+    from stockdownloader.core.models.price import PriceData
 
 __all__ = [
     # Batch

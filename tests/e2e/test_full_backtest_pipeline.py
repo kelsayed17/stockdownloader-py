@@ -16,13 +16,13 @@ from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.backtest.report_formatter import print_daily_report, print_daily_comparison
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.data.data_parsers import CsvPriceDataLoader
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.trade import Trade, Direction, TradeStatus
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.trade import Trade, Direction, TradeStatus
 from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
 from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.trading_strategy import TradingStrategy
-from stockdownloader.util.math import percent_change
+from stockdownloader.core.math import percent_change
 from stockdownloader.util.indicators import sma, ema
 
 INITIAL_CAPITAL = Decimal("100000.00")
