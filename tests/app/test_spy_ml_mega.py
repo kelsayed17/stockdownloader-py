@@ -111,3 +111,23 @@ class TestMegaParser:
         args = parser.parse_args(["--buy-thresh", "0.60", "--sell-thresh", "0.40"])
         assert args.buy_thresh == 0.60
         assert args.sell_thresh == 0.40
+
+    def test_walk_forward_windows_default(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.walk_forward_windows == 5
+
+    def test_walk_forward_windows_custom(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--walk-forward-windows", "3"])
+        assert args.walk_forward_windows == 3
+
+    def test_no_walk_forward_default_false(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.no_walk_forward is False
+
+    def test_no_walk_forward_flag(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--no-walk-forward"])
+        assert args.no_walk_forward is True

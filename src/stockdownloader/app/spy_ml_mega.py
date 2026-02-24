@@ -150,6 +150,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Skip tournament backtest",
     )
 
+    # Walk-forward backtest
+    parser.add_argument(
+        "--walk-forward-windows", type=int, default=5,
+        help="Number of expanding windows for walk-forward backtest (default: 5)",
+    )
+    parser.add_argument(
+        "--no-walk-forward", action="store_true",
+        help="Use in-sample backtest instead of walk-forward (faster but biased)",
+    )
+
     return parser
 
 
@@ -180,7 +190,10 @@ def main(argv: list[str] | None = None) -> None:
         spy_ml_ensemble_strategy,
     )
     from stockdownloader.pinescript.generator import PineScriptGenerator
-    from stockdownloader.app.spy_ml_ensemble import _run_tournament
+    from stockdownloader.app.spy_ml_ensemble import (
+        _run_tournament_insample,
+        _run_tournament_walk_forward,
+    )
 
     t0 = time.time()
     grid = _QUICK_GRID if args.quick else _FULL_GRID
@@ -197,6 +210,11 @@ def main(argv: list[str] | None = None) -> None:
           f"features={args.top_features}, min_leaf={args.min_leaf}")
     print(f"  Thresholds:       buy={args.buy_thresh}, sell={args.sell_thresh}")
     print(f"  Capital:          ${args.initial_capital:,.0f}")
+    if not args.no_tournament:
+        bt_mode = "in-sample" if args.no_walk_forward else (
+            f"walk-forward ({args.walk_forward_windows} windows)"
+        )
+        print(f"  Backtest:         {bt_mode}")
     print(f"  Output:           {output_dir}")
     print()
 
@@ -350,11 +368,28 @@ def main(argv: list[str] | None = None) -> None:
 
     # Tournament
     if not args.no_tournament:
-        _run_tournament(
-            dataset.X, dataset.dates, daily_data, exporter,
-            args.buy_thresh, args.sell_thresh,
-            initial_capital=args.initial_capital,
-        )
+        if args.no_walk_forward:
+            # In-sample backtest (fast but has look-ahead bias)
+            _run_tournament_insample(
+                dataset.X, dataset.dates, daily_data, exporter,
+                args.buy_thresh, args.sell_thresh,
+                initial_capital=args.initial_capital,
+            )
+        else:
+            # Walk-forward backtest (proper OOS — default)
+            _run_tournament_walk_forward(
+                dataset, daily_data, grid,
+                args.n_estimators, args.max_depth,
+                args.buy_thresh, args.sell_thresh,
+                initial_capital=args.initial_capital,
+                top_models=args.top_models,
+                diversity_weight=args.diversity_weight,
+                use_select_diverse=True,
+                surrogate_depth=args.depth,
+                surrogate_min_leaf=args.min_leaf,
+                surrogate_top_features=args.top_features,
+                n_windows=args.walk_forward_windows,
+            )
 
     # Summary
     elapsed = time.time() - t0

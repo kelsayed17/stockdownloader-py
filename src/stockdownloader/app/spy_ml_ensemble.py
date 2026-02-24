@@ -117,58 +117,75 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Skip tournament backtest comparison",
     )
 
+    # Walk-forward backtest
+    parser.add_argument(
+        "--walk-forward-windows", type=int, default=5,
+        help="Number of expanding windows for walk-forward backtest (default: 5)",
+    )
+    parser.add_argument(
+        "--no-walk-forward", action="store_true",
+        help="Use in-sample backtest instead of walk-forward (faster but biased)",
+    )
+
     return parser
 
 
 # ======================================================================
-# Tournament (simple backtest)
+# Portfolio backtest engine
 # ======================================================================
 
 
-def _run_tournament(
-    dataset_X,  # numpy ndarray
-    dataset_dates: tuple[str, ...],
+def _run_portfolio_backtest(
+    predictions,  # numpy 1-D ndarray of probabilities
+    dates: tuple[str, ...],
     daily_data: list,
-    surrogate,  # DeepSurrogateExporter
     buy_thresh: float,
     sell_thresh: float,
     initial_capital: float = 100_000.0,
-) -> None:
-    """Run a portfolio-level walk-through backtest on surrogate predictions.
+    label: str = "Portfolio Backtest",
+) -> dict[str, float]:
+    """Run portfolio backtest on pre-generated predictions.
 
     Uses proper position sizing: ``shares = floor(capital / price)``.
-    Goes long when surrogate prob > *buy_thresh*, short when < *sell_thresh*.
-    Exits to flat when probability returns to neutral zone (between thresholds).
-    Tracks portfolio equity, return %, win rate, max drawdown, and Sharpe ratio.
+    Goes long when prob > *buy_thresh*, short when < *sell_thresh*.
+    Exits to flat when probability returns to neutral zone.
+    Tracks portfolio equity, return %, win rate, max drawdown, and Sharpe.
 
     Parameters
     ----------
-    dataset_X:
-        Feature matrix (n_samples, n_features).
-    dataset_dates:
-        Tuple of date strings aligned with *dataset_X*.
+    predictions:
+        1-D array of probability predictions aligned with *dates*.
+    dates:
+        Tuple of date strings aligned with *predictions*.
     daily_data:
         List of price bars (each with ``.date`` and ``.close``).
-    surrogate:
-        Trained :class:`DeepSurrogateExporter`.
     buy_thresh:
-        Go long when prob > buy_thresh (default 0.55).
+        Go long when prob > buy_thresh.
     sell_thresh:
-        Go short when prob < sell_thresh (default 0.45).
+        Go short when prob < sell_thresh.
     initial_capital:
-        Starting portfolio value in dollars (default 100,000).
+        Starting portfolio value in dollars.
+    label:
+        Banner label for printed output.
+
+    Returns
+    -------
+    dict[str, float]
+        Metrics dict with keys: n_trades, win_rate, initial_capital,
+        final_equity, total_return_pct, total_return_dollar,
+        max_drawdown_pct, max_drawdown_dollar, sharpe,
+        avg_hold_bars, avg_trade_pnl, best_trade, worst_trade.
     """
     import math
 
     import numpy as np
 
     print("\n" + "=" * 60)
-    print("TOURNAMENT: Portfolio Backtest")
+    print(f"TOURNAMENT: {label}")
     print("=" * 60)
     print(f"  Initial capital: ${initial_capital:,.0f}")
     print(f"  Thresholds:      buy>{buy_thresh:.2f}  sell<{sell_thresh:.2f}")
-
-    preds = surrogate.predict(dataset_X)
+    print(f"  Predictions:     {len(predictions)} samples")
 
     # Build a date-to-close map from daily_data
     date_close: dict[str, float] = {}
@@ -183,14 +200,15 @@ def _run_tournament(
     trades_pnl: list[float] = []  # dollar PnL per trade
     equity_curve: list[float] = [initial_capital]
 
+    preds = predictions
     for i in range(len(preds) - 1):
         prob = float(preds[i])
-        dt = dataset_dates[i]
+        dt = dates[i]
         close = date_close.get(dt)
         if close is None:
             continue
 
-        next_dt = dataset_dates[i + 1]
+        next_dt = dates[i + 1]
         next_close = date_close.get(next_dt)
         if next_close is None:
             continue
@@ -256,8 +274,8 @@ def _run_tournament(
                 equity_curve.append(mark)
 
     # Close final position at last available price
-    if position != 0 and len(dataset_dates) > 0:
-        last_dt = dataset_dates[-1]
+    if position != 0 and len(dates) > 0:
+        last_dt = dates[-1]
         last_close = date_close.get(last_dt)
         if last_close is not None:
             if position == 1:
@@ -274,9 +292,18 @@ def _run_tournament(
     # ------------------------------------------------------------------
     # Compute metrics
     # ------------------------------------------------------------------
+    _EMPTY_METRICS: dict[str, float] = {
+        "n_trades": 0, "win_rate": 0.0,
+        "initial_capital": initial_capital, "final_equity": initial_capital,
+        "total_return_pct": 0.0, "total_return_dollar": 0.0,
+        "max_drawdown_pct": 0.0, "max_drawdown_dollar": 0.0,
+        "sharpe": 0.0, "avg_hold_bars": 0.0,
+        "avg_trade_pnl": 0.0, "best_trade": 0.0, "worst_trade": 0.0,
+    }
+
     if not trades_pnl:
         print("  No trades generated.")
-        return
+        return _EMPTY_METRICS
 
     trades_arr = np.array(trades_pnl)
     n_trades = len(trades_pnl)
@@ -331,6 +358,340 @@ def _run_tournament(
     print(f"  Best trade:      ${float(np.max(trades_arr)):>+12,.2f}")
     print(f"  Worst trade:     ${float(np.min(trades_arr)):>+12,.2f}")
 
+    return {
+        "n_trades": n_trades,
+        "win_rate": win_rate,
+        "initial_capital": initial_capital,
+        "final_equity": final_equity,
+        "total_return_pct": total_return_pct,
+        "total_return_dollar": total_return_dollar,
+        "max_drawdown_pct": max_drawdown_pct,
+        "max_drawdown_dollar": max_drawdown_dollar,
+        "sharpe": sharpe,
+        "avg_hold_bars": avg_hold,
+        "avg_trade_pnl": float(np.mean(trades_arr)),
+        "best_trade": float(np.max(trades_arr)),
+        "worst_trade": float(np.min(trades_arr)),
+    }
+
+
+# ======================================================================
+# In-sample tournament (has look-ahead bias)
+# ======================================================================
+
+
+def _run_tournament_insample(
+    dataset_X,  # numpy ndarray
+    dataset_dates: tuple[str, ...],
+    daily_data: list,
+    surrogate,  # DeepSurrogateExporter
+    buy_thresh: float,
+    sell_thresh: float,
+    initial_capital: float = 100_000.0,
+) -> dict[str, float]:
+    """Run in-sample tournament backtest (has look-ahead bias).
+
+    WARNING: This generates predictions from the surrogate trained on the
+    *full* dataset, then backtests on that same data.  Results are inflated
+    and not representative of live trading performance.  Use
+    :func:`_run_tournament_walk_forward` for realistic OOS results.
+
+    Parameters
+    ----------
+    dataset_X:
+        Feature matrix (n_samples, n_features).
+    dataset_dates:
+        Tuple of date strings aligned with *dataset_X*.
+    daily_data:
+        List of price bars (each with ``.date`` and ``.close``).
+    surrogate:
+        Trained :class:`DeepSurrogateExporter`.
+    buy_thresh:
+        Go long when prob > buy_thresh.
+    sell_thresh:
+        Go short when prob < sell_thresh.
+    initial_capital:
+        Starting portfolio value in dollars.
+
+    Returns
+    -------
+    dict[str, float]
+        Metrics dict from :func:`_run_portfolio_backtest`.
+    """
+    preds = surrogate.predict(dataset_X)
+    return _run_portfolio_backtest(
+        preds, dataset_dates, daily_data,
+        buy_thresh, sell_thresh,
+        initial_capital=initial_capital,
+        label="In-sample Backtest (WARNING: has look-ahead bias)",
+    )
+
+
+# Backward-compatibility alias — will be removed once all callers migrate.
+_run_tournament = _run_tournament_insample
+
+
+# ======================================================================
+# Walk-forward prediction generator
+# ======================================================================
+
+
+def _generate_walk_forward_predictions(
+    dataset,  # MLDataset
+    daily_data: list,
+    grid: list[tuple[str, bool]],
+    n_estimators: int,
+    max_depth: int,
+    *,
+    top_models: int = 3,
+    diversity_weight: float = 0.4,
+    use_select_diverse: bool = False,
+    surrogate_depth: int = 10,
+    surrogate_min_leaf: int = 10,
+    surrogate_top_features: int = 25,
+    n_windows: int = 5,
+    min_train_ratio: float = 0.5,
+):
+    """Generate truly out-of-sample predictions via expanding-window walk-forward.
+
+    For each window the entire pipeline is re-run from scratch: train model
+    grid on past data only, build ensemble, train surrogate, then predict on
+    the unseen future window.  No future data ever leaks into predictions.
+
+    Parameters
+    ----------
+    dataset:
+        Full :class:`MLDataset` to split temporally.
+    daily_data:
+        Raw price bars (for date lookups).
+    grid:
+        Model grid as ``(model_type, use_class_balance)`` tuples.
+    n_estimators:
+        Boosting rounds for tree models.
+    max_depth:
+        Maximum tree depth.
+    top_models:
+        How many models to include in each window's ensemble.
+    diversity_weight:
+        Diversity weight for :meth:`EnsembleBuilder.select_diverse`.
+    use_select_diverse:
+        If ``True`` use diversity-aware selection; otherwise ``select_top``.
+    surrogate_depth:
+        Max depth for the per-window surrogate tree.
+    surrogate_min_leaf:
+        Min samples per leaf for the surrogate.
+    surrogate_top_features:
+        Number of top features to feed the surrogate.
+    n_windows:
+        Number of expanding windows (default 5).
+    min_train_ratio:
+        Minimum fraction of data for the first training window.
+
+    Returns
+    -------
+    tuple[numpy.ndarray, tuple[str, ...], int]
+        ``(oos_predictions, oos_dates, n_windows_used)`` — the concatenated
+        out-of-sample probability predictions, their aligned dates, and the
+        number of windows actually used.
+    """
+    import numpy as np
+
+    from stockdownloader.ml.dataset_builder import MLDataset
+    from stockdownloader.ml.deep_surrogate import DeepSurrogateExporter
+    from stockdownloader.ml.ensemble import EnsembleBuilder
+    from stockdownloader.ml.trainer import MLModelConfig, MLTrainer
+    from stockdownloader.ml.trainer_tuning import TimeSeriesExpandingCV
+
+    n_samples = dataset.X.shape[0]
+    cv = TimeSeriesExpandingCV(n_splits=n_windows, min_train_ratio=min_train_ratio)
+    folds = cv.split(n_samples)
+
+    all_oos_preds: list = []
+    all_oos_dates: list[str] = []
+    n_windows_used = 0
+
+    for fold_idx, (train_range, test_range) in enumerate(folds, 1):
+        train_idx = list(train_range)
+        test_idx = list(test_range)
+
+        print(f"\n  [Window {fold_idx}/{len(folds)}] "
+              f"Train 0..{train_idx[-1]} ({len(train_idx)} samples), "
+              f"Test {test_idx[0]}..{test_idx[-1]} ({len(test_idx)} samples)")
+
+        # -- Create train-only sub-dataset --
+        train_dataset = MLDataset(
+            X=dataset.X[train_idx],
+            y=dataset.y[train_idx],
+            dates=tuple(dataset.dates[i] for i in train_idx),
+            feature_names=dataset.feature_names,
+            label_config=dataset.label_config,
+        )
+
+        # -- Train full model grid on train data --
+        results = []
+        for model_type, use_balance in grid:
+            try:
+                config = MLModelConfig(
+                    model_type=model_type,
+                    n_estimators=n_estimators,
+                    max_depth=max_depth,
+                    use_class_balance=use_balance,
+                )
+                trainer = MLTrainer(config)
+                result = trainer.train(train_dataset)
+                results.append(result)
+            except Exception:
+                continue
+
+        if len(results) < 1:
+            print(f"    WARNING: No models trained — skipping window {fold_idx}")
+            continue
+
+        # -- Build ensemble from train results --
+        builder = EnsembleBuilder(results)
+        if use_select_diverse and len(results) >= 2:
+            ensemble = builder.select_diverse(
+                n=top_models, diversity_weight=diversity_weight,
+            )
+        else:
+            ensemble = builder.select_top(n=top_models)
+
+        # -- Train surrogate on train data using train ensemble probs --
+        train_probs = ensemble.predict_proba(train_dataset.X)
+        importances = ensemble.averaged_feature_importances()
+
+        exporter = DeepSurrogateExporter(
+            max_depth=surrogate_depth,
+            min_samples_leaf=surrogate_min_leaf,
+            top_n=surrogate_top_features,
+        )
+        exporter.train_surrogate(
+            train_dataset, importances, ensemble_probs=train_probs,
+        )
+
+        # -- Predict on test portion only (truly OOS) --
+        test_X = dataset.X[test_idx]
+        oos_preds = exporter.predict(test_X)
+        oos_dates = [dataset.dates[i] for i in test_idx]
+
+        all_oos_preds.append(oos_preds)
+        all_oos_dates.extend(oos_dates)
+        n_windows_used += 1
+
+        print(f"    Ensemble: {ensemble.n_models} models, "
+              f"OOS preds range: [{float(np.min(oos_preds)):.4f}, "
+              f"{float(np.max(oos_preds)):.4f}]")
+
+    if not all_oos_preds:
+        raise RuntimeError(
+            "Walk-forward produced no predictions — all windows failed"
+        )
+
+    concatenated = np.concatenate(all_oos_preds)
+    return concatenated, tuple(all_oos_dates), n_windows_used
+
+
+# ======================================================================
+# Walk-forward tournament orchestrator
+# ======================================================================
+
+
+def _run_tournament_walk_forward(
+    dataset,  # MLDataset
+    daily_data: list,
+    grid: list[tuple[str, bool]],
+    n_estimators: int,
+    max_depth: int,
+    buy_thresh: float,
+    sell_thresh: float,
+    *,
+    initial_capital: float = 100_000.0,
+    top_models: int = 3,
+    diversity_weight: float = 0.4,
+    use_select_diverse: bool = False,
+    surrogate_depth: int = 10,
+    surrogate_min_leaf: int = 10,
+    surrogate_top_features: int = 25,
+    n_windows: int = 5,
+    min_train_ratio: float = 0.5,
+) -> dict[str, float]:
+    """Run walk-forward tournament backtest with proper OOS predictions.
+
+    Generates truly out-of-sample predictions via expanding-window
+    walk-forward, then runs the portfolio backtest on those predictions.
+    This eliminates look-ahead bias present in the in-sample backtest.
+
+    Parameters
+    ----------
+    dataset:
+        Full :class:`MLDataset`.
+    daily_data:
+        Raw price bars.
+    grid:
+        Model grid as ``(model_type, use_class_balance)`` tuples.
+    n_estimators:
+        Boosting rounds for tree models.
+    max_depth:
+        Maximum tree depth.
+    buy_thresh:
+        Go long when prob > buy_thresh.
+    sell_thresh:
+        Go short when prob < sell_thresh.
+    initial_capital:
+        Starting portfolio value in dollars.
+    top_models:
+        Models per window ensemble.
+    diversity_weight:
+        Diversity weight for diversity-aware ensemble selection.
+    use_select_diverse:
+        Use diversity-aware selection instead of top-N.
+    surrogate_depth:
+        Surrogate tree depth per window.
+    surrogate_min_leaf:
+        Surrogate min samples per leaf.
+    surrogate_top_features:
+        Surrogate feature count.
+    n_windows:
+        Number of expanding windows.
+    min_train_ratio:
+        Minimum fraction of data for first training window.
+
+    Returns
+    -------
+    dict[str, float]
+        Metrics dict from :func:`_run_portfolio_backtest`.
+    """
+    print("\n" + "=" * 60)
+    print("WALK-FORWARD TOURNAMENT")
+    print("=" * 60)
+    print(f"  Windows:       {n_windows}")
+    print(f"  Min train:     {min_train_ratio:.0%} of data")
+    print(f"  Grid size:     {len(grid)} configs per window")
+    print(f"  Selection:     {'diverse' if use_select_diverse else 'top-N'} "
+          f"(n={top_models})")
+
+    oos_preds, oos_dates, n_used = _generate_walk_forward_predictions(
+        dataset, daily_data, grid, n_estimators, max_depth,
+        top_models=top_models,
+        diversity_weight=diversity_weight,
+        use_select_diverse=use_select_diverse,
+        surrogate_depth=surrogate_depth,
+        surrogate_min_leaf=surrogate_min_leaf,
+        surrogate_top_features=surrogate_top_features,
+        n_windows=n_windows,
+        min_train_ratio=min_train_ratio,
+    )
+
+    print(f"\n  Walk-forward complete: {n_used}/{n_windows} windows, "
+          f"{len(oos_preds)} OOS predictions")
+
+    return _run_portfolio_backtest(
+        oos_preds, oos_dates, daily_data,
+        buy_thresh, sell_thresh,
+        initial_capital=initial_capital,
+        label=f"Walk-Forward OOS ({n_used} windows)",
+    )
+
 
 # ======================================================================
 # Main pipeline
@@ -382,6 +743,11 @@ def main(argv: list[str] | None = None) -> None:
           f"features={args.top_features}, min_leaf={args.min_leaf}")
     print(f"  Thresholds:    buy={args.buy_thresh}, sell={args.sell_thresh}")
     print(f"  Capital:       ${args.initial_capital:,.0f}")
+    if not args.no_tournament:
+        bt_mode = "in-sample" if args.no_walk_forward else (
+            f"walk-forward ({args.walk_forward_windows} windows)"
+        )
+        print(f"  Backtest:      {bt_mode}")
     print(f"  Output:        {output_dir}")
     print()
 
@@ -544,15 +910,30 @@ def main(argv: list[str] | None = None) -> None:
     # [Optional] Tournament
     # ------------------------------------------------------------------
     if not args.no_tournament:
-        _run_tournament(
-            dataset.X,
-            dataset.dates,
-            daily_data,
-            exporter,
-            args.buy_thresh,
-            args.sell_thresh,
-            initial_capital=args.initial_capital,
-        )
+        if args.no_walk_forward:
+            # In-sample backtest (fast but has look-ahead bias)
+            _run_tournament_insample(
+                dataset.X,
+                dataset.dates,
+                daily_data,
+                exporter,
+                args.buy_thresh,
+                args.sell_thresh,
+                initial_capital=args.initial_capital,
+            )
+        else:
+            # Walk-forward backtest (proper OOS — default)
+            _run_tournament_walk_forward(
+                dataset, daily_data, grid,
+                args.n_estimators, args.max_depth,
+                args.buy_thresh, args.sell_thresh,
+                initial_capital=args.initial_capital,
+                top_models=args.top_models,
+                surrogate_depth=args.depth,
+                surrogate_min_leaf=args.min_leaf,
+                surrogate_top_features=args.top_features,
+                n_windows=args.walk_forward_windows,
+            )
 
     # ------------------------------------------------------------------
     # Summary
