@@ -47,9 +47,9 @@ from stockdownloader.analysis.gme import (
     run_event_study,
 )
 from stockdownloader.analysis.alert_generator import generate_alert
-from stockdownloader.data.sec_edgar_client import SecEdgarClient
-from stockdownloader.data.yahoo_data_client import YahooDataClient
-from stockdownloader.data.yahoo_options_client import YahooOptionsClient
+from stockdownloader.data.sec.edgar_client import SecEdgarClient
+from stockdownloader.data.market.yahoo_data_client import YahooDataClient
+from stockdownloader.data.market.yahoo_options_client import YahooOptionsClient
 from stockdownloader.core.models.alert import AlertResult
 from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.core.models.options import OptionsChain

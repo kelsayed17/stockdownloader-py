@@ -30,11 +30,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.analysis.value_screener import ValueScreener
-from stockdownloader.data.data_parsers import format_market_cap
-from stockdownloader.data.morningstar_client import MorningstarClient
-from stockdownloader.data.stock_list_downloader import StockListDownloader
-from stockdownloader.data.yahoo_base_client import YahooAuthHelper
-from stockdownloader.data.yahoo_finance_client import YahooFinanceClient
+from stockdownloader.data.parsers import format_market_cap
+from stockdownloader.data.market.morningstar_client import MorningstarClient
+from stockdownloader.data.stock_list import StockListDownloader
+from stockdownloader.data.market.yahoo_base_client import YahooAuthHelper
+from stockdownloader.data.market.yahoo_finance_client import YahooFinanceClient
 from stockdownloader.core.models.financial import ValueScreenerResult
 
 logger = logging.getLogger(__name__)

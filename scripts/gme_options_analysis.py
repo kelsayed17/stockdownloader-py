@@ -66,7 +66,7 @@ def load_occ_data(symbol: str = "GME") -> list[dict]:
     logger.info(
         "Run the OCC backfill first:\n"
         "  python3 -c \"\n"
-        "from stockdownloader.data.occ_options_client import OccOptionsClient\n"
+        "from stockdownloader.data.market.occ_client import OccOptionsClient\n"
         "c = OccOptionsClient()\n"
         "records = c.fetch_open_interest('GME')\n"
         "print(f'Records: {len(records)}')\n"

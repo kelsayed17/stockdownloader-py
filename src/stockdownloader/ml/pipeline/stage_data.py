@@ -230,7 +230,7 @@ class DataStage:
         # --- FTD ---
         if alt_cfg.enable_ftd:
             try:
-                from stockdownloader.data.sec_ftd_client import SecFtdClient
+                from stockdownloader.data.sec.ftd_client import SecFtdClient
 
                 client = SecFtdClient(
                     cache_dir=alt_cfg.ftd_cache_dir,
@@ -249,7 +249,7 @@ class DataStage:
         # --- Short interest ---
         if alt_cfg.enable_short_interest:
             try:
-                from stockdownloader.data.finra_short_interest_client import (
+                from stockdownloader.data.finra.short_interest_client import (
                     FinraShortInterestClient,
                 )
 
@@ -269,7 +269,7 @@ class DataStage:
         # --- Dark pool ---
         if alt_cfg.enable_dark_pool:
             try:
-                from stockdownloader.data.finra_dark_pool_client import (
+                from stockdownloader.data.finra.dark_pool_client import (
                     FinraDarkPoolClient,
                 )
 
@@ -289,7 +289,7 @@ class DataStage:
         # --- Institutional ownership ---
         if alt_cfg.enable_ownership:
             try:
-                from stockdownloader.data.sec_ownership_client import (
+                from stockdownloader.data.sec.ownership_client import (
                     SecOwnershipClient,
                 )
 
@@ -308,7 +308,7 @@ class DataStage:
         # --- Borrow rate ---
         if alt_cfg.enable_borrow_rate and si_records:
             try:
-                from stockdownloader.data.borrow_rate import (
+                from stockdownloader.data.market.borrow_rate import (
                     BorrowRateProxy,
                 )
 

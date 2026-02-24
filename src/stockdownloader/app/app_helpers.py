@@ -15,9 +15,9 @@ from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from typing import Callable
 
-from stockdownloader.data.data_parsers import CsvPriceDataLoader
+from stockdownloader.data.parsers import CsvPriceDataLoader
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.data.yahoo_data_client import YahooDataClient
+from stockdownloader.data.market.yahoo_data_client import YahooDataClient
 from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.config import (

@@ -15,7 +15,7 @@ from decimal import Decimal, ROUND_HALF_UP
 
 import pytest
 
-from stockdownloader.data.data_parsers import CsvPriceDataLoader
+from stockdownloader.data.parsers import CsvPriceDataLoader
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.math import (
     average,

@@ -103,9 +103,9 @@ def _fetch_with_aliases(
 
 def run_finra(symbols: list[str]) -> None:
     """FINRA clients: short volume, short interest, dark pool."""
-    from stockdownloader.data.finra_short_volume_client import FinraShortVolumeClient
-    from stockdownloader.data.finra_short_interest_client import FinraShortInterestClient
-    from stockdownloader.data.finra_dark_pool_client import FinraDarkPoolClient
+    from stockdownloader.data.finra.short_volume_client import FinraShortVolumeClient
+    from stockdownloader.data.finra.short_interest_client import FinraShortInterestClient
+    from stockdownloader.data.finra.dark_pool_client import FinraDarkPoolClient
 
     sv = FinraShortVolumeClient(data_dir=DATA_DIR)
     si = FinraShortInterestClient(data_dir=DATA_DIR)
@@ -149,10 +149,10 @@ def run_finra(symbols: list[str]) -> None:
 
 def run_sec(symbols: list[str]) -> None:
     """SEC clients: FTD, insider, ownership, filings."""
-    from stockdownloader.data.sec_ftd_client import SecFtdClient
-    from stockdownloader.data.sec_insider_client import SecInsiderClient
-    from stockdownloader.data.sec_ownership_client import SecOwnershipClient
-    from stockdownloader.data.sec_edgar_client import SecEdgarClient
+    from stockdownloader.data.sec.ftd_client import SecFtdClient
+    from stockdownloader.data.sec.insider_client import SecInsiderClient
+    from stockdownloader.data.sec.ownership_client import SecOwnershipClient
+    from stockdownloader.data.sec.edgar_client import SecEdgarClient
 
     ftd = SecFtdClient(cache_dir=str(Path(DATA_DIR) / "cache" / "ftd"))
     insider = SecInsiderClient(data_dir=DATA_DIR)
@@ -205,7 +205,7 @@ def run_sec(symbols: list[str]) -> None:
 
 def run_sec_ftd_only(symbols: list[str]) -> None:
     """Just FTD data for additional symbols (e.g. GMEWS)."""
-    from stockdownloader.data.sec_ftd_client import SecFtdClient
+    from stockdownloader.data.sec.ftd_client import SecFtdClient
 
     ftd = SecFtdClient(cache_dir=str(Path(DATA_DIR) / "cache" / "ftd"))
     for sym in symbols:
@@ -224,7 +224,7 @@ def run_sec_ftd_only(symbols: list[str]) -> None:
 
 def run_occ(symbols: list[str]) -> None:
     """OCC open interest client."""
-    from stockdownloader.data.occ_options_client import OccOptionsClient
+    from stockdownloader.data.market.occ_client import OccOptionsClient
 
     occ = OccOptionsClient(data_dir=DATA_DIR)
     for sym in symbols:
@@ -238,7 +238,7 @@ def run_occ(symbols: list[str]) -> None:
 
 def run_regsho(symbols: list[str]) -> None:
     """RegSHO threshold client."""
-    from stockdownloader.data.regsho_threshold_client import RegShoThresholdClient
+    from stockdownloader.data.regsho.threshold_client import RegShoThresholdClient
 
     regsho = RegShoThresholdClient(data_dir=DATA_DIR)
     for sym in symbols:
@@ -268,7 +268,7 @@ def _move_alias_data(alias: str, canonical: str) -> None:
 
 def run_polygon(symbols: list[str]) -> None:
     """Polygon daily + intraday price data."""
-    from stockdownloader.data.full_history_fetcher import FullHistoryFetcher
+    from stockdownloader.data.history_fetcher import FullHistoryFetcher
 
     fetcher = FullHistoryFetcher(cache_dir=str(Path(DATA_DIR) / "cache"))
     for sym in symbols:

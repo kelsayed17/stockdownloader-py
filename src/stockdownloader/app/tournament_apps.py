@@ -53,7 +53,7 @@ from stockdownloader.backtest.combinatorial_tester import (
     CombinatorialTester,
 )
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.data.tradingview_trade_loader import TradingViewTradeLoader
+from stockdownloader.data.tv_trade_loader import TradingViewTradeLoader
 from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
 from stockdownloader.strategy.exit_mechanisms import (
     AtrTrailExit,

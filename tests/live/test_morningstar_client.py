@@ -9,7 +9,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.data.morningstar_client import MorningstarClient
+from stockdownloader.data.market.morningstar_client import MorningstarClient
 from stockdownloader.core.models.market_data import FinancialData
 
 pytestmark = pytest.mark.live

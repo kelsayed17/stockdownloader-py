@@ -102,7 +102,7 @@ def fetch_live_data(symbol='GME'):
 
     # 1. IBKR Borrow Rate (real, not estimated)
     try:
-        from stockdownloader.data.borrow_rate import IbkrBorrowRateClient
+        from stockdownloader.data.market.borrow_rate import IbkrBorrowRateClient
         client = IbkrBorrowRateClient()
         rate = client.fetch_borrow_rate(symbol)
         if rate is not None:
@@ -128,7 +128,7 @@ def fetch_live_data(symbol='GME'):
 
     # 2a. Try Tradier first (best Greeks — real ORATS-computed)
     try:
-        from stockdownloader.data.tradier_options_client import TradierOptionsClient
+        from stockdownloader.data.market.tradier_client import TradierOptionsClient
         tradier = TradierOptionsClient()
         chain = tradier.download(symbol)
         if chain and (chain.total_volume > 0 or chain.total_call_open_interest > 0):
@@ -147,7 +147,7 @@ def fetch_live_data(symbol='GME'):
     # 2b. Fallback: Yahoo with Black-Scholes self-compute
     if chain is None:
         try:
-            from stockdownloader.data.yahoo_options_client import YahooOptionsClient
+            from stockdownloader.data.market.yahoo_options_client import YahooOptionsClient
             # compute_greeks=True enables automatic BS Greek computation
             opts_client = YahooOptionsClient(compute_greeks=True)
             chain = opts_client.download(symbol)
@@ -210,7 +210,7 @@ def fetch_live_data(symbol='GME'):
 
     # 3. FINRA Daily Short Volume
     try:
-        from stockdownloader.data.finra_short_volume_client import FinraShortVolumeClient
+        from stockdownloader.data.finra.short_volume_client import FinraShortVolumeClient
         client = FinraShortVolumeClient()
         stats = client.get_recent_stats(symbol, days=20)
         if stats and stats.get('total_days', 0) > 0:
@@ -226,7 +226,7 @@ def fetch_live_data(symbol='GME'):
 
     # 4. Reg SHO Threshold List
     try:
-        from stockdownloader.data.regsho_threshold_client import RegShoThresholdClient
+        from stockdownloader.data.regsho.threshold_client import RegShoThresholdClient
         client = RegShoThresholdClient()
         on_list = client.is_currently_on_threshold(symbol)
         records = client.fetch_threshold_status(symbol, lookback_days=90)

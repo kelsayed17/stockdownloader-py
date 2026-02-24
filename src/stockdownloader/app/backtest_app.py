@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 def _build_client(source: str, api_key: str | None = None):
     """Create a data client for the given source."""
     if source == "polygon":
-        from stockdownloader.data.polygon_data_client import PolygonDataClient
+        from stockdownloader.data.market.polygon_client import PolygonDataClient
 
         key = api_key or os.environ.get("POLYGON_API_KEY", "")
         if not key:
@@ -54,7 +54,7 @@ def _build_client(source: str, api_key: str | None = None):
             print("  Get a free key at https://polygon.io/")
             raise SystemExit(1)
         return PolygonDataClient(api_key=key)
-    from stockdownloader.data.yahoo_data_client import YahooDataClient
+    from stockdownloader.data.market.yahoo_data_client import YahooDataClient
 
     return YahooDataClient()
 
@@ -89,7 +89,7 @@ def _load_intraday_data(args, symbol: str) -> list:
         days = 730 if getattr(args, "source", "yahoo") == "polygon" else 60
 
     if getattr(args, "accumulate", False):
-        from stockdownloader.data.intraday_data_accumulator import (
+        from stockdownloader.data.accumulator import (
             IntradayDataAccumulator,
             default_csv_path,
         )
@@ -508,7 +508,7 @@ def main_accumulate() -> None:
 
     symbol = args.symbol.upper()
 
-    from stockdownloader.data.intraday_data_accumulator import (
+    from stockdownloader.data.accumulator import (
         IntradayDataAccumulator,
         default_csv_path,
     )

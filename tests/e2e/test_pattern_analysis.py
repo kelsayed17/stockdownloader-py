@@ -20,7 +20,7 @@ from math import copysign
 import pytest
 
 from stockdownloader.analysis.pattern_analyzer import analyze, print_results
-from stockdownloader.data.data_parsers import CsvPriceDataLoader
+from stockdownloader.data.parsers import CsvPriceDataLoader
 from stockdownloader.core.models.alert import PatternResult
 from stockdownloader.core.models.market_data import HistoricalData
 from stockdownloader.core.models.price import PriceData

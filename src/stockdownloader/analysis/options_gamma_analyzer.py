@@ -14,7 +14,7 @@ to compute:
 
 Usage::
 
-    from stockdownloader.data.yahoo_options_client import YahooOptionsClient
+    from stockdownloader.data.market.yahoo_options_client import YahooOptionsClient
     from stockdownloader.analysis.options_gamma_analyzer import OptionsGammaAnalyzer
 
     client = YahooOptionsClient()

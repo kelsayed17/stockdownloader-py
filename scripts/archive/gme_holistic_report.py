@@ -29,9 +29,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from stockdownloader.data.sec_ftd_client import SecFtdClient
-from stockdownloader.data.borrow_rate import BorrowRateProxy
-from stockdownloader.data.sec_insider_client import SecInsiderClient
+from stockdownloader.data.sec.ftd_client import SecFtdClient
+from stockdownloader.data.market.borrow_rate import BorrowRateProxy
+from stockdownloader.data.sec.insider_client import SecInsiderClient
 
 DATA_DIR = PROJECT_ROOT / "data"
 GME_DIR = DATA_DIR / "GME"

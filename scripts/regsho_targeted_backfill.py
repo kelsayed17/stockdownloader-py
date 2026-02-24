@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # Add src to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from stockdownloader.data.regsho_threshold_client import RegShoThresholdClient
+from stockdownloader.data.regsho.threshold_client import RegShoThresholdClient
 
 
 def load_ftd_dates(data_dir: Path, symbol: str, min_ftd: int = 10_000, min_streak: int = 5) -> list[str]:

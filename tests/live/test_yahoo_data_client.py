@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.data.yahoo_data_client import YahooDataClient
+from stockdownloader.data.market.yahoo_data_client import YahooDataClient
 from stockdownloader.core.models.price import PriceData
 
 pytestmark = pytest.mark.live

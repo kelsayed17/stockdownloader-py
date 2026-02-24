@@ -9,7 +9,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.data.data_parsers import CsvPriceDataLoader
+from stockdownloader.data.parsers import CsvPriceDataLoader
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.io import CsvParser
 

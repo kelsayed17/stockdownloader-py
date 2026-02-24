@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from stockdownloader.data.intraday_data_accumulator import (
+from stockdownloader.data.accumulator import (
     IntradayDataAccumulator,
     _merge_bars,
     default_csv_path,

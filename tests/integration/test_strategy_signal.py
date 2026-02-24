@@ -7,7 +7,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.data.data_parsers import CsvPriceDataLoader
+from stockdownloader.data.parsers import CsvPriceDataLoader
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
 from stockdownloader.strategy.daily.simple_strategies import RSIStrategy

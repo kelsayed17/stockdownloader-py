@@ -146,7 +146,7 @@ def main(argv: list[str] | None = None) -> None:
         print("Fetching daily data from Polygon.io...")
         try:
             from datetime import date as _date
-            from stockdownloader.data.polygon_data_client import PolygonDataClient
+            from stockdownloader.data.market.polygon_client import PolygonDataClient
 
             client = PolygonDataClient(api_key=app_cfg.polygon_api_key)
             today = _date.today()
