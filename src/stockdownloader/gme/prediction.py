@@ -21,7 +21,7 @@ of GME price/volume data into a tradeable TradingView indicator:
 
 Usage::
 
-    from stockdownloader.app.pinescript_catalog.gme_prediction import gme_prediction_strategy
+    from stockdownloader.gme.prediction import gme_prediction_strategy
     from stockdownloader.pinescript import PineScriptGenerator
 
     strategy = gme_prediction_strategy()

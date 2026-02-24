@@ -10,7 +10,7 @@ This reduces the number of NYSE API calls from ~4,200 to ~1,500,
 and with progress tracking, only queries dates not yet checked.
 
 Usage:
-    python3 scripts/regsho_targeted_backfill.py
+    python3 -m stockdownloader.gme.regsho_backfill
 """
 
 from __future__ import annotations
@@ -30,9 +30,6 @@ logging.basicConfig(
     force=True,
 )
 logger = logging.getLogger(__name__)
-
-# Add src to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from stockdownloader.data.regsho.threshold_client import RegShoThresholdClient
 
@@ -119,7 +116,7 @@ def load_ftd_dates(data_dir: Path, symbol: str, min_ftd: int = 10_000, min_strea
 
 
 def main() -> None:
-    data_dir = Path(__file__).resolve().parent.parent / "data"
+    data_dir = Path(__file__).resolve().parent.parent.parent.parent / "data"
     symbol = "GME"
 
     # Step 1: Generate target dates from FTD data

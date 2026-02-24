@@ -43,7 +43,7 @@ from stockdownloader.pinescript.models import (
     StrategyDefinition,
 )
 from stockdownloader.pinescript import mode_to_strategy, strategy_to_mode
-from stockdownloader.app.pinescript_catalog.gme_prediction import gme_prediction_strategy
+from stockdownloader.gme.prediction import gme_prediction_strategy
 from stockdownloader.pinescript.modes import (
     pb_mode as _pb_mode,
     rev_mode as _rev_mode,

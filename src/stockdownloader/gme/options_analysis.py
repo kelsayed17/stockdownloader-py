@@ -10,7 +10,7 @@ volume data to detect synthetic short position patterns:
 4. Correlation with FTD and short volume spikes
 
 Usage:
-    python3 scripts/gme_options_analysis.py
+    python3 -m stockdownloader.gme.options_analysis
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DATA_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data"
 SHARES_OUTSTANDING = 69_750_000  # SEC filing, Jan 30, 2021
 FREE_FLOAT = 50_650_000  # Consistent with SEC "~140%" statement
 CONTRACT_MULTIPLIER = 100  # Each options contract = 100 shares

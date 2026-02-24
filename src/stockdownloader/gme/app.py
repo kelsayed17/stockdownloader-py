@@ -10,9 +10,9 @@ Multi-stage pipeline:
 
 Usage::
 
-    python -m stockdownloader.app.gme
-    python -m stockdownloader.app.gme --skip-intraday --skip-options
-    python -m stockdownloader.app.gme --log output/gme.log
+    python -m stockdownloader.gme.app
+    python -m stockdownloader.gme.app --skip-intraday --skip-options
+    python -m stockdownloader.gme.app --log output/gme.log
 """
 
 from __future__ import annotations

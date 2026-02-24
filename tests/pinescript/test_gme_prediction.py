@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from stockdownloader.app.pinescript_catalog.gme_prediction import gme_prediction_strategy
+from stockdownloader.gme.prediction import gme_prediction_strategy
 from stockdownloader.app.pinescript_catalog.catalogs import STRATEGY_CATALOG
 from stockdownloader.pinescript import PineScriptGenerator
 
