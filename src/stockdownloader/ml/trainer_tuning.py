@@ -281,7 +281,6 @@ def run_tuning(
 
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
 
     sample_weight = None
     if trainer._config.use_class_balance:
