@@ -180,7 +180,11 @@ class MLTrainer:
         model = self._build_model()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            model.fit(X_train_scaled, y_train, sample_weight=sample_weight)
+            try:
+                model.fit(X_train_scaled, y_train, sample_weight=sample_weight)
+            except TypeError:
+                # Some models (e.g. KNN, MLP) don't support sample_weight
+                model.fit(X_train_scaled, y_train)
 
         # -- Evaluate on held-out test set --
         y_pred = model.predict(X_test_scaled)
@@ -306,11 +310,87 @@ class MLTrainer:
                 class_weight="balanced",
                 solver="lbfgs",
             )
+        if mt == "xgboost":
+            try:
+                from xgboost import XGBClassifier
+            except ImportError as exc:  # pragma: no cover
+                raise ImportError(
+                    "xgboost is required for model_type='xgboost'. "
+                    "Install it: pip install xgboost"
+                ) from exc
+            return XGBClassifier(
+                n_estimators=self._config.n_estimators,
+                max_depth=self._config.max_depth,
+                learning_rate=self._config.learning_rate,
+                eval_metric="logloss",
+                verbosity=0,
+                random_state=42,
+            )
+        if mt == "lightgbm":
+            try:
+                from lightgbm import LGBMClassifier
+            except ImportError as exc:  # pragma: no cover
+                raise ImportError(
+                    "lightgbm is required for model_type='lightgbm'. "
+                    "Install it: pip install lightgbm"
+                ) from exc
+            return LGBMClassifier(
+                n_estimators=self._config.n_estimators,
+                max_depth=self._config.max_depth,
+                learning_rate=self._config.learning_rate,
+                min_child_samples=self._config.min_samples_leaf,
+                verbose=-1,
+                random_state=42,
+            )
+        if mt == "catboost":
+            try:
+                from catboost import CatBoostClassifier
+            except ImportError as exc:  # pragma: no cover
+                raise ImportError(
+                    "catboost is required for model_type='catboost'. "
+                    "Install it: pip install catboost"
+                ) from exc
+            return CatBoostClassifier(
+                iterations=self._config.n_estimators,
+                depth=self._config.max_depth,
+                learning_rate=self._config.learning_rate,
+                verbose=0,
+                random_seed=42,
+            )
+        if mt == "svm":
+            from sklearn.svm import SVC
+
+            return SVC(
+                kernel="rbf",
+                probability=True,
+                C=1.0,
+                gamma="scale",
+                random_state=42,
+            )
+        if mt == "mlp":
+            from sklearn.neural_network import MLPClassifier
+
+            return MLPClassifier(
+                hidden_layer_sizes=(128, 64),
+                activation="relu",
+                max_iter=500,
+                early_stopping=True,
+                random_state=42,
+            )
+        if mt == "knn":
+            from sklearn.neighbors import KNeighborsClassifier
+
+            return KNeighborsClassifier(
+                n_neighbors=15,
+                weights="distance",
+                n_jobs=-1,
+            )
         raise ValueError(
             f"Unknown model_type: {mt!r}. "
             f"Expected one of: 'gradient_boosting', 'random_forest', "
             f"'extra_trees', 'hist_gradient_boosting', 'adaboost', "
-            f"'logistic_regression'."
+            f"'logistic_regression', 'xgboost', 'lightgbm', 'catboost', "
+            f"'svm', 'mlp', 'knn'."
         )
 
     def _cross_validate(
@@ -349,7 +429,11 @@ class MLTrainer:
             fold_model = self._build_model()
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                fold_model.fit(X_tr, y_tr, sample_weight=sw_tr)
+                try:
+                    fold_model.fit(X_tr, y_tr, sample_weight=sw_tr)
+                except TypeError:
+                    # Some models (e.g. KNN, MLP) don't support sample_weight
+                    fold_model.fit(X_tr, y_tr)
 
             fold_acc = float(accuracy_score(y_te, fold_model.predict(X_te)))
             scores.append(fold_acc)
@@ -364,6 +448,9 @@ class MLTrainer:
         """Extract feature importances from the model."""
         if hasattr(model, "feature_importances_"):
             raw = model.feature_importances_
+        elif hasattr(model, "coefs_"):
+            # MLP stores weights as coefs_ (list of arrays per layer)
+            raw = np.abs(model.coefs_[0]).mean(axis=1)
         elif hasattr(model, "coef_"):
             raw = np.abs(model.coef_[0])
         else:

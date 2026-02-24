@@ -239,6 +239,226 @@ class TestMLTrainerLR:
 
 
 # ------------------------------------------------------------------
+# MLTrainer — XGBoost
+# ------------------------------------------------------------------
+
+
+class TestMLTrainerXGBoost:
+    def test_xgboost_trains(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="xgboost", n_estimators=50, max_depth=3, n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        assert result.oos_accuracy > 0.5
+
+    def test_xgboost_predict_proba_shape(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="xgboost", n_estimators=50, max_depth=3, n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        proba = result.model.predict_proba(ds.X[:5])
+        assert proba.shape == (5, 2)
+
+    def test_xgboost_feature_importances(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="xgboost", n_estimators=50, max_depth=3, n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        assert len(result.feature_importances) == 10
+        assert all(v >= 0.0 for v in result.feature_importances.values())
+
+
+# ------------------------------------------------------------------
+# MLTrainer — LightGBM
+# ------------------------------------------------------------------
+
+
+class TestMLTrainerLightGBM:
+    def test_lightgbm_trains(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="lightgbm", n_estimators=50, max_depth=3, n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        assert result.oos_accuracy > 0.5
+
+    def test_lightgbm_predict_proba_shape(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="lightgbm", n_estimators=50, max_depth=3, n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        proba = result.model.predict_proba(ds.X[:5])
+        assert proba.shape == (5, 2)
+
+    def test_lightgbm_feature_importances(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="lightgbm", n_estimators=50, max_depth=3, n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        assert len(result.feature_importances) == 10
+        assert all(v >= 0.0 for v in result.feature_importances.values())
+
+
+# ------------------------------------------------------------------
+# MLTrainer — CatBoost
+# ------------------------------------------------------------------
+
+
+class TestMLTrainerCatBoost:
+    def test_catboost_trains(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="catboost", n_estimators=50, max_depth=3, n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        assert result.oos_accuracy > 0.5
+
+    def test_catboost_predict_proba_shape(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="catboost", n_estimators=50, max_depth=3, n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        proba = result.model.predict_proba(ds.X[:5])
+        assert proba.shape == (5, 2)
+
+    def test_catboost_feature_importances(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="catboost", n_estimators=50, max_depth=3, n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        assert len(result.feature_importances) == 10
+        assert all(v >= 0.0 for v in result.feature_importances.values())
+
+
+# ------------------------------------------------------------------
+# MLTrainer — SVM
+# ------------------------------------------------------------------
+
+
+class TestMLTrainerSVM:
+    def test_svm_trains(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="svm", n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        assert result.oos_accuracy > 0.5
+
+    def test_svm_predict_proba_shape(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="svm", n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        proba = result.model.predict_proba(ds.X[:5])
+        assert proba.shape == (5, 2)
+
+    def test_svm_feature_importances(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="svm", n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        # SVM doesn't have feature_importances_ or coef_ (rbf kernel),
+        # so all importances should be 0.0
+        assert len(result.feature_importances) == 10
+
+
+# ------------------------------------------------------------------
+# MLTrainer — MLP
+# ------------------------------------------------------------------
+
+
+class TestMLTrainerMLP:
+    def test_mlp_trains(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="mlp", n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        assert result.oos_accuracy > 0.5
+
+    def test_mlp_predict_proba_shape(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="mlp", n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        proba = result.model.predict_proba(ds.X[:5])
+        assert proba.shape == (5, 2)
+
+    def test_mlp_feature_importances(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="mlp", n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        # MLP uses coefs_ for importances
+        assert len(result.feature_importances) == 10
+        total = sum(result.feature_importances.values())
+        assert abs(total - 1.0) < 0.01
+
+
+# ------------------------------------------------------------------
+# MLTrainer — KNN
+# ------------------------------------------------------------------
+
+
+class TestMLTrainerKNN:
+    def test_knn_trains(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="knn", n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        assert result.oos_accuracy > 0.5
+
+    def test_knn_predict_proba_shape(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="knn", n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        proba = result.model.predict_proba(ds.X[:5])
+        assert proba.shape == (5, 2)
+
+    def test_knn_feature_importances(self) -> None:
+        ds = _make_separable_dataset(200)
+        cfg = MLModelConfig(
+            model_type="knn", n_cv_folds=3,
+        )
+        trainer = MLTrainer(cfg)
+        result = trainer.train(ds)
+        # KNN doesn't have feature importances, so all should be 0.0
+        assert len(result.feature_importances) == 10
+        assert all(v == 0.0 for v in result.feature_importances.values())
+
+
+# ------------------------------------------------------------------
 # Error handling
 # ------------------------------------------------------------------
 
@@ -259,7 +479,7 @@ class TestMLTrainerErrors:
 
     def test_unknown_model_type(self) -> None:
         ds = _make_separable_dataset(200)
-        cfg = MLModelConfig(model_type="xgboost")
+        cfg = MLModelConfig(model_type="nonexistent_model")
         trainer = MLTrainer(cfg)
         with pytest.raises(ValueError, match="Unknown model_type"):
             trainer.train(ds)
