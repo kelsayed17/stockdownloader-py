@@ -1,8 +1,10 @@
 """Train sklearn classifiers on ML datasets with temporal cross-validation.
 
 Provides expanding-window cross-validation (no random shuffle) and a
-high-level :class:`MLTrainer` that trains a GradientBoosting or
-LogisticRegression classifier on an :class:`MLDataset`.
+high-level :class:`MLTrainer` that trains one of 12 supported classifier
+types (GradientBoosting, RandomForest, ExtraTrees, HistGradientBoosting,
+AdaBoost, LogisticRegression, XGBoost, LightGBM, CatBoost, SVM, MLP,
+KNN) on an :class:`MLDataset`.
 
 Usage::
 
@@ -180,10 +182,17 @@ class MLTrainer:
         model = self._build_model()
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            try:
-                model.fit(X_train_scaled, y_train, sample_weight=sample_weight)
-            except TypeError:
-                # Some models (e.g. KNN, MLP) don't support sample_weight
+            if sample_weight is not None:
+                try:
+                    model.fit(X_train_scaled, y_train, sample_weight=sample_weight)
+                except TypeError:
+                    # Some models (e.g. KNN, MLP) don't support sample_weight
+                    logger.debug(
+                        "%s does not support sample_weight, fitting without it",
+                        type(model).__name__,
+                    )
+                    model.fit(X_train_scaled, y_train)
+            else:
                 model.fit(X_train_scaled, y_train)
 
         # -- Evaluate on held-out test set --
@@ -263,6 +272,12 @@ class MLTrainer:
           (histogram-based, much faster on large datasets, native NaN support)
         - ``adaboost``: AdaBoostClassifier (sequential boosting)
         - ``logistic_regression``: LogisticRegression (linear baseline)
+        - ``xgboost``: XGBClassifier (requires ``pip install xgboost``)
+        - ``lightgbm``: LGBMClassifier (requires ``pip install lightgbm``)
+        - ``catboost``: CatBoostClassifier (requires ``pip install catboost``)
+        - ``svm``: SVC with RBF kernel and probability estimates
+        - ``mlp``: MLPClassifier (2-layer neural network)
+        - ``knn``: KNeighborsClassifier (distance-weighted)
         """
         mt = self._config.model_type
 
@@ -365,6 +380,7 @@ class MLTrainer:
                 probability=True,
                 C=1.0,
                 gamma="scale",
+                class_weight="balanced" if self._config.use_class_balance else None,
                 random_state=42,
             )
         if mt == "mlp":
@@ -429,10 +445,12 @@ class MLTrainer:
             fold_model = self._build_model()
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                try:
-                    fold_model.fit(X_tr, y_tr, sample_weight=sw_tr)
-                except TypeError:
-                    # Some models (e.g. KNN, MLP) don't support sample_weight
+                if sw_tr is not None:
+                    try:
+                        fold_model.fit(X_tr, y_tr, sample_weight=sw_tr)
+                    except TypeError:
+                        fold_model.fit(X_tr, y_tr)
+                else:
                     fold_model.fit(X_tr, y_tr)
 
             fold_acc = float(accuracy_score(y_te, fold_model.predict(X_te)))
