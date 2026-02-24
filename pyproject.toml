@@ -45,6 +45,7 @@ ml-pipeline = "stockdownloader.app.ml_pipeline:main_generic"
 gme-ml-pipeline = "stockdownloader.gme.pipeline:main"
 spy-ml-pipeline = "stockdownloader.app.ml_pipeline:main"
 ml-train = "stockdownloader.app.ml_train:main"
+spy-ml-ensemble = "stockdownloader.app.spy_ml_ensemble:main"
 # ── Utilities & standalone ────────────────────────────────────────
 intraday-accumulate = "stockdownloader.app.backtest:main_accumulate"
 strategy-optimize = "stockdownloader.app.optimize:main_optimize"
