@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from typing import TextIO
 
-from stockdownloader.app.app_helpers import add_intraday_csv_arg, add_log_arg
+from stockdownloader.app.helpers import add_intraday_csv_arg, add_log_arg
 from stockdownloader.app.pipeline.helpers import (
     load_daily_data,
     load_intraday_data,

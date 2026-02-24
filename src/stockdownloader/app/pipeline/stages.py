@@ -8,7 +8,7 @@ import time
 import multiprocessing
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
-from stockdownloader.app.app_helpers import status_label
+from stockdownloader.app.helpers import status_label
 from stockdownloader.app.pipeline.helpers import unique_days
 from stockdownloader.app.pipeline.models import SlotResult
 from stockdownloader.backtesting.results.result import BaseBacktestResult

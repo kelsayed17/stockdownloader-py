@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from stockdownloader.app.app_helpers import box_title, status_label
+from stockdownloader.app.helpers import box_title, status_label
 
 
 class TestStatusLabel:

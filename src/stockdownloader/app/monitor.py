@@ -26,7 +26,7 @@ from pathlib import Path
 
 from stockdownloader.analysis.alert_store import AlertStore
 from stockdownloader.analysis.signal_advisor import AdvisorConfig, SignalAdvisor
-from stockdownloader.app.app_helpers import fetch_daily_data
+from stockdownloader.app.helpers import fetch_daily_data
 from stockdownloader.core.models.signal import AdvisoryAction, SignalAdvisory
 from stockdownloader.core.config import DEFAULT_ALERT_HISTORY
 

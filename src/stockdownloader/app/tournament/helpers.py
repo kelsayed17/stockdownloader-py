@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from stockdownloader.app.app_helpers import STANDARD_TIMEFRAMES as _TIMEFRAMES
-from stockdownloader.app.app_helpers import box_title as _box_title, status_label as _status_label
+from stockdownloader.app.helpers import STANDARD_TIMEFRAMES as _TIMEFRAMES
+from stockdownloader.app.helpers import box_title as _box_title, status_label as _status_label
 from stockdownloader.backtesting.tournament.engine import ComboResult
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.core.models.price import IntradayPriceData

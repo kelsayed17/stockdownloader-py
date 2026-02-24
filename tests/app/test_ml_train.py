@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from stockdownloader.app.ml_train_app import _build_parser, main
+from stockdownloader.app.ml_train import _build_parser, main
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.config import DEFAULT_MODELS_DIR
 
@@ -114,7 +114,7 @@ class TestMLTrainParser:
 
 
 class TestMLTrainMain:
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_main_with_mocked_data(
         self, mock_fetch: MagicMock, tmp_path: object, capsys: object,
     ) -> None:
@@ -134,7 +134,7 @@ class TestMLTrainMain:
         assert "OOS Accuracy" in captured.out
         assert "Model saved to" in captured.out
 
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_main_no_data_exits(
         self, mock_fetch: MagicMock,
     ) -> None:
@@ -144,7 +144,7 @@ class TestMLTrainMain:
             main(["SPY"])
         assert exc_info.value.code == 1
 
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_main_logistic_regression(
         self, mock_fetch: MagicMock, tmp_path: object, capsys: object,
     ) -> None:
@@ -161,7 +161,7 @@ class TestMLTrainMain:
         captured = capsys.readouterr()  # type: ignore[union-attr]
         assert "TRAINING RESULTS" in captured.out
 
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_main_with_balanced_and_selection(
         self, mock_fetch: MagicMock, tmp_path: object, capsys: object,
     ) -> None:
@@ -182,7 +182,7 @@ class TestMLTrainMain:
         assert "TRAINING RESULTS" in captured.out
         assert "Selected feats" in captured.out
 
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_main_with_export_pine(
         self, mock_fetch: MagicMock, tmp_path: object, capsys: object,
     ) -> None:
@@ -212,14 +212,14 @@ class TestMLTrainMain:
 
 class TestMonitorMLFlag:
     def test_ml_model_arg_parsed(self) -> None:
-        from stockdownloader.app.monitor_app import _build_parser
+        from stockdownloader.app.monitor import _build_parser
 
         parser = _build_parser()
         args = parser.parse_args(["SPY", "--ml-model", "/path/to/model.joblib"])
         assert args.ml_model == "/path/to/model.joblib"
 
     def test_ml_model_default_none(self) -> None:
-        from stockdownloader.app.monitor_app import _build_parser
+        from stockdownloader.app.monitor import _build_parser
 
         parser = _build_parser()
         args = parser.parse_args(["SPY"])

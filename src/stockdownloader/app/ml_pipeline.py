@@ -37,7 +37,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from stockdownloader.app._ml_helpers import (
+from stockdownloader.app.ml_helpers import (
     add_common_ml_args,
     apply_config_defaults,
     build_pipeline_config,

@@ -10,11 +10,11 @@ intraday bar data.
 
 Usage::
 
-    python -m stockdownloader.app.tournament_apps exit \\
+    python -m stockdownloader.app.tournament exit \\
         --bars data/SPY/5m_bars.csv \\
         --trades trades.csv
 
-    python -m stockdownloader.app.tournament_apps exit \\
+    python -m stockdownloader.app.tournament exit \\
         --bars data/SPY/5m_bars.csv \\
         --trades trades.csv \\
         --stop-distance 0.96
@@ -26,7 +26,7 @@ across timeframes, weights, aggregation modes, and thresholds.
 
 Usage::
 
-    python -m stockdownloader.app.tournament_apps signal-stack
+    python -m stockdownloader.app.tournament signal-stack
 
 Output is written to both stdout and ``output/signal_stack_tournament.log``
 for monitoring with ``tail -f output/signal_stack_tournament.log``.

@@ -47,7 +47,7 @@ def _make_data(n: int = 100, seed: int = 42) -> list[PriceData]:
 
 
 class TestDataStage:
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_fetch_returns_data_result(
         self, mock_fetch: object, tmp_path: Path,
     ) -> None:
@@ -66,7 +66,7 @@ class TestDataStage:
         assert result.date_range[0] == result.data[0].date
         assert result.date_range[1] == result.data[-1].date
 
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_fetch_empty_raises(self, mock_fetch: object) -> None:
         mock_fetch.return_value = []  # type: ignore[attr-defined]
         cfg = DataConfig(symbol="BAD", use_cache=False)
@@ -74,7 +74,7 @@ class TestDataStage:
         with pytest.raises(RuntimeError, match="Could not fetch"):
             stage.run()
 
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_cache_round_trip(
         self, mock_fetch: object, tmp_path: Path,
     ) -> None:

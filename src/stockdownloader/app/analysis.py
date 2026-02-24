@@ -9,7 +9,7 @@ Fetches live data from Yahoo Finance for any symbol, then:
 6. Compares results
 
 Usage:
-    python -m stockdownloader.app.symbol_analysis_app SYMBOL [RANGE]
+    python -m stockdownloader.app.analysis SYMBOL [RANGE]
 
 Supported ranges: 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, max (default: 5y)
 """
@@ -20,7 +20,7 @@ import logging
 import sys
 from decimal import Decimal, ROUND_HALF_UP
 
-from stockdownloader.app.app_helpers import (
+from stockdownloader.app.helpers import (
     INITIAL_CAPITAL,
     OPTIONS_COMMISSION,
     fetch_daily_data,

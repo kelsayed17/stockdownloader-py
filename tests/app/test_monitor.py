@@ -10,7 +10,7 @@ import pytest
 
 from stockdownloader.analysis.alert_store import AlertStore
 from stockdownloader.analysis.signal_advisor import AdvisorConfig, SignalAdvisor
-from stockdownloader.app.monitor_app import (
+from stockdownloader.app.monitor import (
     _analyze_symbol,
     _build_parser,
     _print_advisory,
@@ -74,7 +74,7 @@ def _mock_advisory(
 
 
 class TestAnalyzeSymbol:
-    @patch("stockdownloader.app.monitor_app.fetch_daily_data")
+    @patch("stockdownloader.app.monitor.fetch_daily_data")
     def test_no_data_returns_none(self, mock_fetch: MagicMock, tmp_path: Path) -> None:
         mock_fetch.return_value = []
         advisor = MagicMock(spec=SignalAdvisor)
@@ -87,7 +87,7 @@ class TestAnalyzeSymbol:
         assert result is None
         assert any("No data" in line for line in output_lines)
 
-    @patch("stockdownloader.app.monitor_app.fetch_daily_data")
+    @patch("stockdownloader.app.monitor.fetch_daily_data")
     def test_new_signal_returned(self, mock_fetch: MagicMock, tmp_path: Path) -> None:
         mock_fetch.return_value = [_make_bar(f"2024-01-{i+1:02d}", 100 + i) for i in range(250)]
         adv = _mock_advisory()
@@ -102,7 +102,7 @@ class TestAnalyzeSymbol:
         assert result is not None
         assert result.action == AdvisoryAction.BUY
 
-    @patch("stockdownloader.app.monitor_app.fetch_daily_data")
+    @patch("stockdownloader.app.monitor.fetch_daily_data")
     def test_duplicate_returns_none(self, mock_fetch: MagicMock, tmp_path: Path) -> None:
         mock_fetch.return_value = [_make_bar(f"2024-01-{i+1:02d}", 100 + i) for i in range(250)]
         adv = _mock_advisory()
@@ -116,7 +116,7 @@ class TestAnalyzeSymbol:
         result = _analyze_symbol("SPY", advisor, store, print_fn=lambda x: None)
         assert result is None
 
-    @patch("stockdownloader.app.monitor_app.fetch_daily_data")
+    @patch("stockdownloader.app.monitor.fetch_daily_data")
     def test_below_min_confidence(self, mock_fetch: MagicMock, tmp_path: Path) -> None:
         mock_fetch.return_value = [_make_bar(f"2024-01-{i+1:02d}", 100 + i) for i in range(250)]
         adv = _mock_advisory(confidence=0.3)
@@ -202,7 +202,7 @@ class TestParser:
 
 
 class TestMain:
-    @patch("stockdownloader.app.monitor_app.fetch_daily_data")
+    @patch("stockdownloader.app.monitor.fetch_daily_data")
     def test_one_shot_no_data(self, mock_fetch: MagicMock, tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
         mock_fetch.return_value = []
         main(["SPY", "--alert-store", str(tmp_path / "store.json")])

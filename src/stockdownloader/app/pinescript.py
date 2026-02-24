@@ -3,29 +3,29 @@
 Usage::
 
     # List all available strategies
-    python -m stockdownloader.app.generate_pinescript --list
+    python -m stockdownloader.app.pinescript --list
 
     # Generate for a specific strategy
-    python -m stockdownloader.app.generate_pinescript macd_obv
+    python -m stockdownloader.app.pinescript macd_obv
 
     # Generate with custom params
-    python -m stockdownloader.app.generate_pinescript sma_crossover \\
+    python -m stockdownloader.app.pinescript sma_crossover \\
         --param short_period=20 --param long_period=21
 
     # Generate all strategies at once
-    python -m stockdownloader.app.generate_pinescript --all
+    python -m stockdownloader.app.pinescript --all
 
     # Output to file
-    python -m stockdownloader.app.generate_pinescript macd_obv -o output/macd_obv.pine
+    python -m stockdownloader.app.pinescript macd_obv -o output/macd_obv.pine
 
     # List composite strategies
-    python -m stockdownloader.app.generate_pinescript --composite --list
+    python -m stockdownloader.app.pinescript --composite --list
 
     # Generate a composite strategy
-    python -m stockdownloader.app.generate_pinescript --composite vwap_composite
+    python -m stockdownloader.app.pinescript --composite vwap_composite
 
     # Generate all composites
-    python -m stockdownloader.app.generate_pinescript --composite --all
+    python -m stockdownloader.app.pinescript --composite --all
 """
 
 from __future__ import annotations
@@ -127,7 +127,7 @@ def main() -> None:
                 print(f"  {name:25s} {defn.name}")
                 print(f"  {'':25s} Modes: {modes}")
             print()
-            print("Usage: python -m stockdownloader.app.generate_pinescript "
+            print("Usage: python -m stockdownloader.app.pinescript "
                   "--composite <name>")
             return
 
@@ -188,7 +188,7 @@ def main() -> None:
             defn = factory()
             print(f"  {name:25s} {defn.name}")
         print()
-        print("Usage: python -m stockdownloader.app.generate_pinescript <name>")
+        print("Usage: python -m stockdownloader.app.pinescript <name>")
         return
 
     if args.all:
@@ -268,7 +268,7 @@ def _handle_ml_signal(args: argparse.Namespace, gen: PineScriptGenerator) -> Non
     symbol = args.ml_signal.upper()
 
     # Fetch data and build dataset
-    from stockdownloader.app.app_helpers import fetch_daily_data
+    from stockdownloader.app.helpers import fetch_daily_data
 
     print(f"Fetching {symbol} data...")
     data = fetch_daily_data(symbol, period="5y")

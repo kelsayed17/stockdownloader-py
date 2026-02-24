@@ -52,7 +52,7 @@ def _make_data(n: int = 300, seed: int = 42) -> list[PriceData]:
 
 
 class TestMLPipelineOrchestrator:
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_full_pipeline_quick(
         self, mock_fetch: object, tmp_path: object,
     ) -> None:
@@ -115,7 +115,7 @@ class TestMLPipelineOrchestrator:
         assert "STAGE 6" in full_output
         assert "PIPELINE COMPLETE" in full_output
 
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_pipeline_no_data_aborts(self, mock_fetch: object) -> None:
         """Pipeline should raise if no data is fetched."""
         mock_fetch.return_value = []  # type: ignore[attr-defined]
@@ -128,7 +128,7 @@ class TestMLPipelineOrchestrator:
         with pytest.raises(RuntimeError, match="Could not fetch"):
             pipeline.run()
 
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_pipeline_with_pine_export(
         self, mock_fetch: object, tmp_path: object,
     ) -> None:

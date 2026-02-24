@@ -10,9 +10,9 @@ Multi-stage pipeline:
 
 Usage::
 
-    python -m stockdownloader.app.gme_analysis_app
-    python -m stockdownloader.app.gme_analysis_app --skip-intraday --skip-options
-    python -m stockdownloader.app.gme_analysis_app --log output/gme.log
+    python -m stockdownloader.app.gme
+    python -m stockdownloader.app.gme --skip-intraday --skip-options
+    python -m stockdownloader.app.gme --log output/gme.log
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
-from stockdownloader.app.app_helpers import add_log_arg
+from stockdownloader.app.helpers import add_log_arg
 from stockdownloader.analysis.gme import (
     EventStudyResult,
     FilingImpact,

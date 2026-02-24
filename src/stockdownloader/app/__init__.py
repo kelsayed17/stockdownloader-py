@@ -3,26 +3,31 @@
 Each module provides a ``main()`` function registered as a console script
 in ``pyproject.toml``.  Key apps:
 
-- **backtest_app** — Unified daily / intraday / options strategy backtest
-- **symbol_analysis_app** — Unified analysis (daily + options + alerts)
-- **tournament_app** — Strategy tournaments (walk-forward, baseline, greedy)
-- **tournament_apps** — Exit mechanism testing + signal combinatorial search
-- **spy_ml_pipeline_app** — ML pipelines (generic ``main_generic`` + SPY multi-TF ``main``)
-- **gme_ml_pipeline_app** — GME alt-data ML pipeline
-- **ml_train_app** — Standalone ML model trainer
-- **generate_pinescript** — Export strategies to TradingView Pine Script v6
+- **backtest** — Unified daily / intraday / options strategy backtest
+- **analysis** — Unified analysis (daily + options + alerts)
+- **tournament** — Exit mechanism testing + signal combinatorial search
+- **ml_pipeline** — ML pipelines (generic ``main_generic`` + SPY multi-TF ``main``)
+- **gme_pipeline** — GME alt-data ML pipeline
+- **ml_train** — Standalone ML model trainer
+- **pinescript** — Export strategies to TradingView Pine Script v6
 - **pipeline_app** — Full data + backtest orchestration pipeline
-- **optimize_app** — Parameter optimization + walk-forward validation
-- **gme_analysis_app** — 6-stage GME analysis
-- **monitor_app** — Signal advisory / monitoring
-- **pattern_discovery_app** — Pattern mining
-- **value_screener_app** — Deep-value screener
-- **backtest_app.main_accumulate** — Intraday data accumulation
+- **optimize** — Parameter optimization + walk-forward validation
+- **gme** — 6-stage GME analysis
+- **monitor** — Signal advisory / monitoring
+- **pattern_discovery** — Pattern mining
+- **value_screener** — Deep-value screener
+- **backtest.main_accumulate** — Intraday data accumulation
+
+Sub-packages:
+
+- **tournament/** — Strategy tournaments (walk-forward, baseline, greedy)
+- **pipeline/** — Pipeline stages and orchestration
+- **pinescript_catalog/** — Pine Script strategy catalogs
 
 Shared helpers:
 
-- **app_helpers** — Constants, data loading, argparse builders, banners
-- **_ml_helpers** — ML pipeline shared plumbing (dep check, config builders)
+- **helpers** — Constants, data loading, argparse builders, banners
+- **ml_helpers** — ML pipeline shared plumbing (dep check, config builders)
 """
 
 __all__: list[str] = []

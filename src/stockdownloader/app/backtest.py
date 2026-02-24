@@ -20,7 +20,7 @@ import logging
 import os
 from decimal import Decimal, ROUND_HALF_UP
 
-from stockdownloader.app.app_helpers import (
+from stockdownloader.app.helpers import (
     INITIAL_CAPITAL,
     OPTIONS_COMMISSION,
     RISK_PER_TRADE,

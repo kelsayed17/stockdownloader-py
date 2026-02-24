@@ -661,7 +661,7 @@ class TestGeneratePinescriptCLI:
         """--list should print all strategies without error."""
         import subprocess
         result = subprocess.run(
-            ["python3", "-m", "stockdownloader.app.generate_pinescript", "--list"],
+            ["python3", "-m", "stockdownloader.app.pinescript", "--list"],
             capture_output=True, text=True, timeout=10,
         )
         assert result.returncode == 0

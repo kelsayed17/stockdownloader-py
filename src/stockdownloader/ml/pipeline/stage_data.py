@@ -93,7 +93,7 @@ class DataStage:
                 )
 
         # 3. Fetch from Yahoo Finance
-        from stockdownloader.app.app_helpers import fetch_daily_data
+        from stockdownloader.app.helpers import fetch_daily_data
 
         data = fetch_daily_data(
             self._cfg.symbol,

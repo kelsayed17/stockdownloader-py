@@ -19,7 +19,7 @@ import os
 import sys
 import time
 
-from stockdownloader.app._ml_helpers import (
+from stockdownloader.app.ml_helpers import (
     add_common_ml_args,
     build_pipeline_config,
     build_training_config,

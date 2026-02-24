@@ -14,9 +14,9 @@ Scoring methodology:
 
 Usage::
 
-    python -m stockdownloader.app.value_screener_app [--top N] [--min-cap NUM]
-    python -m stockdownloader.app.value_screener_app --skip-detailed --top 20
-    python -m stockdownloader.app.value_screener_app --sector Technology --output results.csv
+    python -m stockdownloader.app.value_screener [--top N] [--min-cap NUM]
+    python -m stockdownloader.app.value_screener --skip-detailed --top 20
+    python -m stockdownloader.app.value_screener --sector Technology --output results.csv
 """
 from __future__ import annotations
 

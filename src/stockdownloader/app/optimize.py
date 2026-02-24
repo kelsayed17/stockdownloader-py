@@ -40,8 +40,8 @@ import logging
 import time
 from decimal import Decimal
 
-from stockdownloader.app.app_helpers import add_intraday_csv_arg, add_log_arg
-from stockdownloader.app.app_helpers import status_label as _status_label
+from stockdownloader.app.helpers import add_intraday_csv_arg, add_log_arg
+from stockdownloader.app.helpers import status_label as _status_label
 from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
 from stockdownloader.backtesting.optimization.strategy import StrategyOptimizer
 from stockdownloader.backtesting.optimization.walk_forward import WalkForwardValidator

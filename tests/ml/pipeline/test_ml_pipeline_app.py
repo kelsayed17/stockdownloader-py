@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from stockdownloader.app.spy_ml_pipeline_app import (
+from stockdownloader.app.ml_pipeline import (
     _build_generic_parser as _build_parser,
     main_generic as main,
 )
@@ -106,7 +106,7 @@ class TestMLPipelineParser:
 
 
 class TestMLPipelineMain:
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_quick_mode_runs(
         self, mock_fetch: object, tmp_path: object, capsys: object,
     ) -> None:
@@ -126,7 +126,7 @@ class TestMLPipelineMain:
         assert "PIPELINE COMPLETE" in captured.out
         assert "STAGE 1" in captured.out
 
-    @patch("stockdownloader.app.app_helpers.fetch_daily_data")
+    @patch("stockdownloader.app.helpers.fetch_daily_data")
     def test_no_data_exits(self, mock_fetch: object) -> None:
         mock_fetch.return_value = []  # type: ignore[attr-defined]
 

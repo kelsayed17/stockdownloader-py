@@ -817,7 +817,7 @@ class TestCompositeCLI:
     def test_composite_list(self) -> None:
         import subprocess
         result = subprocess.run(
-            ["python3", "-m", "stockdownloader.app.generate_pinescript",
+            ["python3", "-m", "stockdownloader.app.pinescript",
              "--composite", "--list"],
             capture_output=True, text=True,
         )
@@ -829,7 +829,7 @@ class TestCompositeCLI:
     def test_standard_list_shows_composites(self) -> None:
         import subprocess
         result = subprocess.run(
-            ["python3", "-m", "stockdownloader.app.generate_pinescript",
+            ["python3", "-m", "stockdownloader.app.pinescript",
              "--list"],
             capture_output=True, text=True,
         )

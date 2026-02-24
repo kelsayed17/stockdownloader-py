@@ -1,6 +1,6 @@
 """Smoke tests for the walk-forward validation CLI."""
 
-from stockdownloader.app.optimize_app import main_walk_forward
+from stockdownloader.app.optimize import main_walk_forward
 
 
 def test_main_callable():

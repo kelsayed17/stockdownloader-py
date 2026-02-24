@@ -8,10 +8,10 @@ catalog that can be traded as a strategy.
 
 Usage::
 
-    python3 -m stockdownloader.app.pattern_discovery_app
-    python3 -m stockdownloader.app.pattern_discovery_app --mode discover
-    python3 -m stockdownloader.app.pattern_discovery_app --timeframes 5m,15m,1h
-    python3 -m stockdownloader.app.pattern_discovery_app --min-occurrences 30
+    python3 -m stockdownloader.app.pattern_discovery
+    python3 -m stockdownloader.app.pattern_discovery --mode discover
+    python3 -m stockdownloader.app.pattern_discovery --timeframes 5m,15m,1h
+    python3 -m stockdownloader.app.pattern_discovery --min-occurrences 30
 """
 from __future__ import annotations
 
@@ -47,7 +47,7 @@ from stockdownloader.core.io import TeeWriter
 from stockdownloader.indicators.hub import IndicatorHub
 from stockdownloader.core.timeframe import Timeframe, TimeframeAggregator
 
-from stockdownloader.app.app_helpers import (
+from stockdownloader.app.helpers import (
     DEFAULT_DATA_FILE as _DATA_FILE,
     DEFAULT_OUTPUT_DIR as _OUTPUT_DIR,
     box_title as _box_title,

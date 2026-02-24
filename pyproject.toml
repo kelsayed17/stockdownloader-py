@@ -14,6 +14,7 @@ dependencies = [
     "requests>=2.32.0",
     "beautifulsoup4>=4.12.0",
     "scipy>=1.14.0",
+    "curl_cffi>=0.9.0",
 ]
 
 [project.optional-dependencies]
@@ -28,32 +29,32 @@ ml = [
 
 [project.scripts]
 # ── Backtesting (unified) ─────────────────────────────────────────
-spy-backtest = "stockdownloader.app.backtest_app:main"
-intraday-backtest = "stockdownloader.app.backtest_app:main_intraday"
-options-backtest = "stockdownloader.app.backtest_app:main_options"
-dmi-vwap-backtest = "stockdownloader.app.backtest_app:main_dmi_vwap"
-symbol-analysis = "stockdownloader.app.symbol_analysis_app:main"
+spy-backtest = "stockdownloader.app.backtest:main"
+intraday-backtest = "stockdownloader.app.backtest:main_intraday"
+options-backtest = "stockdownloader.app.backtest:main_options"
+dmi-vwap-backtest = "stockdownloader.app.backtest:main_dmi_vwap"
+symbol-analysis = "stockdownloader.app.analysis:main"
 # ── Tournaments ───────────────────────────────────────────────────
 grand-tournament = "stockdownloader.app.tournament.cli:main_walkforward"
 multi-timeframe-tournament = "stockdownloader.app.tournament.cli:main_baseline"
 multi-timeframe-optimizer = "stockdownloader.app.tournament.cli:main_greedy"
-exit-tournament = "stockdownloader.app.tournament_apps:main_exit_tournament"
-signal-stack-tournament = "stockdownloader.app.tournament_apps:main_signal_stack"
+exit-tournament = "stockdownloader.app.tournament:main_exit_tournament"
+signal-stack-tournament = "stockdownloader.app.tournament:main_signal_stack"
 # ── ML pipelines ────────────────────────────────────────────────
-ml-pipeline = "stockdownloader.app.spy_ml_pipeline_app:main_generic"
-gme-ml-pipeline = "stockdownloader.app.gme_ml_pipeline_app:main"
-spy-ml-pipeline = "stockdownloader.app.spy_ml_pipeline_app:main"
-ml-train = "stockdownloader.app.ml_train_app:main"
+ml-pipeline = "stockdownloader.app.ml_pipeline:main_generic"
+gme-ml-pipeline = "stockdownloader.app.gme_pipeline:main"
+spy-ml-pipeline = "stockdownloader.app.ml_pipeline:main"
+ml-train = "stockdownloader.app.ml_train:main"
 # ── Utilities & standalone ────────────────────────────────────────
-intraday-accumulate = "stockdownloader.app.backtest_app:main_accumulate"
-strategy-optimize = "stockdownloader.app.optimize_app:main_optimize"
-walk-forward = "stockdownloader.app.optimize_app:main_walk_forward"
-generate-pinescript = "stockdownloader.app.generate_pinescript:main"
+intraday-accumulate = "stockdownloader.app.backtest:main_accumulate"
+strategy-optimize = "stockdownloader.app.optimize:main_optimize"
+walk-forward = "stockdownloader.app.optimize:main_walk_forward"
+generate-pinescript = "stockdownloader.app.pinescript:main"
 pipeline = "stockdownloader.app.pipeline_app:main"
-gme-analysis = "stockdownloader.app.gme_analysis_app:main"
-signal-monitor = "stockdownloader.app.monitor_app:main"
-pattern-discovery = "stockdownloader.app.pattern_discovery_app:main"
-value-screener = "stockdownloader.app.value_screener_app:main"
+gme-analysis = "stockdownloader.app.gme:main"
+signal-monitor = "stockdownloader.app.monitor:main"
+pattern-discovery = "stockdownloader.app.pattern_discovery:main"
+value-screener = "stockdownloader.app.value_screener:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

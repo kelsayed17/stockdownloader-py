@@ -6,7 +6,7 @@ import sys
 import time
 from pathlib import Path
 
-from stockdownloader.app.app_helpers import (
+from stockdownloader.app.helpers import (
     DEFAULT_DATA_FILE as _DATA_FILE,
     DEFAULT_OUTPUT_DIR as _OUTPUT_DIR,
 )

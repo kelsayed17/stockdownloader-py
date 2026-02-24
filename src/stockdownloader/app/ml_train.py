@@ -163,7 +163,7 @@ def main(argv: list[str] | None = None) -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
     # 1. Fetch data
-    from stockdownloader.app.app_helpers import fetch_daily_data
+    from stockdownloader.app.helpers import fetch_daily_data
 
     symbol = args.symbol.upper()
     data = fetch_daily_data(symbol, period=args.period)
