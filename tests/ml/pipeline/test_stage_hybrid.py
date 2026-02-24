@@ -18,7 +18,7 @@ from stockdownloader.ml.pipeline.results import (
     ModelCandidate,
     TrainingStageResult,
 )
-from stockdownloader.ml.pipeline.stage_hybrid_strategies import (
+from stockdownloader.ml.pipeline.stage_hybrid import (
     HybridStage,
     MLConfirmedStrategy,
     MLOverrideStrategy,

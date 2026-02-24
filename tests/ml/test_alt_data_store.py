@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from stockdownloader.ml.alternative_data_store import (
+from stockdownloader.ml.alt_data_store import (
     AlternativeDataSnapshot,
     AlternativeDataStore,
 )

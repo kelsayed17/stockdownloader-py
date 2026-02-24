@@ -11,7 +11,7 @@ Scoring methodology includes:
 
 Usage::
 
-    from stockdownloader.analysis.value_screener import ValueScreener
+    from stockdownloader.analysis.value.screener import ValueScreener
     from stockdownloader.core.models import QuoteData
 
     screener = ValueScreener()
@@ -28,7 +28,7 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
-from stockdownloader.analysis.value_scoring import (
+from stockdownloader.analysis.value.scoring import (
     continuous_score,
     compute_piotroski,
     graham_number,

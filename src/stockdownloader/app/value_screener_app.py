@@ -29,7 +29,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from decimal import Decimal, ROUND_HALF_UP
 
-from stockdownloader.analysis.value_screener import ValueScreener
+from stockdownloader.analysis.value.screener import ValueScreener
 from stockdownloader.data.parsers import format_market_cap
 from stockdownloader.data.market.morningstar_client import MorningstarClient
 from stockdownloader.data.stock_list import StockListDownloader

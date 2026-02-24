@@ -27,18 +27,18 @@ pattern_discovery : N-gram pattern mining, filtering, catalog
 gme : GME-specific event study, regime, distribution analysis
 """
 
-from stockdownloader.analysis.formula_calculator import FormulaCalculator, ValuationInputs
+from stockdownloader.analysis.formula import FormulaCalculator, ValuationInputs
 from stockdownloader.analysis.pattern_analyzer import analyze as analyze_patterns
 from stockdownloader.analysis.pattern_analyzer import print_results as print_pattern_results
 from stockdownloader.analysis.alert_generator import generate_alert
 from stockdownloader.analysis.signal_advisor import SignalAdvisor, AdvisorConfig
 from stockdownloader.analysis.alert_store import AlertStore
-from stockdownloader.analysis.options_gamma_analyzer import (
+from stockdownloader.analysis.options.gamma_analyzer import (
     OptionsFlowReport,
     OptionsGammaAnalyzer,
 )
 from stockdownloader.analysis.pattern_encoder import BarEncoder
-from stockdownloader.analysis.value_screener import ValueScreener
+from stockdownloader.analysis.value.screener import ValueScreener
 
 __all__ = [
     # Alerts & signals

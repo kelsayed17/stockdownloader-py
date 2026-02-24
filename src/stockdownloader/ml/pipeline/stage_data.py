@@ -215,7 +215,7 @@ class DataStage:
 
         Returns an :class:`AlternativeDataStore` or ``None`` on total failure.
         """
-        from stockdownloader.ml.alternative_data_store import AlternativeDataStore
+        from stockdownloader.ml.alt_data_store import AlternativeDataStore
 
         alt_cfg: AltDataConfig = self._cfg.alt_data  # type: ignore[assignment]
         symbol = self._cfg.symbol

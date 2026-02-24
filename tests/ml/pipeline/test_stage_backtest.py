@@ -17,7 +17,7 @@ from stockdownloader.ml.pipeline.results import (
     HybridStrategyEntry,
 )
 from stockdownloader.ml.pipeline.stage_backtest import BacktestStage
-from stockdownloader.ml.pipeline.stage_hybrid_strategies import (
+from stockdownloader.ml.pipeline.stage_hybrid import (
     MLConfirmedStrategy,
 )
 from stockdownloader.core.models.price import PriceData
@@ -155,7 +155,7 @@ class TestBacktestStage:
 
     def test_hybrid_walk_forward_produces_degradation(self) -> None:
         """Hybrid strategies should get walk-forward degradation (not None)."""
-        from stockdownloader.ml.pipeline.stage_hybrid_strategies import (
+        from stockdownloader.ml.pipeline.stage_hybrid import (
             MLWeightedStrategy,
         )
 
@@ -265,7 +265,7 @@ class TestBacktestStage:
     def test_true_walk_forward_retrains_models(self) -> None:
         """True WF should retrain ML models per window and produce metrics."""
         from stockdownloader.ml.dataset_builder import LabelConfig
-        from stockdownloader.ml.pipeline.stage_hybrid_strategies import (
+        from stockdownloader.ml.pipeline.stage_hybrid import (
             MLWeightedStrategy,
         )
         from stockdownloader.ml.trainer import MLModelConfig

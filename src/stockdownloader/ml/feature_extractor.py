@@ -30,8 +30,8 @@ from stockdownloader.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from stockdownloader.ml.alternative_data_store import AlternativeDataStore
-    from stockdownloader.ml.hmm_regime_detector import RegimeSnapshot
+    from stockdownloader.ml.alt_data_store import AlternativeDataStore
+    from stockdownloader.ml.hmm_detector import RegimeSnapshot
     from stockdownloader.core.models.price import PriceData
 
 

@@ -339,7 +339,7 @@ def main(argv: list[str] | None = None) -> None:
         print("-" * 50)
         try:
             from collections import Counter
-            from stockdownloader.ml.hmm_regime_detector import HMMRegimeDetector
+            from stockdownloader.ml.hmm_detector import HMMRegimeDetector
             from stockdownloader.ml.pipeline.stage_data import DataStage
 
             daily_data = DataStage._load_csv(Path(daily_csv))

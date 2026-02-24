@@ -20,7 +20,7 @@ from stockdownloader.ml.pipeline.results import PipelineResult
 from stockdownloader.ml.pipeline.stage_backtest import BacktestStage
 from stockdownloader.ml.pipeline.stage_convergence import ConvergenceStage
 from stockdownloader.ml.pipeline.stage_data import DataStage
-from stockdownloader.ml.pipeline.stage_hybrid_strategies import HybridStage
+from stockdownloader.ml.pipeline.stage_hybrid import HybridStage
 from stockdownloader.ml.pipeline.stage_selection import SelectionStage
 from stockdownloader.ml.pipeline.stage_training import TrainingStage
 

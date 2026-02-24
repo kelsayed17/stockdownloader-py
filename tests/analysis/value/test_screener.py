@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.analysis.value_screener import ValueScreener
+from stockdownloader.analysis.value.screener import ValueScreener
 from stockdownloader.core.models.financial import DetailedFinancialData, QuoteData
 
 

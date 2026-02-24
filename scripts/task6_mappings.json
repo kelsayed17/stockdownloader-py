@@ -1,0 +1,10 @@
+{
+  "stockdownloader.analysis.formula_calculator": "stockdownloader.analysis.formula",
+  "stockdownloader.analysis.options_gex": "stockdownloader.analysis.options.gex",
+  "stockdownloader.analysis.options_gamma_analyzer": "stockdownloader.analysis.options.gamma_analyzer",
+  "stockdownloader.analysis.value_screener": "stockdownloader.analysis.value.screener",
+  "stockdownloader.analysis.value_scoring": "stockdownloader.analysis.value.scoring",
+  "stockdownloader.ml.alternative_data_store": "stockdownloader.ml.alt_data_store",
+  "stockdownloader.ml.hmm_regime_detector": "stockdownloader.ml.hmm_detector",
+  "stockdownloader.ml.pipeline.stage_hybrid_strategies": "stockdownloader.ml.pipeline.stage_hybrid"
+}

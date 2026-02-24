@@ -165,7 +165,7 @@ def fetch_live_data(symbol='GME'):
     # 2c. Analyze the chain (whichever source won)
     if chain is not None:
         try:
-            from stockdownloader.analysis.options_gamma_analyzer import OptionsGammaAnalyzer
+            from stockdownloader.analysis.options.gamma_analyzer import OptionsGammaAnalyzer
             analyzer = OptionsGammaAnalyzer()
             report = analyzer.analyze_and_cache(chain)
             LIVE_DATA['options'] = {

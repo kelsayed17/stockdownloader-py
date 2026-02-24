@@ -15,7 +15,7 @@ to compute:
 Usage::
 
     from stockdownloader.data.market.yahoo_options_client import YahooOptionsClient
-    from stockdownloader.analysis.options_gamma_analyzer import OptionsGammaAnalyzer
+    from stockdownloader.analysis.options.gamma_analyzer import OptionsGammaAnalyzer
 
     client = YahooOptionsClient()
     chain = client.download("GME")
@@ -36,7 +36,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 
-from stockdownloader.analysis.options_gex import (
+from stockdownloader.analysis.options.gex import (
     StrikeGamma,
     _MULT,
     combine_signals,

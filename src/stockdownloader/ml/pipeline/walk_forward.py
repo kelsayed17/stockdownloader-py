@@ -230,7 +230,7 @@ def true_walk_forward(
     """
     from stockdownloader.ml.dataset_builder import DatasetBuilder
     from stockdownloader.ml.feature_extractor import FeatureExtractor
-    from stockdownloader.ml.pipeline.stage_hybrid_strategies import (
+    from stockdownloader.ml.pipeline.stage_hybrid import (
         _STRATEGY_CLASS,
     )
     from stockdownloader.ml.trainer import MLTrainer
