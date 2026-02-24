@@ -1,8 +1,9 @@
-"""Ensemble prediction via soft-voting over multiple trained models.
+"""Ensemble prediction via soft-voting or stacking over multiple trained models.
 
-Provides :class:`EnsemblePredictor` for averaging ``predict_proba`` from
-N trained models (soft-voting), and :class:`EnsembleBuilder` for selecting
-the top-performing models from a collection of :class:`TrainingResult`.
+Provides :class:`EnsemblePredictor` for combining ``predict_proba`` from
+N trained models (soft-voting or stacking), and :class:`EnsembleBuilder`
+for selecting the top-performing models from a collection of
+:class:`TrainingResult`.
 
 Usage::
 
@@ -30,24 +31,45 @@ logger = logging.getLogger(__name__)
 
 
 class EnsemblePredictor:
-    """Soft-voting ensemble that averages ``predict_proba`` across models.
+    """Ensemble that combines ``predict_proba`` across models.
+
+    Supports two combination methods:
+
+    * ``"soft_vote"`` (default): averages ``predict_proba[:, 1]`` across
+      all base models.
+    * ``"stacking"``: feeds base model predictions into a
+      :class:`~sklearn.linear_model.LogisticRegression` meta-learner
+      trained via :meth:`fit_stacking`.
 
     Parameters
     ----------
     results:
         Non-empty list of :class:`TrainingResult` objects whose ``.model``
         supports ``predict_proba(X)``.
+    ensemble_method:
+        Combination strategy — ``"soft_vote"`` or ``"stacking"``.
 
     Raises
     ------
     ValueError
-        If *results* is empty.
+        If *results* is empty or *ensemble_method* is invalid.
     """
 
-    def __init__(self, results: list[TrainingResult]) -> None:
+    def __init__(
+        self,
+        results: list[TrainingResult],
+        ensemble_method: str = "soft_vote",
+    ) -> None:
         if not results:
             raise ValueError("EnsemblePredictor requires at least one TrainingResult")
+        if ensemble_method not in ("soft_vote", "stacking"):
+            raise ValueError(
+                f"ensemble_method must be 'soft_vote' or 'stacking', "
+                f"got {ensemble_method!r}"
+            )
         self._results = list(results)
+        self._ensemble_method = ensemble_method
+        self._meta_learner = None  # fitted by fit_stacking()
 
     # ------------------------------------------------------------------
     # Public API
@@ -63,8 +85,66 @@ class EnsemblePredictor:
         """The underlying training results."""
         return list(self._results)
 
+    @property
+    def ensemble_method(self) -> str:
+        """The ensemble combination method."""
+        return self._ensemble_method
+
+    # ------------------------------------------------------------------
+    # Stacking
+    # ------------------------------------------------------------------
+
+    def fit_stacking(self, X: NDArray, y: NDArray) -> None:
+        """Train the stacking meta-learner on base model predictions.
+
+        Parameters
+        ----------
+        X:
+            Feature matrix (n_samples, n_features).
+        y:
+            Binary labels (n_samples,).
+        """
+        from sklearn.linear_model import LogisticRegression
+
+        meta_X = self._base_predictions(X)
+        self._meta_learner = LogisticRegression(
+            max_iter=1000,
+            solver="lbfgs",
+        )
+        self._meta_learner.fit(meta_X, y)
+
+    def _base_predictions(self, X: NDArray) -> NDArray:
+        """Get base model probability predictions as a matrix.
+
+        Returns shape (n_samples, n_models).
+        """
+        preds: list[NDArray] = []
+        for result in self._results:
+            try:
+                proba_2d = result.model.predict_proba(X)
+                preds.append(proba_2d[:, 1])
+            except Exception:
+                logger.warning(
+                    "Model with config %s failed predict_proba — skipping",
+                    result.config,
+                )
+                continue
+        if not preds:
+            raise RuntimeError(
+                "All models failed predict_proba; cannot produce base predictions"
+            )
+        return np.column_stack(preds)
+
+    # ------------------------------------------------------------------
+    # Prediction
+    # ------------------------------------------------------------------
+
     def predict_proba(self, X: NDArray) -> NDArray:
-        """Average P(profitable) across all models.
+        """Compute ensemble probability of the positive class.
+
+        For ``"soft_vote"``: averages ``predict_proba[:, 1]`` across models.
+        For ``"stacking"``: passes base model predictions through a
+        trained LogisticRegression meta-learner.
 
         Parameters
         ----------
@@ -74,9 +154,18 @@ class EnsemblePredictor:
         Returns
         -------
         numpy.ndarray
-            1-D array of shape ``(n_samples,)`` with averaged
+            1-D array of shape ``(n_samples,)`` with ensemble
             probability of the positive class (profitable).
         """
+        if self._ensemble_method == "stacking":
+            if self._meta_learner is None:
+                raise RuntimeError(
+                    "Stacking ensemble requires calling fit_stacking() first"
+                )
+            meta_X = self._base_predictions(X)
+            return self._meta_learner.predict_proba(meta_X)[:, 1]
+
+        # Soft-vote: existing averaging logic
         probas: list[NDArray] = []
         for result in self._results:
             try:
