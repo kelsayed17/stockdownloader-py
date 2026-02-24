@@ -59,6 +59,7 @@ def rewrite_python_file(
         return 0, []
 
     content = original
+    total_replacements = 0
     changes: list[str] = []
 
     for old_path, new_path in mappings:
@@ -70,13 +71,15 @@ def rewrite_python_file(
         pattern_from = re.compile(
             r"(from\s+)" + old_escaped + r"(\s+import\b)"
         )
-        new_content = pattern_from.sub(r"\g<1>" + new_path + r"\2", content)
         count = len(pattern_from.findall(content))
         if count:
+            content = pattern_from.sub(
+                lambda m: m.group(1) + new_path + m.group(2), content
+            )
+            total_replacements += count
             changes.append(
                 f"  from ... import: {old_path} -> {new_path} ({count}x)"
             )
-        content = new_content
 
         # Pattern 3: "import <old_path>" (bare import, possibly with "as" alias
         # or inline comment / noqa).
@@ -89,33 +92,33 @@ def rewrite_python_file(
             + r"(\s|$|;|#)",          # followed by whitespace, EOL, ;, or comment
             re.MULTILINE,
         )
-        new_content = pattern_import.sub(r"\g<1>" + new_path + r"\2", content)
         count = len(pattern_import.findall(content))
         if count:
+            content = pattern_import.sub(
+                lambda m: m.group(1) + new_path + m.group(2), content
+            )
+            total_replacements += count
             changes.append(
                 f"  import ...: {old_path} -> {new_path} ({count}x)"
             )
-        content = new_content
 
         # Pattern 4: String references in lazy imports.
         # Matches import_module("old.path") or import_module('old.path').
         pattern_lazy = re.compile(
             r"(import_module\(\s*[\"'])" + old_escaped + r"([\"']\s*\))"
         )
-        new_content = pattern_lazy.sub(r"\g<1>" + new_path + r"\2", content)
         count = len(pattern_lazy.findall(content))
         if count:
+            content = pattern_lazy.sub(
+                lambda m: m.group(1) + new_path + m.group(2), content
+            )
+            total_replacements += count
             changes.append(
                 f"  import_module(): {old_path} -> {new_path} ({count}x)"
             )
-        content = new_content
 
     if content == original:
         return 0, []
-
-    total_replacements = sum(
-        int(c.split("(")[-1].rstrip("x)")) for c in changes
-    )
 
     if not dry_run:
         filepath.write_text(content, encoding="utf-8")
@@ -142,6 +145,7 @@ def rewrite_json_file(
         return 0, []
 
     content = original
+    total_replacements = 0
     changes: list[str] = []
 
     for old_path, new_path in mappings:
@@ -149,25 +153,24 @@ def rewrite_json_file(
 
         # Match JSON string values containing the old module path.
         # Captures: "...old_path..." where old_path sits between quotes
-        # with possible surrounding text.
+        # with possible surrounding text. Uses a negative lookbehind to
+        # avoid matching when preceded by alphanumeric/underscore chars
+        # (prevents partial substring matches inside longer paths).
         pattern = re.compile(
-            r'("(?:[^"\\]|\\.)*?)' + old_escaped + r'((?:[^"\\]|\\.)*?")'
+            r'("(?:[^"\\]|\\.)*?)(?<![a-zA-Z0-9_])'
+            + old_escaped
+            + r'((?:[^"\\]|\\.)*?")'
         )
 
-        new_content = pattern.sub(r"\g<1>" + new_path + r"\2", content)
         count = len(pattern.findall(content))
         if count:
+            content = pattern.sub(
+                lambda m: m.group(1) + new_path + m.group(2), content
+            )
+            total_replacements += count
             changes.append(
                 f"  json string: {old_path} -> {new_path} ({count}x)"
             )
-        content = new_content
-
-    if content == original:
-        return 0, []
-
-    total_replacements = sum(
-        int(c.split("(")[-1].rstrip("x)")) for c in changes
-    )
 
     if not dry_run:
         filepath.write_text(content, encoding="utf-8")
