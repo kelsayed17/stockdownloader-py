@@ -22,7 +22,7 @@ from stockdownloader.strategies.intraday.pullback import PullbackStrategy
 from stockdownloader.strategies.intraday.pullback import PullbackStrategyConfig
 
 # Real data file
-_DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "SPY" / "5m_bars.csv"
+_DATA_FILE = Path(__file__).resolve().parents[3] / "data" / "SPY" / "5m_bars.csv"
 
 
 @pytest.fixture(scope="module")
