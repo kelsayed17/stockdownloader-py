@@ -223,13 +223,13 @@ class TestInputs:
         self, strategy_def: StrategyDefinition,
     ) -> None:
         inp = next(i for i in strategy_def.inputs if i.name == "buyThresh")
-        assert inp.default == 0.65
+        assert inp.default == 0.55
 
     def test_sell_thresh_default(
         self, strategy_def: StrategyDefinition,
     ) -> None:
         inp = next(i for i in strategy_def.inputs if i.name == "sellThresh")
-        assert inp.default == 0.35
+        assert inp.default == 0.45
 
 
 # ------------------------------------------------------------------

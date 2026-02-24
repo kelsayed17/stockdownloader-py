@@ -90,12 +90,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Minimum samples per leaf in surrogate (default: 10)",
     )
     parser.add_argument(
-        "--buy-thresh", type=float, default=0.65,
-        help="Buy threshold for ML probability (default: 0.65)",
+        "--buy-thresh", type=float, default=0.55,
+        help="Buy threshold for ML probability (default: 0.55)",
     )
     parser.add_argument(
-        "--sell-thresh", type=float, default=0.35,
-        help="Sell threshold for ML probability (default: 0.35)",
+        "--sell-thresh", type=float, default=0.45,
+        help="Sell threshold for ML probability (default: 0.45)",
+    )
+    parser.add_argument(
+        "--initial-capital", type=float, default=100_000.0,
+        help="Initial capital for tournament backtest (default: 100000)",
     )
     parser.add_argument(
         "--min-r2", type=float, default=0.70,
@@ -128,17 +132,41 @@ def _run_tournament(
     surrogate,  # DeepSurrogateExporter
     buy_thresh: float,
     sell_thresh: float,
+    initial_capital: float = 100_000.0,
 ) -> None:
-    """Run a simple walk-through backtest on the surrogate predictions.
+    """Run a portfolio-level walk-through backtest on surrogate predictions.
 
-    Goes long when surrogate prob > buy_thresh, goes short when < sell_thresh.
-    Tracks PnL, win rate, and max drawdown.
+    Uses proper position sizing: ``shares = floor(capital / price)``.
+    Goes long when surrogate prob > *buy_thresh*, short when < *sell_thresh*.
+    Exits to flat when probability returns to neutral zone (between thresholds).
+    Tracks portfolio equity, return %, win rate, max drawdown, and Sharpe ratio.
+
+    Parameters
+    ----------
+    dataset_X:
+        Feature matrix (n_samples, n_features).
+    dataset_dates:
+        Tuple of date strings aligned with *dataset_X*.
+    daily_data:
+        List of price bars (each with ``.date`` and ``.close``).
+    surrogate:
+        Trained :class:`DeepSurrogateExporter`.
+    buy_thresh:
+        Go long when prob > buy_thresh (default 0.55).
+    sell_thresh:
+        Go short when prob < sell_thresh (default 0.45).
+    initial_capital:
+        Starting portfolio value in dollars (default 100,000).
     """
+    import math
+
     import numpy as np
 
     print("\n" + "=" * 60)
-    print("TOURNAMENT: Simple Surrogate Backtest")
+    print("TOURNAMENT: Portfolio Backtest")
     print("=" * 60)
+    print(f"  Initial capital: ${initial_capital:,.0f}")
+    print(f"  Thresholds:      buy>{buy_thresh:.2f}  sell<{sell_thresh:.2f}")
 
     preds = surrogate.predict(dataset_X)
 
@@ -147,11 +175,13 @@ def _run_tournament(
     for bar in daily_data:
         date_close[bar.date] = float(bar.close)
 
-    # Walk through predictions
+    # Portfolio state
+    capital = initial_capital  # cash available
     position = 0  # 1 = long, -1 = short, 0 = flat
+    shares = 0  # shares held (positive for long, negative for short)
     entry_price = 0.0
-    trades: list[float] = []  # list of PnL per trade
-    equity_curve: list[float] = [0.0]
+    trades_pnl: list[float] = []  # dollar PnL per trade
+    equity_curve: list[float] = [initial_capital]
 
     for i in range(len(preds) - 1):
         prob = float(preds[i])
@@ -165,28 +195,65 @@ def _run_tournament(
         if next_close is None:
             continue
 
-        # Entry logic
         if position == 0:
+            # -- Entry from flat --
             if prob > buy_thresh:
-                position = 1
-                entry_price = close
+                shares = math.floor(capital / close)
+                if shares > 0:
+                    entry_price = close
+                    capital -= shares * close
+                    position = 1
             elif prob < sell_thresh:
-                position = -1
-                entry_price = close
+                shares = math.floor(capital / close)
+                if shares > 0:
+                    entry_price = close
+                    capital += shares * close  # short sale proceeds
+                    position = -1
         else:
-            # Exit: reverse signal or flat
-            if position == 1 and prob < sell_thresh:
-                pnl = next_close - entry_price
-                trades.append(pnl)
-                equity_curve.append(equity_curve[-1] + pnl)
-                position = -1
-                entry_price = next_close
-            elif position == -1 and prob > buy_thresh:
-                pnl = entry_price - next_close
-                trades.append(pnl)
-                equity_curve.append(equity_curve[-1] + pnl)
-                position = 1
-                entry_price = next_close
+            # -- Exit to flat when signal leaves threshold zone --
+            should_exit_flat = False
+            if position == 1 and prob <= buy_thresh:
+                should_exit_flat = True
+            elif position == -1 and prob >= sell_thresh:
+                should_exit_flat = True
+
+            if should_exit_flat:
+                if position == 1:
+                    pnl = shares * (next_close - entry_price)
+                    capital += shares * next_close
+                else:
+                    pnl = shares * (entry_price - next_close)
+                    capital -= shares * next_close  # buy back short
+                trades_pnl.append(pnl)
+                position = 0
+                shares = 0
+                entry_price = 0.0
+
+                # Record equity after closing
+                equity_curve.append(capital)
+
+                # -- Immediately check for reversal entry --
+                if prob > buy_thresh:
+                    new_shares = math.floor(capital / next_close)
+                    if new_shares > 0:
+                        entry_price = next_close
+                        capital -= new_shares * next_close
+                        shares = new_shares
+                        position = 1
+                elif prob < sell_thresh:
+                    new_shares = math.floor(capital / next_close)
+                    if new_shares > 0:
+                        entry_price = next_close
+                        capital += new_shares * next_close
+                        shares = new_shares
+                        position = -1
+            else:
+                # Still in position — update equity mark-to-market
+                if position == 1:
+                    mark = capital + shares * next_close
+                else:
+                    mark = capital - shares * next_close
+                equity_curve.append(mark)
 
     # Close final position at last available price
     if position != 0 and len(dataset_dates) > 0:
@@ -194,36 +261,75 @@ def _run_tournament(
         last_close = date_close.get(last_dt)
         if last_close is not None:
             if position == 1:
-                pnl = last_close - entry_price
+                pnl = shares * (last_close - entry_price)
+                capital += shares * last_close
             else:
-                pnl = entry_price - last_close
-            trades.append(pnl)
-            equity_curve.append(equity_curve[-1] + pnl)
+                pnl = shares * (entry_price - last_close)
+                capital -= shares * last_close
+            trades_pnl.append(pnl)
+            equity_curve.append(capital)
+            position = 0
+            shares = 0
 
+    # ------------------------------------------------------------------
     # Compute metrics
-    if not trades:
+    # ------------------------------------------------------------------
+    if not trades_pnl:
         print("  No trades generated.")
         return
 
-    trades_arr = np.array(trades)
-    total_return = float(np.sum(trades_arr))
-    n_trades = len(trades)
+    trades_arr = np.array(trades_pnl)
+    n_trades = len(trades_pnl)
     wins = int(np.sum(trades_arr > 0))
     win_rate = wins / n_trades if n_trades > 0 else 0.0
+
+    final_equity = equity_curve[-1]
+    total_return_pct = (final_equity - initial_capital) / initial_capital * 100.0
+    total_return_dollar = final_equity - initial_capital
 
     # Max drawdown from equity curve
     equity_arr = np.array(equity_curve)
     running_max = np.maximum.accumulate(equity_arr)
-    drawdowns = equity_arr - running_max
-    max_drawdown = float(np.min(drawdowns))
+    drawdowns = (equity_arr - running_max) / running_max
+    max_drawdown_pct = float(np.min(drawdowns)) * 100.0
+    max_drawdown_dollar = float(np.min(equity_arr - running_max))
 
-    print(f"  Total trades:  {n_trades}")
-    print(f"  Win rate:      {win_rate:.1%}")
-    print(f"  Total return:  ${total_return:+.2f}")
-    print(f"  Max drawdown:  ${max_drawdown:.2f}")
-    print(f"  Avg trade PnL: ${float(np.mean(trades_arr)):+.2f}")
-    print(f"  Best trade:    ${float(np.max(trades_arr)):+.2f}")
-    print(f"  Worst trade:   ${float(np.min(trades_arr)):+.2f}")
+    # Annualized Sharpe (daily equity returns → annualized)
+    if len(equity_arr) > 2:
+        daily_returns = np.diff(equity_arr) / equity_arr[:-1]
+        daily_returns = daily_returns[np.isfinite(daily_returns)]
+        if len(daily_returns) > 1 and np.std(daily_returns) > 0:
+            sharpe = (
+                float(np.mean(daily_returns))
+                / float(np.std(daily_returns))
+                * np.sqrt(252)
+            )
+        else:
+            sharpe = 0.0
+    else:
+        sharpe = 0.0
+
+    # Avg trade duration (approximate from # trades and # bars)
+    n_bars = len(equity_curve) - 1
+    avg_hold = n_bars / n_trades if n_trades > 0 else 0
+
+    print(f"\n  {'─' * 40}")
+    print(f"  Total trades:    {n_trades}")
+    print(f"  Win rate:        {win_rate:.1%}")
+    print(f"  Avg hold (bars): {avg_hold:.0f}")
+    print(f"  {'─' * 40}")
+    print(f"  Initial capital: ${initial_capital:>12,.2f}")
+    print(f"  Final equity:    ${final_equity:>12,.2f}")
+    print(f"  Total return:    ${total_return_dollar:>+12,.2f}"
+          f"  ({total_return_pct:+.1f}%)")
+    print(f"  {'─' * 40}")
+    print(f"  Max drawdown:    ${max_drawdown_dollar:>12,.2f}"
+          f"  ({max_drawdown_pct:.1f}%)")
+    print(f"  Sharpe ratio:    {sharpe:>12.2f}")
+    print(f"  {'─' * 40}")
+    print(f"  Avg trade PnL:   ${float(np.mean(trades_arr)):>+12,.2f}")
+    print(f"  Best trade:      ${float(np.max(trades_arr)):>+12,.2f}")
+    print(f"  Worst trade:     ${float(np.min(trades_arr)):>+12,.2f}")
 
 
 # ======================================================================
@@ -275,6 +381,7 @@ def main(argv: list[str] | None = None) -> None:
     print(f"  Surrogate:     depth={args.depth}, "
           f"features={args.top_features}, min_leaf={args.min_leaf}")
     print(f"  Thresholds:    buy={args.buy_thresh}, sell={args.sell_thresh}")
+    print(f"  Capital:       ${args.initial_capital:,.0f}")
     print(f"  Output:        {output_dir}")
     print()
 
@@ -444,6 +551,7 @@ def main(argv: list[str] | None = None) -> None:
             exporter,
             args.buy_thresh,
             args.sell_thresh,
+            initial_capital=args.initial_capital,
         )
 
     # ------------------------------------------------------------------

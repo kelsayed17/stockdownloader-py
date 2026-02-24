@@ -40,8 +40,8 @@ if TYPE_CHECKING:
 
 def spy_ml_ensemble_strategy(
     exporter: DeepSurrogateExporter,
-    buy_threshold: float = 0.65,
-    sell_threshold: float = 0.35,
+    buy_threshold: float = 0.55,
+    sell_threshold: float = 0.45,
 ) -> StrategyDefinition:
     """Build a strategy definition for the SPY ML Ensemble strategy.
 
@@ -54,9 +54,9 @@ def spy_ml_ensemble_strategy(
     exporter:
         A trained :class:`DeepSurrogateExporter`.
     buy_threshold:
-        Probability above which a buy signal fires (default 0.65).
+        Probability above which a buy signal fires (default 0.55).
     sell_threshold:
-        Probability below which a sell signal fires (default 0.35).
+        Probability below which a sell signal fires (default 0.45).
 
     Returns
     -------
