@@ -5,7 +5,7 @@ from decimal import Decimal
 from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.core.models.trade import Direction
 from stockdownloader.strategy.intraday.session_state import SessionState
-from stockdownloader.util.indicators.volume import ExtendedSessionVWAP
+from stockdownloader.indicators.volume import ExtendedSessionVWAP
 
 _ZERO = Decimal("0")
 

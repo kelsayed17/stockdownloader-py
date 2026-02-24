@@ -15,7 +15,7 @@ from abc import ABC, abstractmethod
 from enum import Enum, auto
 from typing import TYPE_CHECKING
 
-from stockdownloader.util.pinescript.models import StrategyDefinition
+from stockdownloader.pinescript.models import StrategyDefinition
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData, PriceData
@@ -57,8 +57,8 @@ class TradingStrategy(ABC):
     def to_pinescript(self) -> StrategyDefinition:
         """Convert this strategy to a PineScript v6 strategy definition.
 
-        Returns a :class:`~stockdownloader.util.pinescript_models.StrategyDefinition`
-        that :class:`~stockdownloader.util.pinescript_generator.PineScriptGenerator`
+        Returns a :class:`~stockdownloader.pinescript.models.StrategyDefinition`
+        that :class:`~stockdownloader.pinescript.generator.PineScriptGenerator`
         can render into Pine Script v6 code.
 
         Override in subclasses that support PineScript generation.

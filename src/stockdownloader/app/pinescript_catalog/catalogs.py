@@ -34,7 +34,7 @@ from stockdownloader.strategy.daily.multi_indicator_strategy import (
 from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
 from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
 from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
-from stockdownloader.util.pinescript.models import (
+from stockdownloader.pinescript.models import (
     CompositeStrategyDefinition,
     Condition,
     Indicator,
@@ -42,9 +42,9 @@ from stockdownloader.util.pinescript.models import (
     ModeDefinition,
     StrategyDefinition,
 )
-from stockdownloader.util.pinescript import mode_to_strategy, strategy_to_mode
+from stockdownloader.pinescript import mode_to_strategy, strategy_to_mode
 from stockdownloader.app.pinescript_catalog.gme_prediction import gme_prediction_strategy
-from stockdownloader.util.pinescript.modes import (
+from stockdownloader.pinescript.modes import (
     pb_mode as _pb_mode,
     rev_mode as _rev_mode,
     orb_mode as _orb_mode,

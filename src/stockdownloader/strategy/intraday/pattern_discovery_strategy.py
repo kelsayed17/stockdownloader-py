@@ -36,7 +36,7 @@ from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import VwapRatchetTrail
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 from stockdownloader.core.math import ZERO
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from stockdownloader.analysis.pattern_discovery import (

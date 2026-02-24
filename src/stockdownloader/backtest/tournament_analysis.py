@@ -49,7 +49,7 @@ def classify_timeframe_bars(
     -------
     Dict mapping bar date string to MarketRegime.
     """
-    from stockdownloader.util.indicators.hub import IndicatorHub
+    from stockdownloader.indicators.hub import IndicatorHub
     from stockdownloader.strategy.regime.regime_detector import MarketRegimeDetector
 
     hub = IndicatorHub()

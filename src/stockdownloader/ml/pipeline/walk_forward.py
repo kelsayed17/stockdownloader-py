@@ -236,7 +236,7 @@ def true_walk_forward(
     from stockdownloader.ml.trainer import MLTrainer
     from stockdownloader.strategy.registration_loader import ensure_registered
     from stockdownloader.strategy.base_registry import StrategyRegistry
-    from stockdownloader.util.indicators.hub import IndicatorHub
+    from stockdownloader.indicators.hub import IndicatorHub
 
     ensure_registered()
 

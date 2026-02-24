@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import PriceData
-    from stockdownloader.util.indicators.hub import IndicatorHub
+    from stockdownloader.indicators.hub import IndicatorHub
 
 
 @dataclass(frozen=True, slots=True)
@@ -112,7 +112,7 @@ class IndicatorValues:
             requested at the same index elsewhere.
         """
         if hub is None:
-            from stockdownloader.util.indicators.hub import IndicatorHub
+            from stockdownloader.indicators.hub import IndicatorHub
             hub = IndicatorHub()
 
         bar = data[index]

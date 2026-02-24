@@ -13,14 +13,14 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
-from stockdownloader.util.indicators import (
+from stockdownloader.indicators import (
     crossed_above,
     crossed_below,
     crossed_above_series,
     crossed_below_series,
 )
-from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.pinescript.models import (
+from stockdownloader.indicators.hub import IndicatorHub
+from stockdownloader.pinescript.models import (
     Condition, Indicator, Input, StrategyDefinition,
 )
 

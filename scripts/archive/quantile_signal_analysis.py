@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 
 # ── constants ─────────────────────────────────────────────────────
 DATA_FILE = ROOT / "data" / "spy_5m_bars.csv"

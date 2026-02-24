@@ -26,7 +26,7 @@ from stockdownloader.strategy.regime.regime_detector import MarketRegimeDetector
 from stockdownloader.strategy.signals.signal_generator import AtomicSignalGenerator
 from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
 import stockdownloader.strategy.signals.generators  # noqa: F401 — trigger registry population
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

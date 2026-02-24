@@ -174,7 +174,7 @@ class BaseRegistry(Generic[T]):
         ----------
         config_path:
             Path to a JSON config file.  Resolved via
-            :func:`~stockdownloader.util.config_loader.load_config`.
+            :func:`~stockdownloader.core.config.load_config`.
 
         Returns
         -------

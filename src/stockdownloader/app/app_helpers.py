@@ -178,7 +178,7 @@ def load_intraday_data(
         Path to the intraday CSV file.
     print_fn:
         Callable used for output (defaults to :func:`print`).  Pass a
-        :class:`~stockdownloader.util.file_helper.TeeWriter`
+        :class:`~stockdownloader.core.io.TeeWriter`
         ``write`` method to log simultaneously.
 
     Returns

@@ -17,7 +17,7 @@ import numpy as np
 
 from stockdownloader.ml.feature_extractor import FeatureExtractor
 from stockdownloader.ml.model_store import ModelMetadata, ModelStore
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

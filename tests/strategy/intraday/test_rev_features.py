@@ -21,7 +21,7 @@ import pytest
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategyConfig
 from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
 from stockdownloader.strategy.intraday.session_state import SessionState
-from stockdownloader.util.pinescript.modes import rev_mode as _rev_mode
+from stockdownloader.pinescript.modes import rev_mode as _rev_mode
 
 _ZERO = Decimal("0")
 _D = Decimal

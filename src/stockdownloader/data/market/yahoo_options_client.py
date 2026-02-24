@@ -267,7 +267,7 @@ def _enrich_greeks_if_missing(chain: OptionsChain) -> OptionsChain:
         return chain
 
     # Lazy import to avoid circular dependency
-    from stockdownloader.util.options import black_scholes as bsc
+    from stockdownloader.analysis.options import pricing as bsc
 
     spot = chain.underlying_price
     if spot <= Decimal(0):

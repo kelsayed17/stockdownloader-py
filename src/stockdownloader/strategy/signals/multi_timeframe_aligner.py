@@ -31,7 +31,7 @@ from stockdownloader.strategy.signals.signal_generator import (
     AtomicSignalGenerator,
     SignalResult,
 )
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 from stockdownloader.core.timeframe import Timeframe
 
 if TYPE_CHECKING:

@@ -63,7 +63,7 @@ class TrainingStage:
         from stockdownloader.ml.dataset_builder import DatasetBuilder, LabelConfig
         from stockdownloader.ml.feature_extractor import FeatureExtractor
         from stockdownloader.ml.trainer import MLModelConfig, MLTrainer
-        from stockdownloader.util.indicators.hub import IndicatorHub
+        from stockdownloader.indicators.hub import IndicatorHub
 
         data = data_result.data
         hub = IndicatorHub()

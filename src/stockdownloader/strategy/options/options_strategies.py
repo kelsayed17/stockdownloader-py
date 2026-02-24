@@ -23,7 +23,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING
 
 from stockdownloader.core.models.options import OptionType
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import PriceData

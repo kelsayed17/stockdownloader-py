@@ -1,0 +1,22 @@
+{
+  "stockdownloader.util.indicators._core": "stockdownloader.indicators.core",
+  "stockdownloader.util.indicators.volatility": "stockdownloader.indicators.volatility",
+  "stockdownloader.util.indicators.momentum": "stockdownloader.indicators.momentum",
+  "stockdownloader.util.indicators.trend": "stockdownloader.indicators.trend",
+  "stockdownloader.util.indicators.volume": "stockdownloader.indicators.volume",
+  "stockdownloader.util.indicators.intraday": "stockdownloader.indicators.intraday",
+  "stockdownloader.util.indicators.smc": "stockdownloader.indicators.smc",
+  "stockdownloader.util.indicators.htf": "stockdownloader.indicators.htf",
+  "stockdownloader.util.indicators.hub_intraday": "stockdownloader.indicators.hub_intraday",
+  "stockdownloader.util.indicators.hub": "stockdownloader.indicators.hub",
+  "stockdownloader.util.indicators": "stockdownloader.indicators",
+  "stockdownloader.util.pinescript.models": "stockdownloader.pinescript.models",
+  "stockdownloader.util.pinescript.generator": "stockdownloader.pinescript.generator",
+  "stockdownloader.util.pinescript.strategy_renderer": "stockdownloader.pinescript.strategy_renderer",
+  "stockdownloader.util.pinescript.composite_renderer": "stockdownloader.pinescript.composite_renderer",
+  "stockdownloader.util.pinescript.modes": "stockdownloader.pinescript.modes",
+  "stockdownloader.util.pinescript.ml_export": "stockdownloader.pinescript.ml_export",
+  "stockdownloader.util.pinescript": "stockdownloader.pinescript",
+  "stockdownloader.util.options.black_scholes": "stockdownloader.analysis.options.pricing",
+  "stockdownloader.util.options": "stockdownloader.analysis.options"
+}

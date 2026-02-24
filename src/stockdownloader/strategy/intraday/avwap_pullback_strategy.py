@@ -24,7 +24,7 @@ from stockdownloader.strategy.intraday.session_state import BarContext
 from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import VwapRatchetTrail
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
-from stockdownloader.util.indicators.intraday import candle_strength
+from stockdownloader.indicators.intraday import candle_strength
 from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:

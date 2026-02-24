@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from stockdownloader.core.models.price import PriceData
-    from stockdownloader.util.indicators.hub import IndicatorHub
+    from stockdownloader.indicators.hub import IndicatorHub
 
 
 class BBTouchGenerator(AtomicSignalGenerator):

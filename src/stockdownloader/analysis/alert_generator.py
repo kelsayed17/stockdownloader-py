@@ -22,8 +22,8 @@ from typing import TYPE_CHECKING
 from stockdownloader.core.models.alert import AlertResult, AlertDirection, OptionsRecommendation, Action
 from stockdownloader.core.models.indicator import IndicatorValues
 from stockdownloader.core.models.options import OptionType
-from stockdownloader.util.options import black_scholes as bsc
-from stockdownloader.util import indicators as ti
+from stockdownloader.analysis.options import pricing as bsc
+from stockdownloader import indicators as ti
 from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.exit_mechanisms.trailing_exit_base import TrailingExitBase
 from stockdownloader.core.math import ZERO
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData

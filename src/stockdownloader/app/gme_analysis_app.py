@@ -77,7 +77,7 @@ _V = "\u2551"   # ║
 
 
 class _TeeWriter:
-    """Callable tee — delegates to :class:`~stockdownloader.util.file_helper.TeeWriter`.
+    """Callable tee — delegates to :class:`~stockdownloader.core.io.TeeWriter`.
 
     Provides ``out("text")`` callable interface used throughout this module.
     When no log path is given, writes to stdout only.

@@ -29,7 +29,7 @@ from stockdownloader.core.models.trade import (
 )
 from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 from stockdownloader.core.math import ZERO
 
 class DailyToIntradayAdapter(IntradayTradingStrategy):

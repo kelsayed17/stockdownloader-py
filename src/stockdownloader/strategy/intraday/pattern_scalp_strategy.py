@@ -28,8 +28,8 @@ from stockdownloader.strategy.intraday.infra import IntradayInfra
 from stockdownloader.strategy.intraday.trail_strategy import BreakevenTrail
 from stockdownloader.strategy.intraday.base_strategy import BaseIntradayStrategy
 from stockdownloader.core.math import HUNDRED, ZERO
-from stockdownloader.util.pinescript.models import ModeDefinition
-from stockdownloader.util.pinescript.modes import ps_mode
+from stockdownloader.pinescript.models import ModeDefinition
+from stockdownloader.pinescript.modes import ps_mode
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData

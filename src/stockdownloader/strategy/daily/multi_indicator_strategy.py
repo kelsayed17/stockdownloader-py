@@ -18,8 +18,8 @@ from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
 from stockdownloader.core.models.indicator import IndicatorValues
-from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.pinescript.models import (
+from stockdownloader.indicators.hub import IndicatorHub
+from stockdownloader.pinescript.models import (
     Condition, Indicator, Input, StrategyDefinition,
 )
 

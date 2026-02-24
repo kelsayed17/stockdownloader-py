@@ -15,7 +15,7 @@ from stockdownloader.strategy.regime.regime_detector import (
     RegimeClassification,
     RegimeDetectorConfig,
 )
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 
 
 # ---------------------------------------------------------------------------

@@ -11,7 +11,7 @@ from stockdownloader.strategy.signals.signal_generator import (
     SignalDirection,
     SignalResult,
 )
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 
 
 # ======================================================================

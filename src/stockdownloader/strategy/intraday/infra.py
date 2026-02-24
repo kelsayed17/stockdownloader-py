@@ -25,9 +25,9 @@ from stockdownloader.core.models.trade import Direction
 from stockdownloader.strategy.intraday.trade_management import IntradayExitManager
 from stockdownloader.strategy.intraday.session_state import BarContext, SessionState
 from stockdownloader.core.math import HUNDRED, ZERO
-from stockdownloader.util.indicators.hub import IndicatorHub
+from stockdownloader.indicators.hub import IndicatorHub
 from stockdownloader.strategy.intraday.day_tracker import DayTracker
-from stockdownloader.util.indicators.intraday import compute_sr_score
+from stockdownloader.indicators.intraday import compute_sr_score
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData

@@ -11,7 +11,7 @@ relative volume, getting O(1) streaming performance per bar.
 Usage::
 
     from stockdownloader.analysis.pattern_encoder import BarEncoder, BarFeatures
-    from stockdownloader.util.indicators.hub import IndicatorHub
+    from stockdownloader.indicators.hub import IndicatorHub
 
     hub = IndicatorHub()
     encoder = BarEncoder(hub)
@@ -28,7 +28,7 @@ from stockdownloader.core.math import ZERO
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData
     from stockdownloader.strategy.regime.regime_detector import MarketRegime
-    from stockdownloader.util.indicators.hub import IndicatorHub
+    from stockdownloader.indicators.hub import IndicatorHub
 
 
 # =========================================================================

@@ -7,12 +7,12 @@ from typing import TYPE_CHECKING
 
 from stockdownloader.strategy.intraday.session_state import SessionState
 from stockdownloader.core.math import HUNDRED, ZERO
-from stockdownloader.util.indicators.intraday import daily_atr_prior
+from stockdownloader.indicators.intraday import daily_atr_prior
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData, PriceData
     from stockdownloader.strategy.intraday.base_strategy import InfraExitConfig
-    from stockdownloader.util.indicators.hub import IndicatorHub
+    from stockdownloader.indicators.hub import IndicatorHub
 
 
 # =========================================================================
