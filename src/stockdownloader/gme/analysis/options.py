@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from stockdownloader.analysis.gme.models import OptionsAnalysis
+from stockdownloader.gme.analysis.models import OptionsAnalysis
 from stockdownloader.core.models.options import OptionContract, OptionsChain
 
 _ZERO = Decimal("0")

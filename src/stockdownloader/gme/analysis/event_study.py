@@ -12,7 +12,7 @@ from collections import defaultdict
 
 from scipy.stats import t as t_dist
 
-from stockdownloader.analysis.gme.models import EventStudyResult, FilingImpact
+from stockdownloader.gme.analysis.models import EventStudyResult, FilingImpact
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.models.regulatory import SecFiling
 

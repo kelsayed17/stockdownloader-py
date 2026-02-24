@@ -26,7 +26,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
 from stockdownloader.app.helpers import add_log_arg
-from stockdownloader.analysis.gme import (
+from stockdownloader.gme.analysis import (
     EventStudyResult,
     FilingImpact,
     KeyPeriod,

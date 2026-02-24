@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from stockdownloader.analysis.gme import (
+from stockdownloader.gme.analysis import (
     analyze_options_chain,
     correlate_filings_with_price,
     detect_key_periods,

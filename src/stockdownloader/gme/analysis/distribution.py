@@ -12,7 +12,7 @@ from scipy.stats import (
     t as t_dist,
 )
 
-from stockdownloader.analysis.gme.models import (
+from stockdownloader.gme.analysis.models import (
     PriceStatistics,
     ReturnDistribution,
     VolumeProfile,

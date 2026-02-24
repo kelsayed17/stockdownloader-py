@@ -1,19 +1,19 @@
 """GME deep analysis -- modular analysis package.
 
 Re-exports all public dataclasses and analysis functions so callers
-can use ``from stockdownloader.analysis.gme import run_event_study``.
+can use ``from stockdownloader.gme.analysis import run_event_study``.
 """
 
-from stockdownloader.analysis.gme.distribution import (
+from stockdownloader.gme.analysis.distribution import (
     analyze_return_distribution,
     compute_price_statistics,
     compute_volume_profile,
 )
-from stockdownloader.analysis.gme.event_study import (
+from stockdownloader.gme.analysis.event_study import (
     correlate_filings_with_price,
     run_event_study,
 )
-from stockdownloader.analysis.gme.models import (
+from stockdownloader.gme.analysis.models import (
     EventStudyResult,
     FilingImpact,
     KeyPeriod,
@@ -24,8 +24,8 @@ from stockdownloader.analysis.gme.models import (
     VolatilityRegime,
     VolumeProfile,
 )
-from stockdownloader.analysis.gme.options import analyze_options_chain
-from stockdownloader.analysis.gme.regime import (
+from stockdownloader.gme.analysis.options import analyze_options_chain
+from stockdownloader.gme.analysis.regime import (
     detect_key_periods,
     detect_structural_breaks,
     detect_volatility_regimes,

@@ -11,7 +11,7 @@ from scipy.stats import (
     skew as scipy_skew,
 )
 
-from stockdownloader.analysis.gme.models import (
+from stockdownloader.gme.analysis.models import (
     KeyPeriod,
     StructuralBreak,
     VolatilityRegime,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from stockdownloader.analysis.gme import (
+from stockdownloader.gme.analysis import (
     analyze_return_distribution,
     compute_price_statistics,
     compute_volume_profile,
