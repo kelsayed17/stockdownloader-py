@@ -1,5 +1,5 @@
 """Intraday strategy wrapper bridging multi-timeframe signal stacks to
-:class:`~stockdownloader.backtest.intraday_backtest_engine.IntradayBacktestEngine`.
+:class:`~stockdownloader.backtesting.engines.intraday.IntradayBacktestEngine`.
 
 Lazily initializes a :class:`TimeframeAggregator` and
 :class:`MultiTimeframeAligner` on first evaluation.  Produces

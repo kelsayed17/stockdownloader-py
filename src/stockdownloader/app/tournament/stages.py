@@ -10,7 +10,7 @@ from stockdownloader.app.tournament.helpers import (
     _build_skip_set,
     _status_label,
 )
-from stockdownloader.backtest.tournament_engine import (
+from stockdownloader.backtesting.tournament.engine import (
     ComboKey,
     ComboResult,
     apply_cross_timeframe_bonus,

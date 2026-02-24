@@ -32,7 +32,7 @@ from stockdownloader.app.app_helpers import (
     print_banner,
     print_data_summary,
 )
-from stockdownloader.backtest import report_formatter
+from stockdownloader.backtesting.results import formatter as report_formatter
 
 logger = logging.getLogger(__name__)
 
@@ -369,19 +369,19 @@ def _run_backtest(
 
     # ── Run ──────────────────────────────────────────────────────────
     if backtest_type in ("intraday", "dmi_vwap"):
-        from stockdownloader.backtest.intraday_backtest_engine import (
+        from stockdownloader.backtesting.engines.intraday import (
             IntradayBacktestEngine,
         )
 
         engine = IntradayBacktestEngine(INITIAL_CAPITAL, RISK_PER_TRADE)
     elif backtest_type == "options":
-        from stockdownloader.backtest.options_backtest_engine import (
+        from stockdownloader.backtesting.engines.options import (
             OptionsBacktestEngine,
         )
 
         engine = OptionsBacktestEngine(INITIAL_CAPITAL, OPTIONS_COMMISSION)
     else:
-        from stockdownloader.backtest.backtest_engine import BacktestEngine
+        from stockdownloader.backtesting.engines.daily import BacktestEngine
 
         engine = BacktestEngine(INITIAL_CAPITAL, Decimal("0"))
 

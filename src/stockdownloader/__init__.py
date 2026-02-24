@@ -1,9 +1,9 @@
 """Stock analysis, backtesting, and options trading platform."""
 
-from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
+from stockdownloader.backtesting.engines.daily import BacktestEngine
+from stockdownloader.backtesting.results.result import BacktestResult
+from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
+from stockdownloader.backtesting.engines.options import OptionsBacktestEngine
 from stockdownloader.data.market.yahoo_data_client import YahooDataClient
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.models.price import IntradayPriceData

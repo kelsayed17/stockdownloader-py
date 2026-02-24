@@ -15,7 +15,7 @@ from stockdownloader.app.tournament.helpers import (
     _build_skip_set,
     _status_label,
 )
-from stockdownloader.backtest.tournament_engine import ComboKey, ComboResult
+from stockdownloader.backtesting.tournament.engine import ComboKey, ComboResult
 
 
 class TestBoxTitle:

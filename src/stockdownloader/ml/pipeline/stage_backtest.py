@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from decimal import Decimal
 from typing import Callable
 
-from stockdownloader.backtest.backtest_engine import BacktestEngine
+from stockdownloader.backtesting.engines.daily import BacktestEngine
 from stockdownloader.ml.pipeline.config import BacktestConfig
 from stockdownloader.ml.pipeline.results import (
     BacktestEntry,

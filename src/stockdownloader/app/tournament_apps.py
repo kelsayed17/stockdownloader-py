@@ -46,9 +46,9 @@ import time
 from decimal import Decimal
 from pathlib import Path
 
-from stockdownloader.backtest.exit_tournament_engine import ExitTournamentEngine
-from stockdownloader.backtest import exit_tournament_report_formatter
-from stockdownloader.backtest.combinatorial_tester import (
+from stockdownloader.backtesting.tournament.exit_engine import ExitTournamentEngine
+from stockdownloader.backtesting.tournament import exit_report as exit_tournament_report_formatter
+from stockdownloader.backtesting.combinatorial import (
     CombinatorialConfig,
     CombinatorialTester,
 )

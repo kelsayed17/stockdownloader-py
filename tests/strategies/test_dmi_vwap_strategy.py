@@ -434,7 +434,7 @@ class TestDmiVwapConfigVariations:
 class TestDmiVwapBacktest:
     def test_runs_in_backtest_engine(self):
         """Strategy should work with IntradayBacktestEngine."""
-        from stockdownloader.backtest.intraday_backtest_engine import (
+        from stockdownloader.backtesting.engines.intraday import (
             IntradayBacktestEngine,
         )
 
@@ -458,7 +458,7 @@ class TestDmiVwapBacktest:
 
     def test_backtest_produces_trades(self):
         """Should produce at least some trades on trending data."""
-        from stockdownloader.backtest.intraday_backtest_engine import (
+        from stockdownloader.backtesting.engines.intraday import (
             IntradayBacktestEngine,
         )
 

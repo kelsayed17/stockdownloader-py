@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from stockdownloader.backtest.backtest_result import BacktestResult
+    from stockdownloader.backtesting.results.result import BacktestResult
     from stockdownloader.ml.dataset_builder import LabelConfig, MLDataset
     from stockdownloader.ml.trainer import MLModelConfig, TrainingResult
     from stockdownloader.core.models.price import PriceData

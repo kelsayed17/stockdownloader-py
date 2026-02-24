@@ -11,9 +11,9 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from stockdownloader.app.app_helpers import status_label
 from stockdownloader.app.pipeline.helpers import unique_days
 from stockdownloader.app.pipeline.models import SlotResult
-from stockdownloader.backtest.backtest_result import BaseBacktestResult
-from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.backtest.walk_forward import WalkForwardResult, WalkForwardValidator
+from stockdownloader.backtesting.results.result import BaseBacktestResult
+from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
+from stockdownloader.backtesting.optimization.walk_forward import WalkForwardResult, WalkForwardValidator
 from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.strategies.intraday.daily_adapter import DailyToIntradayAdapter
 from stockdownloader.strategies.loader import ensure_registered
@@ -54,7 +54,7 @@ def _baseline_one_slot(
         elif slot.category == "options":
             if not daily_data:
                 return slot, None, time.time() - t0, "SKIPPED (no daily data)"
-            from stockdownloader.backtest.options_backtest_engine import (
+            from stockdownloader.backtesting.engines.options import (
                 OptionsBacktestEngine,
             )
             opt_engine = OptionsBacktestEngine(INITIAL_CAPITAL, OPTIONS_COMMISSION)
@@ -151,7 +151,7 @@ def _optimize_one_strategy(
     Each call creates its own WalkForwardOptimizer instance so greedy
     search mutable state (``_best_score``, ``_best_result``) is isolated.
     """
-    from stockdownloader.backtest.walk_forward_optimizer import (
+    from stockdownloader.backtesting.optimization.wf_optimizer import (
         WalkForwardOptimizer,
     )
 
@@ -171,7 +171,7 @@ def _run_optimize_wf(
     out,
 ) -> None:
     """Walk-forward optimizer: search IS, validate OOS (parallelized)."""
-    from stockdownloader.backtest.walk_forward_optimizer import (
+    from stockdownloader.backtesting.optimization.wf_optimizer import (
         WalkForwardOptimizer,
     )
 
@@ -279,7 +279,7 @@ def _run_optimize_full(
 
         try:
             if slot.category == "intraday":
-                from stockdownloader.backtest.strategy_optimizer import (
+                from stockdownloader.backtesting.optimization.strategy import (
                     StrategyOptimizer,
                 )
                 optimizer = StrategyOptimizer(
@@ -290,7 +290,7 @@ def _run_optimize_full(
                 )
                 entry = StrategyRegistry.get(slot.name)
                 if entry.param_space:
-                    from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
+                    from stockdownloader.backtesting.optimization.scoring import score_v2 as _score
 
                     baseline_strategy = entry.factory(**entry.default_kwargs)
                     default_config = baseline_strategy._infra._c
@@ -315,7 +315,7 @@ def _run_optimize_full(
                         out(f"    No improvement found")
 
             elif slot.category == "daily":
-                from stockdownloader.backtest.daily_strategy_optimizer import (
+                from stockdownloader.backtesting.optimization.daily import (
                     DailyStrategyOptimizer,
                 )
                 daily_opt = DailyStrategyOptimizer(
@@ -327,7 +327,7 @@ def _run_optimize_full(
                 )
                 best_kwargs, best_result = daily_opt.optimize()
                 trading_days = unique_days(intraday_data)
-                from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
+                from stockdownloader.backtesting.optimization.scoring import score_v2 as _score
                 baseline_score = _score(slot.baseline, trading_days=trading_days)
                 opt_score = _score(best_result, trading_days=trading_days)
                 if opt_score > baseline_score:

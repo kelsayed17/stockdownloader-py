@@ -9,7 +9,7 @@ with ML confidence:
 * **MLOverrideStrategy** — ML drives timing, strategy filters.
 
 All three are proper :class:`TradingStrategy` subclasses so the existing
-:class:`~stockdownloader.backtest.backtest_engine.BacktestEngine` runs
+:class:`~stockdownloader.backtesting.engines.daily.BacktestEngine` runs
 them without modification.
 """
 

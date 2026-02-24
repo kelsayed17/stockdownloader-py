@@ -9,7 +9,7 @@ from stockdownloader.app.tournament.helpers import (
     _box_title,
     _status_label,
 )
-from stockdownloader.backtest.tournament_engine import (
+from stockdownloader.backtesting.tournament.engine import (
     INITIAL_CAPITAL,
     ComboKey,
     ComboResult,
@@ -19,7 +19,7 @@ from stockdownloader.backtest.tournament_engine import (
     run_monte_carlo,
     run_regime_analysis,
 )
-from stockdownloader.backtest.portfolio_analyzer import (
+from stockdownloader.backtesting.portfolio import (
     correlation_matrix,
     portfolio_equity_curve,
     portfolio_metrics,

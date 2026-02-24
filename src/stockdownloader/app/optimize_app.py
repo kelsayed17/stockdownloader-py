@@ -42,9 +42,9 @@ from decimal import Decimal
 
 from stockdownloader.app.app_helpers import add_intraday_csv_arg, add_log_arg
 from stockdownloader.app.app_helpers import status_label as _status_label
-from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.backtest.strategy_optimizer import StrategyOptimizer
-from stockdownloader.backtest.walk_forward import WalkForwardValidator
+from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
+from stockdownloader.backtesting.optimization.strategy import StrategyOptimizer
+from stockdownloader.backtesting.optimization.walk_forward import WalkForwardValidator
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.strategies.intraday.or_breakout import ORBreakoutStrategy
 from stockdownloader.strategies.intraday.or_reversal import ORReversalStrategy
@@ -159,7 +159,7 @@ def main_optimize() -> None:
                 )
                 optimizer.optimize()
             elif entry.category == "daily":
-                from stockdownloader.backtest.daily_strategy_optimizer import DailyStrategyOptimizer
+                from stockdownloader.backtesting.optimization.daily import DailyStrategyOptimizer
                 opt = DailyStrategyOptimizer(
                     strategy_name=args.strategy,
                     data=data,

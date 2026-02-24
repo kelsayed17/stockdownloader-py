@@ -4,7 +4,7 @@ from __future__ import annotations
 from stockdownloader.app.app_helpers import status_label
 from stockdownloader.app.pipeline.helpers import unique_days
 from stockdownloader.app.pipeline.models import SlotResult
-from stockdownloader.backtest.backtest_result import BacktestResult
+from stockdownloader.backtesting.results.result import BacktestResult
 from stockdownloader.core.models.price import IntradayPriceData
 
 

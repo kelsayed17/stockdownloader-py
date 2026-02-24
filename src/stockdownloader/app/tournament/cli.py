@@ -22,7 +22,7 @@ from stockdownloader.app.tournament.stages_advanced import (
     _run_portfolio,
     _run_regime_analysis,
 )
-from stockdownloader.backtest.tournament_engine import (
+from stockdownloader.backtesting.tournament.engine import (
     TournamentResult,
     apply_cross_timeframe_bonus,
 )

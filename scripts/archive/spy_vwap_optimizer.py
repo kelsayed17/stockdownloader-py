@@ -23,9 +23,9 @@ from typing import Any
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root / "src"))
 
-from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.backtest.optimizer_scoring import score as default_score
+from stockdownloader.backtesting.results.result import BacktestResult
+from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
+from stockdownloader.backtesting.optimization.scoring import score as default_score
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.core.models.trade import HOLD, IntradayAction, IntradaySignal

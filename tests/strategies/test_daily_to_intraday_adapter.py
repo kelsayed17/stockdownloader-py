@@ -503,8 +503,8 @@ class TestIntegration:
 
     def test_full_backtest_with_sma_adapter(self, real_data):
         """Run a full backtest with an adapted SMA strategy."""
-        from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-        from stockdownloader.backtest.backtest_result import BacktestResult
+        from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
+        from stockdownloader.backtesting.results.result import BacktestResult
         from stockdownloader.strategies.daily.simple import SMACrossoverStrategy
 
         strat = SMACrossoverStrategy(short_period=9, long_period=21)
@@ -518,8 +518,8 @@ class TestIntegration:
 
     def test_full_backtest_with_rsi_adapter(self, real_data):
         """Run a full backtest with an adapted RSI strategy."""
-        from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-        from stockdownloader.backtest.backtest_result import BacktestResult
+        from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
+        from stockdownloader.backtesting.results.result import BacktestResult
         from stockdownloader.strategies.daily.simple import RSIStrategy
 
         strat = RSIStrategy(period=14, oversold=30.0, overbought=70.0)

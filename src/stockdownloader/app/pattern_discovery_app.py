@@ -34,14 +34,14 @@ from stockdownloader.analysis.pattern_discovery import (
     filter_patterns,
 )
 from stockdownloader.analysis.pattern_encoder import BarEncoder
-from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.backtest.optimizer_scoring import score_v2
-from stockdownloader.backtest.tournament_engine import (
+from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
+from stockdownloader.backtesting.optimization.scoring import score_v2
+from stockdownloader.backtesting.tournament.engine import (
     classify_timeframe_bars,
     run_monte_carlo,
 )
 from stockdownloader.core.config import INITIAL_CAPITAL, RISK_PER_TRADE
-from stockdownloader.backtest.walk_forward import WalkForwardValidator
+from stockdownloader.backtesting.optimization.walk_forward import WalkForwardValidator
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.core.io import TeeWriter
 from stockdownloader.indicators.hub import IndicatorHub
@@ -399,7 +399,7 @@ def _backtest_patterns(
         out()
         out("  Monte Carlo Robustness (1000 simulations):")
         pnls = [float(t.profit_loss) for t in result.closed_trades]
-        from stockdownloader.backtest.tournament_engine import ComboKey
+        from stockdownloader.backtesting.tournament.engine import ComboKey
         dummy_key = ComboKey(f"pattern-discovery-{tf_label}", tf_label)
         _, mc, _, error = run_monte_carlo(
             dummy_key, pnls, float(INITIAL_CAPITAL), 1000,

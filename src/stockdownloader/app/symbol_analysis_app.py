@@ -26,9 +26,9 @@ from stockdownloader.app.app_helpers import (
     fetch_daily_data,
 )
 from stockdownloader.analysis.alert_generator import generate_alert
-from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.backtest import report_formatter
-from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
+from stockdownloader.backtesting.engines.daily import BacktestEngine
+from stockdownloader.backtesting.results import formatter as report_formatter
+from stockdownloader.backtesting.engines.options import OptionsBacktestEngine
 from stockdownloader.strategies.loader import ensure_registered
 from stockdownloader.strategies.registry import StrategyRegistry
 

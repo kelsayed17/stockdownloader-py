@@ -12,9 +12,9 @@ from decimal import Decimal, ROUND_HALF_UP
 
 import pytest
 
-from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.backtest.report_formatter import print_daily_report, print_daily_comparison
-from stockdownloader.backtest.backtest_result import BacktestResult
+from stockdownloader.backtesting.engines.daily import BacktestEngine
+from stockdownloader.backtesting.results.formatter import print_daily_report, print_daily_comparison
+from stockdownloader.backtesting.results.result import BacktestResult
 from stockdownloader.data.parsers import CsvPriceDataLoader
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.models.trade import Trade, Direction, TradeStatus

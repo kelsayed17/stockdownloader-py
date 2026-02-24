@@ -8,8 +8,8 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.backtest.backtest_result import OptionsBacktestResult
+from stockdownloader.backtesting.engines.options import OptionsBacktestEngine
+from stockdownloader.backtesting.results.result import OptionsBacktestResult
 from stockdownloader.data.parsers import CsvPriceDataLoader
 from stockdownloader.core.models.options import OptionContract, OptionType, OptionsChain
 from stockdownloader.core.models.price import PriceData

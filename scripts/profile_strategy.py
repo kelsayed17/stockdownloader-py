@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
+from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
 from stockdownloader.strategies.intraday.daily_adapter import DailyToIntradayAdapter
 from stockdownloader.strategies.registry import StrategyRegistry
 

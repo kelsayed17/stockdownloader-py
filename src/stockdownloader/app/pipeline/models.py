@@ -4,12 +4,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from stockdownloader.backtest.backtest_result import (
+from stockdownloader.backtesting.results.result import (
     BacktestResult,
     BaseBacktestResult,
 )
-from stockdownloader.backtest.optimizer_scoring import score_v2
-from stockdownloader.backtest.walk_forward import WalkForwardResult
+from stockdownloader.backtesting.optimization.scoring import score_v2
+from stockdownloader.backtesting.optimization.walk_forward import WalkForwardResult
 
 
 @dataclass
