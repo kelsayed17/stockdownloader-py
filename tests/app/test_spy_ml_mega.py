@@ -131,3 +131,23 @@ class TestMegaParser:
         parser = _build_parser()
         args = parser.parse_args(["--no-walk-forward"])
         assert args.no_walk_forward is True
+
+    def test_direct_ensemble_default_true(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.direct_ensemble is True
+
+    def test_use_surrogate_flag(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--use-surrogate"])
+        assert args.use_surrogate is True
+
+    def test_long_only_default_true(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.long_only is True
+
+    def test_allow_shorts_flag(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--allow-shorts"])
+        assert args.allow_shorts is True

@@ -126,6 +126,25 @@ def _build_parser() -> argparse.ArgumentParser:
         "--no-walk-forward", action="store_true",
         help="Use in-sample backtest instead of walk-forward (faster but biased)",
     )
+    parser.add_argument(
+        "--direct-ensemble", action="store_true", default=True,
+        help=(
+            "Use ensemble predict_proba directly instead of surrogate "
+            "(default: True — preserves full signal)"
+        ),
+    )
+    parser.add_argument(
+        "--use-surrogate", action="store_true",
+        help="Use surrogate distillation for walk-forward predictions (slower, lossy)",
+    )
+    parser.add_argument(
+        "--long-only", action="store_true", default=True,
+        help="Long-only trading mode — no short positions (default: True)",
+    )
+    parser.add_argument(
+        "--allow-shorts", action="store_true",
+        help="Allow short positions in backtest (overrides --long-only)",
+    )
 
     return parser
 
@@ -143,11 +162,13 @@ def _run_portfolio_backtest(
     sell_thresh: float,
     initial_capital: float = 100_000.0,
     label: str = "Portfolio Backtest",
+    long_only: bool = False,
 ) -> dict[str, float]:
     """Run portfolio backtest on pre-generated predictions.
 
     Uses proper position sizing: ``shares = floor(capital / price)``.
-    Goes long when prob > *buy_thresh*, short when < *sell_thresh*.
+    Goes long when prob > *buy_thresh*, short when < *sell_thresh*
+    (unless *long_only* is True, in which case shorts are skipped).
     Exits to flat when probability returns to neutral zone.
     Tracks portfolio equity, return %, win rate, max drawdown, and Sharpe.
 
@@ -162,11 +183,15 @@ def _run_portfolio_backtest(
     buy_thresh:
         Go long when prob > buy_thresh.
     sell_thresh:
-        Go short when prob < sell_thresh.
+        Go short when prob < sell_thresh (ignored when *long_only*).
     initial_capital:
         Starting portfolio value in dollars.
     label:
         Banner label for printed output.
+    long_only:
+        If ``True``, never enter short positions.  Only go long or flat.
+        This is the recommended mode for instruments with structural
+        upward drift like SPY.
 
     Returns
     -------
@@ -184,6 +209,8 @@ def _run_portfolio_backtest(
     print(f"TOURNAMENT: {label}")
     print("=" * 60)
     print(f"  Initial capital: ${initial_capital:,.0f}")
+    mode_str = "LONG-ONLY" if long_only else "long/short"
+    print(f"  Mode:            {mode_str}")
     print(f"  Thresholds:      buy>{buy_thresh:.2f}  sell<{sell_thresh:.2f}")
     print(f"  Predictions:     {len(predictions)} samples")
 
@@ -221,7 +248,7 @@ def _run_portfolio_backtest(
                     entry_price = close
                     capital -= shares * close
                     position = 1
-            elif prob < sell_thresh:
+            elif prob < sell_thresh and not long_only:
                 shares = math.floor(capital / close)
                 if shares > 0:
                     entry_price = close
@@ -258,7 +285,7 @@ def _run_portfolio_backtest(
                         capital -= new_shares * next_close
                         shares = new_shares
                         position = 1
-                elif prob < sell_thresh:
+                elif prob < sell_thresh and not long_only:
                     new_shares = math.floor(capital / next_close)
                     if new_shares > 0:
                         entry_price = next_close
@@ -446,6 +473,7 @@ def _generate_walk_forward_predictions(
     top_models: int = 3,
     diversity_weight: float = 0.4,
     use_select_diverse: bool = False,
+    use_direct_ensemble: bool = False,
     surrogate_depth: int = 10,
     surrogate_min_leaf: int = 10,
     surrogate_top_features: int = 25,
@@ -455,8 +483,8 @@ def _generate_walk_forward_predictions(
     """Generate truly out-of-sample predictions via expanding-window walk-forward.
 
     For each window the entire pipeline is re-run from scratch: train model
-    grid on past data only, build ensemble, train surrogate, then predict on
-    the unseen future window.  No future data ever leaks into predictions.
+    grid on past data only, build ensemble, then predict on the unseen future
+    window.  No future data ever leaks into predictions.
 
     Parameters
     ----------
@@ -476,6 +504,10 @@ def _generate_walk_forward_predictions(
         Diversity weight for :meth:`EnsembleBuilder.select_diverse`.
     use_select_diverse:
         If ``True`` use diversity-aware selection; otherwise ``select_top``.
+    use_direct_ensemble:
+        If ``True`` skip surrogate distillation and use ensemble
+        ``predict_proba`` directly.  This preserves the full ensemble
+        signal — no R² loss from surrogate approximation.
     surrogate_depth:
         Max depth for the per-window surrogate tree.
     surrogate_min_leaf:
@@ -556,29 +588,36 @@ def _generate_walk_forward_predictions(
         else:
             ensemble = builder.select_top(n=top_models)
 
-        # -- Train surrogate on train data using train ensemble probs --
-        train_probs = ensemble.predict_proba(train_dataset.X)
-        importances = ensemble.averaged_feature_importances()
-
-        exporter = DeepSurrogateExporter(
-            max_depth=surrogate_depth,
-            min_samples_leaf=surrogate_min_leaf,
-            top_n=surrogate_top_features,
-        )
-        exporter.train_surrogate(
-            train_dataset, importances, ensemble_probs=train_probs,
-        )
-
         # -- Predict on test portion only (truly OOS) --
         test_X = dataset.X[test_idx]
-        oos_preds = exporter.predict(test_X)
+
+        if use_direct_ensemble:
+            # Use ensemble predict_proba directly — no surrogate signal loss
+            oos_preds = ensemble.predict_proba(test_X)
+            pred_mode = "direct-ensemble"
+        else:
+            # Train surrogate on train data, predict via surrogate
+            train_probs = ensemble.predict_proba(train_dataset.X)
+            importances = ensemble.averaged_feature_importances()
+
+            exporter = DeepSurrogateExporter(
+                max_depth=surrogate_depth,
+                min_samples_leaf=surrogate_min_leaf,
+                top_n=surrogate_top_features,
+            )
+            exporter.train_surrogate(
+                train_dataset, importances, ensemble_probs=train_probs,
+            )
+            oos_preds = exporter.predict(test_X)
+            pred_mode = "surrogate"
+
         oos_dates = [dataset.dates[i] for i in test_idx]
 
         all_oos_preds.append(oos_preds)
         all_oos_dates.extend(oos_dates)
         n_windows_used += 1
 
-        print(f"    Ensemble: {ensemble.n_models} models, "
+        print(f"    Ensemble: {ensemble.n_models} models ({pred_mode}), "
               f"OOS preds range: [{float(np.min(oos_preds)):.4f}, "
               f"{float(np.max(oos_preds)):.4f}]")
 
@@ -609,6 +648,8 @@ def _run_tournament_walk_forward(
     top_models: int = 3,
     diversity_weight: float = 0.4,
     use_select_diverse: bool = False,
+    use_direct_ensemble: bool = False,
+    long_only: bool = False,
     surrogate_depth: int = 10,
     surrogate_min_leaf: int = 10,
     surrogate_top_features: int = 25,
@@ -661,6 +702,9 @@ def _run_tournament_walk_forward(
     dict[str, float]
         Metrics dict from :func:`_run_portfolio_backtest`.
     """
+    pred_mode = "direct-ensemble" if use_direct_ensemble else "surrogate"
+    trade_mode = "LONG-ONLY" if long_only else "long/short"
+
     print("\n" + "=" * 60)
     print("WALK-FORWARD TOURNAMENT")
     print("=" * 60)
@@ -669,12 +713,15 @@ def _run_tournament_walk_forward(
     print(f"  Grid size:     {len(grid)} configs per window")
     print(f"  Selection:     {'diverse' if use_select_diverse else 'top-N'} "
           f"(n={top_models})")
+    print(f"  Prediction:    {pred_mode}")
+    print(f"  Trading mode:  {trade_mode}")
 
     oos_preds, oos_dates, n_used = _generate_walk_forward_predictions(
         dataset, daily_data, grid, n_estimators, max_depth,
         top_models=top_models,
         diversity_weight=diversity_weight,
         use_select_diverse=use_select_diverse,
+        use_direct_ensemble=use_direct_ensemble,
         surrogate_depth=surrogate_depth,
         surrogate_min_leaf=surrogate_min_leaf,
         surrogate_top_features=surrogate_top_features,
@@ -689,7 +736,8 @@ def _run_tournament_walk_forward(
         oos_preds, oos_dates, daily_data,
         buy_thresh, sell_thresh,
         initial_capital=initial_capital,
-        label=f"Walk-Forward OOS ({n_used} windows)",
+        label=f"Walk-Forward OOS ({n_used} windows, {pred_mode}, {trade_mode})",
+        long_only=long_only,
     )
 
 
@@ -733,6 +781,10 @@ def main(argv: list[str] | None = None) -> None:
     # Select model grid
     grid = _QUICK_GRID if args.quick else _FULL_GRID
 
+    # Resolve effective flags (--use-surrogate overrides --direct-ensemble)
+    use_direct_ensemble = args.direct_ensemble and not args.use_surrogate
+    long_only = args.long_only and not args.allow_shorts
+
     print("=" * 60)
     print("SPY ML ENSEMBLE PIPELINE")
     print("=" * 60)
@@ -747,7 +799,11 @@ def main(argv: list[str] | None = None) -> None:
         bt_mode = "in-sample" if args.no_walk_forward else (
             f"walk-forward ({args.walk_forward_windows} windows)"
         )
+        pred_mode = "direct-ensemble" if use_direct_ensemble else "surrogate"
+        trade_mode = "LONG-ONLY" if long_only else "long/short"
         print(f"  Backtest:      {bt_mode}")
+        print(f"  Prediction:    {pred_mode}")
+        print(f"  Trading:       {trade_mode}")
     print(f"  Output:        {output_dir}")
     print()
 
@@ -929,6 +985,8 @@ def main(argv: list[str] | None = None) -> None:
                 args.buy_thresh, args.sell_thresh,
                 initial_capital=args.initial_capital,
                 top_models=args.top_models,
+                use_direct_ensemble=use_direct_ensemble,
+                long_only=long_only,
                 surrogate_depth=args.depth,
                 surrogate_min_leaf=args.min_leaf,
                 surrogate_top_features=args.top_features,

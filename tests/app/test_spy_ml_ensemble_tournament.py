@@ -169,6 +169,46 @@ class TestRunPortfolioBacktest:
         )
         assert result["n_trades"] == 0
 
+    def test_long_only_no_short_entries(self) -> None:
+        """Long-only mode should never enter short positions."""
+        bars = _make_daily_data(40)
+        dates = _make_dates_from_bars(bars)
+        # All predictions below sell_thresh — would short in normal mode
+        preds = np.full(len(dates), 0.30)
+
+        result = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            long_only=True,
+        )
+        # With long_only=True and all preds < sell_thresh, no trades
+        assert result["n_trades"] == 0
+        assert result["final_equity"] == 100_000.0
+
+    def test_long_only_still_goes_long(self) -> None:
+        """Long-only mode should still enter long positions normally."""
+        bars = _make_daily_data(40)
+        dates = _make_dates_from_bars(bars)
+        # Alternate between buy and sell signals
+        preds = np.array([
+            0.7 if (i // 5) % 2 == 0 else 0.3
+            for i in range(len(dates))
+        ])
+
+        result_long_only = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            long_only=True,
+        )
+        result_long_short = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            long_only=False,
+        )
+        # Long-only should have fewer trades (no shorts)
+        assert result_long_only["n_trades"] <= result_long_short["n_trades"]
+        assert result_long_only["n_trades"] > 0  # should still have longs
+
 
 # ======================================================================
 # TestWalkForwardPredictions
@@ -338,3 +378,23 @@ class TestEnsembleParserWalkForward:
         ])
         assert args.no_tournament is True
         assert args.walk_forward_windows == 2
+
+    def test_direct_ensemble_default_true(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.direct_ensemble is True
+
+    def test_use_surrogate_overrides_direct(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--use-surrogate"])
+        assert args.use_surrogate is True
+
+    def test_long_only_default_true(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.long_only is True
+
+    def test_allow_shorts_flag(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--allow-shorts"])
+        assert args.allow_shorts is True

@@ -159,6 +159,25 @@ def _build_parser() -> argparse.ArgumentParser:
         "--no-walk-forward", action="store_true",
         help="Use in-sample backtest instead of walk-forward (faster but biased)",
     )
+    parser.add_argument(
+        "--direct-ensemble", action="store_true", default=True,
+        help=(
+            "Use ensemble predict_proba directly instead of surrogate "
+            "(default: True — preserves full signal)"
+        ),
+    )
+    parser.add_argument(
+        "--use-surrogate", action="store_true",
+        help="Use surrogate distillation for walk-forward predictions (slower, lossy)",
+    )
+    parser.add_argument(
+        "--long-only", action="store_true", default=True,
+        help="Long-only trading mode — no short positions (default: True)",
+    )
+    parser.add_argument(
+        "--allow-shorts", action="store_true",
+        help="Allow short positions in backtest (overrides --long-only)",
+    )
 
     return parser
 
@@ -198,6 +217,10 @@ def main(argv: list[str] | None = None) -> None:
     t0 = time.time()
     grid = _QUICK_GRID if args.quick else _FULL_GRID
 
+    # Resolve effective flags
+    use_direct_ensemble = args.direct_ensemble and not args.use_surrogate
+    long_only = args.long_only and not args.allow_shorts
+
     print("=" * 60)
     print("SPY ML MEGA PIPELINE")
     print("=" * 60)
@@ -214,7 +237,11 @@ def main(argv: list[str] | None = None) -> None:
         bt_mode = "in-sample" if args.no_walk_forward else (
             f"walk-forward ({args.walk_forward_windows} windows)"
         )
+        pred_mode = "direct-ensemble" if use_direct_ensemble else "surrogate"
+        trade_mode = "LONG-ONLY" if long_only else "long/short"
         print(f"  Backtest:         {bt_mode}")
+        print(f"  Prediction:       {pred_mode}")
+        print(f"  Trading:          {trade_mode}")
     print(f"  Output:           {output_dir}")
     print()
 
@@ -385,6 +412,8 @@ def main(argv: list[str] | None = None) -> None:
                 top_models=args.top_models,
                 diversity_weight=args.diversity_weight,
                 use_select_diverse=True,
+                use_direct_ensemble=use_direct_ensemble,
+                long_only=long_only,
                 surrogate_depth=args.depth,
                 surrogate_min_leaf=args.min_leaf,
                 surrogate_top_features=args.top_features,
