@@ -376,3 +376,111 @@ class TestEnsembleBuilder:
             assert isinstance(r, TrainingResult)
             assert r.model is not None
             assert 0.0 <= r.oos_accuracy <= 1.0
+
+
+# ------------------------------------------------------------------
+# EnsembleBuilder — diversity-aware selection
+# ------------------------------------------------------------------
+
+
+class TestEnsembleBuilderDiversity:
+    """Tests for diversity-aware ensemble selection."""
+
+    def test_select_diverse_returns_ensemble(self) -> None:
+        ds = _make_separable_dataset()
+        results = _train_multiple_models(ds)
+        builder = EnsembleBuilder(results)
+        ensemble = builder.select_diverse(n=2)
+        assert isinstance(ensemble, EnsemblePredictor)
+        assert ensemble.n_models == 2
+
+    def test_select_diverse_default_n(self) -> None:
+        ds = _make_separable_dataset()
+        results = _train_multiple_models(ds)
+        builder = EnsembleBuilder(results)
+        ensemble = builder.select_diverse()
+        assert ensemble.n_models == 3  # default n=3
+
+    def test_select_diverse_includes_best_model(self) -> None:
+        """The best model by accuracy should always be in the ensemble."""
+        ds = _make_separable_dataset()
+        results = _train_multiple_models(ds)
+        builder = EnsembleBuilder(results)
+        ensemble = builder.select_diverse(n=2)
+        best = sorted(results, key=lambda r: r.oos_accuracy, reverse=True)[0]
+        ensemble_configs = [r.config.model_type for r in ensemble.results]
+        assert best.config.model_type in ensemble_configs
+
+    def test_select_diverse_n_exceeds_available(self) -> None:
+        ds = _make_separable_dataset()
+        results = _train_multiple_models(ds)
+        builder = EnsembleBuilder(results)
+        ensemble = builder.select_diverse(n=100)
+        assert ensemble.n_models == len(results)
+
+    def test_select_diverse_single_model(self) -> None:
+        ds = _make_separable_dataset()
+        results = _train_multiple_models(ds)
+        builder = EnsembleBuilder(results)
+        ensemble = builder.select_diverse(n=1)
+        assert ensemble.n_models == 1
+
+    def test_select_diverse_diversity_weight_zero_matches_top(self) -> None:
+        """With diversity_weight=0, should behave like select_top."""
+        ds = _make_separable_dataset()
+        results = _train_multiple_models(ds)
+        builder = EnsembleBuilder(results)
+        diverse = builder.select_diverse(n=2, diversity_weight=0.0)
+        top = builder.select_top(n=2)
+        diverse_types = sorted(r.config.model_type for r in diverse.results)
+        top_types = sorted(r.config.model_type for r in top.results)
+        assert diverse_types == top_types
+
+    def test_select_diverse_can_predict(self) -> None:
+        """Ensemble from select_diverse should be able to predict."""
+        ds = _make_separable_dataset()
+        results = _train_multiple_models(ds)
+        builder = EnsembleBuilder(results)
+        ensemble = builder.select_diverse(n=2)
+        proba = ensemble.predict_proba(ds.X[:5])
+        assert proba.shape == (5,)
+        assert np.all(proba >= 0.0) and np.all(proba <= 1.0)
+
+
+# ------------------------------------------------------------------
+# EnsembleBuilder — importance correlation helper
+# ------------------------------------------------------------------
+
+
+class TestImportanceCorrelation:
+    """Tests for the importance correlation helper."""
+
+    def test_identical_importances(self) -> None:
+        imp = {"a": 0.5, "b": 0.3, "c": 0.2}
+        corr = EnsembleBuilder._importance_correlation(imp, imp)
+        assert abs(corr - 1.0) < 1e-6
+
+    def test_opposite_importances(self) -> None:
+        imp_a = {"a": 1.0, "b": 0.0}
+        imp_b = {"a": 0.0, "b": 1.0}
+        corr = EnsembleBuilder._importance_correlation(imp_a, imp_b)
+        assert abs(corr - (-1.0)) < 1e-6
+
+    def test_empty_importances(self) -> None:
+        corr = EnsembleBuilder._importance_correlation({}, {})
+        assert corr == 0.0
+
+    def test_zero_std_returns_zero(self) -> None:
+        imp_a = {"a": 0.5, "b": 0.5}
+        imp_b = {"a": 0.3, "b": 0.7}
+        corr = EnsembleBuilder._importance_correlation(imp_a, imp_b)
+        # imp_a has std=0 so should return 0
+        assert corr == 0.0
+
+    def test_disjoint_keys(self) -> None:
+        imp_a = {"a": 0.5, "b": 0.5}
+        imp_b = {"c": 0.5, "d": 0.5}
+        corr = EnsembleBuilder._importance_correlation(imp_a, imp_b)
+        # Disjoint: a gets (0.5,0), b gets (0.5,0), c gets (0,0.5), d gets (0,0.5)
+        # Should be perfectly negatively correlated
+        assert corr < 0

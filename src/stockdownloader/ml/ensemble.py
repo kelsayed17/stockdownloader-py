@@ -183,3 +183,83 @@ class EnsembleBuilder:
             [round(r.oos_accuracy, 4) for r in selected],
         )
         return EnsemblePredictor(selected)
+
+    def select_diverse(
+        self,
+        n: int = 3,
+        diversity_weight: float = 0.4,
+    ) -> EnsemblePredictor:
+        """Select top *n* models balancing accuracy with prediction diversity.
+
+        Uses greedy selection: seeds with the best model, then iteratively
+        adds the candidate that maximises
+        ``(1 - w) * accuracy + w * (1 - max_corr)``
+        where *max_corr* is the maximum Pearson correlation between the
+        candidate's feature importance vector and any existing member's.
+
+        Parameters
+        ----------
+        n:
+            Number of models to select (default 3).
+        diversity_weight:
+            Weight for diversity vs accuracy (default 0.4).
+            0.0 = pure accuracy (same as select_top).
+            1.0 = pure diversity.
+        """
+        n = min(n, len(self._results))
+
+        # Sort by accuracy descending
+        ranked = sorted(
+            self._results,
+            key=lambda r: r.oos_accuracy,
+            reverse=True,
+        )
+
+        # Seed with best model
+        selected: list[TrainingResult] = [ranked[0]]
+        remaining = list(ranked[1:])
+
+        while len(selected) < n and remaining:
+            best_score = -1.0
+            best_idx = 0
+
+            for i, candidate in enumerate(remaining):
+                acc = candidate.oos_accuracy
+
+                # Compute diversity: max correlation with existing members
+                max_corr = 0.0
+                for member in selected:
+                    corr = self._importance_correlation(
+                        candidate.feature_importances,
+                        member.feature_importances,
+                    )
+                    max_corr = max(max_corr, corr)
+
+                score = (1.0 - diversity_weight) * acc + diversity_weight * (1.0 - max_corr)
+                if score > best_score:
+                    best_score = score
+                    best_idx = i
+
+            selected.append(remaining.pop(best_idx))
+
+        logger.info(
+            "EnsembleBuilder selected %d diverse models (accuracies: %s)",
+            len(selected),
+            [round(r.oos_accuracy, 4) for r in selected],
+        )
+        return EnsemblePredictor(selected)
+
+    @staticmethod
+    def _importance_correlation(
+        imp_a: dict[str, float],
+        imp_b: dict[str, float],
+    ) -> float:
+        """Pearson correlation between two feature importance vectors."""
+        keys = sorted(set(imp_a) | set(imp_b))
+        if not keys:
+            return 0.0
+        a = np.array([imp_a.get(k, 0.0) for k in keys])
+        b = np.array([imp_b.get(k, 0.0) for k in keys])
+        if np.std(a) == 0 or np.std(b) == 0:
+            return 0.0
+        return float(np.corrcoef(a, b)[0, 1])
