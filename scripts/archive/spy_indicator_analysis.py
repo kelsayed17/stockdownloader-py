@@ -34,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.util.indicators.hub import IndicatorHub
-from stockdownloader.util.timeframe import Timeframe, TimeframeAggregator
+from stockdownloader.core.timeframe import Timeframe, TimeframeAggregator
 
 
 # ======================================================================

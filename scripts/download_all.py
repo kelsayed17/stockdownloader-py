@@ -21,7 +21,7 @@ from pathlib import Path
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from stockdownloader.model.symbol_info import get_all_tickers
+from stockdownloader.core.models.symbol import get_all_tickers
 
 logging.basicConfig(
     level=logging.INFO,
@@ -339,7 +339,7 @@ def main() -> None:
     run_polygon(all_symbols)
 
     # --- Cleanup: remove any stale alias directories created by clients ---
-    from stockdownloader.model.symbol_info import get_symbol_info
+    from stockdownloader.core.models.symbol import get_symbol_info
     data_path = Path(DATA_DIR)
     for sym in all_symbols:
         info = get_symbol_info(sym)
