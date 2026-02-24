@@ -92,8 +92,8 @@ spy-backtest --list-strategies
 All strategies are registered in a central registry with CLI names, enabling programmatic creation and optimization:
 
 ```python
-from stockdownloader.strategy.registry import StrategyRegistry
-from stockdownloader.strategy.registrations import ensure_registered
+from stockdownloader.strategies.registry import StrategyRegistry
+from stockdownloader.strategies.loader import ensure_registered
 
 ensure_registered()
 strategy = StrategyRegistry.create("rsi", period=21, oversold=25.0)
@@ -444,9 +444,9 @@ pytest -m live
 ## Programmatic Usage
 
 ```python
-from stockdownloader.data.yahoo_data_client import YahooDataClient
-from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
-from stockdownloader.backtest.backtest_engine import BacktestEngine
+from stockdownloader.data.market.yahoo_data_client import YahooDataClient
+from stockdownloader.strategies.daily.simple import RSIStrategy
+from stockdownloader.backtesting.engines.daily import BacktestEngine
 from decimal import Decimal
 
 # Fetch data

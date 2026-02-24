@@ -32,7 +32,7 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.indicators.hub import IndicatorHub
 from stockdownloader.core.timeframe import Timeframe, TimeframeAggregator
 

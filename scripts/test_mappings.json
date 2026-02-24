@@ -1,8 +1,0 @@
-{
-  "stockdownloader.model.financial_models": "stockdownloader.core.models.financial",
-  "stockdownloader.model.price_data": "stockdownloader.core.models.price",
-  "stockdownloader.model.trade": "stockdownloader.core.models.trade",
-  "stockdownloader.model.regulatory_records": "stockdownloader.core.models.regulatory",
-  "stockdownloader.model": "stockdownloader.core.models",
-  "stockdownloader.util.math": "stockdownloader.core.util.math"
-}

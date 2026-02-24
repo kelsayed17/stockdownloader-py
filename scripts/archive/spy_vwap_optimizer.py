@@ -27,7 +27,7 @@ from stockdownloader.backtesting.results.result import BacktestResult
 from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
 from stockdownloader.backtesting.optimization.scoring import score as default_score
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.core.models.trade import HOLD, IntradayAction, IntradaySignal
 from stockdownloader.strategies.base import IntradayTradingStrategy
 from stockdownloader.strategies.intraday.pullback import PullbackStrategy

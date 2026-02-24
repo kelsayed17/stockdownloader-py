@@ -9,7 +9,7 @@ populated (CLI apps, tests that query by name).  Idempotent -- safe to call
 multiple times.
 
 All strategy defaults, param_space, and factory mappings are defined in
-JSON config files under ``config/strategy/``.
+JSON config files under ``config/strategies/``.
 
 Usage::
 
@@ -118,15 +118,15 @@ def ensure_registered() -> None:
 
     Loads strategy definitions from JSON config files:
 
-    - ``config/strategy/daily_registrations.json`` (7 daily strategies)
-    - ``config/strategy/options_registrations.json`` (2 options strategies)
-    - ``config/strategy/intraday_registrations.json`` (7 intraday strategies)
+    - ``config/strategies/daily_registrations.json`` (7 daily strategies)
+    - ``config/strategies/options_registrations.json`` (2 options strategies)
+    - ``config/strategies/intraday_registrations.json`` (7 intraday strategies)
     """
     global _registered
     if _registered:
         return
     _registered = True
 
-    load_registrations("daily", "config/strategy/daily_registrations.json")
-    load_registrations("options", "config/strategy/options_registrations.json")
-    load_registrations("intraday", "config/strategy/intraday_registrations.json")
+    load_registrations("daily", "config/strategies/daily_registrations.json")
+    load_registrations("options", "config/strategies/options_registrations.json")
+    load_registrations("intraday", "config/strategies/intraday_registrations.json")
