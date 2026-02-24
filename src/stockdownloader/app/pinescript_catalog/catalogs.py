@@ -20,20 +20,20 @@ Contains:
 
 from __future__ import annotations
 
-from stockdownloader.strategy.daily.bollinger_band_rsi_strategy import (
+from stockdownloader.strategies.daily.bollinger_rsi import (
     BollingerBandRSIStrategy,
 )
-from stockdownloader.strategy.daily.breakout_strategy import BreakoutStrategy
-from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
-from stockdownloader.strategy.daily.momentum_confluence_strategy import (
+from stockdownloader.strategies.daily.breakout import BreakoutStrategy
+from stockdownloader.strategies.daily.simple import MACDStrategy
+from stockdownloader.strategies.daily.momentum import (
     MomentumConfluenceStrategy,
 )
-from stockdownloader.strategy.daily.multi_indicator_strategy import (
+from stockdownloader.strategies.daily.multi_indicator import (
     MultiIndicatorStrategy,
 )
-from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
-from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
-from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
+from stockdownloader.strategies.daily.simple import RSIStrategy
+from stockdownloader.strategies.daily.simple import SMACrossoverStrategy
+from stockdownloader.strategies.intraday.dmi_vwap import DmiVwapStrategy
 from stockdownloader.pinescript.models import (
     CompositeStrategyDefinition,
     Condition,

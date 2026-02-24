@@ -50,8 +50,8 @@ def _run_baseline_backtest(
     slippage_pct: Decimal = Decimal("0"),
 ) -> BacktestEntry | None:
     """Run a single baseline backtest (thread target)."""
-    from stockdownloader.strategy.registration_loader import ensure_registered
-    from stockdownloader.strategy.base_registry import StrategyRegistry
+    from stockdownloader.strategies.loader import ensure_registered
+    from stockdownloader.strategies.registry import StrategyRegistry
 
     ensure_registered()
     try:
@@ -144,8 +144,8 @@ class BacktestStage:
         hybrid_result: HybridStageResult,
     ) -> BacktestStageResult:
         """Backtest all strategies and return ranked results."""
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
 
         ensure_registered()
         data = data_result.data

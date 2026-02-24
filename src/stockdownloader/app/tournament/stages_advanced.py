@@ -26,8 +26,8 @@ from stockdownloader.backtest.portfolio_analyzer import (
     select_portfolio,
 )
 from stockdownloader.core.models.price import IntradayPriceData
-from stockdownloader.strategy.regime.regime_detector import MarketRegime
-from stockdownloader.strategy.regime.regime_strategy_map import RegimeStrategyMapper
+from stockdownloader.strategies.regime.detector import MarketRegime
+from stockdownloader.strategies.regime.strategy_map import RegimeStrategyMapper
 
 _MP_CTX = multiprocessing.get_context("fork")
 

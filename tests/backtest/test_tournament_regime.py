@@ -10,7 +10,7 @@ from stockdownloader.backtest.tournament_engine import (
     _compute_regime_bonus,
     run_regime_analysis,
 )
-from stockdownloader.strategy.regime.regime_detector import MarketRegime
+from stockdownloader.strategies.regime.detector import MarketRegime
 
 
 class TestRegimeTradeStats:

@@ -7,7 +7,7 @@ import pytest
 from stockdownloader.backtest.exit_tournament_engine import ExitTournamentEngine
 from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.core.models.trade import Direction, TournamentTrade
-from stockdownloader.strategy.exit_mechanisms import TrailingStopExit
+from stockdownloader.strategies.exits import TrailingStopExit
 
 
 def _make_bar(dt_str, open_, high, low, close, volume=100000):

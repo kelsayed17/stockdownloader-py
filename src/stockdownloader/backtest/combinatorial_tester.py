@@ -46,16 +46,16 @@ from stockdownloader.core.io import TeeWriter
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
 from stockdownloader.core.models.price import IntradayPriceData
-from stockdownloader.strategy.signals.multi_timeframe_aligner import TimeframeSignalSpec
-from stockdownloader.strategy.base_registry import (
+from stockdownloader.signals.timeframe_aligner import TimeframeSignalSpec
+from stockdownloader.strategies.registry import (
     SignalGeneratorEntry,
     SignalGeneratorRegistry,
 )
-from stockdownloader.strategy.signals.stacked_signal_engine import (
+from stockdownloader.signals.engine import (
     AggregationMode,
     StackConfig,
 )
-from stockdownloader.strategy.signals.stacked_intraday_strategy import (
+from stockdownloader.signals.intraday_adapter import (
     StackedIntradayStrategy,
 )
 from stockdownloader.core.timeframe import Timeframe
@@ -76,7 +76,7 @@ def _init_worker(
     _WORKER_DATA = data
     _WORKER_TRADING_DAYS = trading_days
     # Trigger generator registration in the worker
-    import stockdownloader.strategy.signals.generators  # noqa: F401
+    import stockdownloader.signals.generators  # noqa: F401
 
 
 @dataclass(frozen=True, slots=True)
@@ -279,7 +279,7 @@ class CombinatorialTester:
         self._tee = TeeWriter(log_file) if log_file else None
 
         # Import generators to trigger registration
-        import stockdownloader.strategy.signals.generators  # noqa: F401
+        import stockdownloader.signals.generators  # noqa: F401
 
     def _print(self, msg: str) -> None:
         """Print to stdout and optional log file."""

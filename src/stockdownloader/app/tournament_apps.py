@@ -54,8 +54,8 @@ from stockdownloader.backtest.combinatorial_tester import (
 )
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.data.tv_trade_loader import TradingViewTradeLoader
-from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
-from stockdownloader.strategy.exit_mechanisms import (
+from stockdownloader.strategies.registry import SignalGeneratorRegistry
+from stockdownloader.strategies.exits import (
     AtrTrailExit,
     HybridExit,
     TimeDecayExit,
@@ -63,7 +63,7 @@ from stockdownloader.strategy.exit_mechanisms import (
     VwapBandExit,
     VwapCrossExit,
 )
-from stockdownloader.strategy.signals.stacked_signal_engine import AggregationMode
+from stockdownloader.signals.engine import AggregationMode
 from stockdownloader.core.io import TeeWriter
 from stockdownloader.core.timeframe import Timeframe
 
@@ -317,7 +317,7 @@ def main_signal_stack(
         )
 
         # Import generators to trigger registration
-        import stockdownloader.strategy.signals.generators  # noqa: F401
+        import stockdownloader.signals.generators  # noqa: F401
 
         # Show registered generators
         entries = {e.name: e for e in SignalGeneratorRegistry.all_entries()}

@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from stockdownloader.backtest.backtest_result import BacktestResult
     from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
     from stockdownloader.core.models.price import IntradayPriceData
-    from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
+    from stockdownloader.strategies.base import IntradayTradingStrategy
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@
     "_doc": "Daily strategy registrations. Keys = registry names.",
     "sma": {
         "display_name": "SMA Crossover",
-        "module": "stockdownloader.strategy.daily.simple_strategies",
+        "module": "stockdownloader.strategies.daily.simple",
         "class": "SMACrossoverStrategy",
         "default_kwargs": {
             "short_period": 9,
@@ -27,7 +27,7 @@
     },
     "rsi": {
         "display_name": "RSI Strategy",
-        "module": "stockdownloader.strategy.daily.simple_strategies",
+        "module": "stockdownloader.strategies.daily.simple",
         "class": "RSIStrategy",
         "default_kwargs": {
             "period": 14,
@@ -57,7 +57,7 @@
     },
     "macd": {
         "display_name": "MACD Strategy",
-        "module": "stockdownloader.strategy.daily.simple_strategies",
+        "module": "stockdownloader.strategies.daily.simple",
         "class": "MACDStrategy",
         "default_kwargs": {
             "fast_period": 12,
@@ -87,7 +87,7 @@
     },
     "bollinger": {
         "display_name": "Bollinger Band + RSI",
-        "module": "stockdownloader.strategy.daily.bollinger_band_rsi_strategy",
+        "module": "stockdownloader.strategies.daily.bollinger_rsi",
         "class": "BollingerBandRSIStrategy",
         "default_kwargs": {},
         "param_space": {
@@ -125,7 +125,7 @@
     },
     "breakout": {
         "display_name": "Breakout Strategy",
-        "module": "stockdownloader.strategy.daily.breakout_strategy",
+        "module": "stockdownloader.strategies.daily.breakout",
         "class": "BreakoutStrategy",
         "default_kwargs": {},
         "param_space": {
@@ -149,7 +149,7 @@
     },
     "momentum": {
         "display_name": "Momentum Confluence",
-        "module": "stockdownloader.strategy.daily.momentum_confluence_strategy",
+        "module": "stockdownloader.strategies.daily.momentum",
         "class": "MomentumConfluenceStrategy",
         "default_kwargs": {},
         "param_space": {
@@ -187,7 +187,7 @@
     },
     "multi": {
         "display_name": "Multi-Indicator Confluence",
-        "module": "stockdownloader.strategy.daily.multi_indicator_strategy",
+        "module": "stockdownloader.strategies.daily.multi_indicator",
         "class": "MultiIndicatorStrategy",
         "default_kwargs": {},
         "param_space": {

@@ -18,8 +18,8 @@ from stockdownloader.backtest.strategy_optimizer import (
 from stockdownloader.backtest.optimizer_scoring import score as _score, MIN_TRADES as _MIN_TRADES
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
-from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategyConfig
+from stockdownloader.strategies.intraday.pullback import PullbackStrategy
+from stockdownloader.strategies.intraday.pullback import PullbackStrategyConfig
 
 # Real data file
 _DATA_FILE = Path(__file__).resolve().parents[2] / "data" / "SPY" / "5m_bars.csv"

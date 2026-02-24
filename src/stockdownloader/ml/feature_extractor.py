@@ -22,10 +22,10 @@ from dataclasses import dataclass
 from typing import Any, ClassVar, TYPE_CHECKING
 
 from stockdownloader.core.models.indicator import IndicatorValues
-from stockdownloader.strategy.regime.regime_detector import MarketRegimeDetector
-from stockdownloader.strategy.signals.signal_generator import AtomicSignalGenerator
-from stockdownloader.strategy.base_registry import SignalGeneratorRegistry
-import stockdownloader.strategy.signals.generators  # noqa: F401 — trigger registry population
+from stockdownloader.strategies.regime.detector import MarketRegimeDetector
+from stockdownloader.signals.generator import AtomicSignalGenerator
+from stockdownloader.strategies.registry import SignalGeneratorRegistry
+import stockdownloader.signals.generators  # noqa: F401 — trigger registry population
 from stockdownloader.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:

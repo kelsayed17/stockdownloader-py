@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.core.models import Trade, Direction, TradeStatus
 from stockdownloader.core.models.price import PriceData
-from stockdownloader.strategy.trading_strategy import TradingStrategy, Signal
+from stockdownloader.strategies.base import TradingStrategy, Signal
 
 
 class BacktestEngine:

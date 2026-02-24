@@ -28,11 +28,11 @@ from stockdownloader.core.models.signal import (
     AdvisoryAction,
     SignalAdvisory as SignalAdvisoryModel,
 )
-from stockdownloader.strategy.regime.regime_detector import (
+from stockdownloader.strategies.regime.detector import (
     MarketRegime,
     RegimeClassification,
 )
-from stockdownloader.strategy.regime.regime_strategy_map import RegimeStrategyMapper
+from stockdownloader.strategies.regime.strategy_map import RegimeStrategyMapper
 from stockdownloader.core.math import ZERO
 
 

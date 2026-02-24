@@ -21,7 +21,7 @@ from stockdownloader.core.math import HUNDRED, ZERO
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData
     from stockdownloader.core.models.trade import TournamentTrade
-    from stockdownloader.strategy.exit_mechanisms.trailing_exit_base import ExitMechanism
+    from stockdownloader.strategies.exits.base import ExitMechanism
 
 logger = logging.getLogger(__name__)
 

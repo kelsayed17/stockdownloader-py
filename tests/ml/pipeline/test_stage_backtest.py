@@ -21,7 +21,7 @@ from stockdownloader.ml.pipeline.stage_hybrid_strategies import (
     MLConfirmedStrategy,
 )
 from stockdownloader.core.models.price import PriceData
-from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
+from stockdownloader.strategies.base import Signal, TradingStrategy
 
 
 # ------------------------------------------------------------------
@@ -298,8 +298,8 @@ class TestBacktestStage:
         )
 
         # Need a real strategy registry name for true WF to recreate base
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
 
         ensure_registered()
         # Pick any registered daily strategy

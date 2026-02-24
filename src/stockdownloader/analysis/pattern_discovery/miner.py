@@ -21,7 +21,7 @@ from stockdownloader.analysis.pattern_discovery.models import (
 if TYPE_CHECKING:
     from stockdownloader.analysis.pattern_encoder import BarEncoder, BarFeatures
     from stockdownloader.core.models.price import IntradayPriceData
-    from stockdownloader.strategy.regime.regime_detector import MarketRegime
+    from stockdownloader.strategies.regime.detector import MarketRegime
 
 
 class PatternMiner:

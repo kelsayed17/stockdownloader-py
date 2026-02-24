@@ -21,8 +21,8 @@ from stockdownloader.app.pipeline.stages import (
     _run_rebacktest,
     _run_walkforward,
 )
-from stockdownloader.strategy.registration_loader import ensure_registered
-from stockdownloader.strategy.base_registry import StrategyRegistry
+from stockdownloader.strategies.loader import ensure_registered
+from stockdownloader.strategies.registry import StrategyRegistry
 from stockdownloader.core.io import TeeWriter
 
 logger = logging.getLogger(__name__)

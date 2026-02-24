@@ -29,16 +29,16 @@ from stockdownloader.backtest.optimizer_scoring import score as default_score
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
 from stockdownloader.model.intraday_price_data import IntradayPriceData
 from stockdownloader.core.models.trade import HOLD, IntradayAction, IntradaySignal
-from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
-from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
-from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategyConfig
-from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
-from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategyConfig
+from stockdownloader.strategies.base import IntradayTradingStrategy
+from stockdownloader.strategies.intraday.pullback import PullbackStrategy
+from stockdownloader.strategies.intraday.pullback import PullbackStrategyConfig
+from stockdownloader.strategies.intraday.reversal import ReversalStrategy
+from stockdownloader.strategies.intraday.reversal import ReversalStrategyConfig
 
-from stockdownloader.strategy.registration_loader import ensure_registered
+from stockdownloader.strategies.loader import ensure_registered
 ensure_registered()
 
-from stockdownloader.strategy.base_registry import StrategyRegistry
+from stockdownloader.strategies.registry import StrategyRegistry
 
 # ======================================================================
 # Constants
@@ -303,7 +303,7 @@ def phase1_baseline(
 
     # DMI+VWAP (direct import, not in registry)
     try:
-        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
+        from stockdownloader.strategies.intraday.dmi_vwap import DmiVwapStrategy
         strategies.append(("DMI+VWAP", DmiVwapStrategy()))
     except Exception as exc:
         print(f"  WARNING: could not load DMI+VWAP: {exc}")
@@ -398,8 +398,8 @@ def phase2_variants(
     variants.append(("C: Balanced PB (2/day)", PullbackStrategy(config=cfg_c)))
 
     # Variant D: OR Reversal Long-Only (best baseline was ORR)
-    from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy
-    from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategyConfig
+    from stockdownloader.strategies.intraday.or_reversal import ORReversalStrategy
+    from stockdownloader.strategies.intraday.or_reversal import ORReversalStrategyConfig
     cfg_d = ORReversalStrategyConfig(
         allow_shorts=False,       # long-only
         max_day=2,
@@ -523,8 +523,8 @@ def phase2_variants(
     variants.append(("K: Pine ORR LO (prox=0.2)", ORReversalStrategy(config=cfg_k)))
 
     # Variant L: Pine ORB with RVOL >= 2.0 gate (75% WR in Pine)
-    from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategy
-    from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategyConfig
+    from stockdownloader.strategies.intraday.or_breakout import ORBreakoutStrategy
+    from stockdownloader.strategies.intraday.or_breakout import ORBreakoutStrategyConfig
     cfg_l = ORBreakoutStrategyConfig(
         allow_shorts=False,
         max_day=2,
@@ -673,7 +673,7 @@ def _rebuild_strategy(
             inner = inner._inner
 
     # Rebuild the core strategy
-    from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy
+    from stockdownloader.strategies.intraday.or_reversal import ORReversalStrategy
     if isinstance(inner, PullbackStrategy):
         core = PullbackStrategy(config=new_config)
     elif isinstance(inner, ORReversalStrategy):

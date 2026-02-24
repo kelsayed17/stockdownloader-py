@@ -46,11 +46,11 @@ from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEn
 from stockdownloader.backtest.strategy_optimizer import StrategyOptimizer
 from stockdownloader.backtest.walk_forward import WalkForwardValidator
 from stockdownloader.data.intraday_csv import IntradayCsvLoader
-from stockdownloader.strategy.intraday.or_breakout_strategy import ORBreakoutStrategy
-from stockdownloader.strategy.intraday.or_reversal_strategy import ORReversalStrategy
-from stockdownloader.strategy.intraday.pattern_scalp_strategy import PatternScalpStrategy
-from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
-from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
+from stockdownloader.strategies.intraday.or_breakout import ORBreakoutStrategy
+from stockdownloader.strategies.intraday.or_reversal import ORReversalStrategy
+from stockdownloader.strategies.intraday.pattern_scalp import PatternScalpStrategy
+from stockdownloader.strategies.intraday.pullback import PullbackStrategy
+from stockdownloader.strategies.intraday.reversal import ReversalStrategy
 from stockdownloader.core.config import INITIAL_CAPITAL, RISK_PER_TRADE
 
 logger = logging.getLogger(__name__)
@@ -111,8 +111,8 @@ def main_optimize() -> None:
     args = parser.parse_args()
 
     if args.list_strategies:
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
         ensure_registered()
         print("Available strategies for optimization:")
         print()
@@ -145,8 +145,8 @@ def main_optimize() -> None:
         risk = Decimal(str(args.risk))
 
         if args.strategy:
-            from stockdownloader.strategy.registration_loader import ensure_registered
-            from stockdownloader.strategy.base_registry import StrategyRegistry
+            from stockdownloader.strategies.loader import ensure_registered
+            from stockdownloader.strategies.registry import StrategyRegistry
             ensure_registered()
             entry = StrategyRegistry.get(args.strategy)
             if entry.category == "intraday" and entry.name == "vwap":

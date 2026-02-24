@@ -36,8 +36,8 @@ def recreate_strategy(entry: BacktestEntry) -> object | None:
     if entry.is_hybrid:
         return None  # Can't recreate hybrids here
     try:
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
 
         ensure_registered()
         # Try to find the matching registry name
@@ -234,8 +234,8 @@ def true_walk_forward(
         _STRATEGY_CLASS,
     )
     from stockdownloader.ml.trainer import MLTrainer
-    from stockdownloader.strategy.registration_loader import ensure_registered
-    from stockdownloader.strategy.base_registry import StrategyRegistry
+    from stockdownloader.strategies.loader import ensure_registered
+    from stockdownloader.strategies.registry import StrategyRegistry
     from stockdownloader.indicators.hub import IndicatorHub
 
     ensure_registered()

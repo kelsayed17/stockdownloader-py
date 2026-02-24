@@ -18,10 +18,10 @@ from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.data.parsers import CsvPriceDataLoader
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.models.trade import Trade, Direction, TradeStatus
-from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
-from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
-from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
-from stockdownloader.strategy.trading_strategy import TradingStrategy
+from stockdownloader.strategies.daily.simple import MACDStrategy
+from stockdownloader.strategies.daily.simple import RSIStrategy
+from stockdownloader.strategies.daily.simple import SMACrossoverStrategy
+from stockdownloader.strategies.base import TradingStrategy
 from stockdownloader.core.math import percent_change
 from stockdownloader.indicators import sma, ema
 

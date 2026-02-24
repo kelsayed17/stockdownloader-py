@@ -32,12 +32,12 @@ from stockdownloader.core.models.signal import (
     OptionsAdvisory,
     SignalAdvisory,
 )
-from stockdownloader.strategy.regime.regime_detector import (
+from stockdownloader.strategies.regime.detector import (
     MarketRegime,
     MarketRegimeDetector,
     RegimeClassification,
 )
-from stockdownloader.strategy.regime.regime_strategy_map import RegimeStrategyMapper
+from stockdownloader.strategies.regime.strategy_map import RegimeStrategyMapper
 from stockdownloader.indicators.hub import IndicatorHub
 
 if TYPE_CHECKING:

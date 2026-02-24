@@ -22,7 +22,7 @@ from stockdownloader.backtest.tournament_models import (
     RegimeTradeStats,
 )
 from stockdownloader.core.models.price import IntradayPriceData
-from stockdownloader.strategy.regime.regime_detector import MarketRegime
+from stockdownloader.strategies.regime.detector import MarketRegime
 
 
 # ======================================================================
@@ -50,7 +50,7 @@ def classify_timeframe_bars(
     Dict mapping bar date string to MarketRegime.
     """
     from stockdownloader.indicators.hub import IndicatorHub
-    from stockdownloader.strategy.regime.regime_detector import MarketRegimeDetector
+    from stockdownloader.strategies.regime.detector import MarketRegimeDetector
 
     hub = IndicatorHub()
     detector = MarketRegimeDetector(hub)

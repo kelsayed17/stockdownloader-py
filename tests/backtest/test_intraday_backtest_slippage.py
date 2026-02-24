@@ -10,7 +10,7 @@ from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEn
 from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.core.models.trade import IntradayAction, IntradaySignal, HOLD
 from stockdownloader.core.models.trade import Direction, TradeStatus
-from stockdownloader.strategy.trading_strategy import IntradayTradingStrategy
+from stockdownloader.strategies.base import IntradayTradingStrategy
 
 # All existing tests use slippage_pct=0 to verify core engine logic.
 # Slippage-specific tests are in TestSlippage below.

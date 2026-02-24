@@ -123,25 +123,25 @@ def _load_intraday_data(args, symbol: str) -> list:
 def _build_daily_strategies(args):
     """Build the list of daily equity strategies to backtest."""
     if getattr(args, "strategy", None):
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
 
         ensure_registered()
         return [StrategyRegistry.create(args.strategy)]
 
-    from stockdownloader.strategy.daily.bollinger_band_rsi_strategy import (
+    from stockdownloader.strategies.daily.bollinger_rsi import (
         BollingerBandRSIStrategy,
     )
-    from stockdownloader.strategy.daily.breakout_strategy import BreakoutStrategy
-    from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
-    from stockdownloader.strategy.daily.momentum_confluence_strategy import (
+    from stockdownloader.strategies.daily.breakout import BreakoutStrategy
+    from stockdownloader.strategies.daily.simple import MACDStrategy
+    from stockdownloader.strategies.daily.momentum import (
         MomentumConfluenceStrategy,
     )
-    from stockdownloader.strategy.daily.multi_indicator_strategy import (
+    from stockdownloader.strategies.daily.multi_indicator import (
         MultiIndicatorStrategy,
     )
-    from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
-    from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
+    from stockdownloader.strategies.daily.simple import RSIStrategy
+    from stockdownloader.strategies.daily.simple import SMACrossoverStrategy
 
     return [
         SMACrossoverStrategy(50, 200),
@@ -158,24 +158,24 @@ def _build_daily_strategies(args):
 
 def _build_intraday_strategies(args):
     """Build the list of intraday strategies to backtest."""
-    from stockdownloader.strategy.intraday.or_breakout_strategy import (
+    from stockdownloader.strategies.intraday.or_breakout import (
         ORBreakoutStrategy,
     )
-    from stockdownloader.strategy.intraday.or_reversal_strategy import (
+    from stockdownloader.strategies.intraday.or_reversal import (
         ORReversalStrategy,
     )
-    from stockdownloader.strategy.intraday.pattern_scalp_strategy import (
+    from stockdownloader.strategies.intraday.pattern_scalp import (
         PatternScalpStrategy,
     )
-    from stockdownloader.strategy.intraday.pullback_strategy import PullbackStrategy
-    from stockdownloader.strategy.intraday.reversal_strategy import ReversalStrategy
+    from stockdownloader.strategies.intraday.pullback import PullbackStrategy
+    from stockdownloader.strategies.intraday.reversal import ReversalStrategy
 
     if getattr(args, "strategy", None):
-        from stockdownloader.strategy.intraday.daily_to_intraday_adapter import (
+        from stockdownloader.strategies.intraday.daily_adapter import (
             DailyToIntradayAdapter,
         )
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
 
         ensure_registered()
         entry = StrategyRegistry.get(args.strategy)
@@ -191,11 +191,11 @@ def _build_intraday_strategies(args):
         raise SystemExit(1)
 
     if getattr(args, "all_strategies", False):
-        from stockdownloader.strategy.intraday.daily_to_intraday_adapter import (
+        from stockdownloader.strategies.intraday.daily_adapter import (
             DailyToIntradayAdapter,
         )
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
 
         ensure_registered()
         strategies = [
@@ -223,8 +223,8 @@ def _build_intraday_strategies(args):
 def _build_options_strategies(args):
     """Build the list of options strategies to backtest."""
     if getattr(args, "strategy", None):
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
 
         ensure_registered()
         entry = StrategyRegistry.get(args.strategy)
@@ -236,7 +236,7 @@ def _build_options_strategies(args):
             raise SystemExit(1)
         return [StrategyRegistry.create(args.strategy)]
 
-    from stockdownloader.strategy.options.options_strategies import (
+    from stockdownloader.strategies.options.strategies import (
         CoveredCallStrategy,
         ProtectivePutStrategy,
     )
@@ -360,7 +360,7 @@ def _run_backtest(
     elif backtest_type == "options":
         strategies = _build_options_strategies(args)
     elif backtest_type == "dmi_vwap":
-        from stockdownloader.strategy.intraday.dmi_vwap_strategy import DmiVwapStrategy
+        from stockdownloader.strategies.intraday.dmi_vwap import DmiVwapStrategy
 
         strategies = [DmiVwapStrategy()]
     else:

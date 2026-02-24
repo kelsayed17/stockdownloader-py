@@ -31,8 +31,8 @@ from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEn
 from stockdownloader.backtest.optimizer_base import OptimizerBase
 from stockdownloader.backtest.optimizer_scoring import score_v2 as _score
 from stockdownloader.core.models.price import IntradayPriceData
-from stockdownloader.strategy.registration_loader import ensure_registered
-from stockdownloader.strategy.base_registry import StrategyRegistry
+from stockdownloader.strategies.loader import ensure_registered
+from stockdownloader.strategies.registry import StrategyRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -292,7 +292,7 @@ class WalkForwardOptimizer(OptimizerBase):
 
     def _optimize_daily(self, entry) -> WFOptResult:
         """Optimize a daily strategy (via adapter) on IS, validate on OOS."""
-        from stockdownloader.strategy.intraday.daily_to_intraday_adapter import (
+        from stockdownloader.strategies.intraday.daily_adapter import (
             DailyToIntradayAdapter,
         )
 

@@ -20,7 +20,7 @@ from stockdownloader.ml.pipeline.results import (
 from stockdownloader.ml.pipeline.stage_convergence import ConvergenceStage
 from stockdownloader.ml.trainer import MLModelConfig
 from stockdownloader.core.models.price import PriceData
-from stockdownloader.strategy.trading_strategy import Signal
+from stockdownloader.strategies.base import Signal
 
 
 # ------------------------------------------------------------------

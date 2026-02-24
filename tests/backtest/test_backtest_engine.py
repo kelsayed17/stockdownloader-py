@@ -7,8 +7,8 @@ import pytest
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.models.trade import TradeStatus
-from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
-from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
+from stockdownloader.strategies.daily.simple import SMACrossoverStrategy
+from stockdownloader.strategies.base import Signal, TradingStrategy
 
 
 def _make_price_data(date, close):

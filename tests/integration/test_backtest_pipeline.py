@@ -12,9 +12,9 @@ from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.data.parsers import CsvPriceDataLoader
 from stockdownloader.core.models.price import PriceData
 from stockdownloader.core.models.trade import Trade, Direction, TradeStatus
-from stockdownloader.strategy.daily.simple_strategies import MACDStrategy
-from stockdownloader.strategy.daily.simple_strategies import RSIStrategy
-from stockdownloader.strategy.daily.simple_strategies import SMACrossoverStrategy
+from stockdownloader.strategies.daily.simple import MACDStrategy
+from stockdownloader.strategies.daily.simple import RSIStrategy
+from stockdownloader.strategies.daily.simple import SMACrossoverStrategy
 
 INITIAL_CAPITAL = Decimal("100000.00")
 ZERO_COMMISSION = Decimal("0")

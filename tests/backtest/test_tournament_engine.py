@@ -18,7 +18,7 @@ from stockdownloader.backtest.tournament_engine import (
     apply_cross_timeframe_bonus,
     run_elimination_bracket,
 )
-from stockdownloader.strategy.regime.regime_detector import MarketRegime
+from stockdownloader.strategies.regime.detector import MarketRegime
 
 
 class TestComboKey:

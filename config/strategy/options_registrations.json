@@ -2,7 +2,7 @@
     "_doc": "Options strategy registrations.",
     "covered-call": {
         "display_name": "Covered Call",
-        "module": "stockdownloader.strategy.options.options_strategies",
+        "module": "stockdownloader.strategies.options.strategies",
         "class": "CoveredCallStrategy",
         "default_kwargs": {
             "ma_period": 20
@@ -27,7 +27,7 @@
     },
     "protective-put": {
         "display_name": "Protective Put",
-        "module": "stockdownloader.strategy.options.options_strategies",
+        "module": "stockdownloader.strategies.options.strategies",
         "class": "ProtectivePutStrategy",
         "default_kwargs": {
             "ma_period": 20

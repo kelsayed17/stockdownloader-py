@@ -12,7 +12,7 @@ from typing import Any
 from stockdownloader.backtest.backtest_result import BacktestResult
 from stockdownloader.backtest.optimizer_scoring import score_v2
 from stockdownloader.backtest.walk_forward import WalkForwardResult
-from stockdownloader.strategy.regime.regime_detector import MarketRegime
+from stockdownloader.strategies.regime.detector import MarketRegime
 
 
 @dataclass(frozen=True, slots=True)

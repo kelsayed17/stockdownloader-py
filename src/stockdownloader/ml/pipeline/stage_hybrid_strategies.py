@@ -1,7 +1,7 @@
 """Stage 4: ML-Informed Hybrid Strategy Construction.
 
 Creates three flavours of hybrid strategy that wrap an existing
-:class:`~stockdownloader.strategy.trading_strategy.TradingStrategy`
+:class:`~stockdownloader.strategies.base.TradingStrategy`
 with ML confidence:
 
 * **MLConfirmedStrategy** — only take strategy signal if ML agrees.
@@ -29,7 +29,7 @@ from stockdownloader.ml.pipeline.results import (
     ModelCandidate,
     TrainingStageResult,
 )
-from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
+from stockdownloader.strategies.base import Signal, TradingStrategy
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import PriceData
@@ -275,8 +275,8 @@ class HybridStage:
         convergence_result: ConvergenceResult,
     ) -> HybridStageResult:
         """Build hybrid strategies from the top convergence pairs."""
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
 
         ensure_registered()
 

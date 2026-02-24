@@ -336,7 +336,7 @@ class TestPatternContext:
         assert ctx.trend_dir == -1
 
     def test_regime_passed(self):
-        from stockdownloader.strategy.regime.regime_detector import MarketRegime
+        from stockdownloader.strategies.regime.detector import MarketRegime
         hub = _make_hub()
         encoder = BarEncoder(hub)
         bar = _make_bar(100.0, 101.0, 99.0, 100.5)

@@ -15,9 +15,9 @@ from stockdownloader.backtest.backtest_result import BaseBacktestResult
 from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
 from stockdownloader.backtest.walk_forward import WalkForwardResult, WalkForwardValidator
 from stockdownloader.core.models.price import IntradayPriceData
-from stockdownloader.strategy.intraday.daily_to_intraday_adapter import DailyToIntradayAdapter
-from stockdownloader.strategy.registration_loader import ensure_registered
-from stockdownloader.strategy.base_registry import StrategyRegistry
+from stockdownloader.strategies.intraday.daily_adapter import DailyToIntradayAdapter
+from stockdownloader.strategies.loader import ensure_registered
+from stockdownloader.strategies.registry import StrategyRegistry
 from stockdownloader.core.config import INITIAL_CAPITAL, OPTIONS_COMMISSION, RISK_PER_TRADE
 
 logger = logging.getLogger(__name__)

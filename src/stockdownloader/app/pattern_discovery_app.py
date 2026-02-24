@@ -354,7 +354,7 @@ def _backtest_patterns(
     tf_label: str = "5m",
 ) -> None:
     """Backtest discovered patterns on out-of-sample data."""
-    from stockdownloader.strategy.intraday.pattern_discovery_strategy import (
+    from stockdownloader.strategies.intraday.pattern_discovery import (
         PatternDiscoveryStrategy,
     )
 

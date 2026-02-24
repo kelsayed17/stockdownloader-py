@@ -15,15 +15,15 @@ from stockdownloader.backtest.combinatorial_tester import (
 )
 from stockdownloader.core.io import TeeWriter
 from stockdownloader.core.models.price import IntradayPriceData
-from stockdownloader.strategy.signals.signal_generator import (
+from stockdownloader.signals.generator import (
     AtomicSignalGenerator,
     SignalDirection,
     SignalResult,
 )
-from stockdownloader.strategy.base_registry import (
+from stockdownloader.strategies.registry import (
     SignalGeneratorRegistry,
 )
-from stockdownloader.strategy.signals.stacked_signal_engine import (
+from stockdownloader.signals.engine import (
     AggregationMode,
 )
 from stockdownloader.indicators.hub import IndicatorHub

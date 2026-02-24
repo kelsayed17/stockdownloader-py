@@ -29,8 +29,8 @@ from stockdownloader.analysis.alert_generator import generate_alert
 from stockdownloader.backtest.backtest_engine import BacktestEngine
 from stockdownloader.backtest import report_formatter
 from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.strategy.registration_loader import ensure_registered
-from stockdownloader.strategy.base_registry import StrategyRegistry
+from stockdownloader.strategies.loader import ensure_registered
+from stockdownloader.strategies.registry import StrategyRegistry
 
 logger = logging.getLogger(__name__)
 

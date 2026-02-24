@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from stockdownloader.ml.dataset_builder import LabelConfig, MLDataset
     from stockdownloader.ml.trainer import MLModelConfig, TrainingResult
     from stockdownloader.core.models.price import PriceData
-    from stockdownloader.strategy.trading_strategy import TradingStrategy
+    from stockdownloader.strategies.base import TradingStrategy
 
 
 # ------------------------------------------------------------------

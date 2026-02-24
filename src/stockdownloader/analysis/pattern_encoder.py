@@ -27,7 +27,7 @@ from stockdownloader.core.math import ZERO
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData
-    from stockdownloader.strategy.regime.regime_detector import MarketRegime
+    from stockdownloader.strategies.regime.detector import MarketRegime
     from stockdownloader.indicators.hub import IndicatorHub
 
 

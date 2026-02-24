@@ -55,9 +55,9 @@ class ConvergenceStage:
         training_result: TrainingStageResult,
     ) -> ConvergenceResult:
         """Run convergence analysis for top models × all daily strategies."""
-        from stockdownloader.strategy.registration_loader import ensure_registered
-        from stockdownloader.strategy.base_registry import StrategyRegistry
-        from stockdownloader.strategy.trading_strategy import TradingStrategy
+        from stockdownloader.strategies.loader import ensure_registered
+        from stockdownloader.strategies.registry import StrategyRegistry
+        from stockdownloader.strategies.base import TradingStrategy
 
         ensure_registered()
         data = data_result.data
@@ -156,7 +156,7 @@ class ConvergenceStage:
         ml_predictions: dict[int, float],
     ) -> ConvergencePair | None:
         """Compare ML vs strategy at each bar, compute convergence metrics."""
-        from stockdownloader.strategy.trading_strategy import Signal
+        from stockdownloader.strategies.base import Signal
 
         threshold = candidate.training_result.optimal_threshold
         fp = candidate.label_config.forward_period

@@ -2,7 +2,7 @@
     "_doc": "Intraday strategy registrations. Decimal values stored as strings prefixed with D: (e.g. \"D:1.5\").",
     "vwap-pullback": {
         "display_name": "VWAP Pullback",
-        "module": "stockdownloader.strategy.intraday.pullback_strategy",
+        "module": "stockdownloader.strategies.intraday.pullback",
         "class": "PullbackStrategy",
         "default_kwargs": {},
         "param_space": {
@@ -60,7 +60,7 @@
     },
     "vwap-reversal": {
         "display_name": "VWAP Reversal",
-        "module": "stockdownloader.strategy.intraday.reversal_strategy",
+        "module": "stockdownloader.strategies.intraday.reversal",
         "class": "ReversalStrategy",
         "default_kwargs": {},
         "param_space": {
@@ -128,7 +128,7 @@
     },
     "vwap-orb": {
         "display_name": "OR Breakout",
-        "module": "stockdownloader.strategy.intraday.or_breakout_strategy",
+        "module": "stockdownloader.strategies.intraday.or_breakout",
         "class": "ORBreakoutStrategy",
         "default_kwargs": {},
         "param_space": {
@@ -173,14 +173,14 @@
     },
     "vwap-orr": {
         "display_name": "OR Reversal",
-        "module": "stockdownloader.strategy.intraday.or_reversal_strategy",
+        "module": "stockdownloader.strategies.intraday.or_reversal",
         "class": "ORReversalStrategy",
         "default_kwargs": {},
         "param_space": {}
     },
     "vwap-ps": {
         "display_name": "Pattern Scalp",
-        "module": "stockdownloader.strategy.intraday.pattern_scalp_strategy",
+        "module": "stockdownloader.strategies.intraday.pattern_scalp",
         "class": "PatternScalpStrategy",
         "default_kwargs": {},
         "param_space": {
@@ -232,7 +232,7 @@
     },
     "avwap-pullback": {
         "display_name": "AVWAP Pullback",
-        "module": "stockdownloader.strategy.intraday.avwap_pullback_strategy",
+        "module": "stockdownloader.strategies.intraday.avwap_pullback",
         "class": "AVWAPPullbackStrategy",
         "default_kwargs": {},
         "param_space": {
@@ -310,7 +310,7 @@
     },
     "ml-oversold": {
         "display_name": "ML Oversold Reversion",
-        "module": "stockdownloader.strategy.intraday.ml_oversold_strategy",
+        "module": "stockdownloader.strategies.intraday.ml_oversold",
         "class": "MLOversoldStrategy",
         "default_kwargs": {},
         "param_space": {
@@ -344,7 +344,7 @@
     },
     "smc-structure": {
         "display_name": "SMC Structure",
-        "module": "stockdownloader.strategy.intraday.smc_structure_strategy",
+        "module": "stockdownloader.strategies.intraday.smc_structure",
         "class": "SMCStructureStrategy",
         "default_kwargs": {},
         "param_space": {
