@@ -48,6 +48,17 @@ from stockdownloader.util.pinescript.models import (
     SharedInfrastructure,
     StrategyDefinition,
 )
+from stockdownloader.util.pinescript.composite_renderer import (
+    composite_aggregation,
+    composite_alerts,
+    composite_background,
+    composite_header,
+    composite_inputs,
+    composite_labels,
+    composite_mode_section,
+    composite_session,
+    composite_shared_indicators,
+)
 from stockdownloader.util.pinescript.strategy_renderer import (
     emit_state_machine,
     emit_strategy_logic,
@@ -291,211 +302,37 @@ class PineScriptGenerator:
         return "\n".join(parts) + "\n"
 
     def _composite_header(self, d: CompositeStrategyDefinition) -> str:
-        desc = ""
-        if d.description:
-            for line in d.description.split("\n"):
-                desc += f"// {line}\n"
-
-        mode_list = ", ".join(m.short_name.upper() for m in d.modes)
-        desc += f"//\n// Modes: {mode_list}\n"
-        desc += f"// Aggregation: {d.aggregation}\n"
-
-        return self._render_header(d.name, d.short_name, desc)
+        return composite_header(self, d)
 
     def _composite_inputs(self, d: CompositeStrategyDefinition) -> str:
-        lines: list[str] = []
-
-        lines.append(self._section_header("INPUTS"))
-        lines.append('bool   showLabels    = input.bool(true, '
-                      'title="Show Signal Labels", group="Display")')
-        lines.append('bool   showBgColor   = input.bool(true, '
-                      'title="Show Background Coloring", group="Display")')
-
-        if d.shared_inputs:
-            lines.append("")
-            lines.append("// --- Shared ---")
-            for inp in d.shared_inputs:
-                lines.append(self._input_line(inp))
-
-        for mode in d.modes:
-            lines.append("")
-            lines.append(f"// --- {mode.group} ---")
-            toggle_name = f"enable{mode.short_name.upper()}"
-            default_val = "true" if mode.enabled_default else "false"
-            lines.append(
-                f'bool   {toggle_name:16s} = input.bool({default_val}, '
-                f'title="Enable {mode.name}", group="{mode.group}")'
-            )
-            for inp in mode.inputs:
-                forced = Input(inp.name, inp.input_type, inp.default,
-                               inp.title, inp.min_val, inp.max_val,
-                               inp.step, inp.options, mode.group)
-                lines.append(self._input_line(forced))
-
-        return "\n".join(lines)
+        return composite_inputs(self, d)
 
     def _composite_session(self, d: CompositeStrategyDefinition) -> str:
-        if not d.use_session_filter:
-            return ""
-        return self._render_session(d.session, d.timezone)
+        return composite_session(self, d)
 
     def _composite_shared_indicators(
-        self, d: CompositeStrategyDefinition
+        self, d: CompositeStrategyDefinition,
     ) -> str:
-        lines: list[str] = []
-        lines.append(self._section_header("SHARED INDICATORS"))
-        self._render_indicators(d.shared_indicators, lines)
-        return "\n".join(lines)
+        return composite_shared_indicators(self, d)
 
     def _composite_mode_section(self, mode: ModeDefinition) -> str:
-        lines: list[str] = []
-        sn = mode.short_name
-        toggle = f"enable{sn.upper()}"
-
-        lines.append(self._section_header(f"MODE: {mode.name.upper()}"))
-
-        if mode.description:
-            for dline in mode.description.split("\n"):
-                lines.append(f"// {dline}")
-            lines.append("")
-
-        self._render_indicators(mode.indicators, lines, render_plots=False)
-
-        for ec in mode.extra_code:
-            lines.append(ec)
-
-        if mode.long_entry:
-            lines.append(
-                f"bool {sn}Long = {toggle} and ({mode.long_entry.expr})"
-            )
-        else:
-            lines.append(f"bool {sn}Long = false")
-
-        if mode.short_entry:
-            lines.append(
-                f"bool {sn}Short = {toggle} and ({mode.short_entry.expr})"
-            )
-        else:
-            lines.append(f"bool {sn}Short = false")
-
-        return "\n".join(lines)
+        return composite_mode_section(self, mode)
 
     def _composite_aggregation(
-        self, d: CompositeStrategyDefinition
+        self, d: CompositeStrategyDefinition,
     ) -> str:
-        lines: list[str] = []
-        lines.append(self._section_header("SIGNAL AGGREGATION"))
-
-        lines.append("bool longCondition = false")
-        lines.append("bool shortCondition = false")
-        lines.append('var string activeMode = ""')
-        lines.append("")
-
-        if d.aggregation == "first_to_fire":
-            order = d.priority_order or [m.short_name for m in d.modes]
-            first = True
-            for sn in order:
-                kw = "if" if first else "else if"
-                lines.append(f"{kw} {sn}Long")
-                lines.append("    longCondition := true")
-                lines.append(f'    activeMode := "{sn.upper()}"')
-                first = False
-            first = True
-            lines.append("")
-            for sn in order:
-                kw = "if" if first else "else if"
-                lines.append(f"{kw} {sn}Short")
-                lines.append("    shortCondition := true")
-                lines.append(f'    activeMode := "{sn.upper()}"')
-                first = False
-        else:
-            # "any" aggregation
-            long_parts = [f"{m.short_name}Long" for m in d.modes]
-            short_parts = [f"{m.short_name}Short" for m in d.modes]
-            lines.append(
-                f"longCondition := {' or '.join(long_parts)}"
-            )
-            lines.append(
-                f"shortCondition := {' or '.join(short_parts)}"
-            )
-            for m in d.modes:
-                sn = m.short_name
-                lines.append(f'if {sn}Long or {sn}Short')
-                lines.append(f'    activeMode := "{sn.upper()}"')
-
-        self._emit_state_machine(
-            lines,
-            has_long=True,
-            has_short=True,
-            long_exit_expr="shortCondition",
-            short_exit_expr="longCondition",
-            use_session_filter=d.use_session_filter,
-        )
-        return "\n".join(lines)
+        return composite_aggregation(self, d)
 
     def _composite_labels(self, d: CompositeStrategyDefinition) -> str:
-        lines: list[str] = []
-        lines.append(self._section_header("LABELS"))
-
-        guard = "showLabels"
-        if d.use_session_filter:
-            guard += " and inSession"
-
-        lines.append(f"if {guard}")
-        self._emit_label(lines, "buySignal", "low",
-                         'activeMode + " Buy"',
-                         "label.style_label_up", "color.green")
-        self._emit_label(lines, "sellSignal", "high",
-                         'activeMode + " Sell"',
-                         "label.style_label_down", "color.red")
-        self._emit_label(lines, "exitLongSignal", "high",
-                         '"Exit Long"',
-                         "label.style_label_down", "color.orange")
-        self._emit_label(lines, "exitShortSignal", "low",
-                         '"Exit Short"',
-                         "label.style_label_up", "color.orange")
-        return "\n".join(lines)
+        return composite_labels(self, d)
 
     def _composite_background(
-        self, d: CompositeStrategyDefinition
+        self, d: CompositeStrategyDefinition,
     ) -> str:
-        guard = "showBgColor"
-        if d.use_session_filter:
-            guard += " and inSession"
-        return self._render_background(guard, has_short=True)
+        return composite_background(self, d)
 
     def _composite_alerts(self, d: CompositeStrategyDefinition) -> str:
-        lines: list[str] = []
-        lines.append(self._section_header("ALERTS"))
-
-        sg = " and inSession" if d.use_session_filter else ""
-
-        self._emit_alert(lines, f"buySignal{sg}",
-                         "Buy", f"{d.name}: Buy signal triggered.")
-        self._emit_alert(lines, f"sellSignal{sg}",
-                         "Sell", f"{d.name}: Sell signal triggered.")
-        self._emit_alert(lines, f"exitLongSignal{sg}",
-                         "Exit Long", f"{d.name}: Exit Long signal.")
-        self._emit_alert(lines, f"exitShortSignal{sg}",
-                         "Exit Short", f"{d.name}: Exit Short signal.")
-
-        # Per-mode alerts
-        for mode in d.modes:
-            sn = mode.short_name
-            self._emit_alert(
-                lines, f"({sn}Long or {sn}Short){sg}",
-                f"{mode.name} Signal",
-                f"{d.name}: {mode.name} signal triggered.",
-            )
-
-        # Combined alert
-        self._emit_alert(
-            lines,
-            f"(buySignal or sellSignal or exitLongSignal or exitShortSignal){sg}",
-            "Any Signal",
-            f"{d.name}: Signal triggered. Check chart.",
-        )
-        return "\n".join(lines)
+        return composite_alerts(self, d)
 
     # ------------------------------------------------------------------
     # Shared helpers (eliminate duplication between standalone/composite)
