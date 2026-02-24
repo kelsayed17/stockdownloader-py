@@ -25,6 +25,9 @@ dev = [
 ml = [
     "scikit-learn>=1.4.0",
     "joblib>=1.3.0",
+    "xgboost>=2.0",
+    "lightgbm>=4.0",
+    "catboost>=1.2",
 ]
 
 [project.scripts]
@@ -46,6 +49,7 @@ gme-ml-pipeline = "stockdownloader.gme.pipeline:main"
 spy-ml-pipeline = "stockdownloader.app.ml_pipeline:main"
 ml-train = "stockdownloader.app.ml_train:main"
 spy-ml-ensemble = "stockdownloader.app.spy_ml_ensemble:main"
+spy-ml-mega = "stockdownloader.app.spy_ml_mega:main"
 # ── Utilities & standalone ────────────────────────────────────────
 intraday-accumulate = "stockdownloader.app.backtest:main_accumulate"
 strategy-optimize = "stockdownloader.app.optimize:main_optimize"
