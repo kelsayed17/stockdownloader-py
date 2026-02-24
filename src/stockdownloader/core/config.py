@@ -79,7 +79,7 @@ OPTIONS_COMMISSION = Decimal("0.65")  # Per-contract options commission
 # Project paths (relative to project root)
 # ======================================================================
 
-#: Project root (3 levels up from this file: util → stockdownloader → src → root).
+#: Project root (3 levels up from this file: core → stockdownloader → src → root).
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[3]
 
 #: Default path to the SPY 5-minute bar CSV.
