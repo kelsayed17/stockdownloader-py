@@ -1,9 +1,7 @@
 """Tests for the Polygon options data client."""
 from __future__ import annotations
 
-import json
 from datetime import date
-from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -53,6 +51,15 @@ _CONTRACTS_RESPONSE = {
         },
     ],
     "next_url": None,
+}
+
+_BAR_RESPONSE = {
+    "status": "OK",
+    "ticker": "O:SPY250207P00580000",
+    "resultsCount": 1,
+    "results": [
+        {"o": 3.50, "h": 3.80, "l": 3.20, "c": 3.55, "v": 1500, "t": 1738886400000}
+    ],
 }
 
 
@@ -142,3 +149,58 @@ class TestFetchOptionContracts:
         )
         # 2025-02-07 is a Friday
         assert len(contracts) == 4
+
+
+class TestFetchOptionDailyBar:
+    def test_returns_bar_data(self):
+        session = MagicMock()
+        resp = MagicMock()
+        resp.json.return_value = _BAR_RESPONSE
+        resp.raise_for_status = MagicMock()
+        session.get.return_value = resp
+
+        client = PolygonOptionsClient(api_key="test_key")
+        client._session = session
+
+        bar = client.fetch_option_daily_bar("O:SPY250207P00580000", date(2025, 2, 3))
+        assert bar is not None
+        assert bar["c"] == 3.55
+        assert bar["v"] == 1500
+
+    def test_returns_none_for_no_data(self):
+        session = MagicMock()
+        resp = MagicMock()
+        resp.json.return_value = {"status": "OK", "results": []}
+        resp.raise_for_status = MagicMock()
+        session.get.return_value = resp
+
+        client = PolygonOptionsClient(api_key="test_key")
+        client._session = session
+
+        bar = client.fetch_option_daily_bar("O:SPY250207P00580000", date(2025, 2, 3))
+        assert bar is None
+
+
+class TestChainCache:
+    def test_save_and_load_cache(self, tmp_path):
+        from stockdownloader.data.market.polygon_options_client import (
+            save_chain_cache,
+            load_chain_cache,
+        )
+
+        cache_data = {
+            "expiration_date": "2025-02-07",
+            "contracts": _CONTRACTS_RESPONSE["results"],
+            "bars": {"O:SPY250207P00580000": _BAR_RESPONSE["results"][0]},
+        }
+        save_chain_cache(tmp_path, "2025-02-07", cache_data)
+        loaded = load_chain_cache(tmp_path, "2025-02-07")
+
+        assert loaded is not None
+        assert loaded["expiration_date"] == "2025-02-07"
+        assert len(loaded["contracts"]) == 4
+
+    def test_load_returns_none_for_missing(self, tmp_path):
+        from stockdownloader.data.market.polygon_options_client import load_chain_cache
+        loaded = load_chain_cache(tmp_path, "2025-02-07")
+        assert loaded is None

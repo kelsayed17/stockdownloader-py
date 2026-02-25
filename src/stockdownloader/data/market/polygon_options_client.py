@@ -19,7 +19,8 @@ import json
 import logging
 import os
 import time as _time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
+from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import requests
@@ -31,6 +32,7 @@ _AGGS_URL = (
     "https://api.polygon.io/v2/aggs/ticker/{ticker}/range/1/day/{from_date}/{to_date}"
 )
 
+# 0.2s delay for upgraded Polygon tier (vs 12.5s free tier in polygon_client.py)
 _DEFAULT_DELAY = 0.2
 
 
@@ -193,3 +195,21 @@ def _is_friday(date_str: str) -> bool:
         return datetime.strptime(date_str, "%Y-%m-%d").weekday() == 4
     except (ValueError, TypeError):
         return False
+
+
+def save_chain_cache(cache_dir: Path, expiration_date: str, data: dict) -> None:
+    """Save option chain data to disk cache."""
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / f"{expiration_date}.json"
+    with open(cache_file, "w") as f:
+        json.dump(data, f, indent=2)
+    logger.debug("Saved cache: %s", cache_file)
+
+
+def load_chain_cache(cache_dir: Path, expiration_date: str) -> dict | None:
+    """Load option chain data from disk cache. Returns None if not found."""
+    cache_file = cache_dir / f"{expiration_date}.json"
+    if not cache_file.exists():
+        return None
+    with open(cache_file) as f:
+        return json.load(f)
