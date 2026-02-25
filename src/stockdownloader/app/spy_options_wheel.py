@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import statistics
 import sys
 import time
 from datetime import date, datetime, timedelta
@@ -100,6 +101,31 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--no-ml-filter", action="store_true",
         help="Run pure mechanical wheel without ML filter",
+    )
+    # Advanced strategies
+    parser.add_argument(
+        "--collar", action="store_true",
+        help="Enable protective put collar on held shares",
+    )
+    parser.add_argument(
+        "--hedge-delta", type=float, default=0.10,
+        help="Target delta for hedge put (default: 0.10)",
+    )
+    parser.add_argument(
+        "--vol-scaling", action="store_true",
+        help="Enable IV-percentile-based contract scaling",
+    )
+    parser.add_argument(
+        "--max-contracts", type=int, default=3,
+        help="Maximum contracts with vol scaling (default: 3)",
+    )
+    parser.add_argument(
+        "--iron-condor", action="store_true",
+        help="Enable iron condor overlay (30/10-delta spreads)",
+    )
+    parser.add_argument(
+        "--ic-allocation", type=float, default=0.30,
+        help="Capital fraction for iron condor overlay (default: 0.30)",
     )
     parser.add_argument(
         "--skip-put-thresh", type=float, default=0.35,
@@ -252,18 +278,21 @@ def _print_results_table(
 
 
 def _print_comparison_table(
+    ic_combined: dict[str, float] | None,
     ml_combined: dict[str, float] | None,
     mech_combined: dict[str, float],
     bw_metrics: dict[str, float],
     wheel_metrics: dict[str, float],
     bh_return_pct: float,
 ) -> None:
-    """Print comparison: ML Combined | Combined | Buy-Write | Wheel | Buy & Hold."""
+    """Print comparison: IC+ML | ML Combined | Combined | Buy-Write | Wheel | Buy & Hold."""
     print("\n" + "=" * 92)
     print("SPY WEEKLY COMBINED STRATEGY COMPARISON")
     print("=" * 92)
 
     cols = []
+    if ic_combined:
+        cols.append(("IC+ML Comb", ic_combined))
     if ml_combined:
         cols.append(("ML Combined", ml_combined))
     cols.append(("Combined", mech_combined))
@@ -315,6 +344,77 @@ def _print_comparison_table(
     _row("Max Drawdown", "max_drawdown_pct", prefix="-")
 
     print("=" * 92)
+
+
+def _merge_metrics(
+    combined_metrics: dict[str, float],
+    ic_metrics: dict[str, float],
+    combined_equity: list[float],
+    ic_equity: list[float],
+    total_initial: float,
+) -> dict[str, float]:
+    """Merge combined + IC metrics into a single metrics dict."""
+    max_len = max(len(combined_equity), len(ic_equity))
+    c_eq = combined_equity + [combined_equity[-1]] * (max_len - len(combined_equity)) if combined_equity else [0.0] * max_len
+    i_eq = ic_equity + [ic_equity[-1]] * (max_len - len(ic_equity)) if ic_equity else [0.0] * max_len
+
+    merged_equity = [c + i for c, i in zip(c_eq, i_eq)]
+    final_equity = merged_equity[-1] if merged_equity else total_initial
+
+    total_return = final_equity - total_initial
+    total_return_pct = (total_return / total_initial) * 100 if total_initial > 0 else 0.0
+
+    sharpe = 0.0
+    if len(merged_equity) >= 2:
+        returns = []
+        prev = total_initial
+        for eq in merged_equity:
+            returns.append((eq - prev) / prev if prev > 0 else 0.0)
+            prev = eq
+        if returns:
+            mean_r = statistics.mean(returns)
+            std_r = statistics.pstdev(returns)
+            if std_r > 0:
+                sharpe = (mean_r / std_r) * math.sqrt(52)
+
+    max_dd_pct = 0.0
+    peak = total_initial
+    for eq in merged_equity:
+        if eq > peak:
+            peak = eq
+        dd_pct = (peak - eq) / peak * 100 if peak > 0 else 0.0
+        if dd_pct > max_dd_pct:
+            max_dd_pct = dd_pct
+
+    weeks = max(combined_metrics.get("weeks", 0), ic_metrics.get("weeks", 0))
+    years = weeks / 52.0 if weeks > 0 else 1.0
+    annualized = 0.0
+    if years > 0 and final_equity > 0 and total_initial > 0:
+        annualized = ((final_equity / total_initial) ** (1.0 / years) - 1.0) * 100
+
+    return {
+        "initial_capital": total_initial,
+        "final_equity": final_equity,
+        "total_return_pct": total_return_pct,
+        "total_return_dollar": total_return,
+        "total_premium_collected": combined_metrics.get("total_premium_collected", 0) + ic_metrics.get("total_credit", 0),
+        "total_commissions": combined_metrics.get("total_commissions", 0) + ic_metrics.get("total_commissions", 0),
+        "n_assignments": combined_metrics.get("n_assignments", 0),
+        "n_calls_exercised": combined_metrics.get("n_calls_exercised", 0),
+        "n_rebuys": combined_metrics.get("n_rebuys", 0),
+        "n_puts_sold": combined_metrics.get("n_puts_sold", 0),
+        "n_calls_sold": combined_metrics.get("n_calls_sold", 0),
+        "n_puts_skipped": combined_metrics.get("n_puts_skipped", 0),
+        "n_calls_skipped": combined_metrics.get("n_calls_skipped", 0),
+        "n_ics_sold": ic_metrics.get("n_ics_sold", 0),
+        "weeks": weeks,
+        "sharpe": sharpe,
+        "max_drawdown_pct": max_dd_pct,
+        "max_drawdown_dollar": 0.0,
+        "annualized_return_pct": annualized,
+        "total_hedge_cost": combined_metrics.get("total_hedge_cost", 0),
+        "total_hedge_payout": combined_metrics.get("total_hedge_payout", 0),
+    }
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -379,6 +479,12 @@ def main(argv: list[str] | None = None) -> None:
         print(f"  Skip call >    {args.skip_call_thresh}")
     print(f"  Cache:         {cache_dir}")
     print(f"  Commission:    ${args.commission:.2f}/contract")
+    if args.collar:
+        print(f"  Collar:        ON (hedge delta: {args.hedge_delta})")
+    if args.vol_scaling:
+        print(f"  Vol Scaling:   ON (max contracts: {args.max_contracts})")
+    if args.iron_condor:
+        print(f"  Iron Condor:   ON (allocation: {args.ic_allocation:.0%})")
     print()
 
     # [1/5] Download SPY daily data
@@ -468,6 +574,7 @@ def main(argv: list[str] | None = None) -> None:
     hist_vol = float(estimate_volatility(close_prices, 20))
 
     week_records: list[WeekRecord] = []
+    ic_week_records: list = []
     iv_history: list[float] = []
     n_cached = 0
     n_fetched = 0
@@ -499,6 +606,19 @@ def main(argv: list[str] | None = None) -> None:
         if put_contract is None or call_contract is None:
             continue
 
+        hedge_put_contract = None
+        hedge_call_contract = None
+        if args.collar or args.iron_condor:
+            hedge_put_contract = select_strike_by_delta(
+                week_contracts, contract_type="put", spot=spy_at_entry,
+                target_delta=args.hedge_delta, days_to_expiry=5, volatility=hist_vol,
+            )
+        if args.iron_condor:
+            hedge_call_contract = select_strike_by_delta(
+                week_contracts, contract_type="call", spot=spy_at_entry,
+                target_delta=args.hedge_delta, days_to_expiry=5, volatility=hist_vol,
+            )
+
         cached = load_chain_cache(cache_dir, exp_str)
         if cached and put_contract["ticker"] in cached.get("bars", {}):
             put_bar = cached["bars"].get(put_contract["ticker"])
@@ -522,6 +642,30 @@ def main(argv: list[str] | None = None) -> None:
 
         put_premium = put_bar.get("vw", put_bar.get("c", 0.0)) if put_bar else 0.0
         call_premium = call_bar.get("vw", call_bar.get("c", 0.0)) if call_bar else 0.0
+
+        hedge_put_premium = 0.0
+        hedge_put_strike = 0.0
+        if hedge_put_contract:
+            hedge_put_bar = None
+            if cached and hedge_put_contract["ticker"] in cached.get("bars", {}):
+                hedge_put_bar = cached["bars"].get(hedge_put_contract["ticker"])
+            else:
+                hedge_put_bar = polygon.fetch_option_daily_bar(hedge_put_contract["ticker"], monday)
+            if hedge_put_bar:
+                hedge_put_premium = hedge_put_bar.get("vw", hedge_put_bar.get("c", 0.0))
+                hedge_put_strike = hedge_put_contract["strike_price"]
+
+        hedge_call_premium = 0.0
+        hedge_call_strike = 0.0
+        if hedge_call_contract:
+            hedge_call_bar = None
+            if cached and hedge_call_contract["ticker"] in cached.get("bars", {}):
+                hedge_call_bar = cached["bars"].get(hedge_call_contract["ticker"])
+            else:
+                hedge_call_bar = polygon.fetch_option_daily_bar(hedge_call_contract["ticker"], monday)
+            if hedge_call_bar:
+                hedge_call_premium = hedge_call_bar.get("vw", hedge_call_bar.get("c", 0.0))
+                hedge_call_strike = hedge_call_contract["strike_price"]
 
         # Weekly IV estimation
         weekly_vol = hist_vol
@@ -570,17 +714,50 @@ def main(argv: list[str] | None = None) -> None:
             put_premium=put_premium,
             call_premium=call_premium,
             ml_prob=ml_prob,
+            hedge_put_strike=hedge_put_strike,
+            hedge_put_premium=hedge_put_premium,
+            iv_percentile=iv_percentile,
         ))
+
+        if args.iron_condor and hedge_put_strike > 0 and hedge_call_strike > 0:
+            put_spread_credit = put_premium - hedge_put_premium
+            call_spread_credit = call_premium - hedge_call_premium
+            net_credit = put_spread_credit + call_spread_credit
+            if net_credit > 0:
+                from stockdownloader.backtesting.engines.iron_condor import ICWeekRecord
+                ic_week_records.append(ICWeekRecord(
+                    week_num=week_num,
+                    expiration_date=exp_str,
+                    spy_price_at_entry=spy_at_entry,
+                    spy_price_at_expiry=spy_at_expiry,
+                    short_put_strike=put_contract["strike_price"],
+                    long_put_strike=hedge_put_strike,
+                    short_call_strike=call_contract["strike_price"],
+                    long_call_strike=hedge_call_strike,
+                    net_credit_per_contract=net_credit,
+                    ml_prob=ml_prob,
+                ))
 
     print(f"  {len(week_records)} tradeable weeks built")
     print(f"  Cache hits: {n_cached}, API fetches: {n_fetched}")
 
+    # Capital allocation for IC overlay
+    if args.iron_condor:
+        combined_capital = args.initial_capital * (1 - args.ic_allocation)
+        ic_capital = args.initial_capital * args.ic_allocation
+    else:
+        combined_capital = args.initial_capital
+        ic_capital = 0.0
+
     # Run mechanical (no ML filter)
     mech_engine = WheelBacktestEngine(
-        initial_capital=args.initial_capital,
+        initial_capital=combined_capital,
         contracts=args.contracts,
         buy_write=args.buy_write,
         commission_per_contract=args.commission,
+        collar=args.collar,
+        vol_scaling=args.vol_scaling,
+        max_contracts=args.max_contracts,
     )
     for w in week_records:
         mech_engine.process_week(w, use_ml_filter=False)
@@ -590,16 +767,35 @@ def main(argv: list[str] | None = None) -> None:
     ml_metrics = None
     if not args.no_ml_filter and ml_probs:
         ml_engine = WheelBacktestEngine(
-            initial_capital=args.initial_capital,
+            initial_capital=combined_capital,
             contracts=args.contracts,
             skip_put_thresh=args.skip_put_thresh,
             skip_call_thresh=args.skip_call_thresh,
             buy_write=args.buy_write,
             commission_per_contract=args.commission,
+            collar=args.collar,
+            vol_scaling=args.vol_scaling,
+            max_contracts=args.max_contracts,
         )
         for w in week_records:
             ml_engine.process_week(w, use_ml_filter=True)
         ml_metrics = ml_engine.compute_metrics()
+
+    # Run IC engine
+    ic_metrics = None
+    ic_equity: list[float] = []
+    if args.iron_condor and ic_week_records:
+        from stockdownloader.backtesting.engines.iron_condor import IronCondorEngine
+        ic_engine = IronCondorEngine(
+            capital=ic_capital,
+            commission_per_contract=args.commission,
+            skip_put_thresh=args.skip_put_thresh,
+            skip_call_thresh=args.skip_call_thresh,
+        )
+        for w in ic_week_records:
+            ic_engine.process_week(w, use_ml_filter=not args.no_ml_filter and bool(ml_probs))
+        ic_metrics = ic_engine.compute_metrics()
+        ic_equity = ic_engine.equity_curve
 
     print(f"  [{time.time() - t4:.1f}s]")
 
@@ -616,12 +812,15 @@ def main(argv: list[str] | None = None) -> None:
         ml_combined_metrics = None
         if not args.no_ml_filter and ml_probs:
             ml_combined = WheelBacktestEngine(
-                initial_capital=args.initial_capital,
+                initial_capital=combined_capital,
                 contracts=args.contracts,
                 skip_put_thresh=args.skip_put_thresh,
                 skip_call_thresh=args.skip_call_thresh,
                 combined=True,
                 commission_per_contract=args.commission,
+                collar=args.collar,
+                vol_scaling=args.vol_scaling,
+                max_contracts=args.max_contracts,
             )
             for w in week_records:
                 ml_combined.process_week(w, use_ml_filter=True)
@@ -629,10 +828,13 @@ def main(argv: list[str] | None = None) -> None:
 
         # 2. Mechanical Combined (always run)
         mech_combined = WheelBacktestEngine(
-            initial_capital=args.initial_capital,
+            initial_capital=combined_capital,
             contracts=args.contracts,
             combined=True,
             commission_per_contract=args.commission,
+            collar=args.collar,
+            vol_scaling=args.vol_scaling,
+            max_contracts=args.max_contracts,
         )
         for w in week_records:
             mech_combined.process_week(w, use_ml_filter=False)
@@ -640,7 +842,7 @@ def main(argv: list[str] | None = None) -> None:
 
         # 3. Mechanical Buy-Write
         bw_engine = WheelBacktestEngine(
-            initial_capital=args.initial_capital,
+            initial_capital=combined_capital,
             contracts=args.contracts,
             buy_write=True,
             commission_per_contract=args.commission,
@@ -651,7 +853,7 @@ def main(argv: list[str] | None = None) -> None:
 
         # 4. Mechanical Wheel
         wheel_engine = WheelBacktestEngine(
-            initial_capital=args.initial_capital,
+            initial_capital=combined_capital,
             contracts=args.contracts,
             commission_per_contract=args.commission,
         )
@@ -659,7 +861,16 @@ def main(argv: list[str] | None = None) -> None:
             wheel_engine.process_week(w, use_ml_filter=False)
         wheel_metrics = wheel_engine.compute_metrics()
 
+        ic_combined_metrics = None
+        if ic_metrics and ml_combined_metrics:
+            ic_combined_metrics = _merge_metrics(
+                ml_combined_metrics, ic_metrics,
+                ml_combined.equity_curve, ic_equity,
+                args.initial_capital,
+            )
+
         _print_comparison_table(
+            ic_combined_metrics,
             ml_combined_metrics, mech_combined_metrics,
             bw_metrics, wheel_metrics, bh_return_pct,
         )

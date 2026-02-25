@@ -209,3 +209,61 @@ class TestWheelIntegration:
         assert metrics["total_premium_collected"] > 0
         assert metrics["total_commissions"] > 0
         assert engine.shares_held >= 100
+
+
+class TestAdvancedParser:
+
+    def test_collar_default_false(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.collar is False
+
+    def test_collar_flag(self):
+        parser = _build_parser()
+        args = parser.parse_args(["--collar"])
+        assert args.collar is True
+
+    def test_hedge_delta_default(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.hedge_delta == 0.10
+
+    def test_hedge_delta_custom(self):
+        parser = _build_parser()
+        args = parser.parse_args(["--hedge-delta", "0.15"])
+        assert args.hedge_delta == 0.15
+
+    def test_vol_scaling_default_false(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.vol_scaling is False
+
+    def test_vol_scaling_flag(self):
+        parser = _build_parser()
+        args = parser.parse_args(["--vol-scaling"])
+        assert args.vol_scaling is True
+
+    def test_max_contracts_default(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.max_contracts == 3
+
+    def test_iron_condor_default_false(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.iron_condor is False
+
+    def test_iron_condor_flag(self):
+        parser = _build_parser()
+        args = parser.parse_args(["--iron-condor"])
+        assert args.iron_condor is True
+
+    def test_ic_allocation_default(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.ic_allocation == 0.30
+
+    def test_ic_allocation_custom(self):
+        parser = _build_parser()
+        args = parser.parse_args(["--ic-allocation", "0.20"])
+        assert args.ic_allocation == 0.20
