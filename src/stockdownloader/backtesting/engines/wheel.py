@@ -9,6 +9,11 @@ The wheel lifecycle:
     HOLDING -> CALL_PHASE (sell CC)
     CALL_PHASE -> PUT_PHASE (called away when call is ITM)
     PUT/CALL OTM expiry -> stay in same phase, collect premium
+
+Buy-write mode:
+    Buy shares immediately, sell covered calls for income.
+    If called away, immediately re-buy at market price.
+    Captures buy-and-hold returns PLUS premium income.
 """
 from __future__ import annotations
 
@@ -54,6 +59,12 @@ class WheelBacktestEngine:
         Skip selling puts when ML prob < this (crash danger).
     skip_call_thresh:
         Skip selling calls when ML prob > this (rally expected).
+    buy_write:
+        If True, buy shares immediately and sell covered calls only.
+        Captures buy-and-hold returns plus premium income.
+    commission_per_contract:
+        Dollar commission charged per contract on each option trade.
+        Default is 0.0 (no commission).
     """
 
     def __init__(
@@ -62,12 +73,16 @@ class WheelBacktestEngine:
         contracts: int = 1,
         skip_put_thresh: float = 0.35,
         skip_call_thresh: float = 0.65,
+        buy_write: bool = False,
+        commission_per_contract: float = 0.0,
     ) -> None:
         self._initial_capital = initial_capital
         self._cash = initial_capital
         self._contracts = contracts
         self._skip_put_thresh = skip_put_thresh
         self._skip_call_thresh = skip_call_thresh
+        self._buy_write = buy_write
+        self._commission_per_contract = commission_per_contract
 
         # State
         self._state = WheelState.CASH
@@ -76,8 +91,10 @@ class WheelBacktestEngine:
 
         # Tracking
         self._total_premium: float = 0.0
+        self._total_commissions: float = 0.0
         self._n_assignments: int = 0
         self._n_calls_exercised: int = 0
+        self._n_rebuys: int = 0
         self._n_puts_sold: int = 0
         self._n_calls_sold: int = 0
         self._n_puts_skipped: int = 0
@@ -110,14 +127,74 @@ class WheelBacktestEngine:
         """Process one week of the wheel strategy."""
         multiplier = self._contracts * 100
 
+        if self._buy_write:
+            self._process_week_buy_write(week, multiplier, use_ml_filter)
+        else:
+            self._process_week_wheel(week, multiplier, use_ml_filter)
+
+        # Update equity curve
+        equity = self._cash + self._shares * week.spy_price_at_expiry
+        self._equity_curve.append(equity)
+        self._weeks_processed += 1
+
+    def _process_week_buy_write(
+        self,
+        week: WeekRecord,
+        multiplier: int,
+        use_ml_filter: bool,
+    ) -> None:
+        """Buy-write mode: hold shares + sell covered calls for income."""
+        # Buy shares on first week if not already holding
+        if self._shares == 0:
+            cost = week.spy_price_at_entry * multiplier
+            self._cash -= cost
+            self._shares = multiplier
+            self._share_cost_basis = week.spy_price_at_entry
+            self._state = WheelState.CALL_PHASE
+
+        # Sell covered call (unless ML filter says skip for rally)
+        if use_ml_filter and week.ml_prob > self._skip_call_thresh:
+            self._n_calls_skipped += 1
+        else:
+            gross = week.call_premium * multiplier
+            commission = self._commission_per_contract * self._contracts
+            self._cash += gross - commission
+            self._total_premium += gross - commission
+            self._total_commissions += commission
+            self._n_calls_sold += 1
+
+            if week.spy_price_at_expiry > week.call_strike:
+                # ITM: called away, then immediately re-buy
+                proceeds = week.call_strike * multiplier
+                self._cash += proceeds
+                self._n_calls_exercised += 1
+
+                # Immediately re-buy at expiry price
+                rebuy_cost = week.spy_price_at_expiry * multiplier
+                self._cash -= rebuy_cost
+                self._share_cost_basis = week.spy_price_at_expiry
+                self._n_rebuys += 1
+                # Shares stay at multiplier (still holding)
+
+        self._state = WheelState.CALL_PHASE
+
+    def _process_week_wheel(
+        self,
+        week: WeekRecord,
+        multiplier: int,
+        use_ml_filter: bool,
+    ) -> None:
+        """Standard wheel mode: CSP -> assignment -> CC -> called away."""
         if self._state in (WheelState.CASH, WheelState.PUT_PHASE):
             # ── PUT PHASE ──
             if use_ml_filter and week.ml_prob < self._skip_put_thresh:
                 self._n_puts_skipped += 1
             else:
-                premium = week.put_premium * multiplier
-                self._cash += premium
-                self._total_premium += premium
+                gross = week.put_premium * multiplier
+                commission = self._commission_per_contract * self._contracts
+                self._cash += gross - commission
+                self._total_premium += gross - commission
+                self._total_commissions += commission
                 self._n_puts_sold += 1
                 self._state = WheelState.PUT_PHASE
 
@@ -135,9 +212,11 @@ class WheelBacktestEngine:
             if use_ml_filter and week.ml_prob > self._skip_call_thresh:
                 self._n_calls_skipped += 1
             else:
-                premium = week.call_premium * multiplier
-                self._cash += premium
-                self._total_premium += premium
+                gross = week.call_premium * multiplier
+                commission = self._commission_per_contract * self._contracts
+                self._cash += gross - commission
+                self._total_premium += gross - commission
+                self._total_commissions += commission
                 self._n_calls_sold += 1
                 self._state = WheelState.CALL_PHASE
 
@@ -149,11 +228,6 @@ class WheelBacktestEngine:
                     self._share_cost_basis = 0.0
                     self._n_calls_exercised += 1
                     self._state = WheelState.PUT_PHASE
-
-        # Update equity curve
-        equity = self._cash + self._shares * week.spy_price_at_expiry
-        self._equity_curve.append(equity)
-        self._weeks_processed += 1
 
     def compute_metrics(self) -> dict[str, float]:
         """Compute summary metrics for the backtest."""
@@ -200,8 +274,10 @@ class WheelBacktestEngine:
             "total_return_pct": total_return_pct,
             "total_return_dollar": total_return,
             "total_premium_collected": self._total_premium,
+            "total_commissions": self._total_commissions,
             "n_assignments": float(self._n_assignments),
             "n_calls_exercised": float(self._n_calls_exercised),
+            "n_rebuys": float(self._n_rebuys),
             "n_puts_sold": float(self._n_puts_sold),
             "n_calls_sold": float(self._n_calls_sold),
             "n_puts_skipped": float(self._n_puts_skipped),
