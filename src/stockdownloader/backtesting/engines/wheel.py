@@ -101,6 +101,9 @@ class WheelBacktestEngine:
         collar: bool = False,
         vol_scaling: bool = False,
         max_contracts: int = 3,
+        crash_avoidance: bool = False,
+        crash_exit_thresh: float = 0.25,
+        re_entry_thresh: float = 0.50,
     ) -> None:
         self._initial_capital = initial_capital
         self._cash = initial_capital
@@ -113,6 +116,9 @@ class WheelBacktestEngine:
         self._collar = collar
         self._vol_scaling = vol_scaling
         self._max_contracts = max_contracts
+        self._crash_avoidance = crash_avoidance
+        self._crash_exit_thresh = crash_exit_thresh
+        self._re_entry_thresh = re_entry_thresh
 
         # State
         self._state = WheelState.CASH
@@ -134,6 +140,11 @@ class WheelBacktestEngine:
         self._equity_curve: list[float] = []
         self._weeks_processed: int = 0
         self._eff_contracts_history: list[int] = []
+
+        # Crash avoidance state
+        self._in_cash_mode: bool = False
+        self._n_crash_exits: int = 0
+        self._n_crash_reentries: int = 0
 
     @property
     def state(self) -> WheelState:
@@ -173,6 +184,33 @@ class WheelBacktestEngine:
     ) -> None:
         """Process one week of the wheel strategy."""
         multiplier = self._contracts * 100
+
+        # Crash avoidance: exit to cash or skip while in cash mode
+        if self._crash_avoidance and use_ml_filter:
+            if not self._in_cash_mode and week.ml_prob < self._crash_exit_thresh:
+                # Liquidate all shares at expiry price
+                if self._shares > 0:
+                    self._cash += self._shares * week.spy_price_at_expiry
+                    self._shares = 0
+                    self._share_cost_basis = 0.0
+                    self._state = WheelState.CASH
+                self._in_cash_mode = True
+                self._n_crash_exits += 1
+                # Record equity and return (skip all option selling)
+                self._equity_curve.append(self._cash)
+                self._weeks_processed += 1
+                return
+
+            if self._in_cash_mode and week.ml_prob >= self._re_entry_thresh:
+                self._in_cash_mode = False
+                self._n_crash_reentries += 1
+                # Fall through to normal processing (combined mode will buy shares)
+
+            if self._in_cash_mode:
+                # Still in cash — skip everything
+                self._equity_curve.append(self._cash)
+                self._weeks_processed += 1
+                return
 
         eff_contracts = self._compute_effective_contracts(week.iv_percentile)
         if self._vol_scaling:
@@ -433,4 +471,6 @@ class WheelBacktestEngine:
                 if self._eff_contracts_history
                 else float(self._contracts)
             ),
+            "n_crash_exits": float(self._n_crash_exits),
+            "n_crash_reentries": float(self._n_crash_reentries),
         }

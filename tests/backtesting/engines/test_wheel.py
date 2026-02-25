@@ -815,3 +815,193 @@ class TestVolScaling:
         assert "max_contracts_traded" in metrics
         # Week 0: 0.20 -> 0.5x -> max(1,int(0.5))=1. Week 1: 0.60 -> 1.5x -> int(1.5)=1. Week 2: 0.90 -> 2.0x -> 2.
         assert metrics["max_contracts_traded"] == 2.0
+
+
+class TestCrashAvoidance:
+
+    def test_crash_avoidance_starts_invested(self):
+        """With neutral probs, crash avoidance stays invested normally."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, crash_avoidance=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            ml_prob=0.50,
+        )
+        engine.process_week(week, use_ml_filter=True)
+        assert engine.shares_held >= 100
+
+    def test_crash_avoidance_exits_on_strong_bearish(self):
+        """Liquidates shares when ML prob drops below exit threshold."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, crash_avoidance=True,
+            crash_exit_thresh=0.25, re_entry_thresh=0.50,
+        )
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            ml_prob=0.50,
+        )
+        engine.process_week(week0, use_ml_filter=True)
+        assert engine.shares_held >= 100
+
+        week1 = _make_week(
+            1, spy_open=505.0, spy_close=490.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=1.0,
+            ml_prob=0.20,
+        )
+        engine.process_week(week1, use_ml_filter=True)
+        assert engine.shares_held == 0
+        metrics = engine.compute_metrics()
+        assert metrics["n_crash_exits"] == 1
+
+    def test_crash_avoidance_re_enters_on_recovery(self):
+        """Re-enters market when prob recovers above re-entry threshold."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, crash_avoidance=True,
+            crash_exit_thresh=0.25, re_entry_thresh=0.50,
+        )
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            ml_prob=0.50,
+        )
+        engine.process_week(week0, use_ml_filter=True)
+
+        week1 = _make_week(
+            1, spy_open=505.0, spy_close=490.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=1.0,
+            ml_prob=0.20,
+        )
+        engine.process_week(week1, use_ml_filter=True)
+        assert engine.shares_held == 0
+
+        week2 = _make_week(
+            2, spy_open=490.0, spy_close=485.0,
+            put_strike=470.0, put_premium=3.0,
+            call_strike=510.0, call_premium=1.0,
+            ml_prob=0.40,
+        )
+        engine.process_week(week2, use_ml_filter=True)
+        assert engine.shares_held == 0
+
+        week3 = _make_week(
+            3, spy_open=485.0, spy_close=495.0,
+            put_strike=470.0, put_premium=2.0,
+            call_strike=510.0, call_premium=2.0,
+            ml_prob=0.55,
+        )
+        engine.process_week(week3, use_ml_filter=True)
+        assert engine.shares_held >= 100
+        metrics = engine.compute_metrics()
+        assert metrics["n_crash_reentries"] == 1
+
+    def test_crash_avoidance_skips_options_while_in_cash(self):
+        """No options sold while in cash mode."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, crash_avoidance=True,
+            crash_exit_thresh=0.25,
+        )
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            ml_prob=0.50,
+        )
+        engine.process_week(week0, use_ml_filter=True)
+        m0 = engine.compute_metrics()
+
+        week1 = _make_week(
+            1, spy_open=505.0, spy_close=490.0,
+            put_strike=480.0, put_premium=5.0,
+            call_strike=520.0, call_premium=5.0,
+            ml_prob=0.20,
+        )
+        engine.process_week(week1, use_ml_filter=True)
+        m1 = engine.compute_metrics()
+
+        assert m1["total_premium_collected"] == m0["total_premium_collected"]
+
+    def test_crash_avoidance_equity_preserved_in_cash(self):
+        """Equity in cash mode is just cash (no share exposure)."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, crash_avoidance=True,
+            crash_exit_thresh=0.25,
+        )
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            ml_prob=0.50,
+        )
+        engine.process_week(week0, use_ml_filter=True)
+
+        week1 = _make_week(
+            1, spy_open=505.0, spy_close=490.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=1.0,
+            ml_prob=0.20,
+        )
+        engine.process_week(week1, use_ml_filter=True)
+        cash_after_exit = engine._cash
+
+        week2 = _make_week(
+            2, spy_open=490.0, spy_close=450.0,
+            put_strike=470.0, put_premium=5.0,
+            call_strike=510.0, call_premium=0.5,
+            ml_prob=0.15,
+        )
+        engine.process_week(week2, use_ml_filter=True)
+        assert engine._cash == cash_after_exit
+        assert engine.equity_curve[-1] == cash_after_exit
+
+    def test_crash_avoidance_disabled_by_default(self):
+        """crash_avoidance=False preserves original behavior."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, crash_avoidance=False,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            ml_prob=0.20,
+        )
+        engine.process_week(week, use_ml_filter=True)
+        assert engine.shares_held >= 100
+
+    def test_crash_avoidance_requires_ml_filter(self):
+        """Crash avoidance only triggers when use_ml_filter=True."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, crash_avoidance=True,
+            crash_exit_thresh=0.25,
+        )
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            ml_prob=0.50,
+        )
+        engine.process_week(week0, use_ml_filter=True)
+        assert engine.shares_held >= 100
+
+        week1 = _make_week(
+            1, spy_open=505.0, spy_close=490.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=1.0,
+            ml_prob=0.20,
+        )
+        engine.process_week(week1, use_ml_filter=False)
+        assert engine.shares_held >= 100
