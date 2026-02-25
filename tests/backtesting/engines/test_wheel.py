@@ -534,3 +534,166 @@ class TestCombinedEdgeCases:
         # Should still process without crashing.
         metrics = engine.compute_metrics()
         assert metrics["weeks"] == 1
+
+
+class TestCollarMode:
+
+    def test_collar_buys_protective_put(self):
+        """Collar deducts hedge put cost from cash."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, collar=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            hedge_put_strike=490.0, hedge_put_premium=1.50,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        assert metrics["total_hedge_cost"] == 150.0
+
+    def test_collar_put_payout_on_crash(self):
+        """Protective put pays out when SPY drops below hedge strike."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, collar=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=470.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+            hedge_put_strike=490.0, hedge_put_premium=1.50,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        # After combined mode: 100 initial + 100 CSP assignment = 200 shares
+        # Collar runs on 200 shares -> n_hedge = 2
+        # Payout = (490 - 470) * 2 * 100 = 4000
+        assert metrics["total_hedge_payout"] == 4000.0
+
+    def test_collar_otm_expires_worthless(self):
+        """OTM hedge put: no payout, only cost deducted."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, collar=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=510.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            hedge_put_strike=490.0, hedge_put_premium=1.50,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        assert metrics["total_hedge_cost"] == 150.0
+        assert metrics["total_hedge_payout"] == 0.0
+
+    def test_collar_reduces_net_premium(self):
+        """Net premium with collar is lower due to hedge cost."""
+        engine_no = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1, combined=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            hedge_put_strike=490.0, hedge_put_premium=1.50,
+        )
+        engine_no.process_week(week)
+        premium_without = engine_no.total_premium_collected
+
+        engine_yes = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, collar=True,
+        )
+        engine_yes.process_week(week)
+        premium_with = engine_yes.total_premium_collected
+
+        # Collar doesn't change premium collected, but cash is lower
+        assert premium_with == premium_without
+        metrics = engine_yes.compute_metrics()
+        assert metrics["total_hedge_cost"] > 0
+
+    def test_collar_ml_filter_unaffected(self):
+        """ML filter still skips CC/CSP normally with collar enabled."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            skip_call_thresh=0.65, combined=True, collar=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            hedge_put_strike=490.0, hedge_put_premium=1.50,
+            ml_prob=0.70,
+        )
+        engine.process_week(week, use_ml_filter=True)
+        metrics = engine.compute_metrics()
+        assert metrics["n_calls_skipped"] >= 1
+        assert metrics["total_hedge_cost"] > 0
+
+    def test_collar_hedge_metrics_tracked(self):
+        """Metrics dict includes hedge cost and payout keys."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, collar=True,
+        )
+        weeks = [
+            _make_week(i, spy_open=500.0, spy_close=505.0,
+                       hedge_put_strike=490.0, hedge_put_premium=1.0)
+            for i in range(3)
+        ]
+        for w in weeks:
+            engine.process_week(w)
+        metrics = engine.compute_metrics()
+        assert "total_hedge_cost" in metrics
+        assert "total_hedge_payout" in metrics
+        assert abs(metrics["total_hedge_cost"] - 300.0) < 0.01
+
+    def test_collar_commission_on_hedge(self):
+        """Commission is charged on hedge put contracts."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            commission_per_contract=0.65,
+            combined=True, collar=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            hedge_put_strike=490.0, hedge_put_premium=1.50,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        # Commissions: 1 CC (0.65) + 1 CSP (0.65) + 1 hedge (0.65) = 1.95
+        assert abs(metrics["total_commissions"] - 1.95) < 0.01
+
+    def test_collar_with_csp_assignment_grows_hedge(self):
+        """After CSP assignment, more shares means more hedge puts next week."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, collar=True,
+        )
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=470.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+            hedge_put_strike=490.0, hedge_put_premium=1.50,
+        )
+        engine.process_week(week0)
+        assert engine.shares_held == 200
+
+        week1 = _make_week(
+            1, spy_open=470.0, spy_close=475.0,
+            put_strike=460.0, put_premium=2.0,
+            call_strike=490.0, call_premium=2.0,
+            hedge_put_strike=465.0, hedge_put_premium=1.00,
+        )
+        engine.process_week(week1)
+        metrics = engine.compute_metrics()
+        # Week 0: 200 shares after CSP assignment -> 2 hedges * 1.50 * 100 = 300
+        # Week 1: still 200 shares (no new assignment) -> 2 hedges * 1.00 * 100 = 200
+        # Total = 500
+        assert abs(metrics["total_hedge_cost"] - 500.0) < 0.01

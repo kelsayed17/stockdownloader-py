@@ -78,6 +78,10 @@ class WheelBacktestEngine:
     commission_per_contract:
         Dollar commission charged per contract on each option trade.
         Default is 0.0 (no commission).
+    collar:
+        If True, buy a protective put on all held shares each week.
+        Deducts hedge cost from cash and pays out when SPY drops below
+        the hedge put strike.
     """
 
     def __init__(
@@ -89,6 +93,7 @@ class WheelBacktestEngine:
         buy_write: bool = False,
         combined: bool = False,
         commission_per_contract: float = 0.0,
+        collar: bool = False,
     ) -> None:
         self._initial_capital = initial_capital
         self._cash = initial_capital
@@ -98,6 +103,7 @@ class WheelBacktestEngine:
         self._buy_write = buy_write
         self._combined = combined
         self._commission_per_contract = commission_per_contract
+        self._collar = collar
 
         # State
         self._state = WheelState.CASH
@@ -107,6 +113,8 @@ class WheelBacktestEngine:
         # Tracking
         self._total_premium: float = 0.0
         self._total_commissions: float = 0.0
+        self._total_hedge_cost: float = 0.0
+        self._total_hedge_payout: float = 0.0
         self._n_assignments: int = 0
         self._n_calls_exercised: int = 0
         self._n_rebuys: int = 0
@@ -148,6 +156,20 @@ class WheelBacktestEngine:
             self._process_week_buy_write(week, multiplier, use_ml_filter)
         else:
             self._process_week_wheel(week, multiplier, use_ml_filter)
+
+        # Collar: buy protective put on all held shares
+        if self._collar and self._shares > 0 and week.hedge_put_premium > 0:
+            n_hedge = self._shares // 100
+            hedge_cost = week.hedge_put_premium * n_hedge * 100
+            commission = self._commission_per_contract * n_hedge
+            self._cash -= hedge_cost + commission
+            self._total_hedge_cost += hedge_cost
+            self._total_commissions += commission
+
+            if week.spy_price_at_expiry < week.hedge_put_strike:
+                payout = (week.hedge_put_strike - week.spy_price_at_expiry) * n_hedge * 100
+                self._cash += payout
+                self._total_hedge_payout += payout
 
         # Update equity curve
         equity = self._cash + self._shares * week.spy_price_at_expiry
@@ -354,6 +376,8 @@ class WheelBacktestEngine:
             "total_return_dollar": total_return,
             "total_premium_collected": self._total_premium,
             "total_commissions": self._total_commissions,
+            "total_hedge_cost": self._total_hedge_cost,
+            "total_hedge_payout": self._total_hedge_payout,
             "n_assignments": float(self._n_assignments),
             "n_calls_exercised": float(self._n_calls_exercised),
             "n_rebuys": float(self._n_rebuys),
