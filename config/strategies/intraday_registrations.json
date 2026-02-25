@@ -393,5 +393,50 @@
                 "D:0.7"
             ]
         }
+    },
+    "spy-macd-obv": {
+        "display_name": "SPY MACD+OBV (Winner)",
+        "module": "stockdownloader.strategies.intraday.macd_obv",
+        "class": "MACDOBVStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "macd_fast": [8, 10, 12],
+            "macd_slow": [21, 26, 35],
+            "macd_signal": [5, 7, 9],
+            "obv_smooth": [3, 5, 8],
+            "sl_mult": ["D:1.0", "D:1.5", "D:2.0"],
+            "rr_ratio": ["D:1.0", "D:1.5", "D:2.0"],
+            "sl_cap": ["D:1.50", "D:2.00", "D:2.50"],
+            "be_trigger": ["D:0.3", "D:0.5", "D:0.7"]
+        }
+    },
+    "spy-sma-2021": {
+        "display_name": "SPY SMA 20/21 (#2)",
+        "module": "stockdownloader.strategies.intraday.sma_cross",
+        "class": "SMACross2021Strategy",
+        "default_kwargs": {},
+        "param_space": {
+            "sma_short": [15, 18, 20, 22],
+            "sma_long": [20, 21, 25, 30],
+            "sl_mult": ["D:1.0", "D:1.5", "D:2.0"],
+            "rr_ratio": ["D:1.0", "D:1.5", "D:2.0"],
+            "sl_cap": ["D:1.50", "D:2.00", "D:2.50"],
+            "be_trigger": ["D:0.3", "D:0.5", "D:0.7"]
+        }
+    },
+    "spy-macd-opt": {
+        "display_name": "SPY MACD 8/35/5 (#3)",
+        "module": "stockdownloader.strategies.intraday.macd_optimized",
+        "class": "MACDOptimizedStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "macd_fast": [6, 8, 10, 12],
+            "macd_slow": [26, 30, 35, 40],
+            "macd_signal": [3, 5, 7, 9],
+            "sl_mult": ["D:1.0", "D:1.5", "D:2.0"],
+            "rr_ratio": ["D:1.0", "D:1.5", "D:2.0"],
+            "sl_cap": ["D:1.50", "D:2.00", "D:2.50"],
+            "be_trigger": ["D:0.3", "D:0.5", "D:0.7"]
+        }
     }
 }

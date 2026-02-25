@@ -225,7 +225,7 @@ class OptimizerBase:
                 result = run_fn(trial_kwargs)
                 self._run_count += 1
                 if result is None:
-                    self._print(f"  {param}={val:<15s}  (invalid combo — skipped)")
+                    self._print(f"  {param}={str(val):<15s}  (invalid combo — skipped)")
                     continue
 
                 s = _score(result, trading_days=self._trading_days)
