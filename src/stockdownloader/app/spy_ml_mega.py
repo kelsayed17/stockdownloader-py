@@ -179,6 +179,29 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Allow short positions in backtest (overrides --long-only)",
     )
 
+    # Crash avoidance mode
+    parser.add_argument(
+        "--crash-avoidance", action="store_true",
+        help=(
+            "Crash avoidance mode: start fully invested and only exit "
+            "to cash on strong bearish signals. Overrides --long-only."
+        ),
+    )
+    parser.add_argument(
+        "--crash-exit-thresh", type=float, default=0.35,
+        help=(
+            "Exit to cash when prob < this threshold "
+            "(crash avoidance mode only, default: 0.35)"
+        ),
+    )
+    parser.add_argument(
+        "--re-entry-thresh", type=float, default=0.50,
+        help=(
+            "Re-enter long when prob > this threshold "
+            "(crash avoidance mode only, default: 0.50)"
+        ),
+    )
+
     return parser
 
 
@@ -220,6 +243,7 @@ def main(argv: list[str] | None = None) -> None:
     # Resolve effective flags
     use_direct_ensemble = args.direct_ensemble and not args.use_surrogate
     long_only = args.long_only and not args.allow_shorts
+    crash_avoidance = args.crash_avoidance
 
     print("=" * 60)
     print("SPY ML MEGA PIPELINE")
@@ -242,6 +266,10 @@ def main(argv: list[str] | None = None) -> None:
         print(f"  Backtest:         {bt_mode}")
         print(f"  Prediction:       {pred_mode}")
         print(f"  Trading:          {trade_mode}")
+        if crash_avoidance:
+            print(f"  Strategy:         CRASH-AVOIDANCE "
+                  f"(exit<{args.crash_exit_thresh}, "
+                  f"re-entry>{args.re_entry_thresh})")
     print(f"  Output:           {output_dir}")
     print()
 
@@ -414,6 +442,9 @@ def main(argv: list[str] | None = None) -> None:
                 use_select_diverse=True,
                 use_direct_ensemble=use_direct_ensemble,
                 long_only=long_only,
+                crash_avoidance=crash_avoidance,
+                crash_exit_thresh=args.crash_exit_thresh,
+                re_entry_thresh=args.re_entry_thresh,
                 surrogate_depth=args.depth,
                 surrogate_min_leaf=args.min_leaf,
                 surrogate_top_features=args.top_features,

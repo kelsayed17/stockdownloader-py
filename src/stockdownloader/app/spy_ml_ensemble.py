@@ -146,6 +146,29 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Allow short positions in backtest (overrides --long-only)",
     )
 
+    # Crash avoidance mode
+    parser.add_argument(
+        "--crash-avoidance", action="store_true",
+        help=(
+            "Crash avoidance mode: start fully invested and only exit "
+            "to cash on strong bearish signals. Overrides --long-only."
+        ),
+    )
+    parser.add_argument(
+        "--crash-exit-thresh", type=float, default=0.35,
+        help=(
+            "Exit to cash when prob < this threshold "
+            "(crash avoidance mode only, default: 0.35)"
+        ),
+    )
+    parser.add_argument(
+        "--re-entry-thresh", type=float, default=0.50,
+        help=(
+            "Re-enter long when prob > this threshold "
+            "(crash avoidance mode only, default: 0.50)"
+        ),
+    )
+
     return parser
 
 
@@ -163,14 +186,20 @@ def _run_portfolio_backtest(
     initial_capital: float = 100_000.0,
     label: str = "Portfolio Backtest",
     long_only: bool = False,
+    crash_avoidance: bool = False,
+    crash_exit_thresh: float = 0.35,
+    re_entry_thresh: float = 0.50,
 ) -> dict[str, float]:
     """Run portfolio backtest on pre-generated predictions.
 
-    Uses proper position sizing: ``shares = floor(capital / price)``.
-    Goes long when prob > *buy_thresh*, short when < *sell_thresh*
-    (unless *long_only* is True, in which case shorts are skipped).
-    Exits to flat when probability returns to neutral zone.
-    Tracks portfolio equity, return %, win rate, max drawdown, and Sharpe.
+    **Active mode** (default): Uses proper position sizing.  Goes long
+    when prob > *buy_thresh*, short when < *sell_thresh* (unless
+    *long_only*).  Exits when probability returns to neutral zone.
+
+    **Crash avoidance mode**: Starts fully invested on day 1.  Stays
+    long unless prob < *crash_exit_thresh* (strong bearish).  Re-enters
+    when prob > *re_entry_thresh*.  Captures SPY's natural upward drift
+    and only exits to avoid the worst drawdowns.
 
     Parameters
     ----------
@@ -181,17 +210,23 @@ def _run_portfolio_backtest(
     daily_data:
         List of price bars (each with ``.date`` and ``.close``).
     buy_thresh:
-        Go long when prob > buy_thresh.
+        Go long when prob > buy_thresh (active mode).
     sell_thresh:
-        Go short when prob < sell_thresh (ignored when *long_only*).
+        Go short when prob < sell_thresh (active mode, ignored when
+        *long_only*).
     initial_capital:
         Starting portfolio value in dollars.
     label:
         Banner label for printed output.
     long_only:
-        If ``True``, never enter short positions.  Only go long or flat.
-        This is the recommended mode for instruments with structural
-        upward drift like SPY.
+        If ``True``, never enter short positions (active mode only).
+    crash_avoidance:
+        If ``True``, start fully invested and only exit to cash when
+        prob < *crash_exit_thresh*.  Overrides active entry/exit logic.
+    crash_exit_thresh:
+        Exit to cash when prob < this (crash avoidance only, default 0.35).
+    re_entry_thresh:
+        Re-enter long when prob > this (crash avoidance only, default 0.50).
 
     Returns
     -------
@@ -209,9 +244,14 @@ def _run_portfolio_backtest(
     print(f"TOURNAMENT: {label}")
     print("=" * 60)
     print(f"  Initial capital: ${initial_capital:,.0f}")
-    mode_str = "LONG-ONLY" if long_only else "long/short"
-    print(f"  Mode:            {mode_str}")
-    print(f"  Thresholds:      buy>{buy_thresh:.2f}  sell<{sell_thresh:.2f}")
+    if crash_avoidance:
+        print(f"  Mode:            CRASH-AVOIDANCE")
+        print(f"  Exit threshold:  prob < {crash_exit_thresh:.2f}")
+        print(f"  Re-entry:        prob > {re_entry_thresh:.2f}")
+    else:
+        mode_str = "LONG-ONLY" if long_only else "long/short"
+        print(f"  Mode:            {mode_str}")
+        print(f"  Thresholds:      buy>{buy_thresh:.2f}  sell<{sell_thresh:.2f}")
     print(f"  Predictions:     {len(predictions)} samples")
 
     # Build a date-to-close map from daily_data
@@ -228,77 +268,139 @@ def _run_portfolio_backtest(
     equity_curve: list[float] = [initial_capital]
 
     preds = predictions
-    for i in range(len(preds) - 1):
-        prob = float(preds[i])
-        dt = dates[i]
-        close = date_close.get(dt)
-        if close is None:
-            continue
 
-        next_dt = dates[i + 1]
-        next_close = date_close.get(next_dt)
-        if next_close is None:
-            continue
+    if crash_avoidance:
+        # ==============================================================
+        # CRASH AVOIDANCE: start fully invested, exit only on danger
+        # ==============================================================
 
-        if position == 0:
-            # -- Entry from flat --
-            if prob > buy_thresh:
-                shares = math.floor(capital / close)
+        # Buy immediately at first available price
+        for dt in dates:
+            first_close = date_close.get(dt)
+            if first_close is not None and first_close > 0:
+                shares = math.floor(capital / first_close)
                 if shares > 0:
-                    entry_price = close
-                    capital -= shares * close
+                    capital -= shares * first_close
+                    entry_price = first_close
                     position = 1
-            elif prob < sell_thresh and not long_only:
-                shares = math.floor(capital / close)
-                if shares > 0:
-                    entry_price = close
-                    capital += shares * close  # short sale proceeds
-                    position = -1
-        else:
-            # -- Exit to flat when signal leaves threshold zone --
-            should_exit_flat = False
-            if position == 1 and prob <= buy_thresh:
-                should_exit_flat = True
-            elif position == -1 and prob >= sell_thresh:
-                should_exit_flat = True
+                break
 
-            if should_exit_flat:
-                if position == 1:
-                    pnl = shares * (next_close - entry_price)
-                    capital += shares * next_close
-                else:
-                    pnl = shares * (entry_price - next_close)
-                    capital -= shares * next_close  # buy back short
+        for i in range(len(preds) - 1):
+            prob = float(preds[i])
+            dt = dates[i]
+            close = date_close.get(dt)
+            if close is None:
+                continue
+
+            next_dt = dates[i + 1]
+            next_close = date_close.get(next_dt)
+            if next_close is None:
+                continue
+
+            if position == 1 and prob < crash_exit_thresh:
+                # EXIT to cash — strong bearish signal
+                pnl = shares * (next_close - entry_price)
+                capital += shares * next_close
                 trades_pnl.append(pnl)
                 position = 0
                 shares = 0
                 entry_price = 0.0
-
-                # Record equity after closing
                 equity_curve.append(capital)
 
-                # -- Immediately check for reversal entry --
+            elif position == 0 and prob > re_entry_thresh:
+                # RE-ENTER — danger has passed
+                shares = math.floor(capital / next_close)
+                if shares > 0:
+                    entry_price = next_close
+                    capital -= shares * next_close
+                    position = 1
+                equity_curve.append(
+                    capital + shares * next_close if position == 1
+                    else capital
+                )
+
+            else:
+                # Hold current position — mark to market
+                if position == 1:
+                    equity_curve.append(capital + shares * next_close)
+                else:
+                    equity_curve.append(capital)
+
+    else:
+        # ==============================================================
+        # ACTIVE TRADING: enter/exit based on threshold crossings
+        # ==============================================================
+        for i in range(len(preds) - 1):
+            prob = float(preds[i])
+            dt = dates[i]
+            close = date_close.get(dt)
+            if close is None:
+                continue
+
+            next_dt = dates[i + 1]
+            next_close = date_close.get(next_dt)
+            if next_close is None:
+                continue
+
+            if position == 0:
+                # -- Entry from flat --
                 if prob > buy_thresh:
-                    new_shares = math.floor(capital / next_close)
-                    if new_shares > 0:
-                        entry_price = next_close
-                        capital -= new_shares * next_close
-                        shares = new_shares
+                    shares = math.floor(capital / close)
+                    if shares > 0:
+                        entry_price = close
+                        capital -= shares * close
                         position = 1
                 elif prob < sell_thresh and not long_only:
-                    new_shares = math.floor(capital / next_close)
-                    if new_shares > 0:
-                        entry_price = next_close
-                        capital += new_shares * next_close
-                        shares = new_shares
+                    shares = math.floor(capital / close)
+                    if shares > 0:
+                        entry_price = close
+                        capital += shares * close  # short sale proceeds
                         position = -1
             else:
-                # Still in position — update equity mark-to-market
-                if position == 1:
-                    mark = capital + shares * next_close
+                # -- Exit to flat when signal leaves threshold zone --
+                should_exit_flat = False
+                if position == 1 and prob <= buy_thresh:
+                    should_exit_flat = True
+                elif position == -1 and prob >= sell_thresh:
+                    should_exit_flat = True
+
+                if should_exit_flat:
+                    if position == 1:
+                        pnl = shares * (next_close - entry_price)
+                        capital += shares * next_close
+                    else:
+                        pnl = shares * (entry_price - next_close)
+                        capital -= shares * next_close  # buy back short
+                    trades_pnl.append(pnl)
+                    position = 0
+                    shares = 0
+                    entry_price = 0.0
+
+                    # Record equity after closing
+                    equity_curve.append(capital)
+
+                    # -- Immediately check for reversal entry --
+                    if prob > buy_thresh:
+                        new_shares = math.floor(capital / next_close)
+                        if new_shares > 0:
+                            entry_price = next_close
+                            capital -= new_shares * next_close
+                            shares = new_shares
+                            position = 1
+                    elif prob < sell_thresh and not long_only:
+                        new_shares = math.floor(capital / next_close)
+                        if new_shares > 0:
+                            entry_price = next_close
+                            capital += new_shares * next_close
+                            shares = new_shares
+                            position = -1
                 else:
-                    mark = capital - shares * next_close
-                equity_curve.append(mark)
+                    # Still in position — update equity mark-to-market
+                    if position == 1:
+                        mark = capital + shares * next_close
+                    else:
+                        mark = capital - shares * next_close
+                    equity_curve.append(mark)
 
     # Close final position at last available price
     if position != 0 and len(dates) > 0:
@@ -650,6 +752,9 @@ def _run_tournament_walk_forward(
     use_select_diverse: bool = False,
     use_direct_ensemble: bool = False,
     long_only: bool = False,
+    crash_avoidance: bool = False,
+    crash_exit_thresh: float = 0.35,
+    re_entry_thresh: float = 0.50,
     surrogate_depth: int = 10,
     surrogate_min_leaf: int = 10,
     surrogate_top_features: int = 25,
@@ -703,7 +808,12 @@ def _run_tournament_walk_forward(
         Metrics dict from :func:`_run_portfolio_backtest`.
     """
     pred_mode = "direct-ensemble" if use_direct_ensemble else "surrogate"
-    trade_mode = "LONG-ONLY" if long_only else "long/short"
+    if crash_avoidance:
+        trade_mode = "CRASH-AVOIDANCE"
+    elif long_only:
+        trade_mode = "LONG-ONLY"
+    else:
+        trade_mode = "long/short"
 
     print("\n" + "=" * 60)
     print("WALK-FORWARD TOURNAMENT")
@@ -715,6 +825,9 @@ def _run_tournament_walk_forward(
           f"(n={top_models})")
     print(f"  Prediction:    {pred_mode}")
     print(f"  Trading mode:  {trade_mode}")
+    if crash_avoidance:
+        print(f"  Exit thresh:   prob < {crash_exit_thresh:.2f}")
+        print(f"  Re-entry:      prob > {re_entry_thresh:.2f}")
 
     oos_preds, oos_dates, n_used = _generate_walk_forward_predictions(
         dataset, daily_data, grid, n_estimators, max_depth,
@@ -738,6 +851,9 @@ def _run_tournament_walk_forward(
         initial_capital=initial_capital,
         label=f"Walk-Forward OOS ({n_used} windows, {pred_mode}, {trade_mode})",
         long_only=long_only,
+        crash_avoidance=crash_avoidance,
+        crash_exit_thresh=crash_exit_thresh,
+        re_entry_thresh=re_entry_thresh,
     )
 
 
@@ -784,6 +900,7 @@ def main(argv: list[str] | None = None) -> None:
     # Resolve effective flags (--use-surrogate overrides --direct-ensemble)
     use_direct_ensemble = args.direct_ensemble and not args.use_surrogate
     long_only = args.long_only and not args.allow_shorts
+    crash_avoidance = args.crash_avoidance
 
     print("=" * 60)
     print("SPY ML ENSEMBLE PIPELINE")
@@ -804,6 +921,10 @@ def main(argv: list[str] | None = None) -> None:
         print(f"  Backtest:      {bt_mode}")
         print(f"  Prediction:    {pred_mode}")
         print(f"  Trading:       {trade_mode}")
+        if crash_avoidance:
+            print(f"  Strategy:      CRASH-AVOIDANCE "
+                  f"(exit<{args.crash_exit_thresh}, "
+                  f"re-entry>{args.re_entry_thresh})")
     print(f"  Output:        {output_dir}")
     print()
 
@@ -987,6 +1108,9 @@ def main(argv: list[str] | None = None) -> None:
                 top_models=args.top_models,
                 use_direct_ensemble=use_direct_ensemble,
                 long_only=long_only,
+                crash_avoidance=crash_avoidance,
+                crash_exit_thresh=args.crash_exit_thresh,
+                re_entry_thresh=args.re_entry_thresh,
                 surrogate_depth=args.depth,
                 surrogate_min_leaf=args.min_leaf,
                 surrogate_top_features=args.top_features,

@@ -211,6 +211,138 @@ class TestRunPortfolioBacktest:
 
 
 # ======================================================================
+# TestCrashAvoidanceBacktest
+# ======================================================================
+
+
+class TestCrashAvoidanceBacktest:
+    """Tests for crash avoidance mode in _run_portfolio_backtest()."""
+
+    def test_crash_avoidance_starts_invested(self) -> None:
+        """Crash avoidance should buy shares immediately on first bar."""
+        bars = _make_daily_data(30)
+        dates = _make_dates_from_bars(bars)
+        # All neutral predictions — should stay invested the entire time
+        preds = np.full(len(dates), 0.50)
+
+        result = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            initial_capital=100_000.0,
+            crash_avoidance=True,
+            crash_exit_thresh=0.35,
+            re_entry_thresh=0.50,
+        )
+        # Should have 1 trade (the final position close)
+        assert result["n_trades"] == 1
+        # Final equity should differ from initial (prices moved)
+        assert result["final_equity"] != 100_000.0
+
+    def test_crash_avoidance_exits_on_strong_bearish(self) -> None:
+        """Should exit when prob drops below crash_exit_thresh."""
+        bars = _make_daily_data(30)
+        dates = _make_dates_from_bars(bars)
+        # Start neutral, then strong bearish exit, then recover above re-entry
+        preds = np.array(
+            [0.50] * 10 + [0.30] * 5 + [0.60] * 15
+        )
+
+        result = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            initial_capital=100_000.0,
+            crash_avoidance=True,
+            crash_exit_thresh=0.35,
+            re_entry_thresh=0.50,
+        )
+        # Should have at least 2 trades: exit on bearish + re-entry final close
+        assert result["n_trades"] >= 2
+
+    def test_crash_avoidance_re_enters(self) -> None:
+        """Should re-enter long after exiting when prob > re_entry_thresh."""
+        bars = _make_daily_data(40)
+        dates = _make_dates_from_bars(bars)
+        # Invested -> bearish exit -> recovery -> re-entry
+        preds = np.array(
+            [0.50] * 10 + [0.30] * 5 + [0.60] * 15 + [0.50] * 10
+        )
+
+        result = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            initial_capital=100_000.0,
+            crash_avoidance=True,
+            crash_exit_thresh=0.35,
+            re_entry_thresh=0.50,
+        )
+        # Should have at least 2 trades: exit + re-entry close
+        assert result["n_trades"] >= 2
+
+    def test_crash_avoidance_stays_invested_on_neutral(self) -> None:
+        """Should stay long when prob is in neutral zone."""
+        bars = _make_daily_data(20)
+        dates = _make_dates_from_bars(bars)
+        # All 0.45 — never triggers exit (above 0.35)
+        preds = np.full(len(dates), 0.45)
+
+        result = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            initial_capital=100_000.0,
+            crash_avoidance=True,
+            crash_exit_thresh=0.35,
+            re_entry_thresh=0.50,
+        )
+        # Only 1 trade: the final position close (no mid-period exits)
+        assert result["n_trades"] == 1
+
+    def test_crash_avoidance_fewer_trades_than_active(self) -> None:
+        """Crash avoidance should generate fewer trades than active trading."""
+        bars = _make_daily_data(40)
+        dates = _make_dates_from_bars(bars)
+        # Alternating signals that generate many trades in active mode
+        preds = np.array([
+            0.7 if (i // 5) % 2 == 0 else 0.3
+            for i in range(len(dates))
+        ])
+
+        result_active = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            long_only=True,
+            crash_avoidance=False,
+        )
+        result_crash = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            crash_avoidance=True,
+            crash_exit_thresh=0.35,
+            re_entry_thresh=0.50,
+        )
+        assert result_crash["n_trades"] <= result_active["n_trades"]
+
+    def test_crash_avoidance_returns_expected_keys(self) -> None:
+        """Result dict should have the same keys as active mode."""
+        bars = _make_daily_data(20)
+        dates = _make_dates_from_bars(bars)
+        preds = np.full(len(dates), 0.50)
+
+        result = _run_portfolio_backtest(
+            preds, dates, bars,
+            buy_thresh=0.55, sell_thresh=0.45,
+            crash_avoidance=True,
+        )
+        expected_keys = {
+            "n_trades", "win_rate", "initial_capital", "final_equity",
+            "total_return_pct", "total_return_dollar",
+            "max_drawdown_pct", "max_drawdown_dollar",
+            "sharpe", "avg_hold_bars", "avg_trade_pnl",
+            "best_trade", "worst_trade",
+        }
+        assert set(result.keys()) == expected_keys
+
+
+# ======================================================================
 # TestWalkForwardPredictions
 # ======================================================================
 
@@ -398,3 +530,33 @@ class TestEnsembleParserWalkForward:
         parser = _build_parser()
         args = parser.parse_args(["--allow-shorts"])
         assert args.allow_shorts is True
+
+    def test_crash_avoidance_default_false(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.crash_avoidance is False
+
+    def test_crash_avoidance_flag(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--crash-avoidance"])
+        assert args.crash_avoidance is True
+
+    def test_crash_exit_thresh_default(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.crash_exit_thresh == 0.35
+
+    def test_crash_exit_thresh_custom(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--crash-exit-thresh", "0.30"])
+        assert args.crash_exit_thresh == 0.30
+
+    def test_re_entry_thresh_default(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.re_entry_thresh == 0.50
+
+    def test_re_entry_thresh_custom(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--re-entry-thresh", "0.55"])
+        assert args.re_entry_thresh == 0.55

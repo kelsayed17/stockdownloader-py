@@ -151,3 +151,33 @@ class TestMegaParser:
         parser = _build_parser()
         args = parser.parse_args(["--allow-shorts"])
         assert args.allow_shorts is True
+
+    def test_crash_avoidance_default_false(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.crash_avoidance is False
+
+    def test_crash_avoidance_flag(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--crash-avoidance"])
+        assert args.crash_avoidance is True
+
+    def test_crash_exit_thresh_default(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.crash_exit_thresh == 0.35
+
+    def test_crash_exit_thresh_custom(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--crash-exit-thresh", "0.25"])
+        assert args.crash_exit_thresh == 0.25
+
+    def test_re_entry_thresh_default(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.re_entry_thresh == 0.50
+
+    def test_re_entry_thresh_custom(self) -> None:
+        parser = _build_parser()
+        args = parser.parse_args(["--re-entry-thresh", "0.55"])
+        assert args.re_entry_thresh == 0.55
