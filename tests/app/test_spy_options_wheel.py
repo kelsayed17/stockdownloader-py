@@ -267,3 +267,41 @@ class TestAdvancedParser:
         parser = _build_parser()
         args = parser.parse_args(["--ic-allocation", "0.20"])
         assert args.ic_allocation == 0.20
+
+
+class TestCrashAvoidanceDynamicDeltaParser:
+
+    def test_crash_avoidance_default_false(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.crash_avoidance is False
+
+    def test_crash_avoidance_flag(self):
+        parser = _build_parser()
+        args = parser.parse_args(["--crash-avoidance"])
+        assert args.crash_avoidance is True
+
+    def test_crash_exit_thresh_default(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.crash_exit_thresh == 0.25
+
+    def test_crash_exit_thresh_custom(self):
+        parser = _build_parser()
+        args = parser.parse_args(["--crash-exit-thresh", "0.30"])
+        assert args.crash_exit_thresh == 0.30
+
+    def test_re_entry_thresh_default(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.re_entry_thresh == 0.50
+
+    def test_dynamic_delta_default_false(self):
+        parser = _build_parser()
+        args = parser.parse_args([])
+        assert args.dynamic_delta is False
+
+    def test_dynamic_delta_flag(self):
+        parser = _build_parser()
+        args = parser.parse_args(["--dynamic-delta"])
+        assert args.dynamic_delta is True

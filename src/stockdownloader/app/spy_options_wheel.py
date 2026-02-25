@@ -128,6 +128,22 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Capital fraction for iron condor overlay (default: 0.30)",
     )
     parser.add_argument(
+        "--crash-avoidance", action="store_true",
+        help="Exit to cash on strong bearish ML signal, re-enter on recovery",
+    )
+    parser.add_argument(
+        "--crash-exit-thresh", type=float, default=0.25,
+        help="Exit threshold for crash avoidance (default: 0.25)",
+    )
+    parser.add_argument(
+        "--re-entry-thresh", type=float, default=0.50,
+        help="Re-entry threshold for crash avoidance (default: 0.50)",
+    )
+    parser.add_argument(
+        "--dynamic-delta", action="store_true",
+        help="Vary strike delta by IV percentile (skip <25th, 0.20/0.30/0.40)",
+    )
+    parser.add_argument(
         "--skip-put-thresh", type=float, default=0.35,
         help="Skip selling puts when ML prob < this (default: 0.35)",
     )
@@ -485,6 +501,10 @@ def main(argv: list[str] | None = None) -> None:
         print(f"  Vol Scaling:   ON (max contracts: {args.max_contracts})")
     if args.iron_condor:
         print(f"  Iron Condor:   ON (allocation: {args.ic_allocation:.0%})")
+    if args.crash_avoidance:
+        print(f"  Crash Avoid:   ON (exit: {args.crash_exit_thresh}, re-enter: {args.re_entry_thresh})")
+    if args.dynamic_delta:
+        print(f"  Dynamic Delta: ON (skip <25th, 0.20/0.30/0.40 by IV)")
     print()
 
     # [1/5] Download SPY daily data
@@ -692,6 +712,44 @@ def main(argv: list[str] | None = None) -> None:
             rank = sum(1 for v in sorted_ivs if v <= weekly_vol)
             iv_percentile = rank / len(sorted_ivs)
 
+        # Dynamic delta: choose delta based on IV percentile
+        if args.dynamic_delta:
+            if iv_percentile < 0.25:
+                continue  # Skip week — premium too thin
+            elif iv_percentile < 0.50:
+                week_delta = 0.20
+            elif iv_percentile < 0.75:
+                week_delta = 0.30
+            else:
+                week_delta = 0.40
+
+            # Re-select strikes with dynamic delta
+            put_contract = select_strike_by_delta(
+                week_contracts, contract_type="put", spot=spy_at_entry,
+                target_delta=week_delta, days_to_expiry=5, volatility=hist_vol,
+            )
+            call_contract = select_strike_by_delta(
+                week_contracts, contract_type="call", spot=spy_at_entry,
+                target_delta=week_delta, days_to_expiry=5, volatility=hist_vol,
+            )
+            if put_contract is None or call_contract is None:
+                continue
+
+            # Re-fetch premiums for new strikes
+            put_bar_dd = None
+            call_bar_dd = None
+            if cached and put_contract["ticker"] in cached.get("bars", {}):
+                put_bar_dd = cached["bars"].get(put_contract["ticker"])
+            else:
+                put_bar_dd = polygon.fetch_option_daily_bar(put_contract["ticker"], monday)
+            if cached and call_contract["ticker"] in cached.get("bars", {}):
+                call_bar_dd = cached["bars"].get(call_contract["ticker"])
+            else:
+                call_bar_dd = polygon.fetch_option_daily_bar(call_contract["ticker"], monday)
+
+            put_premium = put_bar_dd.get("vw", put_bar_dd.get("c", 0.0)) if put_bar_dd else 0.0
+            call_premium = call_bar_dd.get("vw", call_bar_dd.get("c", 0.0)) if call_bar_dd else 0.0
+
         if put_premium <= 0 and call_premium <= 0:
             continue
 
@@ -758,6 +816,9 @@ def main(argv: list[str] | None = None) -> None:
         collar=args.collar,
         vol_scaling=args.vol_scaling,
         max_contracts=args.max_contracts,
+        crash_avoidance=args.crash_avoidance,
+        crash_exit_thresh=args.crash_exit_thresh,
+        re_entry_thresh=args.re_entry_thresh,
     )
     for w in week_records:
         mech_engine.process_week(w, use_ml_filter=False)
@@ -776,6 +837,9 @@ def main(argv: list[str] | None = None) -> None:
             collar=args.collar,
             vol_scaling=args.vol_scaling,
             max_contracts=args.max_contracts,
+            crash_avoidance=args.crash_avoidance,
+            crash_exit_thresh=args.crash_exit_thresh,
+            re_entry_thresh=args.re_entry_thresh,
         )
         for w in week_records:
             ml_engine.process_week(w, use_ml_filter=True)
@@ -821,6 +885,9 @@ def main(argv: list[str] | None = None) -> None:
                 collar=args.collar,
                 vol_scaling=args.vol_scaling,
                 max_contracts=args.max_contracts,
+                crash_avoidance=args.crash_avoidance,
+                crash_exit_thresh=args.crash_exit_thresh,
+                re_entry_thresh=args.re_entry_thresh,
             )
             for w in week_records:
                 ml_combined.process_week(w, use_ml_filter=True)
@@ -835,6 +902,9 @@ def main(argv: list[str] | None = None) -> None:
             collar=args.collar,
             vol_scaling=args.vol_scaling,
             max_contracts=args.max_contracts,
+            crash_avoidance=args.crash_avoidance,
+            crash_exit_thresh=args.crash_exit_thresh,
+            re_entry_thresh=args.re_entry_thresh,
         )
         for w in week_records:
             mech_combined.process_week(w, use_ml_filter=False)
