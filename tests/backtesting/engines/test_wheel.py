@@ -19,6 +19,9 @@ def _make_week(
     put_strike: float = 580.0,
     call_strike: float = 620.0,
     ml_prob: float = 0.50,
+    hedge_put_strike: float = 0.0,
+    hedge_put_premium: float = 0.0,
+    iv_percentile: float = 0.50,
 ) -> WeekRecord:
     return WeekRecord(
         week_num=week_num,
@@ -31,6 +34,9 @@ def _make_week(
         put_premium=put_premium,
         call_premium=call_premium,
         ml_prob=ml_prob,
+        hedge_put_strike=hedge_put_strike,
+        hedge_put_premium=hedge_put_premium,
+        iv_percentile=iv_percentile,
     )
 
 

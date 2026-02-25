@@ -50,6 +50,11 @@ class WeekRecord:
     put_premium: float
     call_premium: float
     ml_prob: float
+    # Collar fields (default 0 = no hedge data)
+    hedge_put_strike: float = 0.0
+    hedge_put_premium: float = 0.0
+    # Vol scaling field
+    iv_percentile: float = 0.50
 
 
 class WheelBacktestEngine:
