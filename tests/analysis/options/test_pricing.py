@@ -12,6 +12,7 @@ from stockdownloader.analysis.options.pricing import (
     theta,
     estimate_volatility,
     intrinsic_value,
+    implied_volatility,
 )
 
 SPOT = Decimal("100")
@@ -137,3 +138,35 @@ def test_higher_vol_increases_price():
     low_vol = bs_price(OptionType.CALL, SPOT, STRIKE_ATM, TIME_30D, RATE, Decimal("0.10"))
     high_vol = bs_price(OptionType.CALL, SPOT, STRIKE_ATM, TIME_30D, RATE, Decimal("0.40"))
     assert high_vol > low_vol, "Higher vol should increase option price"
+
+
+class TestImpliedVolatility:
+
+    def test_iv_call_recovers_known_vol(self):
+        """Given a BS price computed at vol=0.20, IV solver should recover ~0.20."""
+        known_vol = Decimal("0.20")
+        market_price = bs_price(OptionType.CALL, SPOT, STRIKE_ATM, TIME_30D, RATE, known_vol)
+        iv = implied_volatility(OptionType.CALL, market_price, SPOT, STRIKE_ATM, TIME_30D, RATE)
+        assert abs(float(iv) - 0.20) < 0.01
+
+    def test_iv_put_recovers_known_vol(self):
+        """Given a BS price computed at vol=0.30, IV solver should recover ~0.30."""
+        known_vol = Decimal("0.30")
+        market_price = bs_price(OptionType.PUT, SPOT, STRIKE_ATM, TIME_30D, RATE, known_vol)
+        iv = implied_volatility(OptionType.PUT, market_price, SPOT, STRIKE_ATM, TIME_30D, RATE)
+        assert abs(float(iv) - 0.30) < 0.01
+
+    def test_iv_zero_price_returns_minimum(self):
+        """Zero market price should return minimum IV (0.01)."""
+        iv = implied_volatility(OptionType.CALL, Decimal("0"), SPOT, STRIKE_ATM, TIME_30D, RATE)
+        assert float(iv) == pytest.approx(0.01, abs=0.005)
+
+    def test_iv_deep_otm_converges(self):
+        """Deep OTM option with small price should converge without error."""
+        market_price = Decimal("0.05")
+        iv = implied_volatility(
+            OptionType.CALL, market_price, Decimal("500"), Decimal("550"),
+            Decimal("0.0137"), RATE,
+        )
+        assert float(iv) > 0.0
+        assert float(iv) < 3.0

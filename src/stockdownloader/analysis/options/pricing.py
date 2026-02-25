@@ -256,3 +256,45 @@ def intrinsic_value(
     return max(diff, Decimal('0')).quantize(
         Decimal('0.0001'), rounding=ROUND_HALF_UP
     )
+
+
+def implied_volatility(
+    option_type: OptionType,
+    market_price: Decimal,
+    spot: Decimal,
+    strike: Decimal,
+    time_to_expiry: Decimal,
+    risk_free_rate: Decimal,
+    *,
+    tol: float = 0.001,
+    max_iter: int = 100,
+) -> Decimal:
+    """Find implied volatility via bisection method.
+
+    Given a market price, find the volatility that makes the BS price
+    match the market price within ``tol``.
+
+    Returns:
+        Implied volatility as a Decimal. Minimum 0.01, maximum 3.0.
+    """
+    mp = float(market_price)
+    if mp <= 0:
+        return Decimal("0.01")
+    if time_to_expiry <= Decimal("0"):
+        return Decimal("0.01")
+
+    lo, hi = 0.01, 3.0
+    for _ in range(max_iter):
+        mid = (lo + hi) / 2.0
+        bs_mid = float(price(option_type, spot, strike, time_to_expiry, risk_free_rate, Decimal(str(mid))))
+        if abs(bs_mid - mp) < tol:
+            break
+        if bs_mid < mp:
+            lo = mid
+        else:
+            hi = mid
+
+    result = (lo + hi) / 2.0
+    return Decimal(str(max(result, 0.01))).quantize(
+        Decimal("0.000001"), rounding=ROUND_HALF_UP
+    )
