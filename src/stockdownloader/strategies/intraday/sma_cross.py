@@ -74,15 +74,14 @@ class SMACross2021Strategy(BaseIntradayStrategy):
         super().__init__()
         self._data: list[IntradayPriceData] = []
         self._idx: int = 0
+        # NOTE: _prev_sma_* intentionally NOT reset across sessions.
+        # Pine Script's ta.crossover operates on a continuous time series.
         self._prev_sma_fast: Decimal = ZERO
         self._prev_sma_slow: Decimal = ZERO
 
     @property
     def name(self) -> str:
         return "SPY SMA 20/21"
-
-    def on_session_start(self, trading_date: str) -> None:
-        super().on_session_start(trading_date)
 
     def evaluate(
         self,

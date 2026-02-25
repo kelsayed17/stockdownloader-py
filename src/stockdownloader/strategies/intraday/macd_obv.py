@@ -44,7 +44,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class _obv_ema_state:
+class _ObvEmaState:
     """Tracks EMA of OBV for rising/falling detection."""
 
     period: int = 5
@@ -118,18 +118,18 @@ class MACDOBVStrategy(BaseIntradayStrategy):
         self._c = MACDOBVConfig(**overrides) if overrides else MACDOBVConfig()
         self._infra = IntradayInfra(self._c, IntradayExitManager())
         super().__init__()
-        self._obv_state = _obv_ema_state(period=self._c.obv_smooth)
+        self._obv_state = _ObvEmaState(period=self._c.obv_smooth)
         self._data: list[IntradayPriceData] = []
         self._idx: int = 0
+        # NOTE: _prev_macd_*, _obv_state intentionally NOT reset across sessions.
+        # Pine Script's ta.crossover/ta.crossunder operate on a continuous time
+        # series — no day-boundary reset — so we replicate that behaviour here.
         self._prev_macd_line: Decimal = ZERO
         self._prev_macd_sig: Decimal = ZERO
 
     @property
     def name(self) -> str:
         return "SPY MACD+OBV"
-
-    def on_session_start(self, trading_date: str) -> None:
-        super().on_session_start(trading_date)
 
     def evaluate(
         self,

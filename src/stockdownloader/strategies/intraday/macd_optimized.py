@@ -77,15 +77,14 @@ class MACDOptimizedStrategy(BaseIntradayStrategy):
         super().__init__()
         self._data: list[IntradayPriceData] = []
         self._idx: int = 0
+        # NOTE: _prev_macd_* intentionally NOT reset across sessions.
+        # Pine Script's ta.crossover operates on a continuous time series.
         self._prev_macd_line: Decimal = ZERO
         self._prev_macd_sig: Decimal = ZERO
 
     @property
     def name(self) -> str:
         return "SPY MACD 8/35/5"
-
-    def on_session_start(self, trading_date: str) -> None:
-        super().on_session_start(trading_date)
 
     def evaluate(
         self,

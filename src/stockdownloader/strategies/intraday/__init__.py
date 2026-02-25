@@ -9,7 +9,10 @@ Standalone strategies
 - :class:`PatternScalpStrategy` -- opening-range manipulation fade
 - :class:`PullbackStrategy` -- trending VWAP pullback
 - :class:`ReversalStrategy` -- sideways band mean-reversion
+- :class:`MACDOBVStrategy` -- MACD + OBV confirmation (tournament winner)
+- :class:`MACDOptimizedStrategy` -- MACD 8/35/5 optimized crossover (tournament #3)
 - :class:`MLOversoldStrategy` -- ML-driven mean-reversion
+- :class:`SMACross2021Strategy` -- SMA 20/21 tight golden cross (tournament #2)
 - :class:`SMCStructureStrategy` -- Smart Money Concepts structure
 
 Adapters
@@ -33,6 +36,8 @@ from stockdownloader.strategies.intraday.base import BaseIntradayStrategy
 from stockdownloader.strategies.intraday.daily_adapter import DailyToIntradayAdapter
 from stockdownloader.strategies.intraday.day_tracker import DayTracker
 from stockdownloader.strategies.intraday.dmi_vwap import DmiVwapStrategy
+from stockdownloader.strategies.intraday.macd_obv import MACDOBVConfig, MACDOBVStrategy
+from stockdownloader.strategies.intraday.macd_optimized import MACDOptimizedConfig, MACDOptimizedStrategy
 from stockdownloader.strategies.intraday.trade_mgmt import (
     IntradayExitManager,
     clamp_sl_dist,
@@ -50,6 +55,7 @@ from stockdownloader.strategies.intraday.pattern_scalp import PatternScalpStrate
 from stockdownloader.strategies.intraday.pullback import PullbackStrategy
 from stockdownloader.strategies.intraday.reversal import ReversalStrategy
 from stockdownloader.strategies.intraday.session import SessionState
+from stockdownloader.strategies.intraday.sma_cross import SMACross2021Config, SMACross2021Strategy
 from stockdownloader.strategies.intraday.smc_structure import SMCStructureStrategy
 from stockdownloader.strategies.intraday.trail import (
     AtrChandelierTrail,
@@ -62,6 +68,10 @@ __all__ = [
     # Standalone strategies
     "AVWAPPullbackStrategy",
     "DmiVwapStrategy",
+    "MACDOBVConfig",
+    "MACDOBVStrategy",
+    "MACDOptimizedConfig",
+    "MACDOptimizedStrategy",
     "MLOversoldConfig",
     "MLOversoldStrategy",
     "ORBreakoutStrategy",
@@ -69,6 +79,8 @@ __all__ = [
     "PatternScalpStrategy",
     "PullbackStrategy",
     "ReversalStrategy",
+    "SMACross2021Config",
+    "SMACross2021Strategy",
     "SMCStructureStrategy",
     # Adapters
     "DailyToIntradayAdapter",

@@ -3,53 +3,9 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from datetime import datetime, timezone
-from unittest.mock import MagicMock, patch
 
-import pytest
-
-from stockdownloader.core.models.price import IntradayPriceData
 from stockdownloader.core.models.trade import IntradayAction
-
-
-def _bar(
-    dt: str,
-    o: float,
-    h: float,
-    l: float,
-    c: float,
-    v: int = 1000,
-) -> IntradayPriceData:
-    """Helper to create a 5-min bar."""
-    return IntradayPriceData(
-        date=dt,
-        open=Decimal(str(o)),
-        high=Decimal(str(h)),
-        low=Decimal(str(l)),
-        close=Decimal(str(c)),
-        adj_close=Decimal(str(c)),
-        volume=v,
-    )
-
-
-def _make_warmup_bars(n: int = 1200) -> list[IntradayPriceData]:
-    """Generate n synthetic bars for warmup (78 bars/day)."""
-    bars: list[IntradayPriceData] = []
-    price = 450.0
-    day_num = 0
-    for i in range(n):
-        bar_of_day = i % 78
-        if bar_of_day == 0 and i > 0:
-            day_num += 1
-        date = f"2024-01-{2 + day_num:02d}"
-        hour = 9 + (bar_of_day * 5 + 30) // 60
-        minute = (bar_of_day * 5 + 30) % 60
-        dt = f"{date} {hour:02d}:{minute:02d}:00-05:00"
-        # Gentle uptrend with noise
-        delta = 0.02 * (1 if i % 3 != 0 else -1)
-        price += delta
-        bars.append(_bar(dt, price - 0.05, price + 0.10, price - 0.10, price, 5000))
-    return bars
+from tests.strategies.intraday.conftest import make_warmup_bars
 
 
 class TestMACDOBVConfig:
@@ -95,7 +51,7 @@ class TestMACDOBVStrategy:
         """Strategy should return HOLD during warmup period."""
         from stockdownloader.strategies.intraday.macd_obv import MACDOBVStrategy
         s = MACDOBVStrategy()
-        bars = _make_warmup_bars(100)
+        bars = make_warmup_bars(100)
         s.on_session_start("2024-01-02")
         sig = s.evaluate(bars, 50)
         assert sig.action == IntradayAction.HOLD
@@ -104,7 +60,7 @@ class TestMACDOBVStrategy:
         """After warmup, a MACD bullish cross + OBV rising should produce ENTER_LONG."""
         from stockdownloader.strategies.intraday.macd_obv import MACDOBVStrategy
         s = MACDOBVStrategy()
-        bars = _make_warmup_bars(1300)
+        bars = make_warmup_bars(1300)
         for i in range(len(bars)):
             if i % 78 == 0:
                 s.on_session_start(bars[i].trading_date)
@@ -138,8 +94,8 @@ class TestMACDOBVStrategy:
 
     def test_obv_ema_crossover_detection(self) -> None:
         """OBV EMA rising/falling detection should work correctly."""
-        from stockdownloader.strategies.intraday.macd_obv import _obv_ema_state
-        state = _obv_ema_state(period=5)
+        from stockdownloader.strategies.intraday.macd_obv import _ObvEmaState
+        state = _ObvEmaState(period=5)
         for obv_val in [100, 200, 300, 400, 500, 600]:
             state.update(Decimal(str(obv_val)))
         assert state.is_rising() is True
