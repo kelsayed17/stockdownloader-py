@@ -77,6 +77,27 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Backtest end date YYYY-MM-DD (default: today)",
     )
     parser.add_argument(
+        "--buy-write", action="store_true",
+        help=(
+            "Buy-write mode: hold shares + sell covered calls for income. "
+            "Captures buy-and-hold returns plus premium."
+        ),
+    )
+    parser.add_argument(
+        "--combined", action="store_true",
+        help="Combined buy-write + CSP mode: sell CCs on shares + CSPs on idle cash.",
+    )
+    # Override commission default from add_common_ml_args (10.0 -> 0.65)
+    parser.set_defaults(commission=0.65)
+    parser.add_argument(
+        "--iv-filter", action="store_true",
+        help="Enable IV-based filtering (skip selling when IV too low)",
+    )
+    parser.add_argument(
+        "--min-iv-percentile", type=float, default=0.30,
+        help="Minimum IV percentile to sell options (default: 0.30)",
+    )
+    parser.add_argument(
         "--no-ml-filter", action="store_true",
         help="Run pure mechanical wheel without ML filter",
     )
@@ -129,16 +150,22 @@ def _print_results_table(
     ml_metrics: dict[str, float] | None,
     mech_metrics: dict[str, float],
     bh_return_pct: float,
+    *,
+    buy_write: bool = False,
 ) -> None:
     """Print side-by-side comparison table."""
+    mode = "BUY-WRITE" if buy_write else "WHEEL"
+    ml_label = f"ML {mode.title()}" if not buy_write else "ML Buy-Write"
+    mech_label = "Mechanical" if not buy_write else "Buy-Write"
+
     print("\n" + "=" * 70)
-    print("SPY WEEKLY WHEEL BACKTEST RESULTS")
+    print(f"SPY WEEKLY {mode} BACKTEST RESULTS")
     print("=" * 70)
 
     header_line = f"  {'':24}"
     if ml_metrics:
-        header_line += f"{'ML Wheel':>14}"
-    header_line += f"{'Mechanical':>14}{'Buy & Hold':>14}"
+        header_line += f"{ml_label:>14}"
+    header_line += f"{mech_label:>14}{'Buy & Hold':>14}"
     print(header_line)
     print("  " + "-" * (66 if ml_metrics else 52))
 
@@ -169,25 +196,46 @@ def _print_results_table(
         f"${mech_metrics['total_premium_collected']:,.0f}",
         "N/A",
     )
-    _row(
-        "Assignments",
-        f"{int(ml.get('n_assignments', 0))}" if ml else "",
-        f"{int(mech_metrics['n_assignments'])}",
-        "N/A",
-    )
-    _row(
-        "Calls Exercised",
-        f"{int(ml.get('n_calls_exercised', 0))}" if ml else "",
-        f"{int(mech_metrics['n_calls_exercised'])}",
-        "N/A",
-    )
+    if buy_write:
+        _row(
+            "Calls Exercised",
+            f"{int(ml.get('n_calls_exercised', 0))}" if ml else "",
+            f"{int(mech_metrics['n_calls_exercised'])}",
+            "N/A",
+        )
+        _row(
+            "Re-buys",
+            f"{int(ml.get('n_rebuys', 0))}" if ml else "",
+            f"{int(mech_metrics.get('n_rebuys', 0))}",
+            "N/A",
+        )
+    else:
+        _row(
+            "Assignments",
+            f"{int(ml.get('n_assignments', 0))}" if ml else "",
+            f"{int(mech_metrics['n_assignments'])}",
+            "N/A",
+        )
+        _row(
+            "Calls Exercised",
+            f"{int(ml.get('n_calls_exercised', 0))}" if ml else "",
+            f"{int(mech_metrics['n_calls_exercised'])}",
+            "N/A",
+        )
     if ml:
         _row(
-            "Weeks Skipped (ML)",
-            f"{int(ml.get('n_puts_skipped', 0) + ml.get('n_calls_skipped', 0))}",
+            "Calls Skipped (ML)",
+            f"{int(ml.get('n_calls_skipped', 0))}",
             "N/A",
             "N/A",
         )
+        if not buy_write:
+            _row(
+                "Puts Skipped (ML)",
+                f"{int(ml.get('n_puts_skipped', 0))}",
+                "N/A",
+                "N/A",
+            )
     _row(
         "Sharpe",
         f"{ml.get('sharpe', 0):.2f}" if ml else "",
@@ -203,6 +251,70 @@ def _print_results_table(
     print("=" * 70)
 
 
+def _print_comparison_table(
+    ml_combined: dict[str, float] | None,
+    bw_metrics: dict[str, float],
+    wheel_metrics: dict[str, float],
+    bh_return_pct: float,
+) -> None:
+    """Print 4-column comparison: ML Combined | Buy-Write | Wheel | Buy & Hold."""
+    print("\n" + "=" * 78)
+    print("SPY WEEKLY COMBINED STRATEGY COMPARISON")
+    print("=" * 78)
+
+    cols = []
+    if ml_combined:
+        cols.append(("ML Combined", ml_combined))
+    cols.append(("Buy-Write", bw_metrics))
+    cols.append(("Wheel", wheel_metrics))
+
+    header = f"  {'':24}"
+    for name, _ in cols:
+        header += f"{name:>14}"
+    header += f"{'Buy & Hold':>14}"
+    print(header)
+    print("  " + "-" * (24 + 14 * (len(cols) + 1)))
+
+    def _row(label: str, key: str, fmt: str = ".1f", prefix: str = "", suffix: str = "%") -> None:
+        parts = [f"  {label:<24}"]
+        for _, m in cols:
+            val = m.get(key, 0)
+            parts.append(f"{prefix}{val:{fmt}}{suffix}".rjust(14))
+        if key == "total_return_pct":
+            parts.append(f"+{bh_return_pct:.1f}%".rjust(14))
+        else:
+            parts.append("N/A".rjust(14))
+        print("".join(parts))
+
+    def _row_int(label: str, key: str) -> None:
+        parts = [f"  {label:<24}"]
+        for _, m in cols:
+            parts.append(f"{int(m.get(key, 0))}".rjust(14))
+        parts.append("N/A".rjust(14))
+        print("".join(parts))
+
+    def _row_dollar(label: str, key: str) -> None:
+        parts = [f"  {label:<24}"]
+        for _, m in cols:
+            parts.append(f"${m.get(key, 0):,.0f}".rjust(14))
+        parts.append("N/A".rjust(14))
+        print("".join(parts))
+
+    _row("Total Return", "total_return_pct", prefix="+")
+    _row("Annualized Return", "annualized_return_pct", prefix="+")
+    _row_dollar("Premium Collected", "total_premium_collected")
+    _row_dollar("Commissions", "total_commissions")
+    _row_int("Puts Sold", "n_puts_sold")
+    _row_int("Calls Sold", "n_calls_sold")
+    _row_int("Assignments", "n_assignments")
+    _row_int("Calls Exercised", "n_calls_exercised")
+    _row_int("Re-buys", "n_rebuys")
+    _row("Sharpe", "sharpe", fmt=".2f", prefix="", suffix="")
+    _row("Max Drawdown", "max_drawdown_pct", prefix="-")
+
+    print("=" * 78)
+
+
 def main(argv: list[str] | None = None) -> None:
     """Run the SPY Weekly Wheel pipeline."""
     parser = _build_parser()
@@ -212,7 +324,11 @@ def main(argv: list[str] | None = None) -> None:
 
     import numpy as np
 
-    from stockdownloader.analysis.options.pricing import estimate_volatility
+    from stockdownloader.analysis.options.pricing import (
+        estimate_volatility,
+        implied_volatility,
+    )
+    from stockdownloader.core.models.options import OptionType
     from stockdownloader.backtesting.engines.wheel import (
         WeekRecord,
         WheelBacktestEngine,
@@ -239,18 +355,28 @@ def main(argv: list[str] | None = None) -> None:
         Path("data/options_cache/SPY")
     )
 
+    if args.combined:
+        mode_label = "COMBINED"
+    elif args.buy_write:
+        mode_label = "BUY-WRITE"
+    else:
+        mode_label = "WHEEL"
+
     print("=" * 60)
-    print("SPY ML-GUIDED WEEKLY WHEEL PIPELINE")
+    print(f"SPY ML-GUIDED WEEKLY {mode_label} PIPELINE")
     print("=" * 60)
+    print(f"  Mode:          {mode_label}")
     print(f"  Delta:         {args.delta}")
     print(f"  Contracts:     {args.contracts}")
     print(f"  Capital:       ${args.initial_capital:,.0f}")
     print(f"  Period:        {args.from_date} to {to_date_str}")
     print(f"  ML Filter:     {'OFF' if args.no_ml_filter else 'ON'}")
     if not args.no_ml_filter:
-        print(f"  Skip put <     {args.skip_put_thresh}")
+        if not args.buy_write:
+            print(f"  Skip put <     {args.skip_put_thresh}")
         print(f"  Skip call >    {args.skip_call_thresh}")
     print(f"  Cache:         {cache_dir}")
+    print(f"  Commission:    ${args.commission:.2f}/contract")
     print()
 
     # [1/5] Download SPY daily data
@@ -340,6 +466,7 @@ def main(argv: list[str] | None = None) -> None:
     hist_vol = float(estimate_volatility(close_prices, 20))
 
     week_records: list[WeekRecord] = []
+    iv_history: list[float] = []
     n_cached = 0
     n_fetched = 0
 
@@ -391,8 +518,33 @@ def main(argv: list[str] | None = None) -> None:
             save_chain_cache(cache_dir, exp_str, cache_data)
             n_fetched += 1
 
-        put_premium = put_bar["c"] if put_bar else 0.0
-        call_premium = call_bar["c"] if call_bar else 0.0
+        put_premium = put_bar.get("vw", put_bar.get("c", 0.0)) if put_bar else 0.0
+        call_premium = call_bar.get("vw", call_bar.get("c", 0.0)) if call_bar else 0.0
+
+        # Weekly IV estimation
+        weekly_vol = hist_vol
+        if put_bar and call_bar and spy_at_entry > 0:
+            try:
+                put_iv = float(implied_volatility(
+                    OptionType.PUT, Decimal(str(put_premium)),
+                    Decimal(str(spy_at_entry)), Decimal(str(put_contract["strike_price"])),
+                    Decimal(str(5 / 365)), Decimal("0.05"),
+                ))
+                call_iv = float(implied_volatility(
+                    OptionType.CALL, Decimal(str(call_premium)),
+                    Decimal(str(spy_at_entry)), Decimal(str(call_contract["strike_price"])),
+                    Decimal(str(5 / 365)), Decimal("0.05"),
+                ))
+                weekly_vol = (put_iv + call_iv) / 2
+            except Exception:
+                pass
+
+        iv_history.append(weekly_vol)
+        iv_percentile = 0.5
+        if len(iv_history) >= 10:
+            sorted_ivs = sorted(iv_history)
+            rank = sum(1 for v in sorted_ivs if v <= weekly_vol)
+            iv_percentile = rank / len(sorted_ivs)
 
         if put_premium <= 0 and call_premium <= 0:
             continue
@@ -421,16 +573,18 @@ def main(argv: list[str] | None = None) -> None:
     print(f"  {len(week_records)} tradeable weeks built")
     print(f"  Cache hits: {n_cached}, API fetches: {n_fetched}")
 
-    # Run mechanical wheel
+    # Run mechanical (no ML filter)
     mech_engine = WheelBacktestEngine(
         initial_capital=args.initial_capital,
         contracts=args.contracts,
+        buy_write=args.buy_write,
+        commission_per_contract=args.commission,
     )
     for w in week_records:
         mech_engine.process_week(w, use_ml_filter=False)
     mech_metrics = mech_engine.compute_metrics()
 
-    # Run ML-filtered wheel
+    # Run ML-filtered
     ml_metrics = None
     if not args.no_ml_filter and ml_probs:
         ml_engine = WheelBacktestEngine(
@@ -438,6 +592,8 @@ def main(argv: list[str] | None = None) -> None:
             contracts=args.contracts,
             skip_put_thresh=args.skip_put_thresh,
             skip_call_thresh=args.skip_call_thresh,
+            buy_write=args.buy_write,
+            commission_per_contract=args.commission,
         )
         for w in week_records:
             ml_engine.process_week(w, use_ml_filter=True)
@@ -452,6 +608,51 @@ def main(argv: list[str] | None = None) -> None:
     if bh_start and bh_end and bh_start > 0:
         bh_return_pct = ((bh_end - bh_start) / bh_start) * 100
 
-    _print_results_table(ml_metrics, mech_metrics, bh_return_pct)
+    if args.combined:
+        # Run all 4 engines for comparison
+        # 1. ML Combined
+        ml_combined_metrics = None
+        if not args.no_ml_filter and ml_probs:
+            ml_combined = WheelBacktestEngine(
+                initial_capital=args.initial_capital,
+                contracts=args.contracts,
+                skip_put_thresh=args.skip_put_thresh,
+                skip_call_thresh=args.skip_call_thresh,
+                combined=True,
+                commission_per_contract=args.commission,
+            )
+            for w in week_records:
+                ml_combined.process_week(w, use_ml_filter=True)
+            ml_combined_metrics = ml_combined.compute_metrics()
+
+        # 2. Mechanical Buy-Write
+        bw_engine = WheelBacktestEngine(
+            initial_capital=args.initial_capital,
+            contracts=args.contracts,
+            buy_write=True,
+            commission_per_contract=args.commission,
+        )
+        for w in week_records:
+            bw_engine.process_week(w, use_ml_filter=False)
+        bw_metrics = bw_engine.compute_metrics()
+
+        # 3. Mechanical Wheel
+        wheel_engine = WheelBacktestEngine(
+            initial_capital=args.initial_capital,
+            contracts=args.contracts,
+            commission_per_contract=args.commission,
+        )
+        for w in week_records:
+            wheel_engine.process_week(w, use_ml_filter=False)
+        wheel_metrics = wheel_engine.compute_metrics()
+
+        _print_comparison_table(
+            ml_combined_metrics, bw_metrics, wheel_metrics, bh_return_pct,
+        )
+    else:
+        _print_results_table(
+            ml_metrics, mech_metrics, bh_return_pct,
+            buy_write=args.buy_write,
+        )
 
     print(f"\nTotal pipeline time: {time.time() - t0:.1f}s")
