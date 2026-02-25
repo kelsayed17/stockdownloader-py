@@ -697,3 +697,121 @@ class TestCollarMode:
         # Week 1: still 200 shares (no new assignment) -> 2 hedges * 1.00 * 100 = 200
         # Total = 500
         assert abs(metrics["total_hedge_cost"] - 500.0) < 0.01
+
+
+class TestVolScaling:
+
+    def test_vol_scaling_high_iv_increases_csp_count(self):
+        """High IV (80th pctile) -> 2x multiplier -> 2 CSPs sold."""
+        engine = WheelBacktestEngine(
+            initial_capital=200_000.0, contracts=1,
+            combined=True, vol_scaling=True, max_contracts=3,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=4.0,
+            call_strike=520.0, call_premium=3.0,
+            iv_percentile=0.80,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        # High IV: mult=2.0, eff=min(3, 1*2)=2. Should sell 2 CSPs.
+        assert metrics["n_puts_sold"] == 2
+
+    def test_vol_scaling_low_iv_floors_at_one(self):
+        """Low IV (10th pctile) -> 0.5x multiplier -> floor at 1 contract."""
+        engine = WheelBacktestEngine(
+            initial_capital=200_000.0, contracts=1,
+            combined=True, vol_scaling=True, max_contracts=3,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=1.0,
+            call_strike=520.0, call_premium=1.0,
+            iv_percentile=0.10,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        # Low IV: mult=0.5, int(1*0.5)=0, floor=1. Sell 1 CSP.
+        assert metrics["n_puts_sold"] == 1
+
+    def test_vol_scaling_respects_max_contracts(self):
+        """Effective contracts capped at max_contracts."""
+        engine = WheelBacktestEngine(
+            initial_capital=500_000.0, contracts=2,
+            combined=True, vol_scaling=True, max_contracts=3,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+            iv_percentile=0.90,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        # mult=2.0, 2*2=4, cap at 3. Sell 3 CSPs.
+        assert metrics["n_puts_sold"] == 3
+
+    def test_vol_scaling_disabled_original_behavior(self):
+        """vol_scaling=False -> same behavior as before."""
+        engine = WheelBacktestEngine(
+            initial_capital=200_000.0, contracts=1,
+            combined=True, vol_scaling=False,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            iv_percentile=0.90,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        # Without vol scaling, ignores iv_percentile. Sell 1 CSP.
+        assert metrics["n_puts_sold"] == 1
+
+    def test_vol_scaling_cc_cap(self):
+        """Vol scaling caps CC count in combined mode."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            combined=True, vol_scaling=True, max_contracts=3,
+        )
+        # Week 0: CSP assigned -> 200 shares
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=470.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+            iv_percentile=0.10,  # low IV -> eff=1
+        )
+        engine.process_week(week0)
+        assert engine.shares_held == 200
+
+        # Week 1: 200 shares but low IV -> only 1 CC sold (not 2)
+        week1 = _make_week(
+            1, spy_open=470.0, spy_close=475.0,
+            put_strike=460.0, put_premium=2.0,
+            call_strike=490.0, call_premium=2.0,
+            iv_percentile=0.10,  # low IV -> eff=1
+        )
+        engine.process_week(week1)
+        metrics = engine.compute_metrics()
+        # Week 0: 1 CC (eff=1, shares=100). Week 1: 1 CC (eff=1, capped from 2).
+        assert metrics["n_calls_sold"] == 2  # not 3
+
+    def test_vol_scaling_metrics_tracked(self):
+        """Metrics include avg and max contracts traded."""
+        engine = WheelBacktestEngine(
+            initial_capital=200_000.0, contracts=1,
+            combined=True, vol_scaling=True, max_contracts=3,
+        )
+        weeks = [
+            _make_week(0, spy_open=500.0, spy_close=505.0, iv_percentile=0.20),
+            _make_week(1, spy_open=505.0, spy_close=510.0, iv_percentile=0.60),
+            _make_week(2, spy_open=510.0, spy_close=515.0, iv_percentile=0.90),
+        ]
+        for w in weeks:
+            engine.process_week(w)
+        metrics = engine.compute_metrics()
+        assert "avg_contracts_traded" in metrics
+        assert "max_contracts_traded" in metrics
+        # Week 0: 0.20 -> 0.5x -> max(1,int(0.5))=1. Week 1: 0.60 -> 1.5x -> int(1.5)=1. Week 2: 0.90 -> 2.0x -> 2.
+        assert metrics["max_contracts_traded"] == 2.0

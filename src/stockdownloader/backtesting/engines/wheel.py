@@ -82,6 +82,11 @@ class WheelBacktestEngine:
         If True, buy a protective put on all held shares each week.
         Deducts hedge cost from cash and pays out when SPY drops below
         the hedge put strike.
+    vol_scaling:
+        If True, scale effective contract count by IV percentile.
+        Higher IV -> more contracts traded, capped at max_contracts.
+    max_contracts:
+        Maximum effective contracts when vol_scaling is enabled.
     """
 
     def __init__(
@@ -94,6 +99,8 @@ class WheelBacktestEngine:
         combined: bool = False,
         commission_per_contract: float = 0.0,
         collar: bool = False,
+        vol_scaling: bool = False,
+        max_contracts: int = 3,
     ) -> None:
         self._initial_capital = initial_capital
         self._cash = initial_capital
@@ -104,6 +111,8 @@ class WheelBacktestEngine:
         self._combined = combined
         self._commission_per_contract = commission_per_contract
         self._collar = collar
+        self._vol_scaling = vol_scaling
+        self._max_contracts = max_contracts
 
         # State
         self._state = WheelState.CASH
@@ -124,6 +133,7 @@ class WheelBacktestEngine:
         self._n_calls_skipped: int = 0
         self._equity_curve: list[float] = []
         self._weeks_processed: int = 0
+        self._eff_contracts_history: list[int] = []
 
     @property
     def state(self) -> WheelState:
@@ -141,6 +151,20 @@ class WheelBacktestEngine:
     def equity_curve(self) -> list[float]:
         return list(self._equity_curve)
 
+    def _compute_effective_contracts(self, iv_percentile: float) -> int:
+        """Compute effective contract count from IV percentile."""
+        if not self._vol_scaling:
+            return self._contracts
+        if iv_percentile <= 0.25:
+            mult = 0.5
+        elif iv_percentile <= 0.50:
+            mult = 1.0
+        elif iv_percentile <= 0.75:
+            mult = 1.5
+        else:
+            mult = 2.0
+        return max(1, min(self._max_contracts, int(self._contracts * mult)))
+
     def process_week(
         self,
         week: WeekRecord,
@@ -150,8 +174,12 @@ class WheelBacktestEngine:
         """Process one week of the wheel strategy."""
         multiplier = self._contracts * 100
 
+        eff_contracts = self._compute_effective_contracts(week.iv_percentile)
+        if self._vol_scaling:
+            self._eff_contracts_history.append(eff_contracts)
+
         if self._combined:
-            self._process_week_combined(week, use_ml_filter)
+            self._process_week_combined(week, use_ml_filter, eff_contracts)
         elif self._buy_write:
             self._process_week_buy_write(week, multiplier, use_ml_filter)
         else:
@@ -221,11 +249,14 @@ class WheelBacktestEngine:
         self,
         week: WeekRecord,
         use_ml_filter: bool,
+        eff_contracts: int | None = None,
     ) -> None:
         """Combined mode: buy-write + CSPs on idle cash."""
-        multiplier = self._contracts * 100
+        if eff_contracts is None:
+            eff_contracts = self._contracts
+        multiplier = self._contracts * 100  # initial buy uses base contracts
 
-        # Step 1: Buy initial shares if not holding
+        # Step 1: Buy initial shares if not holding (base contracts)
         if self._shares == 0:
             cost = week.spy_price_at_entry * multiplier
             self._cash -= cost
@@ -233,8 +264,10 @@ class WheelBacktestEngine:
             self._share_cost_basis = week.spy_price_at_entry
             self._state = WheelState.CALL_PHASE
 
-        # Step 2: Sell covered calls on ALL held shares
+        # Step 2: Sell CCs - cap at eff_contracts when vol_scaling
         n_cc = self._shares // 100
+        if self._vol_scaling:
+            n_cc = min(n_cc, eff_contracts)
         if n_cc > 0:
             if not (use_ml_filter and week.ml_prob > self._skip_call_thresh):
                 gross = week.call_premium * n_cc * 100
@@ -254,9 +287,9 @@ class WheelBacktestEngine:
             else:
                 self._n_calls_skipped += n_cc
 
-        # Step 3: Sell CSPs on available cash (capped at self._contracts)
+        # Step 3: Sell CSPs (capped at eff_contracts instead of self._contracts)
         if week.put_strike > 0:
-            max_csp = min(self._contracts, int(self._cash // (week.put_strike * 100)))
+            max_csp = min(eff_contracts, int(self._cash // (week.put_strike * 100)))
         else:
             max_csp = 0
         if max_csp > 0:
@@ -390,4 +423,14 @@ class WheelBacktestEngine:
             "max_drawdown_pct": max_dd_pct,
             "max_drawdown_dollar": max_dd_dollar,
             "annualized_return_pct": annualized,
+            "avg_contracts_traded": (
+                statistics.mean(self._eff_contracts_history)
+                if self._eff_contracts_history
+                else float(self._contracts)
+            ),
+            "max_contracts_traded": (
+                float(max(self._eff_contracts_history))
+                if self._eff_contracts_history
+                else float(self._contracts)
+            ),
         }
