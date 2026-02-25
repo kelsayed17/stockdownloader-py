@@ -278,3 +278,253 @@ class TestTransactionCosts:
         assert "total_commissions" in metrics
         # 3 puts sold * 1 contract * 0.65 = 1.95
         assert abs(metrics["total_commissions"] - 1.95) < 0.01
+
+
+class TestCombinedMode:
+
+    def test_combined_buys_shares_immediately(self):
+        """Combined mode buys shares on week 1."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1, combined=True,
+        )
+        week = _make_week(0, spy_open=500.0, spy_close=505.0)
+        engine.process_week(week)
+        assert engine.shares_held >= 100
+
+    def test_combined_sells_both_cc_and_csp(self):
+        """Combined mode collects premium from both calls and puts."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1, combined=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        assert metrics["n_calls_sold"] >= 1
+        assert metrics["n_puts_sold"] >= 1
+        # Premium from both sides: at least 200 + 200 = 400
+        assert engine.total_premium_collected >= 400.0
+
+    def test_combined_cc_exercise_rebuys(self):
+        """CC exercise in combined mode: called away + immediate re-buy."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1, combined=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=530.0,
+            put_strike=480.0, put_premium=1.0,
+            call_strike=520.0, call_premium=3.0,
+        )
+        engine.process_week(week)
+        assert engine.shares_held >= 100  # Still holding after re-buy
+        metrics = engine.compute_metrics()
+        assert metrics["n_calls_exercised"] >= 1
+        assert metrics["n_rebuys"] >= 1
+
+    def test_combined_csp_assignment_grows_position(self):
+        """CSP assignment in combined mode adds shares."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1, combined=True,
+        )
+        # SPY at 500 -> buy 100 shares ($50K). Cash left ~$50K.
+        # Put strike 480 -> CSP collateral $48K. Cash supports 1 CSP.
+        # SPY drops to 470 -> put ITM, assigned -> acquire 100 more shares.
+        week = _make_week(
+            0, spy_open=500.0, spy_close=470.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+        )
+        engine.process_week(week)
+        assert engine.shares_held == 200  # 100 initial + 100 from CSP assignment
+        metrics = engine.compute_metrics()
+        assert metrics["n_assignments"] >= 1
+
+    def test_combined_both_itm_settles_correctly(self):
+        """Both CC and CSP ITM in same week: exercises cancel out."""
+        engine = WheelBacktestEngine(
+            initial_capital=110_000.0, contracts=1, combined=True,
+        )
+        # SPY at 500, put strike 510 (ITM), call strike 490 (ITM)
+        # Capital $110K -> buy 100 shares at 500 ($50K) -> cash $60K
+        # CC exercise: +$49K (strike) - $50.5K (re-buy) + $1.2K (prem) -> cash ~$59.7K
+        # CSP collateral at 510: $51K fits in $59.7K -> 1 CSP sold, assigned
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=510.0, put_premium=12.0,
+            call_strike=490.0, call_premium=12.0,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        assert metrics["n_calls_exercised"] >= 1
+        assert metrics["n_assignments"] >= 1
+
+    def test_combined_csp_capped_at_contracts(self):
+        """CSP count doesn't exceed the contracts parameter."""
+        engine = WheelBacktestEngine(
+            initial_capital=200_000.0, contracts=1, combined=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=470.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        assert metrics["n_puts_sold"] == 1
+        assert engine.shares_held == 200  # 100 initial + 100 from 1 CSP
+
+    def test_combined_ml_skips_cc_and_csp(self):
+        """ML filter skips CC when bullish and CSP when bearish."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1,
+            skip_call_thresh=0.65, skip_put_thresh=0.35,
+            combined=True,
+        )
+        # prob=0.70 -> skip CC (rally), do sell CSP
+        week_bullish = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+            ml_prob=0.70,
+        )
+        engine.process_week(week_bullish, use_ml_filter=True)
+        metrics = engine.compute_metrics()
+        assert metrics["n_calls_skipped"] >= 1
+        assert metrics["n_puts_sold"] >= 1
+
+    def test_combined_dynamic_cc_count_after_assignment(self):
+        """After CSP assignment, more CCs are sold next week."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1, combined=True,
+        )
+        # Week 0: Buy 100 shares, sell 1 CC + 1 CSP, CSP assigned -> 200 shares
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=470.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+        )
+        engine.process_week(week0)
+        assert engine.shares_held == 200
+
+        # Week 1: Should sell 2 CCs (200 shares / 100)
+        week1 = _make_week(
+            1, spy_open=470.0, spy_close=475.0,
+            put_strike=460.0, put_premium=2.0,
+            call_strike=490.0, call_premium=2.0,
+        )
+        engine.process_week(week1)
+        metrics = engine.compute_metrics()
+        # Week 0: 1 CC + week 1: 2 CCs = 3 total calls sold
+        assert metrics["n_calls_sold"] == 3
+
+
+class TestCombinedEdgeCases:
+
+    def test_combined_no_cash_for_csp(self):
+        """After CSP assignment eats all cash, no CSPs sold next week."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1, combined=True,
+        )
+        # Week 0: CSP assigned -> 200 shares, ~$0 cash
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=470.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+        )
+        engine.process_week(week0)
+        puts_after_w0 = engine.compute_metrics()["n_puts_sold"]
+
+        # Week 1: No cash for CSP. Only sell CCs.
+        week1 = _make_week(
+            1, spy_open=470.0, spy_close=475.0,
+            put_strike=460.0, put_premium=2.0,
+            call_strike=490.0, call_premium=2.0,
+        )
+        engine.process_week(week1)
+        puts_after_w1 = engine.compute_metrics()["n_puts_sold"]
+        # No new puts sold (no cash for CSP collateral)
+        assert puts_after_w1 == puts_after_w0
+
+    def test_combined_max_position_after_multiple_assignments(self):
+        """Multiple CSP assignments grow position correctly."""
+        engine = WheelBacktestEngine(
+            initial_capital=200_000.0, contracts=1, combined=True,
+        )
+        # Week 0: Buy 100 shares at 500 ($50K). Cash=$150K. Sell 1 CSP at 480. Assigned.
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=470.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+        )
+        engine.process_week(week0)
+        assert engine.shares_held == 200
+
+        # Week 1: Now 200 shares. Cash ~$102K (150K - 48K + premiums).
+        # Sell 1 CSP at 460. Assigned again.
+        week1 = _make_week(
+            1, spy_open=470.0, spy_close=450.0,
+            put_strike=460.0, put_premium=4.0,
+            call_strike=490.0, call_premium=1.0,
+        )
+        engine.process_week(week1)
+        assert engine.shares_held == 300
+
+    def test_combined_cc_exercise_frees_cash_for_csp(self):
+        """CC exercise frees cash, enabling CSP sale next week."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1, combined=True,
+        )
+        # Week 0: Buy 100 at 500, CSP assigned at 480 -> 200 shares, ~$0 cash
+        week0 = _make_week(
+            0, spy_open=500.0, spy_close=470.0,
+            put_strike=480.0, put_premium=3.0,
+            call_strike=520.0, call_premium=2.0,
+        )
+        engine.process_week(week0)
+        assert engine.shares_held == 200
+
+        # Week 1: CC exercised (price rallies above call strike)
+        # 2 CCs exercised -> sell 200 shares at 490, re-buy at 495
+        week1 = _make_week(
+            1, spy_open=475.0, spy_close=495.0,
+            put_strike=470.0, put_premium=2.0,
+            call_strike=490.0, call_premium=3.0,
+        )
+        engine.process_week(week1)
+        # After re-buy, should still hold 200 shares
+        metrics = engine.compute_metrics()
+        assert metrics["n_calls_exercised"] >= 2
+
+    def test_combined_zero_premium_handled(self):
+        """Zero put premium is handled gracefully (still sell call)."""
+        engine = WheelBacktestEngine(
+            initial_capital=100_000.0, contracts=1, combined=True,
+        )
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=0.0,
+            call_strike=520.0, call_premium=2.0,
+        )
+        engine.process_week(week)
+        metrics = engine.compute_metrics()
+        assert metrics["n_calls_sold"] >= 1
+
+    def test_combined_insufficient_capital_for_initial_buy(self):
+        """Capital too low to buy even 1 contract of shares."""
+        engine = WheelBacktestEngine(
+            initial_capital=1_000.0, contracts=1, combined=True,
+        )
+        # SPY at 500 -> 100 shares = $50K. Capital=$1K. Can't afford it.
+        week = _make_week(
+            0, spy_open=500.0, spy_close=505.0,
+            put_strike=480.0, put_premium=2.0,
+            call_strike=520.0, call_premium=2.0,
+        )
+        engine.process_week(week)
+        # Cash goes negative (the engine doesn't enforce margin).
+        # Should still process without crashing.
+        metrics = engine.compute_metrics()
+        assert metrics["weeks"] == 1

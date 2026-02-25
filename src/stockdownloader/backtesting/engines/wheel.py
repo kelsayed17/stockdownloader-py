@@ -14,6 +14,12 @@ Buy-write mode:
     Buy shares immediately, sell covered calls for income.
     If called away, immediately re-buy at market price.
     Captures buy-and-hold returns PLUS premium income.
+
+Combined mode:
+    Buy shares immediately (like buy-write), sell CCs on all held
+    shares, AND sell CSPs on idle cash. Generates double premium
+    income. CC count is dynamic (shares // 100). CSP count is
+    capped at the contracts parameter and limited by available cash.
 """
 from __future__ import annotations
 
@@ -62,6 +68,8 @@ class WheelBacktestEngine:
     buy_write:
         If True, buy shares immediately and sell covered calls only.
         Captures buy-and-hold returns plus premium income.
+    combined:
+        If True, buy shares + sell CCs on shares + sell CSPs on idle cash.
     commission_per_contract:
         Dollar commission charged per contract on each option trade.
         Default is 0.0 (no commission).
@@ -74,6 +82,7 @@ class WheelBacktestEngine:
         skip_put_thresh: float = 0.35,
         skip_call_thresh: float = 0.65,
         buy_write: bool = False,
+        combined: bool = False,
         commission_per_contract: float = 0.0,
     ) -> None:
         self._initial_capital = initial_capital
@@ -82,6 +91,7 @@ class WheelBacktestEngine:
         self._skip_put_thresh = skip_put_thresh
         self._skip_call_thresh = skip_call_thresh
         self._buy_write = buy_write
+        self._combined = combined
         self._commission_per_contract = commission_per_contract
 
         # State
@@ -127,7 +137,9 @@ class WheelBacktestEngine:
         """Process one week of the wheel strategy."""
         multiplier = self._contracts * 100
 
-        if self._buy_write:
+        if self._combined:
+            self._process_week_combined(week, use_ml_filter)
+        elif self._buy_write:
             self._process_week_buy_write(week, multiplier, use_ml_filter)
         else:
             self._process_week_wheel(week, multiplier, use_ml_filter)
@@ -175,6 +187,68 @@ class WheelBacktestEngine:
                 self._share_cost_basis = week.spy_price_at_expiry
                 self._n_rebuys += 1
                 # Shares stay at multiplier (still holding)
+
+        self._state = WheelState.CALL_PHASE
+
+    def _process_week_combined(
+        self,
+        week: WeekRecord,
+        use_ml_filter: bool,
+    ) -> None:
+        """Combined mode: buy-write + CSPs on idle cash."""
+        multiplier = self._contracts * 100
+
+        # Step 1: Buy initial shares if not holding
+        if self._shares == 0:
+            cost = week.spy_price_at_entry * multiplier
+            self._cash -= cost
+            self._shares = multiplier
+            self._share_cost_basis = week.spy_price_at_entry
+            self._state = WheelState.CALL_PHASE
+
+        # Step 2: Sell covered calls on ALL held shares
+        n_cc = self._shares // 100
+        if n_cc > 0:
+            if not (use_ml_filter and week.ml_prob > self._skip_call_thresh):
+                gross = week.call_premium * n_cc * 100
+                commission = self._commission_per_contract * n_cc
+                self._cash += gross - commission
+                self._total_premium += gross - commission
+                self._total_commissions += commission
+                self._n_calls_sold += n_cc
+
+                if week.spy_price_at_expiry > week.call_strike:
+                    # Called away on n_cc contracts, immediately re-buy
+                    self._cash += week.call_strike * n_cc * 100
+                    self._cash -= week.spy_price_at_expiry * n_cc * 100
+                    self._n_calls_exercised += n_cc
+                    self._n_rebuys += n_cc
+                    self._share_cost_basis = week.spy_price_at_expiry
+            else:
+                self._n_calls_skipped += n_cc
+
+        # Step 3: Sell CSPs on available cash (capped at self._contracts)
+        if week.put_strike > 0:
+            max_csp = min(self._contracts, int(self._cash // (week.put_strike * 100)))
+        else:
+            max_csp = 0
+        if max_csp > 0:
+            if not (use_ml_filter and week.ml_prob < self._skip_put_thresh):
+                gross = week.put_premium * max_csp * 100
+                commission = self._commission_per_contract * max_csp
+                self._cash += gross - commission
+                self._total_premium += gross - commission
+                self._total_commissions += commission
+                self._n_puts_sold += max_csp
+
+                if week.spy_price_at_expiry < week.put_strike:
+                    # Assigned: acquire more shares
+                    cost = week.put_strike * max_csp * 100
+                    self._cash -= cost
+                    self._shares += max_csp * 100
+                    self._n_assignments += max_csp
+            else:
+                self._n_puts_skipped += max_csp
 
         self._state = WheelState.CALL_PHASE
 
