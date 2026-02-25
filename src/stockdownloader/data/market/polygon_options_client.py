@@ -20,10 +20,14 @@ import logging
 import os
 import time as _time
 from datetime import date, datetime
+from decimal import Decimal
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 import requests
+
+from stockdownloader.analysis.options.pricing import delta as bs_delta
+from stockdownloader.core.models.options import OptionType
 
 logger = logging.getLogger(__name__)
 
@@ -213,3 +217,62 @@ def load_chain_cache(cache_dir: Path, expiration_date: str) -> dict | None:
         return None
     with open(cache_file) as f:
         return json.load(f)
+
+
+_DEFAULT_RISK_FREE_RATE = 0.05
+
+
+def select_strike_by_delta(
+    contracts: list[dict],
+    *,
+    contract_type: str,
+    spot: float,
+    target_delta: float,
+    days_to_expiry: int,
+    volatility: float,
+    risk_free_rate: float = _DEFAULT_RISK_FREE_RATE,
+) -> dict | None:
+    """Select the contract whose BS delta is closest to the target.
+
+    Parameters
+    ----------
+    contracts:
+        List of contract dicts (must have ``strike_price`` and ``contract_type``).
+    contract_type:
+        ``"call"`` or ``"put"``.
+    spot:
+        Current underlying price.
+    target_delta:
+        Target absolute delta (e.g. 0.30).
+    days_to_expiry:
+        Days to expiration.
+    volatility:
+        Annualized volatility estimate.
+
+    Returns
+    -------
+    dict | None
+        The contract dict closest to the target delta, or None.
+    """
+    filtered = [c for c in contracts if c.get("contract_type") == contract_type]
+    if not filtered:
+        return None
+
+    opt_type = OptionType.CALL if contract_type == "call" else OptionType.PUT
+    time_to_expiry = Decimal(str(days_to_expiry)) / Decimal("365")
+    spot_d = Decimal(str(spot))
+    vol_d = Decimal(str(volatility))
+    rfr_d = Decimal(str(risk_free_rate))
+
+    best_contract = None
+    best_diff = float("inf")
+
+    for c in filtered:
+        strike_d = Decimal(str(c["strike_price"]))
+        d = bs_delta(opt_type, spot_d, strike_d, time_to_expiry, rfr_d, vol_d)
+        diff = abs(abs(float(d)) - target_delta)
+        if diff < best_diff:
+            best_diff = diff
+            best_contract = c
+
+    return best_contract

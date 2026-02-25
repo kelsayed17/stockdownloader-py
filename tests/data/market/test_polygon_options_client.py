@@ -204,3 +204,48 @@ class TestChainCache:
         from stockdownloader.data.market.polygon_options_client import load_chain_cache
         loaded = load_chain_cache(tmp_path, "2025-02-07")
         assert loaded is None
+
+
+class TestSelectStrikeByDelta:
+    def test_selects_put_near_030_delta(self):
+        from stockdownloader.data.market.polygon_options_client import select_strike_by_delta
+
+        contracts = [
+            {"ticker": "O:SPY250207P00570000", "strike_price": 570.0, "contract_type": "put"},
+            {"ticker": "O:SPY250207P00580000", "strike_price": 580.0, "contract_type": "put"},
+            {"ticker": "O:SPY250207P00590000", "strike_price": 590.0, "contract_type": "put"},
+            {"ticker": "O:SPY250207P00600000", "strike_price": 600.0, "contract_type": "put"},
+        ]
+        result = select_strike_by_delta(
+            contracts, contract_type="put", spot=600.0,
+            target_delta=0.30, days_to_expiry=5, volatility=0.20,
+        )
+        assert result is not None
+        assert result["contract_type"] == "put"
+        assert result["strike_price"] < 600.0
+
+    def test_selects_call_near_030_delta(self):
+        from stockdownloader.data.market.polygon_options_client import select_strike_by_delta
+
+        contracts = [
+            {"ticker": "O:SPY250207C00600000", "strike_price": 600.0, "contract_type": "call"},
+            {"ticker": "O:SPY250207C00610000", "strike_price": 610.0, "contract_type": "call"},
+            {"ticker": "O:SPY250207C00620000", "strike_price": 620.0, "contract_type": "call"},
+            {"ticker": "O:SPY250207C00630000", "strike_price": 630.0, "contract_type": "call"},
+        ]
+        result = select_strike_by_delta(
+            contracts, contract_type="call", spot=600.0,
+            target_delta=0.30, days_to_expiry=5, volatility=0.20,
+        )
+        assert result is not None
+        assert result["contract_type"] == "call"
+        assert result["strike_price"] > 600.0
+
+    def test_returns_none_for_empty_contracts(self):
+        from stockdownloader.data.market.polygon_options_client import select_strike_by_delta
+
+        result = select_strike_by_delta(
+            [], contract_type="put", spot=600.0,
+            target_delta=0.30, days_to_expiry=5, volatility=0.20,
+        )
+        assert result is None
