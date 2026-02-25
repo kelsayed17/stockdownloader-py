@@ -253,18 +253,20 @@ def _print_results_table(
 
 def _print_comparison_table(
     ml_combined: dict[str, float] | None,
+    mech_combined: dict[str, float],
     bw_metrics: dict[str, float],
     wheel_metrics: dict[str, float],
     bh_return_pct: float,
 ) -> None:
-    """Print 4-column comparison: ML Combined | Buy-Write | Wheel | Buy & Hold."""
-    print("\n" + "=" * 78)
+    """Print comparison: ML Combined | Combined | Buy-Write | Wheel | Buy & Hold."""
+    print("\n" + "=" * 92)
     print("SPY WEEKLY COMBINED STRATEGY COMPARISON")
-    print("=" * 78)
+    print("=" * 92)
 
     cols = []
     if ml_combined:
         cols.append(("ML Combined", ml_combined))
+    cols.append(("Combined", mech_combined))
     cols.append(("Buy-Write", bw_metrics))
     cols.append(("Wheel", wheel_metrics))
 
@@ -312,7 +314,7 @@ def _print_comparison_table(
     _row("Sharpe", "sharpe", fmt=".2f", prefix="", suffix="")
     _row("Max Drawdown", "max_drawdown_pct", prefix="-")
 
-    print("=" * 78)
+    print("=" * 92)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -609,8 +611,8 @@ def main(argv: list[str] | None = None) -> None:
         bh_return_pct = ((bh_end - bh_start) / bh_start) * 100
 
     if args.combined:
-        # Run all 4 engines for comparison
-        # 1. ML Combined
+        # Run all engines for comparison
+        # 1. ML Combined (if ML is on)
         ml_combined_metrics = None
         if not args.no_ml_filter and ml_probs:
             ml_combined = WheelBacktestEngine(
@@ -625,7 +627,18 @@ def main(argv: list[str] | None = None) -> None:
                 ml_combined.process_week(w, use_ml_filter=True)
             ml_combined_metrics = ml_combined.compute_metrics()
 
-        # 2. Mechanical Buy-Write
+        # 2. Mechanical Combined (always run)
+        mech_combined = WheelBacktestEngine(
+            initial_capital=args.initial_capital,
+            contracts=args.contracts,
+            combined=True,
+            commission_per_contract=args.commission,
+        )
+        for w in week_records:
+            mech_combined.process_week(w, use_ml_filter=False)
+        mech_combined_metrics = mech_combined.compute_metrics()
+
+        # 3. Mechanical Buy-Write
         bw_engine = WheelBacktestEngine(
             initial_capital=args.initial_capital,
             contracts=args.contracts,
@@ -636,7 +649,7 @@ def main(argv: list[str] | None = None) -> None:
             bw_engine.process_week(w, use_ml_filter=False)
         bw_metrics = bw_engine.compute_metrics()
 
-        # 3. Mechanical Wheel
+        # 4. Mechanical Wheel
         wheel_engine = WheelBacktestEngine(
             initial_capital=args.initial_capital,
             contracts=args.contracts,
@@ -647,7 +660,8 @@ def main(argv: list[str] | None = None) -> None:
         wheel_metrics = wheel_engine.compute_metrics()
 
         _print_comparison_table(
-            ml_combined_metrics, bw_metrics, wheel_metrics, bh_return_pct,
+            ml_combined_metrics, mech_combined_metrics,
+            bw_metrics, wheel_metrics, bh_return_pct,
         )
     else:
         _print_results_table(
