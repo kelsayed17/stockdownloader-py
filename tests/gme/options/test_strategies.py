@@ -9,21 +9,26 @@ from stockdownloader.gme.options.backtester import GMEOptionsStrategy, Trade
 
 
 def _make_test_chain() -> pd.DataFrame:
-    """Minimal options chain for strategy testing."""
+    """Minimal options chain for strategy testing.
+
+    Includes two expirations (near: 2023-07-21, far: 2023-08-18) to support
+    calendar-spread testing.
+    """
     rows = []
-    for strike in [20.0, 22.5, 25.0, 27.5, 30.0]:
-        for otype in ["call", "put"]:
-            premium = max(0.5, (25.0 - strike) * 0.3) if otype == "call" else max(0.5, (strike - 25.0) * 0.3)
-            rows.append({
-                "option_ticker": f"O:GME230721{'C' if otype == 'call' else 'P'}{int(strike*1000):08d}",
-                "strike": strike,
-                "option_type": otype,
-                "expiration": "2023-07-21",
-                "close": round(premium + 1.0, 2),
-                "volume": 200,
-                "open_interest": 1000,
-                "date": "2023-06-15",
-            })
+    for expiry, tag in [("2023-07-21", "230721"), ("2023-08-18", "230818")]:
+        for strike in [20.0, 22.5, 25.0, 27.5, 30.0]:
+            for otype in ["call", "put"]:
+                premium = max(0.5, (25.0 - strike) * 0.3) if otype == "call" else max(0.5, (strike - 25.0) * 0.3)
+                rows.append({
+                    "option_ticker": f"O:GME{tag}{'C' if otype == 'call' else 'P'}{int(strike*1000):08d}",
+                    "strike": strike,
+                    "option_type": otype,
+                    "expiration": expiry,
+                    "close": round(premium + 1.0, 2),
+                    "volume": 200,
+                    "open_interest": 1000,
+                    "date": "2023-06-15",
+                })
     return pd.DataFrame(rows)
 
 
@@ -109,4 +114,82 @@ class TestStrangleStrategy:
         from stockdownloader.gme.options.strategies.strangle import StrangleStrategy
         s = StrangleStrategy()
         trades = s.evaluate(date(2023, 6, 15), _make_state(iv_pct=0.3), _make_test_chain())
+        assert len(trades) == 0
+
+
+class TestCreditSpreadStrategy:
+    def test_is_gme_options_strategy(self):
+        from stockdownloader.gme.options.strategies.credit_spread import CreditSpreadStrategy
+        s = CreditSpreadStrategy()
+        assert isinstance(s, GMEOptionsStrategy)
+        assert s.name == "credit_spread"
+
+    def test_bull_put_on_positive_score(self):
+        from stockdownloader.gme.options.strategies.credit_spread import CreditSpreadStrategy
+        s = CreditSpreadStrategy()
+        state = _make_state()
+        state["composite_score"] = 1.0
+        trades = s.evaluate(date(2023, 6, 15), state, _make_test_chain())
+        assert len(trades) == 2
+        put_trades = [t for t in trades if t.option_type == "put"]
+        assert len(put_trades) == 2
+
+    def test_bear_call_on_negative_score(self):
+        from stockdownloader.gme.options.strategies.credit_spread import CreditSpreadStrategy
+        s = CreditSpreadStrategy()
+        state = _make_state()
+        state["composite_score"] = -1.0
+        trades = s.evaluate(date(2023, 6, 15), state, _make_test_chain())
+        call_trades = [t for t in trades if t.option_type == "call"]
+        assert len(call_trades) == 2
+
+
+class TestLongOptionsStrategy:
+    def test_is_gme_options_strategy(self):
+        from stockdownloader.gme.options.strategies.long_options import LongOptionsStrategy
+        s = LongOptionsStrategy()
+        assert isinstance(s, GMEOptionsStrategy)
+        assert s.name == "long_options"
+
+    def test_enters_on_cycle_hot(self):
+        from stockdownloader.gme.options.strategies.long_options import LongOptionsStrategy
+        s = LongOptionsStrategy()
+        state = _make_state()
+        state["regime"] = "cycle_hot"
+        state["composite_score"] = 2.0
+        trades = s.evaluate(date(2023, 6, 15), state, _make_test_chain())
+        assert len(trades) >= 1
+        assert trades[0].direction == "buy"
+
+    def test_skips_neutral_regime(self):
+        from stockdownloader.gme.options.strategies.long_options import LongOptionsStrategy
+        s = LongOptionsStrategy()
+        state = _make_state()
+        state["regime"] = "neutral"
+        state["composite_score"] = 0.5
+        trades = s.evaluate(date(2023, 6, 15), state, _make_test_chain())
+        assert len(trades) == 0
+
+
+class TestCalendarSpreadStrategy:
+    def test_is_gme_options_strategy(self):
+        from stockdownloader.gme.options.strategies.calendar_spread import CalendarSpreadStrategy
+        s = CalendarSpreadStrategy()
+        assert isinstance(s, GMEOptionsStrategy)
+        assert s.name == "calendar_spread"
+
+    def test_enters_on_backwardation(self):
+        from stockdownloader.gme.options.strategies.calendar_spread import CalendarSpreadStrategy
+        s = CalendarSpreadStrategy()
+        state = _make_state()
+        state["iv_term_slope"] = -0.05
+        trades = s.evaluate(date(2023, 6, 15), state, _make_test_chain())
+        assert len(trades) == 2
+
+    def test_skips_contango(self):
+        from stockdownloader.gme.options.strategies.calendar_spread import CalendarSpreadStrategy
+        s = CalendarSpreadStrategy()
+        state = _make_state()
+        state["iv_term_slope"] = 0.05
+        trades = s.evaluate(date(2023, 6, 15), state, _make_test_chain())
         assert len(trades) == 0
