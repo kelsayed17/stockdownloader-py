@@ -52,10 +52,10 @@ class PullbackStrategyConfig(InfraExitConfig):
     trend_bars: int = 7                        # Stronger trend requirement
     # adx_thresh: inherited from base (22)
     htf_align: bool = True
-    ar_filter: bool = True
+    ar_filter: bool = False                  # Pine v11.0+: harmful, default OFF
     ar_thresh: Decimal = Decimal("0.9")
     ar_cap: Decimal = Decimal("1.30")
-    va_filter: bool = True
+    va_filter: bool = False                  # Pine v11.0+: marginal, default OFF
     va_min: Decimal = Decimal("-0.1")
     cvd_long_filter: bool = True
     lrs_short_filter: bool = True

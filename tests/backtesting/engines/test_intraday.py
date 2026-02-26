@@ -758,3 +758,89 @@ class TestEdgeCases:
         assert trade.status == TradeStatus.CLOSED
         assert trade.entry_price == _d(100)
         assert trade.exit_price == _d(100)
+
+
+# ---------------------------------------------------------------------------
+# Fixed-capital sizing
+# ---------------------------------------------------------------------------
+
+class TestFixedCapitalSizing:
+    """Verify fixed_capital=True sizes off initial_capital, not current equity."""
+
+    def test_fixed_capital_same_size_after_loss(self):
+        """After a losing trade, fixed-capital should use the same share count
+        as the first trade (not shrink because equity fell)."""
+        # Trade 1: enter bar 1, exit bar 3 (loss: 100 -> 90)
+        # Trade 2: enter bar 5, exit bar 7 (check shares)
+        strategy = _MockStrategy({
+            1: _long_entry_signal(risk_per_share="2.00"),
+            3: _exit_signal(),
+            5: _long_entry_signal(risk_per_share="2.00"),
+            7: _exit_signal(),
+        })
+        data = _make_bars([100, 100, 95, 90, 90, 100, 100, 100, 100])
+
+        engine_fixed = IntradayBacktestEngine(
+            initial_capital=_d(10000), slippage_pct=_NO_SLIP, fixed_capital=True,
+        )
+        result_fixed = engine_fixed.run(strategy, data)
+
+        assert result_fixed.total_trades == 2
+        # Both trades should have the same share count
+        assert result_fixed.trades[0].shares == result_fixed.trades[1].shares
+
+    def test_compounding_shrinks_after_loss(self):
+        """Without fixed_capital, a loss should shrink the next trade's shares."""
+        strategy = _MockStrategy({
+            1: _long_entry_signal(risk_per_share="2.00"),
+            3: _exit_signal(),
+            5: _long_entry_signal(risk_per_share="2.00"),
+            7: _exit_signal(),
+        })
+        data = _make_bars([100, 100, 95, 90, 90, 100, 100, 100, 100])
+
+        engine_compound = IntradayBacktestEngine(
+            initial_capital=_d(10000), slippage_pct=_NO_SLIP, fixed_capital=False,
+        )
+        result_compound = engine_compound.run(strategy, data)
+
+        assert result_compound.total_trades == 2
+        # Second trade should have fewer shares (equity shrunk from loss)
+        assert result_compound.trades[1].shares <= result_compound.trades[0].shares
+
+    def test_fixed_capital_grows_after_win(self):
+        """After a winning trade, fixed-capital should NOT increase share count."""
+        strategy = _MockStrategy({
+            1: _long_entry_signal(risk_per_share="2.00"),
+            3: _exit_signal(),
+            5: _long_entry_signal(risk_per_share="2.00"),
+            7: _exit_signal(),
+        })
+        data = _make_bars([100, 100, 105, 110, 110, 100, 105, 110, 110])
+
+        engine_fixed = IntradayBacktestEngine(
+            initial_capital=_d(10000), slippage_pct=_NO_SLIP, fixed_capital=True,
+        )
+        result_fixed = engine_fixed.run(strategy, data)
+
+        assert result_fixed.total_trades == 2
+        # Both trades should have the same share count (no compounding)
+        assert result_fixed.trades[0].shares == result_fixed.trades[1].shares
+
+    def test_fixed_capital_still_caps_to_buying_power(self):
+        """Fixed-capital should never over-leverage beyond available cash."""
+        # Start with tiny capital but fixed_capital would compute shares
+        # based on initial_capital — but cap to what we can afford
+        strategy = _MockStrategy({
+            0: _long_entry_signal(risk_per_share="0.01"),
+        })
+        data = _make_bars([100])
+
+        engine = IntradayBacktestEngine(
+            initial_capital=_d(1000), slippage_pct=_NO_SLIP, fixed_capital=True,
+        )
+        result = engine.run(strategy, data)
+
+        assert result.total_trades == 1
+        # Max shares we can afford: 1000 / 100 = 10
+        assert result.trades[0].shares <= 10

@@ -23,6 +23,15 @@ fill, always working *against* the trader:
 
 Set ``slippage_pct=0`` to disable.
 
+Fixed-capital sizing (opt-in)
+-----------------------------
+When ``fixed_capital=True``, position size is computed using
+``initial_capital`` instead of current equity.  This prevents the equity
+cascade where winners compound into larger sizes and losers shrink,
+isolating each trade's contribution to overall P/L.  Matches Pine Script
+v10.9.9+ behaviour.  Shares are still capped to current buying power so
+the engine never over-leverages.
+
 Risk scaling (opt-in)
 ---------------------
 Two composable risk-scaling mechanisms reduce position size when conditions
@@ -73,6 +82,7 @@ class IntradayBacktestEngine:
         commission: Decimal = Decimal("0"),
         slippage_pct: Decimal = Decimal("0.0002"),
         *,
+        fixed_capital: bool = False,
         vol_scale: bool = False,
         vol_lookback: int = 60,
         dd_throttle: bool = False,
@@ -86,6 +96,13 @@ class IntradayBacktestEngine:
         self._risk_per_trade = risk_per_trade
         self._commission = commission
         self._slippage_pct = slippage_pct
+
+        # -- Fixed-capital sizing (Pine Script v10.9.9+) --
+        # When True, position size is based on initial_capital instead of
+        # current equity.  Prevents equity cascade where winners compound
+        # into larger sizes and losers shrink — isolating each trade's
+        # contribution to overall P/L.
+        self._fixed_capital = fixed_capital
 
         # -- Volatility-scaled sizing --
         self._vol_scale = vol_scale
@@ -255,9 +272,17 @@ class IntradayBacktestEngine:
                 dd_factor = self._dd_scale_factor(cash - margin_hold, peak_equity)
                 effective_risk = effective_risk * dd_factor
 
+                # Fixed-capital sizing: risk off initial_capital, but
+                # still cap shares to what current buying_power can afford.
+                sizing_base = (
+                    self._initial_capital if self._fixed_capital
+                    else buying_power
+                )
+
                 shares = self._compute_shares(
                     buying_power, fill, signal.risk_per_share,
                     risk_per_trade=effective_risk,
+                    sizing_base=sizing_base,
                 )
                 if shares > 0:
                     notional = fill * Decimal(str(shares))
@@ -336,11 +361,16 @@ class IntradayBacktestEngine:
         price: Decimal,
         risk_per_share: Decimal,
         risk_per_trade: Decimal | None = None,
+        sizing_base: Decimal | None = None,
     ) -> int:
         """Compute position size based on risk.
 
         *buying_power* is the cash available for new positions (cash minus
         any existing margin holds).
+
+        *sizing_base* is the capital amount used for risk calculation.
+        When ``fixed_capital=True``, this is ``initial_capital`` (preventing
+        equity cascade); otherwise it equals *buying_power*.
 
         *risk_per_trade* overrides the instance default when provided (used
         by volatility scaling and drawdown throttle).
@@ -348,8 +378,9 @@ class IntradayBacktestEngine:
         if risk_per_share <= ZERO or price <= ZERO or buying_power <= ZERO:
             return 0
 
+        base = sizing_base if sizing_base is not None else buying_power
         effective_risk = risk_per_trade if risk_per_trade is not None else self._risk_per_trade
-        risk_amount = buying_power * effective_risk
+        risk_amount = base * effective_risk
         shares = int(risk_amount / risk_per_share)
 
         # Cap to what we can afford
