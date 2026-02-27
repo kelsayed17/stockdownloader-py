@@ -173,16 +173,22 @@ class ReversalStrategy(BaseIntradayStrategy):
             return None
 
         # -- Scoring (lighter than PB) --
-        # Reversal is mean-reversion: moderate vol is ideal (not too high, not too low)
-        pts_vol = c.w_vol if Decimal("0.7") <= ctx.tod_rvol <= Decimal("1.5") else 0
+        # Volume scoring: quiet conditions score highest (matches PineScript v11.2)
+        # Same tiered logic as PB: todRVOL < 1.0 → w_vol, < 2.0 → 1, else 0
+        if ctx.tod_rvol < Decimal("1.0"):
+            pts_vol = c.w_vol
+        elif ctx.tod_rvol < Decimal("2.0"):
+            pts_vol = 1
+        else:
+            pts_vol = 0
         pts_sr = c.w_sr if ctx.sr_score_count > 0 else 0
         pts_sr2 = 1 if ctx.sr_score_count >= 2 else 0
         pts_time = c.w_time if ctx.is_good_time else 0
 
         if go_long:
-            pts_rsi = c.w_rsi if ctx.rsi_val <= Decimal("30") else 0
+            pts_rsi = c.w_rsi if ctx.rsi_val <= Decimal("35") else 0
         else:
-            pts_rsi = c.w_rsi if ctx.rsi_val >= Decimal("70") else 0
+            pts_rsi = c.w_rsi if ctx.rsi_val >= Decimal("65") else 0
 
         score = pts_vol + pts_sr + pts_sr2 + pts_rsi + pts_time
         max_score = c.w_vol + c.w_sr + 1 + c.w_rsi + c.w_time

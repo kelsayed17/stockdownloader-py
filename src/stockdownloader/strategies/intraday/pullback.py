@@ -226,7 +226,16 @@ class PullbackStrategy(BaseIntradayStrategy):
             return None
 
         # -- Confluence scoring --
-        pts_vol = c.w_vol if ctx.tod_rvol >= Decimal("1.0") else 0
+        # Volume scoring: quiet pullbacks score highest (matches PineScript v11.2)
+        # todRVOL < 1.0 → w_vol pts (quiet PB, best)
+        # todRVOL < 2.0 → 1 pt (moderate)
+        # todRVOL >= 2.0 → 0 pts (too noisy)
+        if ctx.tod_rvol < Decimal("1.0"):
+            pts_vol = c.w_vol
+        elif ctx.tod_rvol < Decimal("2.0"):
+            pts_vol = 1
+        else:
+            pts_vol = 0
         pts_sr = c.w_sr if ctx.sr_score_count > 0 else 0
         pts_sr2 = 1 if ctx.sr_score_count >= 2 else 0
         pts_time = c.w_time if ctx.is_good_time else 0

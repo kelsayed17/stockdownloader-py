@@ -56,6 +56,7 @@ class PatternScalpStrategyConfig(InfraExitConfig):
     ps_tp_pct: Decimal = Decimal("75.0")
     ps_min_rr: Decimal = Decimal("1.5")        # Higher R:R to protect against losses
     ps_htf_align: bool = True
+    ps_time_gate: bool = True                   # Skip lunch chop (not in PineScript)
 
     # allow_longs, allow_shorts, w_sr inherited from base
 
@@ -104,8 +105,8 @@ class PatternScalpStrategy(BaseIntradayStrategy):
         if ctx.bar_of_day < 4 or ctx.bar_of_day > c.ps_window:
             return None
 
-        # -- Time-of-day gate: skip lunch chop --
-        if not ctx.is_good_time:
+        # -- Time-of-day gate: skip lunch chop (configurable) --
+        if c.ps_time_gate and not ctx.is_good_time:
             return None
 
         # -- Pattern detection --
