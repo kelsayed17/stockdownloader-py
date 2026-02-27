@@ -291,3 +291,25 @@ class TestSharedState:
         assert hold_count > 0
         # Verify all signals are valid (not None)
         assert all(s is not None for s in signals)
+
+
+# ======================================================================
+# Task 4: __init__.py export
+# ======================================================================
+
+
+class TestExport:
+    """Verify UnifiedVWAPConfig and UnifiedVWAPStrategy are exported."""
+
+    def test_config_exported(self):
+        from stockdownloader.strategies.intraday import UnifiedVWAPConfig
+        assert UnifiedVWAPConfig is not None
+
+    def test_strategy_exported(self):
+        from stockdownloader.strategies.intraday import UnifiedVWAPStrategy
+        assert UnifiedVWAPStrategy is not None
+
+    def test_in_all(self):
+        import stockdownloader.strategies.intraday as pkg
+        assert "UnifiedVWAPConfig" in pkg.__all__
+        assert "UnifiedVWAPStrategy" in pkg.__all__
