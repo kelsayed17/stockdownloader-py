@@ -35,6 +35,7 @@ _CONTRACTS_URL = "https://api.polygon.io/v3/reference/options/contracts"
 _AGGS_URL = (
     "https://api.polygon.io/v2/aggs/ticker/{ticker}/range/1/day/{from_date}/{to_date}"
 )
+_SNAPSHOT_URL = "https://api.polygon.io/v3/snapshot/options/{underlying_asset}"
 
 # 0.2s delay for upgraded Polygon tier (vs 12.5s free tier in polygon_client.py)
 _DEFAULT_DELAY = 0.2
@@ -191,6 +192,118 @@ class PolygonOptionsClient:
             )
 
         return None
+
+    def fetch_option_daily_bars_range(
+        self,
+        option_ticker: str,
+        from_date: date,
+        to_date: date,
+    ) -> list[dict]:
+        """Fetch all daily bars for an options contract across a date range.
+
+        Parameters
+        ----------
+        option_ticker:
+            Polygon options ticker (e.g. ``"O:SPY250207P00580000"``).
+        from_date:
+            Start of the date range.
+        to_date:
+            End of the date range.
+
+        Returns
+        -------
+        list[dict]
+            List of bar dicts, each with keys ``o``, ``h``, ``l``, ``c``,
+            ``v``, ``vw``, ``t``, ``n``.  Empty if no data.
+        """
+        url = _AGGS_URL.format(
+            ticker=option_ticker,
+            from_date=str(from_date),
+            to_date=str(to_date),
+        )
+        params = {"adjusted": "true", "sort": "asc", "limit": 50000}
+
+        try:
+            resp = self._session.get(url, params=params, timeout=30)
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("results", [])
+        except requests.RequestException as exc:
+            logger.warning(
+                "Polygon option bars range request failed for %s: %s",
+                option_ticker, exc,
+            )
+        except (json.JSONDecodeError, KeyError) as exc:
+            logger.warning(
+                "Polygon option bars range parse error for %s: %s",
+                option_ticker, exc,
+            )
+
+        return []
+
+    def fetch_options_chain_snapshot(
+        self,
+        symbol: str,
+        *,
+        limit: int = 250,
+    ) -> list[dict]:
+        """Fetch snapshot data for all active option contracts.
+
+        Returns the full chain with OI, greeks, and IV for each
+        contract via paginated calls to the Polygon snapshot endpoint.
+
+        Parameters
+        ----------
+        symbol:
+            Underlying ticker (e.g. ``"GME"``).
+        limit:
+            Results per page (max 250).
+
+        Returns
+        -------
+        list[dict]
+            Raw snapshot result dicts from Polygon.
+        """
+        url = _SNAPSHOT_URL.format(underlying_asset=symbol.upper())
+        params: dict = {"limit": limit}
+        all_results: list[dict] = []
+
+        try:
+            resp = self._session.get(url, params=params, timeout=30)
+            resp.raise_for_status()
+            data = resp.json()
+            all_results.extend(data.get("results", []))
+
+            next_url = data.get("next_url")
+            while next_url:
+                _time.sleep(self._delay)
+                parsed = urlparse(next_url)
+                qs = parse_qs(parsed.query, keep_blank_values=True)
+                qs.pop("apiKey", None)
+                clean_query = urlencode(qs, doseq=True)
+                clean_url = urlunparse(parsed._replace(query=clean_query))
+                resp = self._session.get(clean_url, timeout=30)
+                resp.raise_for_status()
+                data = resp.json()
+                all_results.extend(data.get("results", []))
+                next_url = data.get("next_url")
+
+        except requests.RequestException as exc:
+            logger.warning(
+                "Polygon options snapshot request failed for %s: %s",
+                symbol, exc,
+            )
+        except (json.JSONDecodeError, KeyError) as exc:
+            logger.warning(
+                "Polygon options snapshot parse error for %s: %s",
+                symbol, exc,
+            )
+
+        logger.info(
+            "Fetched %d option snapshots for %s",
+            len(all_results), symbol,
+        )
+        return all_results
 
 
 def _is_friday(date_str: str) -> bool:
