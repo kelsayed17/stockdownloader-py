@@ -43,6 +43,17 @@ def _resolve_config_path(path: str) -> Path:
     raise FileNotFoundError(f"Config not found: {path} (tried {candidate})")
 
 
+def _json_default_for_save(obj: Any) -> Any:
+    """Fallback serializer for :func:`json.dumps` when saving strategy params.
+
+    Encodes :class:`~decimal.Decimal` values with the ``D:`` prefix used by the
+    loader, so that :func:`_convert_decimals` restores them on load.
+    """
+    if isinstance(obj, Decimal):
+        return f"D:{obj}"
+    raise TypeError(f"Not JSON serializable: {type(obj).__name__}")
+
+
 def _convert_decimals(value: Any) -> Any:
     """Recursively convert ``D:``-prefixed strings to :class:`Decimal`.
 

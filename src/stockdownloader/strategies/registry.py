@@ -55,9 +55,11 @@ Concrete Registries
 
 from __future__ import annotations
 
+import json
 import logging
 from dataclasses import dataclass, field
 from operator import attrgetter
+from pathlib import Path
 from typing import Any, Callable, ClassVar, Generic, TypeVar
 
 logger = logging.getLogger(__name__)
@@ -210,6 +212,52 @@ class BaseRegistry(Generic[T]):
         if count:
             logger.info("Applied config overrides to %d %s(s)", count, cls._label)
         return count
+
+    @classmethod
+    def save_optimized(
+        cls, name: str, params: dict[str, Any], path: str | Path,
+    ) -> None:
+        """Save optimized strategy params to JSON for later loading.
+
+        Parameters
+        ----------
+        name:
+            The registry name of the strategy (e.g. ``"rsi"``).
+        params:
+            Parameter dict to persist (e.g. ``{"period": 10}``).
+        path:
+            Destination file path.
+        """
+        from stockdownloader.strategies.loader import _json_default_for_save
+
+        data = {"strategy": name, "params": params}
+        Path(path).write_text(
+            json.dumps(data, indent=2, default=_json_default_for_save)
+        )
+
+    @classmethod
+    def load_and_create(cls, path: str | Path, **extra_overrides: Any) -> Any:
+        """Load a strategy from a saved config file.
+
+        Parameters
+        ----------
+        path:
+            JSON file previously written by :meth:`save_optimized`.
+        extra_overrides:
+            Additional parameter overrides applied on top of the saved params.
+
+        Returns
+        -------
+        Any
+            A fully constructed strategy instance.
+        """
+        from stockdownloader.strategies.loader import _convert_decimals
+
+        raw = json.loads(Path(path).read_text())
+        name = raw["strategy"]
+        params = _convert_decimals(raw.get("params", {}))
+        params.update(extra_overrides)
+        return cls.create(name, **params)
 
     @classmethod
     def clear(cls) -> None:
