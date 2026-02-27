@@ -163,6 +163,14 @@ class BaseIntradayStrategy(IntradayTradingStrategy):
     def on_position_closed(self) -> None:
         self._infra.confirm_position_closed()
 
+    def adjust_fill_levels(
+        self,
+        fill_price: 'Decimal',
+        sl_price: 'Decimal',
+        tp_price: 'Decimal',
+    ) -> None:
+        self._infra.adjust_fill_levels(fill_price, sl_price, tp_price)
+
     def evaluate(
         self,
         data: list[IntradayPriceData],

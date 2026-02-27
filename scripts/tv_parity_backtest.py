@@ -73,7 +73,9 @@ def make_engine() -> IntradayBacktestEngine:
         initial_capital=INITIAL_CAPITAL,
         risk_per_trade=RISK_PER_TRADE,
         slippage_pct=SLIPPAGE_PCT,
-        fixed_capital=True,  # match TV's fixed-cap sizing
+        fixed_capital=True,         # match TV's fixed-cap sizing
+        next_bar_fill=True,         # match TV's process_orders_on_close=false
+        trigger_exit_fill=True,     # match TV's stop/limit exit fills
     )
 
 

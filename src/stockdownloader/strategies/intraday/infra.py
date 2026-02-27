@@ -341,6 +341,26 @@ class IntradayInfra:
         s.trail_level = ZERO
         s.orb_extreme = ZERO
 
+    def adjust_fill_levels(
+        self,
+        fill_price: Decimal,
+        sl_price: Decimal,
+        tp_price: Decimal,
+    ) -> None:
+        """Re-anchor entry/SL/TP to actual fill price (next-bar fill).
+
+        Called by the engine when a pending entry is filled at the next
+        bar's open.  Updates session state so that exit management uses
+        the actual fill price and re-anchored SL/TP levels.
+        """
+        s = self.state
+        s.entry_price = fill_price
+        s.stop_loss = sl_price
+        s.take_profit = tp_price
+        s.pending_tp = tp_price
+        s.orig_sl = sl_price
+        s.risk_amount = abs(fill_price - sl_price)
+
     def record_entry(
         self,
         signal: IntradaySignal,

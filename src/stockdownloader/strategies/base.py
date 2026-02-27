@@ -135,3 +135,17 @@ class IntradayTradingStrategy(ABC):
         Covers strategy-initiated EXIT signals, engine-level
         force-closes (end-of-data), and any future SL/TP handling.
         """
+
+    def adjust_fill_levels(
+        self,
+        fill_price: 'Decimal',
+        sl_price: 'Decimal',
+        tp_price: 'Decimal',
+    ) -> None:
+        """Re-anchor entry/SL/TP to actual fill price (next-bar fill model).
+
+        Called by the engine when ``next_bar_fill=True`` after the
+        pending entry is filled at the next bar's open.  The strategy
+        should update its internal state so that exit management uses
+        the actual fill price and re-anchored SL/TP levels.
+        """

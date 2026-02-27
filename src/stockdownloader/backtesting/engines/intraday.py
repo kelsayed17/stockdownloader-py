@@ -32,6 +32,19 @@ isolating each trade's contribution to overall P/L.  Matches Pine Script
 v10.9.9+ behaviour.  Shares are still capped to current buying power so
 the engine never over-leverages.
 
+Next-bar fill model (opt-in)
+----------------------------
+When ``next_bar_fill=True``, entry signals are deferred and filled at the
+**next bar's open** instead of the current bar's close.  This matches
+TradingView's ``process_orders_on_close=false`` behaviour:
+
+* Entry signal on bar N → pending → filled at bar N+1's open
+* SL/TP levels re-anchored to actual fill price (same distance maintained)
+* Exit signals fill at the trigger price (SL, TP, trail level) instead of
+  ``bar.close``
+
+This significantly improves PnL parity with TradingView backtests.
+
 Risk scaling (opt-in)
 ---------------------
 Two composable risk-scaling mechanisms reduce position size when conditions
@@ -83,6 +96,8 @@ class IntradayBacktestEngine:
         slippage_pct: Decimal = Decimal("0.0002"),
         *,
         fixed_capital: bool = False,
+        next_bar_fill: bool = False,
+        trigger_exit_fill: bool = False,
         vol_scale: bool = False,
         vol_lookback: int = 60,
         dd_throttle: bool = False,
@@ -103,6 +118,17 @@ class IntradayBacktestEngine:
         # into larger sizes and losers shrink — isolating each trade's
         # contribution to overall P/L.
         self._fixed_capital = fixed_capital
+
+        # -- Next-bar fill (Pine Script process_orders_on_close=false) --
+        # When True, entry signals are deferred and filled at the next
+        # bar's open; SL/TP are re-anchored to the fill price.
+        self._next_bar_fill = next_bar_fill
+
+        # -- Trigger exit fill --
+        # When True, exit signals fill at the trigger price (SL/TP/trail
+        # level) instead of bar.close.  More realistic for limit/stop
+        # exit orders (matches TradingView's broker emulator).
+        self._trigger_exit_fill = trigger_exit_fill
 
         # -- Volatility-scaled sizing --
         self._vol_scale = vol_scale
@@ -178,6 +204,76 @@ class IntradayBacktestEngine:
             Decimal("0.0001"), rounding=ROUND_HALF_UP,
         )
 
+    # ------------------------------------------------------------------
+    # Position opening helper
+    # ------------------------------------------------------------------
+
+    def _open_position(
+        self,
+        signal: IntradaySignal,
+        fill_price: Decimal,
+        bar_date: str,
+        strategy: IntradayTradingStrategy,
+        cash: Decimal,
+        margin_hold: Decimal,
+        current_day_atr: Decimal,
+        atr_history: list[Decimal],
+        peak_equity: Decimal,
+        trade_modes: list[str],
+    ) -> tuple[Trade | None, Decimal, Decimal]:
+        """Create a position at *fill_price*.
+
+        Returns ``(trade, cash, margin_hold)``.  If sizing produces 0
+        shares, returns ``(None, cash, margin_hold)`` unchanged.
+        """
+        direction = (
+            Direction.LONG
+            if signal.action == IntradayAction.ENTER_LONG
+            else Direction.SHORT
+        )
+        is_buy = direction == Direction.LONG
+        fill = self._fill_price(fill_price, is_buy=is_buy)
+        buying_power = cash - margin_hold
+
+        # -- Apply risk scaling --
+        effective_risk = self._vol_scaled_risk(current_day_atr, atr_history)
+        dd_factor = self._dd_scale_factor(cash - margin_hold, peak_equity)
+        effective_risk = effective_risk * dd_factor
+
+        # Fixed-capital sizing: risk off initial_capital, but
+        # still cap shares to what current buying_power can afford.
+        sizing_base = (
+            self._initial_capital if self._fixed_capital
+            else buying_power
+        )
+
+        shares = self._compute_shares(
+            buying_power, fill, signal.risk_per_share,
+            risk_per_trade=effective_risk,
+            sizing_base=sizing_base,
+        )
+        if shares <= 0:
+            return None, cash, margin_hold
+
+        notional = fill * Decimal(str(shares))
+        if direction == Direction.LONG:
+            cash -= notional
+        else:
+            # Short: receive sale proceeds, set aside margin
+            cash += notional
+            margin_hold = notional
+        cash -= self._commission
+
+        trade = Trade(
+            direction=direction,
+            entry_date=bar_date,
+            entry_price=fill,
+            shares=shares,
+        )
+        trade_modes.append(signal.mode)
+        strategy.on_position_opened(direction == Direction.LONG)
+        return trade, cash, margin_hold
+
     def run(
         self,
         strategy: IntradayTradingStrategy,
@@ -210,6 +306,10 @@ class IntradayBacktestEngine:
         session_high: Decimal = ZERO
         session_low: Decimal = Decimal("999999")
         prev_close: Decimal = ZERO
+
+        # -- Next-bar fill state --
+        # Stores (signal, signal_bar_close) when an entry is deferred.
+        pending_entry: tuple[IntradaySignal, Decimal] | None = None
 
         for i, bar in enumerate(data):
             bar_date = bar.date[:10]
@@ -251,6 +351,40 @@ class IntradayBacktestEngine:
                 if flat_equity > peak_equity:
                     peak_equity = flat_equity
 
+            # -- Process pending entry fill (next-bar model) --
+            # Fill deferred entry at this bar's open before evaluating.
+            if self._next_bar_fill and pending_entry is not None and current_trade is None:
+                pend_signal, signal_close = pending_entry
+                pending_entry = None
+
+                is_long = pend_signal.action == IntradayAction.ENTER_LONG
+
+                # Re-anchor SL/TP maintaining same distance from fill
+                sl_dist = pend_signal.risk_per_share
+                if pend_signal.take_profit > ZERO:
+                    tp_dist = abs(pend_signal.take_profit - signal_close)
+                else:
+                    tp_dist = ZERO
+
+                current_trade, cash, margin_hold = self._open_position(
+                    pend_signal, bar.open, bar.date, strategy,
+                    cash, margin_hold, current_day_atr, atr_history,
+                    peak_equity, trade_modes,
+                )
+
+                if current_trade is not None:
+                    fill = current_trade.entry_price
+                    # Compute re-anchored levels
+                    if is_long:
+                        new_sl = fill - sl_dist
+                        new_tp = (fill + tp_dist) if tp_dist > ZERO else ZERO
+                    else:
+                        new_sl = fill + sl_dist
+                        new_tp = (fill - tp_dist) if tp_dist > ZERO else ZERO
+
+                    # Update strategy state with actual fill levels
+                    strategy.adjust_fill_levels(fill, new_sl, new_tp)
+
             signal = strategy.evaluate(data, i)
 
             # Handle signals
@@ -258,50 +392,15 @@ class IntradayBacktestEngine:
                 signal.action in (IntradayAction.ENTER_LONG, IntradayAction.ENTER_SHORT)
                 and current_trade is None
             ):
-                direction = (
-                    Direction.LONG
-                    if signal.action == IntradayAction.ENTER_LONG
-                    else Direction.SHORT
-                )
-                is_buy = direction == Direction.LONG
-                fill = self._fill_price(bar.close, is_buy=is_buy)
-                buying_power = cash - margin_hold
-
-                # -- Apply risk scaling --
-                effective_risk = self._vol_scaled_risk(current_day_atr, atr_history)
-                dd_factor = self._dd_scale_factor(cash - margin_hold, peak_equity)
-                effective_risk = effective_risk * dd_factor
-
-                # Fixed-capital sizing: risk off initial_capital, but
-                # still cap shares to what current buying_power can afford.
-                sizing_base = (
-                    self._initial_capital if self._fixed_capital
-                    else buying_power
-                )
-
-                shares = self._compute_shares(
-                    buying_power, fill, signal.risk_per_share,
-                    risk_per_trade=effective_risk,
-                    sizing_base=sizing_base,
-                )
-                if shares > 0:
-                    notional = fill * Decimal(str(shares))
-                    if direction == Direction.LONG:
-                        cash -= notional
-                    else:
-                        # Short: receive sale proceeds, set aside margin
-                        cash += notional
-                        margin_hold = notional
-                    cash -= self._commission
-                    current_trade = Trade(
-                        direction=direction,
-                        entry_date=bar.date,
-                        entry_price=fill,
-                        shares=shares,
-                    )
-                    trade_modes.append(signal.mode)
-                    strategy.on_position_opened(
-                        direction == Direction.LONG,
+                if self._next_bar_fill:
+                    # Defer fill to next bar's open
+                    pending_entry = (signal, bar.close)
+                else:
+                    # Same-bar fill at bar.close (original model)
+                    current_trade, cash, margin_hold = self._open_position(
+                        signal, bar.close, bar.date, strategy,
+                        cash, margin_hold, current_day_atr, atr_history,
+                        peak_equity, trade_modes,
                     )
 
             elif (
@@ -310,7 +409,12 @@ class IntradayBacktestEngine:
                 and current_trade.status == TradeStatus.OPEN
             ):
                 exit_is_buy = current_trade.direction == Direction.SHORT
-                exit_fill = self._fill_price(bar.close, is_buy=exit_is_buy)
+                if self._trigger_exit_fill:
+                    # Use exit signal's trigger price (SL/TP/trail level)
+                    exit_price = signal.stop_loss if signal.stop_loss > ZERO else bar.close
+                    exit_fill = self._fill_price(exit_price, is_buy=exit_is_buy)
+                else:
+                    exit_fill = self._fill_price(bar.close, is_buy=exit_is_buy)
                 cash = self._close_position(
                     current_trade, bar.date, exit_fill, cash, self._commission,
                 )
