@@ -114,3 +114,99 @@ class TestUnifiedVWAPConfig:
         cfg = UnifiedVWAPConfig()
         with pytest.raises(AttributeError):
             cfg.pb_enable = False  # type: ignore[misc]
+
+
+# ======================================================================
+# Task 2: UnifiedVWAPStrategy construction and priority dispatch
+# ======================================================================
+
+
+class TestUnifiedVWAPConstruction:
+    """Verify UnifiedVWAPStrategy constructs and satisfies the ABC."""
+
+    def test_is_intraday_strategy(self):
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        from stockdownloader.strategies.base import IntradayTradingStrategy
+        strategy = UnifiedVWAPStrategy()
+        assert isinstance(strategy, IntradayTradingStrategy)
+
+    def test_name(self):
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy()
+        assert strategy.name == "Unified VWAP"
+
+    def test_warmup_period(self):
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy()
+        assert strategy.warmup_period == 78 * 15
+
+    def test_evaluates_hold_on_warmup(self):
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy()
+        bars = _generate_session(num_bars=5)
+        sig = strategy.evaluate(bars, 0)
+        assert sig is not None
+        assert sig == HOLD or hasattr(sig, "action")
+
+    def test_session_start_resets(self):
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy()
+        strategy._infra.state.bar_count = 50
+        strategy._infra.state.day_trades = 3
+        strategy._infra.state.tripped = True
+
+        strategy.on_session_start("2025-01-20")
+
+        assert strategy._infra.state.bar_count == 0
+        assert strategy._infra.state.day_trades == 0
+        assert strategy._infra.state.tripped is False
+        assert strategy._infra.state.trading_date == "2025-01-20"
+
+    def test_mode_count_default(self):
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy()
+        assert len(strategy._modes) == 4
+
+    def test_mode_count_with_disable(self):
+        from stockdownloader.strategies.intraday.unified_vwap import (
+            UnifiedVWAPConfig, UnifiedVWAPStrategy,
+        )
+        cfg = UnifiedVWAPConfig(pb_enable=False, rev_enable=False)
+        strategy = UnifiedVWAPStrategy(config=cfg)
+        assert len(strategy._modes) == 2  # PS + ORB only
+
+    def test_priority_order(self):
+        """Priority is PS > ORB > PB > REV."""
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        from stockdownloader.strategies.intraday.pattern_scalp import PatternScalpStrategy
+        from stockdownloader.strategies.intraday.or_breakout import ORBreakoutStrategy
+        from stockdownloader.strategies.intraday.pullback import PullbackStrategy
+        from stockdownloader.strategies.intraday.reversal import ReversalStrategy
+        strategy = UnifiedVWAPStrategy()
+        mode_types = [type(m[0]) for m in strategy._modes]
+        assert mode_types == [
+            PatternScalpStrategy,
+            ORBreakoutStrategy,
+            PullbackStrategy,
+            ReversalStrategy,
+        ]
+
+    def test_no_fire_once_flag(self):
+        """Unified strategy does NOT use fire_once (all entries count)."""
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy()
+        assert strategy._ENTRY_FLAGS == {}
+
+    def test_construction_with_overrides(self):
+        """Constructor accepts **shared_overrides for convenience."""
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy(pb_enable=False)
+        assert len(strategy._modes) == 3  # PS + ORB + REV
+
+    def test_construction_with_mode_overrides(self):
+        """Constructor accepts per-mode override dicts."""
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy(
+            pb_overrides={"pb_zone": "0.6"},
+        )
+        assert strategy is not None
