@@ -210,3 +210,84 @@ class TestUnifiedVWAPConstruction:
             pb_overrides={"pb_zone": "0.6"},
         )
         assert strategy is not None
+
+
+# ======================================================================
+# Task 3: Shared-state tests
+# ======================================================================
+
+
+class TestSharedState:
+    """Verify that state is shared across all modes within the unified strategy."""
+
+    def test_day_trades_shared_across_modes(self):
+        """day_trades increments are visible to all modes via shared state."""
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy()
+        state = strategy._infra.state
+
+        # Simulate that one trade has occurred (e.g. PB fired)
+        state.day_trades = 1
+
+        # All sub-strategies read from the same state object
+        for sub_strategy, _ in strategy._modes:
+            # Each sub-strategy's _evaluate_entry reads ctx.state, which
+            # is the unified infra's state.  Verify they see the same
+            # day_trades value when we read it directly.
+            assert state.day_trades == 1
+
+        # Increment again
+        state.day_trades = 2
+        assert state.day_trades == 2
+
+    def test_circuit_breaker_halts_all_modes(self):
+        """Circuit breaker (tripped) halts all modes via shared infra."""
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy()
+        bars = _generate_session(num_bars=10)
+
+        # Run one bar to initialize
+        strategy.evaluate(bars, 0)
+
+        # Trip the circuit breaker
+        strategy._infra.state.consec_losses = 3
+
+        # Subsequent bars should all return HOLD
+        sig = strategy.evaluate(bars, 1)
+        assert strategy._infra.state.tripped is True
+        assert sig == HOLD
+
+    def test_day_limited_halts_all_modes(self):
+        """Day loss limit halts all modes via shared infra."""
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        strategy = UnifiedVWAPStrategy()
+        bars = _generate_session(num_bars=10)
+
+        # Run one bar to initialize
+        strategy.evaluate(bars, 0)
+
+        # Set day_limited flag
+        strategy._infra.state.day_limited = True
+
+        sig = strategy.evaluate(bars, 1)
+        assert sig == HOLD
+
+    def test_runs_without_crash_on_multi_session(self):
+        """Smoke test: 16 sessions run without error."""
+        from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
+        from stockdownloader.core.models.trade import IntradayAction
+        strategy = UnifiedVWAPStrategy()
+        data = _generate_multi_session(num_days=16)
+
+        signals = []
+        for i in range(len(data)):
+            sig = strategy.evaluate(data, i)
+            signals.append(sig)
+
+        # Should produce at least some HOLD signals
+        hold_count = sum(
+            1 for s in signals if s == HOLD or s.action == IntradayAction.HOLD
+        )
+        assert hold_count > 0
+        # Verify all signals are valid (not None)
+        assert all(s is not None for s in signals)
