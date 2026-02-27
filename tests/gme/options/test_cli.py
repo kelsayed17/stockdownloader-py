@@ -42,3 +42,13 @@ class TestCLIParser:
         parser = build_parser()
         args = parser.parse_args(["run-all"])
         assert args.command == "run-all"
+
+    def test_snapshot_subcommand(self):
+        parser = build_parser()
+        args = parser.parse_args(["snapshot"])
+        assert args.command == "snapshot"
+
+    def test_enrich_subcommand(self):
+        parser = build_parser()
+        args = parser.parse_args(["enrich"])
+        assert args.command == "enrich"

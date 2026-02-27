@@ -107,6 +107,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Ticker symbol (default: GME).",
     )
 
+    # -- snapshot --
+    subparsers.add_parser(
+        "snapshot",
+        help="Fetch current options chain snapshot (OI, greeks, IV).",
+    )
+
+    # -- enrich --
+    subparsers.add_parser(
+        "enrich",
+        help="Enrich monthly bars with OI data (snapshot + proxy).",
+    )
+
     # -- build-state --
     subparsers.add_parser(
         "build-state",
@@ -189,6 +201,56 @@ def _cmd_fetch(args: argparse.Namespace) -> None:
     logger.info("Fetch complete")
 
 
+def _cmd_snapshot(args: argparse.Namespace) -> None:
+    """Fetch options chain snapshot from Polygon."""
+    from stockdownloader.gme.options.config import GMEOptionsConfig
+    from stockdownloader.data.market.polygon_options_client import PolygonOptionsClient
+    from stockdownloader.gme.options.snapshot import SnapshotCollector
+
+    config = GMEOptionsConfig.from_env(polygon_api_key=args.polygon_key)
+    client = PolygonOptionsClient(api_key=config.polygon_api_key)
+    collector = SnapshotCollector(config, client)
+
+    logger.info("Collecting options snapshot for %s", config.symbol)
+    df = collector.run()
+    logger.info("Snapshot complete: %d contracts", len(df))
+
+
+def _cmd_enrich(args: argparse.Namespace) -> None:
+    """Enrich monthly bars with OI data."""
+    from stockdownloader.gme.options.config import GMEOptionsConfig
+    from stockdownloader.gme.options.oi_proxy import OIProxyEstimator, OIEnricher
+    from stockdownloader.gme.options.snapshot import SnapshotCollector
+
+    config = GMEOptionsConfig.from_env(polygon_api_key=args.polygon_key)
+    cal_path = config.data_dir / "oi_calibration.json"
+
+    if cal_path.exists():
+        estimator = OIProxyEstimator.load_calibration(cal_path)
+        logger.info("Loaded calibration: ratio=%.4f", estimator.calibration_ratio)
+    else:
+        estimator = OIProxyEstimator(decay_rate=config.oi_decay_rate)
+        # Try to calibrate from latest snapshot
+        collector = SnapshotCollector(config, None)  # type: ignore[arg-type]
+        snap_df = collector.load(date.today())
+        if snap_df is not None:
+            import pandas as pd
+
+            monthly_dir = config.data_dir / "monthly"
+            if monthly_dir.exists():
+                bars = pd.concat(
+                    [pd.read_parquet(f) for f in monthly_dir.glob("*.parquet")],
+                    ignore_index=True,
+                )
+                estimator.calibrate(snap_df, bars)
+                estimator.save_calibration(cal_path)
+        logger.info("Using calibration ratio: %.4f", estimator.calibration_ratio)
+
+    enricher = OIEnricher(data_dir=config.data_dir, estimator=estimator)
+    count = enricher.enrich_all()
+    logger.info("Enriched %d monthly files", count)
+
+
 def _cmd_build_state(args: argparse.Namespace) -> None:
     """Build options state DataFrame from fetched Parquet files."""
     from stockdownloader.gme.options.config import GMEOptionsConfig
@@ -263,10 +325,12 @@ def _cmd_scorecard(args: argparse.Namespace) -> None:
 
 
 def _cmd_run_all(args: argparse.Namespace) -> None:
-    """Run the full pipeline: fetch -> build-state -> backtest -> scorecard."""
+    """Run the full pipeline: fetch -> snapshot -> enrich -> build-state -> backtest -> scorecard."""
     logger.info("Running full pipeline")
 
     _cmd_fetch(args)
+    _cmd_snapshot(args)
+    _cmd_enrich(args)
     _cmd_build_state(args)
 
     # Set defaults for backtest sub-command
@@ -288,6 +352,8 @@ def _cmd_run_all(args: argparse.Namespace) -> None:
 
 _COMMANDS: dict[str, object] = {
     "fetch": _cmd_fetch,
+    "snapshot": _cmd_snapshot,
+    "enrich": _cmd_enrich,
     "build-state": _cmd_build_state,
     "backtest": _cmd_backtest,
     "scorecard": _cmd_scorecard,

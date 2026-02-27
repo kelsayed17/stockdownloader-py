@@ -21,7 +21,7 @@ class GMEOptionsConfig:
     symbol: str = "GME"
 
     # Date range
-    start_date: date = date(2022, 1, 1)
+    start_date: date = date(2023, 1, 1)
     end_date: date = date(2026, 2, 26)
 
     # API
@@ -43,6 +43,9 @@ class GMEOptionsConfig:
     min_bars_between: int = 3
     circuit_breaker_losses: int = 3
     daily_loss_limit_pct: float = 3.0
+
+    # OI proxy
+    oi_decay_rate: float = 0.03
 
     # Walk-forward
     train_years: int = 2
