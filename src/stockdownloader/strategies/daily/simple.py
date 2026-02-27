@@ -38,7 +38,7 @@ class RSIStrategy(TradingStrategy):
     and SELL when RSI crosses below the overbought threshold.
     """
 
-    def __init__(self, period: int, oversold: float, overbought: float, hub: IndicatorHub | None = None) -> None:
+    def __init__(self, period: int = 14, oversold: float = 30.0, overbought: float = 70.0, hub: IndicatorHub | None = None) -> None:
         if period <= 0:
             raise ValueError("Period must be positive")
         if oversold < 0 or overbought > 100 or oversold >= overbought:
@@ -110,7 +110,7 @@ class MACDStrategy(TradingStrategy):
     and SELL on bearish crossover (MACD crosses below signal line).
     """
 
-    def __init__(self, fast_period: int, slow_period: int, signal_period: int, hub: IndicatorHub | None = None) -> None:
+    def __init__(self, fast_period: int = 12, slow_period: int = 26, signal_period: int = 9, hub: IndicatorHub | None = None) -> None:
         if fast_period <= 0 or slow_period <= 0 or signal_period <= 0:
             raise ValueError("All periods must be positive")
         if fast_period >= slow_period:
@@ -187,7 +187,7 @@ class SMACrossoverStrategy(TradingStrategy):
     and SELL on death cross (short SMA crosses below long SMA).
     """
 
-    def __init__(self, short_period: int, long_period: int, hub: IndicatorHub | None = None) -> None:
+    def __init__(self, short_period: int = 9, long_period: int = 21, hub: IndicatorHub | None = None) -> None:
         if short_period <= 0 or long_period <= 0:
             raise ValueError("Periods must be positive")
         if short_period >= long_period:
