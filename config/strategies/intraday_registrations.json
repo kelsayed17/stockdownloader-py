@@ -438,5 +438,61 @@
             "sl_cap": ["D:1.50", "D:2.00", "D:2.50"],
             "be_trigger": ["D:0.3", "D:0.5", "D:0.7"]
         }
+    },
+    "spy-intraday-mom": {
+        "display_name": "Gao (2018) Intraday Momentum",
+        "module": "stockdownloader.strategies.intraday.intraday_momentum",
+        "class": "IntradayMomentumStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "mode": ["momentum", "reversal"],
+            "r1_threshold": ["D:0.0", "D:0.05", "D:0.10", "D:0.20"],
+            "r1_end_bar": [5, 7, 9, 12],
+            "entry_bar": [66, 72, 75]
+        }
+    },
+    "spy-gao-momentum": {
+        "display_name": "Gao Dual-Signal Momentum",
+        "module": "stockdownloader.strategies.intraday.gao_momentum",
+        "class": "GaoMomentumStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "require_dual_signal": [true, false],
+            "min_r1_magnitude": ["D:0.0003", "D:0.0005", "D:0.001"],
+            "sl_atr_mult": ["D:1.0", "D:1.5", "D:2.0"],
+            "vix_filter": [true, false]
+        }
+    },
+    "spy-noise-boundary": {
+        "display_name": "Noise Boundary Breakout",
+        "module": "stockdownloader.strategies.intraday.noise_boundary",
+        "class": "NoiseBoundaryStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "lookback_days": [7, 14, 21],
+            "vol_multiplier": ["D:0.8", "D:1.0", "D:1.2"],
+            "sl_atr_mult": ["D:1.5", "D:2.0", "D:2.5"]
+        }
+    },
+    "spy-connors-rsi2": {
+        "display_name": "Connors RSI(2) Mean Reversion",
+        "module": "stockdownloader.strategies.intraday.connors_rsi2",
+        "class": "ConnorsRSI2Strategy",
+        "default_kwargs": {},
+        "param_space": {
+            "rsi_threshold": ["D:3", "D:5", "D:10"],
+            "sl_atr_mult": ["D:1.5", "D:2.0", "D:3.0"]
+        }
+    },
+    "spy-fomc-drift": {
+        "display_name": "FOMC Drift",
+        "module": "stockdownloader.strategies.intraday.fomc_drift",
+        "class": "FOMCDriftStrategy",
+        "default_kwargs": {},
+        "param_space": {
+            "require_high_vix": [true, false],
+            "vix_threshold": ["D:15", "D:20", "D:25"],
+            "sl_atr_mult": ["D:1.5", "D:2.0", "D:3.0"]
+        }
     }
 }
