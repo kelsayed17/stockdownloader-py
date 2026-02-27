@@ -156,7 +156,16 @@ class IntradayInfra:
             )
 
         # -- Update trend tracking --
+        is_new_day = (
+            current_index == 0
+            or bar.trading_date != data[current_index - 1].trading_date
+        )
         DayTracker.update_trend(ema_fast, ema_slow, vwap_bands.vwap, bar, s)
+        # TV resets bull/bear bars AFTER incrementing on isNewDay,
+        # effectively zeroing them on the first bar of each session.
+        if is_new_day:
+            s.bull_bars = 0
+            s.bear_bars = 0
 
         # -- Update CVD --
         bar_range = bar.high - bar.low
