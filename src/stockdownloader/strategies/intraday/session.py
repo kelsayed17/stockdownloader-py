@@ -25,6 +25,7 @@ if TYPE_CHECKING:
         ExtendedSessionVWAP,
     )
     from stockdownloader.indicators.smc import StructureState
+    from stockdownloader.strategies.intraday.market_context import MarketContext
 
 _INF = Decimal("999999")
 
@@ -240,3 +241,5 @@ class BarContext:
     box_pos: Decimal
     clean_pb: bool
     is_good_time: bool
+    # Market context (optional — None when no provider configured)
+    market_ctx: MarketContext | None = None

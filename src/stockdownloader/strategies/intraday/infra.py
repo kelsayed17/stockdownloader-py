@@ -32,6 +32,10 @@ from stockdownloader.indicators.intraday import compute_sr_score
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData
     from stockdownloader.strategies.intraday.base import InfraExitConfig
+    from stockdownloader.strategies.intraday.market_context import (
+        MarketContext,
+        MarketContextProvider,
+    )
 
 
 # =========================================================================
@@ -52,12 +56,15 @@ class IntradayInfra:
         config: InfraExitConfig,
         exit_manager: IntradayExitManager,
         hub: IndicatorHub | None = None,
+        market_ctx_provider: MarketContextProvider | None = None,
     ) -> None:
         self.state = SessionState()
         self.hub = hub or IndicatorHub()
         self.exit_mgr = exit_manager
         self._c = config
         self._day = DayTracker()
+        self._market_ctx_provider = market_ctx_provider
+        self._market_ctx: MarketContext | None = None
 
     @property
     def daily_bars(self) -> list:
@@ -89,6 +96,13 @@ class IntradayInfra:
         # -- Session boundary detection --
         if current_index == 0 or bar.trading_date != data[current_index - 1].trading_date:
             self._day.on_new_day(data, current_index, self.hub, s)
+            # Fetch market context for new session
+            if self._market_ctx_provider is not None:
+                self._market_ctx = self._market_ctx_provider.get_context(
+                    bar.trading_date
+                )
+            else:
+                self._market_ctx = None
 
         s.bar_count += 1
         bar_of_day = s.bar_count
@@ -230,6 +244,7 @@ class IntradayInfra:
             box_pos=box_pos,
             clean_pb=clean_pb,
             is_good_time=is_good_time,
+            market_ctx=self._market_ctx,
         )
         return ctx
 
