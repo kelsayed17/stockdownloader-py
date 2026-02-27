@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
 from typing import TYPE_CHECKING
 
-from stockdownloader.core.math import HUNDRED, TWO, ZERO, quantize
+from stockdownloader.core.math import HUNDRED, ONE, TWO, ZERO, quantize
 from stockdownloader.indicators.core import (
     _deduplicate_levels,
     _period_midpoint,
@@ -506,6 +506,7 @@ class StreamingADX:
                     s.smooth_tr - quantize(s.smooth_tr / period_bd) + tr
                 )
 
+                dx = ZERO
                 if s.smooth_tr != ZERO:
                     s.plus_di = quantize(s.smooth_plus_dm / s.smooth_tr) * HUNDRED
                     s.minus_di = quantize(s.smooth_minus_dm / s.smooth_tr) * HUNDRED
@@ -514,15 +515,27 @@ class StreamingADX:
                         dx = quantize(abs(s.plus_di - s.minus_di) / di_sum) * HUNDRED
                         self._dx_buffer.append(dx)
 
-                # ADX = average of last `period` DX values
+                # ADX: Wilder's smoothing (matches PineScript ta.dmi)
+                # Seed: SMA of first `period` DX values
+                # Then: ADX = (prev_ADX * (period-1) + DX) / period
                 if self._dx_buffer:
-                    adx_period = min(self._period, len(self._dx_buffer))
-                    total = ZERO
-                    for j in range(
-                        len(self._dx_buffer) - adx_period, len(self._dx_buffer)
-                    ):
-                        total += self._dx_buffer[j]
-                    s.adx = quantize(total / Decimal(str(adx_period)))
+                    if len(self._dx_buffer) < self._period:
+                        # Still seeding: use SMA of available DX values
+                        total = ZERO
+                        for v in self._dx_buffer:
+                            total += v
+                        s.adx = quantize(total / Decimal(str(len(self._dx_buffer))))
+                    elif s.adx == ZERO:
+                        # Seed complete: initial ADX = SMA of first period DX values
+                        total = ZERO
+                        for v in self._dx_buffer:
+                            total += v
+                        s.adx = quantize(total / period_bd)
+                    else:
+                        # Wilder's smoothing for subsequent bars
+                        s.adx = quantize(
+                            (s.adx * (period_bd - ONE) + dx) / period_bd
+                        )
 
                 self._history.append((s.adx, s.plus_di, s.minus_di))
 
