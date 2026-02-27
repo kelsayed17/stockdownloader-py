@@ -133,3 +133,95 @@ class TestFetchOptionsChainSnapshot:
         results = client.fetch_options_chain_snapshot("GME")
         assert len(results) == 1
         assert results[0]["open_interest"] == 8921
+
+
+from stockdownloader.gme.options.snapshot import SnapshotCollector
+from stockdownloader.gme.options.config import GMEOptionsConfig
+
+
+class TestSnapshotCollector:
+    def test_collect_produces_dataframe(self, tmp_path):
+        """collect() returns a DataFrame with correct schema."""
+        mock_client = MagicMock()
+        mock_client.fetch_options_chain_snapshot.return_value = [
+            _make_snapshot_result("O:GME260227C00025000", open_interest=100, volume=500),
+            _make_snapshot_result("O:GME260227P00020000", contract_type="put",
+                                  strike=20.0, open_interest=200, volume=300),
+        ]
+
+        cfg = GMEOptionsConfig(data_dir=tmp_path)
+        collector = SnapshotCollector(cfg, mock_client)
+        df = collector.collect()
+
+        assert len(df) == 2
+        required_cols = {
+            "date", "option_ticker", "strike", "option_type", "expiration",
+            "close", "volume", "open_interest", "implied_volatility",
+            "delta", "gamma", "theta", "vega", "underlying_price",
+        }
+        assert required_cols.issubset(set(df.columns))
+        assert df.iloc[0]["open_interest"] == 100
+        assert df.iloc[1]["option_type"] == "put"
+
+    def test_collect_handles_missing_greeks(self, tmp_path):
+        """Contracts with empty greeks get NaN for greek columns."""
+        import math
+
+        result = _make_snapshot_result()
+        result["greeks"] = {}
+        result.pop("implied_volatility", None)
+
+        mock_client = MagicMock()
+        mock_client.fetch_options_chain_snapshot.return_value = [result]
+
+        cfg = GMEOptionsConfig(data_dir=tmp_path)
+        collector = SnapshotCollector(cfg, mock_client)
+        df = collector.collect()
+
+        assert len(df) == 1
+        assert math.isnan(df.iloc[0]["delta"])
+        assert math.isnan(df.iloc[0]["implied_volatility"])
+
+    def test_save_and_load(self, tmp_path):
+        """save() writes Parquet, load() reads it back."""
+        import pandas as pd
+
+        mock_client = MagicMock()
+        mock_client.fetch_options_chain_snapshot.return_value = [
+            _make_snapshot_result(open_interest=42),
+        ]
+
+        cfg = GMEOptionsConfig(data_dir=tmp_path)
+        collector = SnapshotCollector(cfg, mock_client)
+        df = collector.collect()
+
+        path = collector.save(df, date(2026, 2, 26))
+        assert path.exists()
+        assert "2026-02-26" in path.name
+
+        loaded = collector.load(date(2026, 2, 26))
+        assert loaded is not None
+        assert len(loaded) == 1
+        assert loaded.iloc[0]["open_interest"] == 42
+
+    def test_load_returns_none_when_missing(self, tmp_path):
+        """load() returns None for dates with no snapshot."""
+        cfg = GMEOptionsConfig(data_dir=tmp_path)
+        collector = SnapshotCollector(cfg, MagicMock())
+        assert collector.load(date(1999, 1, 1)) is None
+
+    def test_run_collects_and_saves(self, tmp_path):
+        """run() collects and saves in one call."""
+        mock_client = MagicMock()
+        mock_client.fetch_options_chain_snapshot.return_value = [
+            _make_snapshot_result(open_interest=77),
+        ]
+
+        cfg = GMEOptionsConfig(data_dir=tmp_path)
+        collector = SnapshotCollector(cfg, mock_client)
+        df = collector.run()
+
+        assert len(df) == 1
+        # Verify file was saved
+        snapshots_dir = tmp_path / "snapshots"
+        assert any(snapshots_dir.glob("*.parquet"))
