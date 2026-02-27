@@ -94,3 +94,103 @@ class TestOIProxyEstimator:
 
         loaded = OIProxyEstimator.load_calibration(tmp_path / "cal.json")
         assert abs(loaded.calibration_ratio - 0.42) < 0.001
+
+
+class TestOIEnricher:
+    def test_enrich_month_adds_proxy_oi(self, tmp_path):
+        """enrich_month() populates OI with proxy values."""
+        monthly_dir = tmp_path / "monthly"
+        monthly_dir.mkdir()
+
+        bars = pd.DataFrame([
+            {"option_ticker": "A", "date": "2023-01-03", "volume": 100,
+             "open_interest": 0, "strike": 25.0, "option_type": "call",
+             "expiration": "2023-01-20", "open": 2.0, "high": 2.5,
+             "low": 1.5, "close": 2.0, "vwap": 2.0},
+        ])
+        bars.to_parquet(monthly_dir / "2023-01.parquet", index=False)
+
+        estimator = OIProxyEstimator(calibration_ratio=0.5, decay_rate=0.0)
+        enricher = OIEnricher(data_dir=tmp_path, estimator=estimator)
+        result = enricher.enrich_month(monthly_dir / "2023-01.parquet")
+
+        assert result.iloc[0]["open_interest"] == 50
+        assert result.iloc[0]["oi_source"] == "proxy"
+
+    def test_snapshot_oi_overrides_proxy(self, tmp_path):
+        """Snapshot OI takes priority over proxy OI."""
+        monthly_dir = tmp_path / "monthly"
+        monthly_dir.mkdir()
+        snapshots_dir = tmp_path / "snapshots"
+        snapshots_dir.mkdir()
+
+        bars = pd.DataFrame([
+            {"option_ticker": "O:GME230120C00025000", "date": "2023-01-20",
+             "volume": 100, "open_interest": 0, "strike": 25.0,
+             "option_type": "call", "expiration": "2023-01-20",
+             "open": 2.0, "high": 2.5, "low": 1.5, "close": 2.0, "vwap": 2.0},
+        ])
+        bars.to_parquet(monthly_dir / "2023-01.parquet", index=False)
+
+        # Snapshot for that exact date + ticker
+        snap = pd.DataFrame([{
+            "date": "2023-01-20",
+            "option_ticker": "O:GME230120C00025000",
+            "open_interest": 9999,
+            "strike": 25.0,
+            "option_type": "call",
+        }])
+        snap.to_parquet(snapshots_dir / "2023-01-20.parquet", index=False)
+
+        estimator = OIProxyEstimator(calibration_ratio=0.5, decay_rate=0.0)
+        enricher = OIEnricher(data_dir=tmp_path, estimator=estimator)
+        result = enricher.enrich_month(monthly_dir / "2023-01.parquet")
+
+        assert result.iloc[0]["open_interest"] == 9999
+        assert result.iloc[0]["oi_source"] == "snapshot"
+
+    def test_enrich_all_processes_multiple_files(self, tmp_path):
+        """enrich_all() processes all monthly Parquet files."""
+        monthly_dir = tmp_path / "monthly"
+        monthly_dir.mkdir()
+
+        for month in ["2023-01", "2023-02"]:
+            bars = pd.DataFrame([
+                {"option_ticker": "A", "date": f"{month}-15", "volume": 100,
+                 "open_interest": 0, "strike": 25.0, "option_type": "call",
+                 "expiration": f"{month}-20", "open": 2.0, "high": 2.5,
+                 "low": 1.5, "close": 2.0, "vwap": 2.0},
+            ])
+            bars.to_parquet(monthly_dir / f"{month}.parquet", index=False)
+
+        estimator = OIProxyEstimator(calibration_ratio=0.5, decay_rate=0.0)
+        enricher = OIEnricher(data_dir=tmp_path, estimator=estimator)
+        count = enricher.enrich_all()
+
+        assert count == 2
+
+        # Verify files were updated in place
+        for month in ["2023-01", "2023-02"]:
+            df = pd.read_parquet(monthly_dir / f"{month}.parquet")
+            assert "oi_source" in df.columns
+            assert df.iloc[0]["open_interest"] > 0
+
+    def test_oi_source_column_values(self, tmp_path):
+        """oi_source is exactly 'proxy' or 'snapshot'."""
+        monthly_dir = tmp_path / "monthly"
+        monthly_dir.mkdir()
+
+        bars = pd.DataFrame([
+            {"option_ticker": "A", "date": "2023-01-03", "volume": 100,
+             "open_interest": 0, "strike": 25.0, "option_type": "call",
+             "expiration": "2023-01-20", "open": 2.0, "high": 2.5,
+             "low": 1.5, "close": 2.0, "vwap": 2.0},
+        ])
+        bars.to_parquet(monthly_dir / "2023-01.parquet", index=False)
+
+        estimator = OIProxyEstimator(calibration_ratio=0.5, decay_rate=0.0)
+        enricher = OIEnricher(data_dir=tmp_path, estimator=estimator)
+        result = enricher.enrich_month(monthly_dir / "2023-01.parquet")
+
+        valid_sources = {"proxy", "snapshot"}
+        assert set(result["oi_source"].unique()).issubset(valid_sources)
