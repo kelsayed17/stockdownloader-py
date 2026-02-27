@@ -297,3 +297,40 @@ class TestEndToEnd:
         assert required_cols.issubset(set(chain.columns))
         assert len(chain) == 10  # 5 strikes x 2 option types
         assert set(chain["option_type"].unique()) == {"call", "put"}
+
+    def test_enriched_state_has_nonzero_gex(self):
+        """StateEngine computes non-zero GEX with enriched OI data."""
+        chain = _synthetic_chain("2023-06-15")
+        # Verify OI is already non-zero in synthetic data
+        assert chain["open_interest"].sum() > 0
+
+        engine = OptionsStateEngine(spot_prices={"2023-06-15": 25.0})
+        state = engine.build(bars_df=chain)
+
+        assert len(state) == 1
+        # With OI > 0, GEX metrics should be non-zero
+        assert state.iloc[0]["total_call_oi"] > 0
+        assert state.iloc[0]["total_put_oi"] > 0
+        assert state.iloc[0]["pc_oi_ratio"] > 0
+
+    def test_oi_enricher_to_state_engine(self):
+        """Full pipeline: bars → enrich → state engine produces GEX."""
+        from stockdownloader.gme.options.oi_proxy import OIProxyEstimator
+
+        chain = _synthetic_chain("2023-06-15")
+        # Zero out OI to simulate raw fetcher output
+        chain["open_interest"] = 0
+        assert chain["open_interest"].sum() == 0
+
+        # Apply proxy
+        estimator = OIProxyEstimator(calibration_ratio=5.0, decay_rate=0.0)
+        enriched = estimator.estimate(chain)
+        assert enriched["open_interest"].sum() > 0
+
+        # Feed to state engine
+        engine = OptionsStateEngine(spot_prices={"2023-06-15": 25.0})
+        state = engine.build(bars_df=enriched)
+
+        assert len(state) == 1
+        assert state.iloc[0]["total_call_oi"] > 0
+        assert state.iloc[0]["net_gex"] != 0
