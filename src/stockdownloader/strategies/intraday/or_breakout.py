@@ -127,10 +127,6 @@ class ORBreakoutStrategy(BaseIntradayStrategy):
         if ctx.bar_of_day <= c.or_bars or ctx.bar_of_day > c.orb_window:
             return None
 
-        # -- Time-of-day gate: skip lunch chop --
-        if not ctx.is_good_time:
-            return None
-
         # -- Close beyond OR extreme --
         bar = ctx.bar
         close_long = bar.close > state.or_high and bar.close > bar.open

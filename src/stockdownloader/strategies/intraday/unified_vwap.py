@@ -87,26 +87,47 @@ class UnifiedVWAPStrategy(BaseIntradayStrategy):
         # Single shared IntradayInfra with VwapRatchetTrail as default
         self._infra = IntradayInfra(c, IntradayExitManager(VwapRatchetTrail()))
 
+        # Shared risk fields that PB and REV check internally.
+        # These must match the unified config so that mode-level
+        # ready/spaced checks agree with the shared SessionState.
+        _shared_risk = dict(
+            max_day=c.max_day,
+            spacing=c.spacing,
+            circuit=c.circuit,
+            day_loss=c.day_loss,
+            can_trade_bar=c.can_trade_bar,
+            adx_thresh=c.adx_thresh,
+            allow_longs=c.allow_longs,
+            allow_shorts=c.allow_shorts,
+        )
+
+        def _merge(overrides: dict | None) -> dict:
+            """Merge shared risk fields with mode-specific overrides."""
+            merged = dict(_shared_risk)
+            if overrides:
+                merged.update(overrides)
+            return merged
+
         # Build mode list in priority order: PS > ORB > PB > REV
         self._modes: list[tuple[BaseIntradayStrategy, type[TrailStrategy]]] = []
 
         if c.ps_enable:
-            ps_cfg = PatternScalpStrategyConfig(**(ps_overrides or {}))
+            ps_cfg = PatternScalpStrategyConfig(**_merge(ps_overrides))
             ps = PatternScalpStrategy(config=ps_cfg)
             self._modes.append((ps, BreakevenTrail))
 
         if c.orb_enable:
-            orb_cfg = ORBreakoutStrategyConfig(**(orb_overrides or {}))
+            orb_cfg = ORBreakoutStrategyConfig(**_merge(orb_overrides))
             orb = ORBreakoutStrategy(config=orb_cfg)
             self._modes.append((orb, AtrChandelierTrail))
 
         if c.pb_enable:
-            pb_cfg = PullbackStrategyConfig(**(pb_overrides or {}))
+            pb_cfg = PullbackStrategyConfig(**_merge(pb_overrides))
             pb = PullbackStrategy(config=pb_cfg)
             self._modes.append((pb, VwapRatchetTrail))
 
         if c.rev_enable:
-            rev_cfg = ReversalStrategyConfig(**(rev_overrides or {}))
+            rev_cfg = ReversalStrategyConfig(**_merge(rev_overrides))
             rev = ReversalStrategy(config=rev_cfg)
             self._modes.append((rev, BreakevenTrail))
 

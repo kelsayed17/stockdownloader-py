@@ -39,6 +39,10 @@ INITIAL_CAPITAL = D("100000")
 RISK_PER_TRADE = D("0.01")     # 1% risk
 SLIPPAGE_PCT = D("0.0002")     # 2 bps
 
+# TV data range — only backtest bars within this window for parity
+TV_START_DATE = "2025-02-20"   # First TV trade date
+TV_END_DATE = "2026-02-27"     # Last TV trade date
+
 
 def load_5m_bars(csv_path: Path) -> list[IntradayPriceData]:
     """Load SPY 5-minute OHLCV bars from CSV."""
@@ -203,10 +207,11 @@ def build_tv_parity_strategies() -> list[tuple[str, object]]:
             orb_body_min=D("0.2"),     # TV: i_orbBodyMin=0.2 (was 0.25)
             orb_entry_mode="aggressive", # TV: immediate on breakout
             orb_trail_atr=D("1.5"),    # TV: i_orbTrailATR=1.5 (was 0.8)
-            orb_htf_align=True,
-            orb_gap_filter=True,
+            orb_htf_align=False,       # TV: ORB has no HTF alignment
+            orb_gap_filter=False,      # TV: ORB has no gap filter
+            orb_adx_filter=False,      # TV: ORB has no ADX filter
             be_trigger=D("0.5"),       # TV: i_beTrigger=0.5
-            adx_thresh=D("21"),        # TV doesn't strictly enforce ADX for ORB
+            adx_thresh=D("21"),
             close_eod=True,
             circuit=3,
             day_loss=D("3.0"),
@@ -327,8 +332,9 @@ def build_unified_strategy() -> tuple[str, UnifiedVWAPStrategy]:
         orb_body_min=D("0.2"),
         orb_entry_mode="aggressive",
         orb_trail_atr=D("1.5"),
-        orb_htf_align=True,
-        orb_gap_filter=True,
+        orb_htf_align=False,       # TV: ORB has no HTF alignment
+        orb_gap_filter=False,      # TV: ORB has no gap filter
+        orb_adx_filter=False,      # TV: ORB has no ADX filter
     )
 
     # ── REV overrides (mode-specific fields from REV standalone) ──
@@ -368,8 +374,11 @@ def main() -> None:
 
     # Load data
     print("\nLoading SPY 5m bars...")
-    bars = load_5m_bars(BARS_CSV)
-    print(f"  Loaded {len(bars)} bars ({bars[0].date[:10]} to {bars[-1].date[:10]})")
+    all_bars = load_5m_bars(BARS_CSV)
+    # Filter to TV date range for parity comparison
+    bars = [b for b in all_bars if TV_START_DATE <= b.date[:10] <= TV_END_DATE]
+    print(f"  Loaded {len(all_bars)} bars total, filtered to {len(bars)} "
+          f"({bars[0].date[:10]} to {bars[-1].date[:10]}) for TV parity")
 
     bnh_return = compute_buy_and_hold(bars)
     print(f"  SPY Buy-and-Hold return: {bnh_return:.2f}%")
