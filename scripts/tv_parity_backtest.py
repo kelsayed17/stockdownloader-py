@@ -25,6 +25,7 @@ from stockdownloader.strategies.intraday.pullback import PullbackStrategy
 from stockdownloader.strategies.intraday.pattern_scalp import PatternScalpStrategy
 from stockdownloader.strategies.intraday.or_breakout import ORBreakoutStrategy
 from stockdownloader.strategies.intraday.reversal import ReversalStrategy
+from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy, UnifiedVWAPConfig
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 BARS_CSV = DATA_DIR / "SPY" / "5m_bars.csv"
@@ -244,6 +245,118 @@ def build_tv_parity_strategies() -> list[tuple[str, object]]:
     return strategies
 
 
+def build_unified_strategy() -> tuple[str, UnifiedVWAPStrategy]:
+    """Build a UnifiedVWAPStrategy with TV-parity configs.
+
+    Shared infra/exit/trail fields go into :class:`UnifiedVWAPConfig`;
+    mode-specific fields go into per-mode override dicts.
+    """
+    config = UnifiedVWAPConfig(
+        # Shared risk / exit / trail
+        max_day=2,
+        spacing=3,
+        be_trigger=D("0.5"),
+        trail_buf=D("0.15"),
+        trail_keep_tp=True,
+        close_eod=True,
+        circuit=3,
+        day_loss=D("3.0"),
+        adx_thresh=D("21"),
+        allow_longs=True,
+        allow_shorts=True,
+    )
+
+    # ── PB overrides (mode-specific fields from PB standalone) ────
+    pb_overrides = dict(
+        pb_zone=D("0.5"),
+        pb_body=D("0.15"),
+        rr=D("1.4"),
+        sl_atr=D("1.3"),
+        sl_cap=D("1.50"),
+        trend_bars=3,
+        htf_align=True,
+        ar_filter=True,
+        ar_thresh=D("0.9"),
+        ar_cap=D("1.15"),
+        va_filter=True,
+        va_min=D("-0.1"),
+        cvd_long_filter=True,
+        lrs_short_filter=True,
+        lrs_thresh=D("0.08"),
+        max_vxc=6,
+        w_vol=3,
+        w_sr=2,
+        w_rsi=1,
+        w_time=0,
+        w_pq=1,
+        w_box=0,
+        min_score=3,
+        min_score_long=5,
+        pq_max_cross=3,
+        no_friday_short=True,
+        no_monday_long=True,
+        trail_vwap=True,
+        pb_vwap_bias=True,
+        pb_tp_mode="rr",
+    )
+
+    # ── PS overrides (mode-specific fields from PS standalone) ────
+    ps_overrides = dict(
+        ps_atr_pct=D("30.0"),
+        ps_window=12,
+        ps_rvol=D("1.0"),
+        ps_engulf=D("0.35"),
+        ps_sl_mode="Day Extreme",
+        ps_sl_atr=D("1.5"),
+        ps_sl_cap=D("2.50"),
+        ps_tp_pct=D("75.0"),
+        ps_sma_filter=False,
+        ps_htf_align=False,
+        ps_time_gate=False,
+        ps_min_rr=D("0.3"),
+    )
+
+    # ── ORB overrides (mode-specific fields from ORB standalone) ──
+    orb_overrides = dict(
+        orb_window=20,
+        orb_rvol=D("2.0"),
+        orb_sl_mode="OR Opposite",
+        orb_sl_atr=D("1.5"),
+        orb_sl_cap=D("2.50"),
+        orb_vwap_align=True,
+        orb_body_min=D("0.2"),
+        orb_entry_mode="aggressive",
+        orb_trail_atr=D("1.5"),
+        orb_htf_align=True,
+        orb_gap_filter=True,
+    )
+
+    # ── REV overrides (mode-specific fields from REV standalone) ──
+    rev_overrides = dict(
+        rev_band="2\u03c3",
+        rev_body=D("0.20"),
+        rev_sl_atr=D("1.0"),
+        rev_sl_cap=D("1.50"),
+        rev_shorts=False,
+        rev_min_rr=D("0.3"),
+        rev_tp_mode="vwap",
+        rev_vwap_flat_tol=D("0.05"),
+        rev_require_sr=False,
+        rev_hug_limit=20,
+        rev_can_trade_bar=11,
+        min_score=3,
+    )
+
+    strategy = UnifiedVWAPStrategy(
+        config=config,
+        pb_overrides=pb_overrides,
+        ps_overrides=ps_overrides,
+        orb_overrides=orb_overrides,
+        rev_overrides=rev_overrides,
+    )
+    return ("Unified VWAP (TV-parity)", strategy)
+
+
 def main() -> None:
     if not BARS_CSV.exists():
         print(f"ERROR: SPY 5m data not found at {BARS_CSV}")
@@ -295,11 +408,40 @@ def main() -> None:
                 "losing_trades": 0, "elapsed_sec": 0.0,
             })
 
-    # ── Combined metrics ───────────────────────────────────────────
-    combined_pnl = sum(r["total_pnl"] for r in results)
-    combined_trades = sum(r["total_trades"] for r in results)
-    combined_wins = sum(r["winning_trades"] for r in results)
-    combined_losses = sum(r["losing_trades"] for r in results)
+    # ── Unified strategy ────────────────────────────────────────────
+    unified_name, unified_strategy = build_unified_strategy()
+    print(f"\n  [Unified] {unified_name}...", end=" ", flush=True)
+    try:
+        unified_result = run_strategy(unified_name, unified_strategy, bars)
+        results.append(unified_result)
+        beat_tv = "\u2713" if unified_result["total_pnl"] > 0 else "\u2717"
+        print(f"Return={unified_result['total_return_pct']:+.2f}% | "
+              f"PnL=${unified_result['total_pnl']:+,.2f} | "
+              f"Trades={unified_result['total_trades']} "
+              f"({unified_result['winning_trades']}W/{unified_result['losing_trades']}L) | "
+              f"Win={unified_result['win_rate_pct']:.1f}% | "
+              f"Sharpe={unified_result['sharpe']:.2f} | "
+              f"MaxDD={unified_result['max_drawdown_pct']:.2f}% | "
+              f"{unified_result['elapsed_sec']}s {beat_tv}")
+    except Exception as e:
+        import traceback
+        print(f"ERROR: {e}")
+        traceback.print_exc()
+        unified_result = {
+            "name": unified_name, "total_return_pct": 0.0, "total_trades": 0,
+            "win_rate_pct": 0.0, "profit_factor": 0.0, "max_drawdown_pct": 0.0,
+            "sharpe": 0.0, "sortino": 0.0, "calmar": 0.0, "avg_win": 0.0,
+            "avg_loss": 0.0, "total_pnl": 0.0, "winning_trades": 0,
+            "losing_trades": 0, "elapsed_sec": 0.0,
+        }
+        results.append(unified_result)
+
+    # ── Combined metrics (standalone strategies only, excluding unified) ─
+    standalone_results = [r for r in results if r["name"] != unified_name]
+    combined_pnl = sum(r["total_pnl"] for r in standalone_results)
+    combined_trades = sum(r["total_trades"] for r in standalone_results)
+    combined_wins = sum(r["winning_trades"] for r in standalone_results)
+    combined_losses = sum(r["losing_trades"] for r in standalone_results)
     combined_wr = (combined_wins / combined_trades * 100) if combined_trades > 0 else 0
     combined_return = combined_pnl / float(INITIAL_CAPITAL) * 100
 
