@@ -82,8 +82,14 @@ class MLOversoldStrategy(BaseIntradayStrategy):
         self,
         config: MLOversoldConfig | None = None,
         model_path: str | None = None,
+        **overrides: object,
     ) -> None:
-        c = config or MLOversoldConfig()
+        if config is not None and overrides:
+            raise ValueError("Cannot pass both 'config' and keyword overrides")
+        if overrides:
+            c = MLOversoldConfig(**overrides)
+        else:
+            c = config or MLOversoldConfig()
         self._c = c
         self._infra = IntradayInfra(c, IntradayExitManager(BreakevenTrail()))
 

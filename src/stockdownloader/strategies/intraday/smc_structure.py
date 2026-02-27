@@ -87,8 +87,13 @@ class SMCStructureStrategy(BaseIntradayStrategy):
     Uses ATR chandelier trailing stop for exits.
     """
 
-    def __init__(self, config: SMCStructureConfig | None = None) -> None:
-        c = config or SMCStructureConfig()
+    def __init__(self, config: SMCStructureConfig | None = None, **overrides: object) -> None:
+        if config is not None and overrides:
+            raise ValueError("Cannot pass both 'config' and keyword overrides")
+        if overrides:
+            c = SMCStructureConfig(**overrides)
+        else:
+            c = config or SMCStructureConfig()
         self._c = c
         self._infra = IntradayInfra(c, IntradayExitManager(AtrChandelierTrail()))
 

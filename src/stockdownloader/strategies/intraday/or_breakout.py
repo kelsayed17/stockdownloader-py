@@ -83,8 +83,13 @@ class ORBreakoutStrategy(BaseIntradayStrategy):
     modes, multiple SL/TP variants, and optional gap/ADX filters.
     """
 
-    def __init__(self, config: ORBreakoutStrategyConfig | None = None) -> None:
-        c = config or ORBreakoutStrategyConfig()
+    def __init__(self, config: ORBreakoutStrategyConfig | None = None, **overrides: object) -> None:
+        if config is not None and overrides:
+            raise ValueError("Cannot pass both 'config' and keyword overrides")
+        if overrides:
+            c = ORBreakoutStrategyConfig(**overrides)
+        else:
+            c = config or ORBreakoutStrategyConfig()
         self._c = c
         self._infra = IntradayInfra(c, IntradayExitManager(AtrChandelierTrail()))
 

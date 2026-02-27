@@ -71,8 +71,13 @@ class ReversalStrategy(BaseIntradayStrategy):
     price reaches band extreme, confirmation candle prints.
     """
 
-    def __init__(self, config: ReversalStrategyConfig | None = None) -> None:
-        c = config or ReversalStrategyConfig()
+    def __init__(self, config: ReversalStrategyConfig | None = None, **overrides: object) -> None:
+        if config is not None and overrides:
+            raise ValueError("Cannot pass both 'config' and keyword overrides")
+        if overrides:
+            c = ReversalStrategyConfig(**overrides)
+        else:
+            c = config or ReversalStrategyConfig()
         self._c = c
         self._infra = IntradayInfra(c, IntradayExitManager(BreakevenTrail()))
 

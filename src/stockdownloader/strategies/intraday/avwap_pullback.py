@@ -77,8 +77,13 @@ class AVWAPPullbackStrategy(BaseIntradayStrategy):
     The AVWAP persists across sessions, anchored to FOMC events.
     """
 
-    def __init__(self, config: AVWAPPullbackConfig | None = None) -> None:
-        c = config or AVWAPPullbackConfig()
+    def __init__(self, config: AVWAPPullbackConfig | None = None, **overrides: object) -> None:
+        if config is not None and overrides:
+            raise ValueError("Cannot pass both 'config' and keyword overrides")
+        if overrides:
+            c = AVWAPPullbackConfig(**overrides)
+        else:
+            c = config or AVWAPPullbackConfig()
         self._c = c
         self._infra = IntradayInfra(c, IntradayExitManager(VwapRatchetTrail()))
 

@@ -68,8 +68,13 @@ class PatternScalpStrategy(BaseIntradayStrategy):
     and RVOL confirms.
     """
 
-    def __init__(self, config: PatternScalpStrategyConfig | None = None) -> None:
-        c = config or PatternScalpStrategyConfig()
+    def __init__(self, config: PatternScalpStrategyConfig | None = None, **overrides: object) -> None:
+        if config is not None and overrides:
+            raise ValueError("Cannot pass both 'config' and keyword overrides")
+        if overrides:
+            c = PatternScalpStrategyConfig(**overrides)
+        else:
+            c = config or PatternScalpStrategyConfig()
         self._c = c
         self._infra = IntradayInfra(c, IntradayExitManager(BreakevenTrail()))
 

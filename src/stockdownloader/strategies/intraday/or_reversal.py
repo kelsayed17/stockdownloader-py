@@ -75,8 +75,13 @@ class ORReversalStrategy(BaseIntradayStrategy):
     OR-opposite-side targets.  R:R filtered, fire-once per session.
     """
 
-    def __init__(self, config: ORReversalStrategyConfig | None = None) -> None:
-        c = config or ORReversalStrategyConfig()
+    def __init__(self, config: ORReversalStrategyConfig | None = None, **overrides: object) -> None:
+        if config is not None and overrides:
+            raise ValueError("Cannot pass both 'config' and keyword overrides")
+        if overrides:
+            c = ORReversalStrategyConfig(**overrides)
+        else:
+            c = config or ORReversalStrategyConfig()
         self._c = c
         self._infra = IntradayInfra(c, IntradayExitManager(VwapRatchetTrail()))
 

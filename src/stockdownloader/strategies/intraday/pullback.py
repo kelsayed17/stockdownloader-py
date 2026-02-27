@@ -88,8 +88,13 @@ class PullbackStrategy(BaseIntradayStrategy):
     price pulls back to VWAP zone, bullish/bearish candle confirms.
     """
 
-    def __init__(self, config: PullbackStrategyConfig | None = None) -> None:
-        c = config or PullbackStrategyConfig()
+    def __init__(self, config: PullbackStrategyConfig | None = None, **overrides: object) -> None:
+        if config is not None and overrides:
+            raise ValueError("Cannot pass both 'config' and keyword overrides")
+        if overrides:
+            c = PullbackStrategyConfig(**overrides)
+        else:
+            c = config or PullbackStrategyConfig()
         self._c = c
         self._infra = IntradayInfra(c, IntradayExitManager(VwapRatchetTrail()))
 
