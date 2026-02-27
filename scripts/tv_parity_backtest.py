@@ -158,7 +158,7 @@ def build_tv_parity_strategies() -> list[tuple[str, object]]:
             trail_keep_tp=True,        # TV: i_trailKeepTP=true ✓
             close_eod=True,            # TV: i_closeEOD=true ✓
             # PB extras
-            pb_vwap_bias=True,         # Python extra (helps filter quality)
+            pb_vwap_bias=False,        # TV: no VWAP session bias filter
             pb_tp_mode="rr",
         ),
     ))
@@ -296,7 +296,7 @@ def build_unified_strategy() -> tuple[str, UnifiedVWAPStrategy]:
         no_friday_short=True,
         no_monday_long=True,
         trail_vwap=True,
-        pb_vwap_bias=True,
+        pb_vwap_bias=False,        # TV: no VWAP session bias filter
         pb_tp_mode="rr",
     )
 

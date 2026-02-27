@@ -25,7 +25,7 @@ from stockdownloader.strategies.intraday.infra import IntradayInfra
 from stockdownloader.strategies.intraday.trail import VwapRatchetTrail
 from stockdownloader.strategies.intraday.base import BaseIntradayStrategy
 from stockdownloader.indicators.intraday import candle_strength
-from stockdownloader.core.math import ZERO
+from stockdownloader.core.math import TWO, ZERO
 from stockdownloader.pinescript.models import ModeDefinition
 from stockdownloader.pinescript.modes import pb_mode
 
@@ -135,8 +135,10 @@ class PullbackStrategy(BaseIntradayStrategy):
             return None
 
         # -- VWAP zone --
+        # PineScript bandWidth = upper1 - vwap = 2*sigma (ta.vwap called with mult=2.0)
+        # Python std_dev = 1*sigma, so multiply by 2 to match PineScript's bandWidth
         vwap = ctx.vwap_bands.vwap
-        band_width = ctx.vwap_bands.std_dev
+        band_width = ctx.vwap_bands.std_dev * TWO
         zone_w = band_width * c.pb_zone
         dist_vwap = abs(ctx.bar.close - vwap)
         if zone_w <= ZERO or dist_vwap > zone_w:
