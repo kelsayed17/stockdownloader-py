@@ -33,6 +33,7 @@ from typing import TYPE_CHECKING
 
 from stockdownloader.core.models.trade import IntradaySignal
 from stockdownloader.strategies.base import IntradayTradingStrategy
+from stockdownloader.strategies.config_base import StrategyConfigMixin
 
 if TYPE_CHECKING:
     from stockdownloader.core.models.price import IntradayPriceData
@@ -44,7 +45,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True, slots=True)
-class InfraExitConfig:
+class InfraExitConfig(StrategyConfigMixin):
     """Base configuration for all intraday strategies.
 
     Every strategy config inherits from this class. Subclasses override

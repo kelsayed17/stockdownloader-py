@@ -39,10 +39,11 @@ from stockdownloader.indicators.hub import IndicatorHub
 from stockdownloader.pinescript.models import (
     Condition, Indicator, Input, StrategyDefinition,
 )
+from stockdownloader.strategies.config_base import StrategyConfigMixin
 
 
 @dataclass(slots=True)
-class DmiVwapConfig:
+class DmiVwapConfig(StrategyConfigMixin):
     """Tunable parameters for the DMI+VWAP strategy."""
 
     # DMI / ADX
