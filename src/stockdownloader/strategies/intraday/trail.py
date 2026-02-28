@@ -79,13 +79,14 @@ class AtrChandelierTrail(TrailStrategy):
         if is_long:
             state.trail_level = max(
                 state.orb_extreme - atr_val * config.orb_trail_atr,
-                entry + _BE_BUF,
+                entry,
             )
         else:
             state.trail_level = min(
                 state.orb_extreme + atr_val * config.orb_trail_atr,
-                entry - _BE_BUF,
+                entry,
             )
+        state.stop_loss = state.trail_level
 
     def ratchet(
         self,
@@ -103,7 +104,7 @@ class AtrChandelierTrail(TrailStrategy):
         if is_long:
             new_trail = max(
                 state.orb_extreme - atr_val * config.orb_trail_atr,
-                entry + _BE_BUF,
+                entry,
             )
             new_trail = max(new_trail, state.trail_level)
             if new_trail > state.trail_level:
@@ -113,7 +114,7 @@ class AtrChandelierTrail(TrailStrategy):
         else:
             new_trail = min(
                 state.orb_extreme + atr_val * config.orb_trail_atr,
-                entry - _BE_BUF,
+                entry,
             )
             new_trail = min(new_trail, state.trail_level)
             if new_trail < state.trail_level:
@@ -131,6 +132,12 @@ class VwapRatchetTrail(TrailStrategy):
 
     Trail level tracks VWAP minus/plus a buffer. Ratchets only in
     the favorable direction (never retreats).
+
+    On activation, trail starts at the entry price (breakeven) — not
+    at ``entry ± _BE_BUF``.  This matches TradingView's behavior where
+    the breakeven trigger simply moves the stop to entry and the VWAP
+    trail ratchets from there.  Using a tiny fixed buffer ($0.05)
+    created premature trail exits on stocks like SPY ($600+).
     """
 
     def activate(
@@ -146,9 +153,12 @@ class VwapRatchetTrail(TrailStrategy):
         vwap = vwap_bands.vwap
         buf = atr_val * config.trail_buf
         if is_long:
-            state.trail_level = max(vwap - buf, entry + _BE_BUF)
+            # Trail at VWAP - buffer, but never below entry (breakeven)
+            state.trail_level = max(vwap - buf, entry)
         else:
-            state.trail_level = min(vwap + buf, entry - _BE_BUF)
+            # Trail at VWAP + buffer, but never above entry (breakeven)
+            state.trail_level = min(vwap + buf, entry)
+        state.stop_loss = state.trail_level
 
     def ratchet(
         self,
@@ -167,7 +177,8 @@ class VwapRatchetTrail(TrailStrategy):
         buf = atr_val * config.trail_buf
 
         if is_long:
-            new_trail = max(vwap - buf, entry + _BE_BUF)
+            # VWAP trail: ratchet up only, floor at entry (breakeven)
+            new_trail = max(vwap - buf, entry)
             new_trail = max(new_trail, state.trail_level)
             if new_trail > state.trail_level:
                 state.trail_level = new_trail
@@ -176,7 +187,8 @@ class VwapRatchetTrail(TrailStrategy):
                     state.take_profit = ZERO
             return bar.low <= state.trail_level
         else:
-            new_trail = min(vwap + buf, entry - _BE_BUF)
+            # VWAP trail: ratchet down only, ceiling at entry (breakeven)
+            new_trail = min(vwap + buf, entry)
             new_trail = min(new_trail, state.trail_level)
             if new_trail < state.trail_level:
                 state.trail_level = new_trail
@@ -193,7 +205,7 @@ class VwapRatchetTrail(TrailStrategy):
 class BreakevenTrail(TrailStrategy):
     """Step-wise profit-locking trail — used by REV and PS trades.
 
-    When breakeven is triggered, moves stop to entry +/- buffer.
+    When breakeven is triggered, moves stop to entry (breakeven).
     Then ratchets the stop as profit grows in R-multiple steps:
       - After 1.0R MFE → stop to entry + 0.5R
       - After 1.5R MFE → stop to entry + 1.0R
@@ -218,10 +230,10 @@ class BreakevenTrail(TrailStrategy):
         vwap_bands: ExtendedSessionVWAP,
         config: InfraExitConfig,
     ) -> None:
-        if is_long:
-            state.stop_loss = entry + _BE_BUF
-        else:
-            state.stop_loss = entry - _BE_BUF
+        # Move stop to entry (breakeven) — matches TV behavior.
+        # Previously used entry ± $0.05 which was too tight for SPY.
+        state.stop_loss = entry
+        state.trail_level = entry
 
     def ratchet(
         self,
@@ -250,10 +262,12 @@ class BreakevenTrail(TrailStrategy):
                     new_sl = entry + risk * lock_r
                     if new_sl > state.stop_loss:
                         state.stop_loss = new_sl
+                        state.trail_level = new_sl
                 else:
                     new_sl = entry - risk * lock_r
                     if new_sl < state.stop_loss:
                         state.stop_loss = new_sl
+                        state.trail_level = new_sl
                 break
 
         # Check if bar breaches the ratcheted stop

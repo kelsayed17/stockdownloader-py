@@ -30,18 +30,18 @@ from stockdownloader.strategies.intraday.unified_vwap import UnifiedVWAPStrategy
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 BARS_CSV = DATA_DIR / "SPY" / "5m_bars.csv"
 
-# ── TV benchmark ───────────────────────────────────────────────────
-TV_TRADES = 107
-TV_PNL = 10892.02
-TV_RETURN = 10.89  # %
+# ── TV benchmark (from actual TV export CSV) ──────────────────────
+TV_TRADES = 108
+TV_PNL = 9414.90
+TV_RETURN = 9.41  # %
 
 INITIAL_CAPITAL = D("100000")
 RISK_PER_TRADE = D("0.01")     # 1% risk
 SLIPPAGE_PCT = D("0.0002")     # 2 bps
 
 # TV data range — only backtest bars within this window for parity
-TV_START_DATE = "2025-02-20"   # First TV trade date
-TV_END_DATE = "2026-02-27"     # Last TV trade date
+TV_START_DATE = "2025-01-29"   # First TV trade date (ET)
+TV_END_DATE = "2026-02-03"     # Last TV trade date (ET)
 
 
 def load_5m_bars(csv_path: Path) -> list[IntradayPriceData]:

@@ -228,7 +228,7 @@ class TestBEAndTrail:
         assert state.be_triggered is True
         assert state.trailing_vwap is False
         assert state.trailing_atr is False
-        assert state.stop_loss == Decimal("500.05")  # entry + BE_BUF
+        assert state.stop_loss == Decimal("500")  # entry (breakeven)
 
 
 class TestBreakevenTrailRatchet:

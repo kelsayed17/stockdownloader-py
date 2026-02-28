@@ -293,6 +293,7 @@ class IntradayBacktestEngine:
         margin_hold: Decimal = ZERO
         equity_curve: list[Decimal] = []
         trade_modes: list[str] = []
+        trade_exit_reasons: list[str] = []
 
         result.start_date = data[0].date
         result.end_date = data[-1].date
@@ -420,6 +421,7 @@ class IntradayBacktestEngine:
                 )
                 margin_hold = ZERO
                 result.add_trade(current_trade)
+                trade_exit_reasons.append(signal.reason)
                 current_trade = None
                 strategy.on_position_closed()
 
@@ -450,12 +452,14 @@ class IntradayBacktestEngine:
             )
             margin_hold = ZERO
             result.add_trade(current_trade)
+            trade_exit_reasons.append("force_close")
             strategy.on_position_closed()
 
         result.final_capital = cash - margin_hold
         result.equity_curve = equity_curve
 
         result.trade_modes = trade_modes
+        result.trade_exit_reasons = trade_exit_reasons
 
         return result
 

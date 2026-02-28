@@ -344,6 +344,7 @@ class BacktestResult(BaseBacktestResult):
         self._trades: list[Trade] = []
         self._closed_trades_cache: list[Trade] | None = None
         self.trade_modes: list[str] = []
+        self.trade_exit_reasons: list[str] = []
 
     # ------------------------------------------------------------------
     # Trade management

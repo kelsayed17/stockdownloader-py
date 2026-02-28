@@ -233,6 +233,7 @@ class IntradayExitManager:
                 state.orb_extreme = bar.low
 
         # -- 4. BE trigger + trail activation --
+        trail_just_activated = False
         risk = state.risk_amount
         if not state.be_triggered and risk > ZERO:
             unrealized = (bar.close - entry) if is_long else (entry - bar.close)
@@ -240,11 +241,15 @@ class IntradayExitManager:
                 state.be_triggered = True
                 trail = self._resolve_trail()
                 trail.activate(state, is_long, entry, current_atr, vwap_bands, config)
+                trail_just_activated = True
 
         # -- 5. Trail ratchet (per-bar) --
-        trail = self._resolve_trail()
-        if trail.ratchet(state, bar, is_long, entry, current_atr, vwap_bands, config):
-            return self._exit(state, state.trail_level, trail.exit_reason)
+        # Skip ratchet on the activation bar — matches TV's behaviour
+        # where trail orders take effect from the next bar.
+        if not trail_just_activated:
+            trail = self._resolve_trail()
+            if trail.ratchet(state, bar, is_long, entry, current_atr, vwap_bands, config):
+                return self._exit(state, state.trail_level, trail.exit_reason)
 
         # -- 6. ORB time-based exit --
         if config.orb_time_exit > 0 and state.entry_mode == "ORB":
