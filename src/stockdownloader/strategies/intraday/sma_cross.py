@@ -1,6 +1,6 @@
 """SPY SMA Cross 20/21 (Tournament #2) -- intraday strategy.
 
-Pine Script equivalent: output/pinescript/spy/spy_sma_cross.pine
+Pine Script equivalent: output/pinescript/daily/spy/spy_sma_crossover.pine
 Tournament rank: #2
 
 Entry:

@@ -32,7 +32,7 @@ import time
 from pathlib import Path
 
 from stockdownloader.app.ml_helpers import add_common_ml_args, init_ml_env
-from stockdownloader.core.config import DEFAULT_ML_PIPELINE_DIR
+from stockdownloader.core.config import DEFAULT_ML_PIPELINE_DIR, DEFAULT_PINESCRIPT_DIR
 
 
 # ======================================================================
@@ -415,8 +415,9 @@ def main(argv: list[str] | None = None) -> None:
             sell_threshold=args.sell_thresh,
         )
         pine_code = PineScriptGenerator().generate(strategy_def)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        pine_path = output_dir / "spy_ml_mega.pine"
+        pine_dir = DEFAULT_PINESCRIPT_DIR / "intraday" / "spy"
+        pine_dir.mkdir(parents=True, exist_ok=True)
+        pine_path = pine_dir / "spy_ml_mega.pine"
         pine_path.write_text(pine_code, encoding="utf-8")
         print(f"  PineScript: {pine_path} ({len(pine_code.splitlines())} lines)")
         print(f"  [{time.time() - t8:.1f}s]")

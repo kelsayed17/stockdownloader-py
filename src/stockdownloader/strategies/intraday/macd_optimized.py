@@ -1,6 +1,6 @@
 """SPY MACD Optimized 8/35/5 (Tournament #3) -- intraday strategy.
 
-Pine Script equivalent: output/pinescript/spy/spy_macd_optimized.pine
+Pine Script equivalent: output/pinescript/daily/spy/spy_macd_optimized.pine
 Tournament rank: #3
 
 Entry:

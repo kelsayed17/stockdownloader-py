@@ -31,7 +31,7 @@ import time
 from pathlib import Path
 
 from stockdownloader.app.ml_helpers import add_common_ml_args, init_ml_env
-from stockdownloader.core.config import DEFAULT_ML_PIPELINE_DIR
+from stockdownloader.core.config import DEFAULT_ML_PIPELINE_DIR, DEFAULT_PINESCRIPT_DIR
 
 
 # ======================================================================
@@ -1074,9 +1074,10 @@ def main(argv: list[str] | None = None) -> None:
         )
         pine_code = PineScriptGenerator().generate(strategy_def)
 
-        # Ensure output directory exists
-        output_dir.mkdir(parents=True, exist_ok=True)
-        pine_path = output_dir / "spy_ml_ensemble.pine"
+        # Write pine file to consolidated pinescript directory
+        pine_dir = DEFAULT_PINESCRIPT_DIR / "intraday" / "spy"
+        pine_dir.mkdir(parents=True, exist_ok=True)
+        pine_path = pine_dir / "spy_ml_ensemble.pine"
         pine_path.write_text(pine_code, encoding="utf-8")
 
         print(f"  PineScript written to: {pine_path}")
@@ -1129,7 +1130,7 @@ def main(argv: list[str] | None = None) -> None:
     print(f"  Ensemble size:  {ensemble.n_models}")
     print(f"  Surrogate R2:   {r_squared:.4f}")
     if not args.no_pine:
-        print(f"  PineScript:     {output_dir / 'spy_ml_ensemble.pine'}")
+        print(f"  PineScript:     {DEFAULT_PINESCRIPT_DIR / 'intraday' / 'spy' / 'spy_ml_ensemble.pine'}")
     print()
 
 

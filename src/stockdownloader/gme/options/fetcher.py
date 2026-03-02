@@ -153,41 +153,63 @@ class OptionsDataFetcher:
         )
 
     def _fetch_contract_bars(self, contract: dict) -> list[dict]:
-        """Fetch a daily bar for a single contract on its expiration date.
+        """Fetch all daily bars for a contract across its tradable lifetime.
 
-        Returns a list with zero or one bar dict enriched with contract
-        metadata.  Uses the expiration date as the trade date so each
-        contract produces at most one observation.
+        Returns a list of bar dicts enriched with contract metadata,
+        one per trading day.  Column names match the schema expected by
+        :class:`~stockdownloader.gme.options.state_engine.OptionsStateEngine`:
+
+        ``date``, ``option_ticker``, ``open``, ``high``, ``low``, ``close``,
+        ``volume``, ``vwap``, ``strike``, ``option_type``, ``expiration``,
+        ``open_interest``.
         """
         ticker = contract["ticker"]
         expiration_date = date.fromisoformat(contract["expiration_date"])
         strike_price = contract.get("strike_price")
         contract_type = contract.get("contract_type")
 
+        # Fetch bars from config start to expiration (or end_date)
+        from_date = self.config.start_date
+        to_date = min(expiration_date, self.config.end_date)
+
+        if from_date > to_date:
+            self.checkpoint.last_contract = ticker
+            return []
+
         if self.config.rate_limit_delay > 0:
             time.sleep(self.config.rate_limit_delay)
 
-        bar = self.client.fetch_option_daily_bar(ticker, expiration_date)
-        if bar is None:
+        bars = self.client.fetch_option_daily_bars_range(
+            ticker, from_date, to_date,
+        )
+
+        if not bars:
             self.checkpoint.last_contract = ticker
             return []
 
         self.checkpoint.last_contract = ticker
-        return [
-            {
-                "option_ticker": ticker,
-                "trade_date": str(expiration_date),
-                "open": bar.get("o"),
-                "high": bar.get("h"),
-                "low": bar.get("l"),
-                "close": bar.get("c"),
-                "volume": bar.get("v"),
-                "vwap": bar.get("vw"),
-                "strike_price": strike_price,
-                "option_type": contract_type,
-                "expiration_date": contract["expiration_date"],
-            },
-        ]
+        result: list[dict] = []
+        for bar in bars:
+            # Polygon timestamps are Unix ms → convert to YYYY-MM-DD
+            bar_ts = bar.get("t", 0)
+            bar_date = date.fromtimestamp(bar_ts / 1000).isoformat()
+            result.append(
+                {
+                    "date": bar_date,
+                    "option_ticker": ticker,
+                    "open": bar.get("o"),
+                    "high": bar.get("h"),
+                    "low": bar.get("l"),
+                    "close": bar.get("c"),
+                    "volume": bar.get("v", 0),
+                    "vwap": bar.get("vw"),
+                    "strike": strike_price,
+                    "option_type": contract_type,
+                    "expiration": contract["expiration_date"],
+                    "open_interest": 0,  # Not in Polygon aggs API
+                },
+            )
+        return result
 
     def fetch_bars_for_month(self, month: str) -> pd.DataFrame:
         """Fetch daily bars for all contracts expiring in *month*.

@@ -1,6 +1,6 @@
 """SPY MACD+OBV (Tournament Winner) -- intraday strategy.
 
-Pine Script equivalent: output/pinescript/spy/spy_macd_obv.pine
+Pine Script equivalent: output/pinescript/daily/spy/spy_macd_obv.pine
 Tournament rank: Grand Winner | OOS Score: +74.03 | Degradation: 0.96
 
 Entry:

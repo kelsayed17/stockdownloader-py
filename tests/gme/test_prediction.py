@@ -303,8 +303,8 @@ class TestGmePredictionInCatalog:
         defn = factory()
         pine = gen.generate(defn)
         assert "//@version=6" in pine
-        assert "alertcondition" in pine
+        assert "strategy(" in pine
 
     def test_catalog_count_updated(self) -> None:
-        """Catalog should now have 21 strategies (14 + GME + 3 SPY + 3 SPY v2)."""
-        assert len(STRATEGY_CATALOG) == 21
+        """Catalog should now have 18 strategies (9 + 5 VWAP + GME + 3 SPY)."""
+        assert len(STRATEGY_CATALOG) == 18

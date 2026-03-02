@@ -76,28 +76,41 @@ class TestOptionsDataFetcherBars:
         mock_client = MagicMock()
         mock_client.fetch_option_contracts.return_value = [
             {
-                "ticker": "O:GME220121C00020000",
-                "listed_date": "2022-01-03",
-                "expiration_date": "2022-01-21",
+                "ticker": "O:GME230120C00020000",
+                "listed_date": "2023-01-03",
+                "expiration_date": "2023-01-20",
                 "strike_price": 20.0,
                 "contract_type": "call",
             },
         ]
-        mock_client.fetch_option_daily_bar.return_value = {
-            "o": 5.0, "h": 6.0, "l": 4.5, "c": 5.5, "v": 100, "vw": 5.3,
-        }
+        # Range API returns list of bar dicts with Unix-ms timestamps
+        mock_client.fetch_option_daily_bars_range.return_value = [
+            {
+                "o": 5.0, "h": 6.0, "l": 4.5, "c": 5.5, "v": 100, "vw": 5.3,
+                "t": 1674172800000,  # 2023-01-20 UTC
+            },
+            {
+                "o": 5.2, "h": 6.1, "l": 4.8, "c": 5.8, "v": 80, "vw": 5.5,
+                "t": 1674086400000,  # 2023-01-19 UTC
+            },
+        ]
         cfg = GMEOptionsConfig(
-            start_date=date(2022, 1, 1),
-            end_date=date(2022, 1, 31),
+            start_date=date(2023, 1, 1),
+            end_date=date(2023, 1, 31),
             data_dir=tmp_path,
             rate_limit_delay=0.0,
         )
         fetcher = OptionsDataFetcher(cfg, client=mock_client)
-        df = fetcher.fetch_bars_for_month("2022-01")
-        assert len(df) == 1
-        assert df.iloc[0]["option_ticker"] == "O:GME220121C00020000"
+        df = fetcher.fetch_bars_for_month("2023-01")
+        assert len(df) == 2
+        assert df.iloc[0]["option_ticker"] == "O:GME230120C00020000"
         assert df.iloc[0]["close"] == 5.5
         assert df.iloc[0]["option_type"] == "call"
+        # Verify column names match StateEngine schema
+        assert "date" in df.columns
+        assert "strike" in df.columns
+        assert "expiration" in df.columns
+        assert "open_interest" in df.columns
 
     def test_save_and_load_month(self, tmp_path):
         import pandas as pd
