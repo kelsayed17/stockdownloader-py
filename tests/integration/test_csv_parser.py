@@ -9,9 +9,9 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.csv_parser import CsvParser
+from stockdownloader.data.parsers import CsvPriceDataLoader
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.io import CsvParser
 
 
 def test_parse_csv_to_price_data_end_to_end():

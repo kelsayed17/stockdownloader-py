@@ -1,0 +1,31 @@
+{
+    "training": {
+        "forward_periods": [
+            10
+        ],
+        "profit_thresholds": [
+            0.005
+        ],
+        "model_types": [
+            "gradient_boosting"
+        ],
+        "n_estimators": 200,
+        "max_depth": 4
+    },
+    "hybrid": {
+        "modes": [
+            "confirmed",
+            "weighted"
+        ],
+        "ml_threshold": 0.6
+    },
+    "backtest": {
+        "initial_capital": 100000.0,
+        "commission": 10.0
+    },
+    "selection": {
+        "top_n": 5,
+        "export_pine": true,
+        "pine_depth": 6
+    }
+}

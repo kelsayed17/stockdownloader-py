@@ -7,9 +7,9 @@ from decimal import Decimal, ROUND_HALF_UP
 
 import pytest
 
-from stockdownloader.analysis.formula_calculator import FormulaCalculator, ValuationInputs
-from stockdownloader.model.quote_data import QuoteData
-from stockdownloader.model.unified_market_data import FinancialData, HistoricalData
+from stockdownloader.analysis.formula import FormulaCalculator, ValuationInputs
+from stockdownloader.core.models.financial import QuoteData
+from stockdownloader.core.models.market_data import FinancialData, HistoricalData
 
 
 def _create_standard_quote() -> QuoteData:

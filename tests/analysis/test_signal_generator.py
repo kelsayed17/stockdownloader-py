@@ -3,9 +3,9 @@
 import random
 from decimal import Decimal
 
-from stockdownloader.analysis.signal_generator import generate_alert
-from stockdownloader.model.alert_result import AlertDirection
-from stockdownloader.model.price_data import PriceData
+from stockdownloader.analysis.alert_generator import generate_alert
+from stockdownloader.core.models.alert import AlertDirection
+from stockdownloader.core.models.price import PriceData
 
 
 def _generate_test_data(days):

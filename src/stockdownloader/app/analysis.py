@@ -1,0 +1,269 @@
+"""Unified entry point for dynamic symbol analysis, backtesting, and alert generation.
+
+Fetches live data from Yahoo Finance for any symbol, then:
+1. Displays current indicator snapshot
+2. Generates trading alerts with buy/sell signals
+3. Provides options recommendations (calls, puts, strike prices)
+4. Runs all equity strategies as backtests
+5. Runs all options strategies as backtests
+6. Compares results
+
+Usage:
+    python -m stockdownloader.app.analysis SYMBOL [RANGE]
+
+Supported ranges: 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, max (default: 5y)
+"""
+from __future__ import annotations
+
+import argparse
+import logging
+import sys
+from decimal import Decimal, ROUND_HALF_UP
+
+from stockdownloader.app.helpers import (
+    INITIAL_CAPITAL,
+    OPTIONS_COMMISSION,
+    fetch_daily_data,
+)
+from stockdownloader.analysis.alert_generator import generate_alert
+from stockdownloader.backtesting.engines.daily import BacktestEngine
+from stockdownloader.backtesting.results import formatter as report_formatter
+from stockdownloader.backtesting.engines.options import OptionsBacktestEngine
+from stockdownloader.strategies.loader import ensure_registered
+from stockdownloader.strategies.registry import StrategyRegistry
+
+logger = logging.getLogger(__name__)
+
+EQUITY_COMMISSION = Decimal("0")
+
+
+def _print_summary(
+    symbol: str,
+    data: list,
+    alert,
+    equity_results: list,
+    options_results: list,
+) -> None:
+    """Print the unified analysis summary."""
+    print()
+    print("\u2554" + "\u2550" * 66 + "\u2557")
+    print("\u2551" + "                      ANALYSIS SUMMARY                           " + "\u2551")
+    print("\u255a" + "\u2550" * 66 + "\u255d")
+    print()
+    print(f"  Symbol:            {symbol}")
+    print(f"  Current Price:     ${data[-1].close.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}")
+    print(f"  Signal:            {alert.direction.value}")
+    print(f"  Confluence:        {alert.signal_strength}")
+    print()
+
+    print("  Call Recommendation:")
+    print(f"    {alert.call_recommendation}")
+    print("  Put Recommendation:")
+    print(f"    {alert.put_recommendation}")
+    print()
+
+    # Best equity strategy
+    best_equity = None
+    for r in equity_results:
+        if best_equity is None or r.total_return > best_equity.total_return:
+            best_equity = r
+    if best_equity is not None:
+        print(
+            f"  Best Equity Strategy:    {best_equity.strategy_name} "
+            f"({best_equity.total_return.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}% return)"
+        )
+
+    # Best options strategy
+    best_options = None
+    for r in options_results:
+        if best_options is None or r.total_return > best_options.total_return:
+            best_options = r
+    if best_options is not None:
+        print(
+            f"  Best Options Strategy:   {best_options.strategy_name} "
+            f"({best_options.total_return.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}% return)"
+        )
+
+    print()
+    print("  DISCLAIMER: This is for educational purposes only.")
+    print("  Not financial advice. Past performance does not guarantee future results.")
+    print("  Always do your own research before trading.")
+    print()
+
+
+def _print_usage() -> None:
+    """Print usage information."""
+    print("Stock Analysis & Backtesting Platform")
+    print()
+    print("Usage: symbol_analysis_app SYMBOL [RANGE]")
+    print()
+    print("Arguments:")
+    print("  SYMBOL   Ticker symbol to analyze (e.g., AAPL, SPY, TSLA, MSFT)")
+    print("  RANGE    Historical data range (default: 5y)")
+    print("           Options: 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, max")
+    print()
+    print("Examples:")
+    print("  symbol_analysis_app AAPL          # Analyze Apple with 5 years data")
+    print("  symbol_analysis_app SPY 2y        # Analyze SPY with 2 years data")
+    print("  symbol_analysis_app TSLA 1y       # Analyze Tesla with 1 year data")
+    print("  symbol_analysis_app MSFT max      # Analyze Microsoft with all data")
+    print()
+    print("The tool will:")
+    print("  1. Fetch live data from Yahoo Finance")
+    print("  2. Compute 20+ technical indicators")
+    print("  3. Generate buy/sell alerts with confluence scoring")
+    print("  4. Recommend options trades (calls/puts with strike prices)")
+    print("  5. Backtest 9 equity strategies and 6 options strategies")
+    print("  6. Compare all strategy performance")
+
+
+def main() -> None:
+    """Entry point for the unified symbol analysis application."""
+    parser = argparse.ArgumentParser(
+        description="Stock Analysis & Backtesting Platform",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Supported ranges: 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, max (default: 5y)\n"
+            "\n"
+            "Examples:\n"
+            "  symbol_analysis_app AAPL          # Analyze Apple with 5 years data\n"
+            "  symbol_analysis_app SPY 2y        # Analyze SPY with 2 years data\n"
+            "  symbol_analysis_app TSLA 1y       # Analyze Tesla with 1 year data\n"
+        ),
+    )
+    parser.add_argument("symbol", help="Ticker symbol to analyze (e.g., AAPL, SPY, TSLA)")
+    parser.add_argument(
+        "range",
+        nargs="?",
+        default="5y",
+        help="Historical data range (default: 5y). Options: 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, max",
+    )
+    args = parser.parse_args()
+
+    symbol = args.symbol.upper()
+    data_range = args.range
+
+    print("\u2554" + "\u2550" * 66 + "\u2557")
+    print("\u2551" + "           STOCK ANALYSIS & BACKTESTING PLATFORM                 " + "\u2551")
+    print("\u255a" + "\u2550" * 66 + "\u255d")
+    print()
+
+    # === PHASE 1: Fetch Data ===
+    data = fetch_daily_data(symbol, period=data_range)
+
+    if not data:
+        print(f"ERROR: Could not fetch data for symbol '{symbol}'.")
+        print("Verify the symbol is valid and try again.")
+        return
+
+    print(f"Loaded {len(data)} trading days for {symbol}")
+    print(f"Date range: {data[0].date} to {data[-1].date}")
+    print(f"Current price: ${data[-1].close.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}")
+    print(f"Starting capital: ${INITIAL_CAPITAL.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}")
+    print()
+
+    # === PHASE 2: Generate Alerts ===
+    print("Analyzing indicators and generating signals...")
+    print()
+    alert = generate_alert(symbol, data)
+    print(alert)
+
+    # === PHASE 3: Run Equity Backtests ===
+    print()
+    print("\u2554" + "\u2550" * 66 + "\u2557")
+    print("\u2551" + "                    EQUITY STRATEGY BACKTESTS                    " + "\u2551")
+    print("\u255a" + "\u2550" * 66 + "\u255d")
+    print()
+
+    ensure_registered()
+
+    equity_strategies = [
+        # Classic strategies
+        StrategyRegistry.create("sma", short_period=50, long_period=200),
+        StrategyRegistry.create("sma", short_period=20, long_period=50),
+        StrategyRegistry.create("rsi", period=14, oversold=30.0, overbought=70.0),
+        StrategyRegistry.create("rsi", period=14, oversold=25.0, overbought=75.0),
+        StrategyRegistry.create("macd", fast_period=12, slow_period=26, signal_period=9),
+        # Multi-indicator strategies
+        StrategyRegistry.create("bollinger"),
+        StrategyRegistry.create("momentum"),
+        StrategyRegistry.create("breakout"),
+        StrategyRegistry.create("multi"),
+    ]
+
+    equity_engine = BacktestEngine(INITIAL_CAPITAL, EQUITY_COMMISSION)
+    equity_results = []
+
+    for strategy in equity_strategies:
+        try:
+            print(f"Running: {strategy.name}...")
+            result = equity_engine.run(strategy, data)
+            equity_results.append(result)
+            report_formatter.print_daily_report(result, data)
+        except Exception as exc:
+            logger.warning(
+                "Failed to run strategy %s: %s",
+                strategy.name, exc, exc_info=True,
+            )
+
+    if equity_results:
+        report_formatter.print_daily_comparison(equity_results, data)
+
+    # === PHASE 4: Run Options Backtests ===
+    print()
+    print("\u2554" + "\u2550" * 66 + "\u2557")
+    print("\u2551" + "                   OPTIONS STRATEGY BACKTESTS                    " + "\u2551")
+    print("\u255a" + "\u2550" * 66 + "\u255d")
+    print()
+
+    options_strategies = [
+        StrategyRegistry.create(
+            "covered-call", ma_period=20, otm_percent=Decimal("0.03"),
+            days_to_expiry=30, exit_threshold=Decimal("0.03"),
+        ),
+        StrategyRegistry.create(
+            "covered-call", ma_period=20, otm_percent=Decimal("0.05"),
+            days_to_expiry=30, exit_threshold=Decimal("0.03"),
+        ),
+        StrategyRegistry.create(
+            "covered-call", ma_period=50, otm_percent=Decimal("0.05"),
+            days_to_expiry=45, exit_threshold=Decimal("0.04"),
+        ),
+        StrategyRegistry.create(
+            "protective-put", ma_period=20, otm_percent=Decimal("0.05"),
+            days_to_expiry=30, momentum_lookback=5,
+        ),
+        StrategyRegistry.create(
+            "protective-put", ma_period=20, otm_percent=Decimal("0.03"),
+            days_to_expiry=45, momentum_lookback=10,
+        ),
+        StrategyRegistry.create(
+            "protective-put", ma_period=50, otm_percent=Decimal("0.05"),
+            days_to_expiry=60, momentum_lookback=10,
+        ),
+    ]
+
+    options_engine = OptionsBacktestEngine(INITIAL_CAPITAL, OPTIONS_COMMISSION)
+    options_results = []
+
+    for strategy in options_strategies:
+        try:
+            print(f"Running: {strategy.name}...")
+            result = options_engine.run(strategy, data)
+            options_results.append(result)
+            report_formatter.print_options_report(result)
+        except Exception as exc:
+            logger.warning(
+                "Failed to run options strategy %s: %s",
+                strategy.name, exc, exc_info=True,
+            )
+
+    if options_results:
+        report_formatter.print_options_comparison(options_results)
+
+    # === PHASE 5: Summary ===
+    _print_summary(symbol, data, alert, equity_results, options_results)
+
+
+if __name__ == "__main__":
+    main()

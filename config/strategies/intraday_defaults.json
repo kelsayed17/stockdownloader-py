@@ -1,0 +1,36 @@
+{
+    "_doc": "Default parameters for intraday strategies. Override per-strategy via CLI or config.",
+    "infrastructure": {
+        "adx_len": 14,
+        "ema_fast": 9,
+        "ema_slow": 21,
+        "slope_period": 5,
+        "or_bars": 3,
+        "bars_per_day": 78,
+        "can_trade_bar": 11,
+        "eod_bar": 78,
+        "lunch_start": 25,
+        "lunch_end": 54,
+        "day_loss": 3.0
+    },
+    "exit": {
+        "be_trigger": 0.7,
+        "trail_vwap": true,
+        "close_eod": true,
+        "trail_buf": 0.15
+    },
+    "risk": {
+        "allow_longs": true,
+        "allow_shorts": false,
+        "adx_thresh": 22,
+        "max_day": 1,
+        "spacing": 5
+    },
+    "confluence": {
+        "w_sr": 2,
+        "w_vol": 2,
+        "w_time": 1,
+        "w_rsi": 1,
+        "min_score": 4
+    }
+}

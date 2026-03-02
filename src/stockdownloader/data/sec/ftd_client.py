@@ -1,0 +1,529 @@
+"""Downloads and caches SEC Failure-to-Deliver data.
+
+SEC publishes FTD data as pipe-delimited text inside zip files.  Two eras
+of data exist with different archive formats:
+
+**Quarterly archives (Q1 2004 -- Q2 2009)**:
+
+* ``/files/data/frequently-requested-foia-document-fails-deliver-data/
+  cnsp_sec_fails_YYYYqN.zip``
+* Exception: Q1 2004 lives under ``/files/data/fails-deliver-data/``
+* Each zip contains 3 monthly text files (e.g. ``cnsp_sec_fails_200701.txt``)
+* Pre-Sep 2008 data only includes securities with ≥10,000 shares FTD
+
+**Half-month archives (Jul 2009 -- present)**:
+
+* Jul 2009 -- first-half Jun 2017:
+  ``/files/data/frequently-requested-foia-document-fails-deliver-data/``
+* Second-half Jun 2017 onward:
+  ``/files/data/fails-deliver-data/``
+* Feb--Apr 2020 (migration artefact):
+  ``/files/node/add/data_distribution/``
+* File naming: ``cnsfails{YYYYMM}{a|b}.zip``
+
+Columns: SETTLEMENT DATE|CUSIP|SYMBOL|QUANTITY (FAILS)|DESCRIPTION|PRICE
+Date format in file: YYYYMMDD
+
+Rate-limited to 10 req/s (SEC fair-use policy).  Downloaded zip files
+are cached locally to avoid redundant downloads.
+
+Usage::
+
+    client = SecFtdClient()
+    records = client.fetch_ftd_data("GME")           # full history from 2004
+    records = client.fetch_ftd_data("AAPL", start_year=2020)  # recent only
+"""
+
+from __future__ import annotations
+
+import logging
+import time
+import zipfile
+from datetime import date, datetime, timedelta
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
+
+import requests
+
+from stockdownloader.data.base_client import BaseDataClient
+from stockdownloader.data.sec.common import SplitAdjustment, _KNOWN_SPLITS
+from stockdownloader.core.models.regulatory import FtdRecord
+
+logger = logging.getLogger(__name__)
+
+_MAX_RETRIES = 3
+# SEC enforces 10 req/sec.  Use 0.25s to be conservative and avoid 403s.
+_RATE_LIMIT_DELAY = 0.25
+
+# ---------------------------------------------------------------------------
+# URL templates -- SEC hosts FTD zips under three different prefixes
+# depending on the data vintage.  Boundaries were determined from the
+# official download page:
+#     https://www.sec.gov/data-research/sec-markets-data/fails-deliver-data
+# ---------------------------------------------------------------------------
+
+_BASE = "https://www.sec.gov"
+
+_FTD_URL_CURRENT = (
+    _BASE + "/files/data/fails-deliver-data/"
+    "cnsfails{year}{month:02d}{half}.zip"
+)
+_FTD_URL_FOIA = (
+    _BASE + "/files/data/"
+    "frequently-requested-foia-document-fails-deliver-data/"
+    "cnsfails{year}{month:02d}{half}.zip"
+)
+_FTD_URL_NODE = (
+    _BASE + "/files/node/add/data_distribution/"
+    "cnsfails{year}{month:02d}{half}.zip"
+)
+
+# ---------------------------------------------------------------------------
+# Quarterly archive URLs (Q1 2004 -- Q2 2009)
+# ---------------------------------------------------------------------------
+
+_FTD_QUARTERLY_FOIA = (
+    _BASE + "/files/data/"
+    "frequently-requested-foia-document-fails-deliver-data/"
+    "cnsp_sec_fails_{year}q{quarter}.zip"
+)
+# Q1 2004 lives under a different prefix than the rest.
+_FTD_QUARTERLY_CURRENT = (
+    _BASE + "/files/data/fails-deliver-data/"
+    "cnsp_sec_fails_{year}q{quarter}.zip"
+)
+
+# The last quarter that uses the quarterly archive format.
+# Starting Jul 2009 the SEC switched to half-month archives.
+_QUARTERLY_LAST = (2009, 2)  # Q2 2009 (Apr-Jun 2009)
+
+# Dates that live exclusively under the /files/node/add/ prefix.
+_NODE_DATES: set[tuple[int, int, str]] = {
+    (2020, 2, "a"), (2020, 2, "b"),
+    (2020, 3, "a"), (2020, 3, "b"),
+    (2020, 4, "a"), (2020, 4, "b"),
+}
+
+# The single known file with an anomalous ``_0`` suffix.
+_ANOMALOUS_SUFFIX: dict[tuple[int, int, str], str] = {
+    (2019, 10, "a"): "_0",
+}
+
+# First (year, month, half) that uses the "current" prefix.
+# Everything before this uses the FOIA prefix.
+_FOIA_CUTOFF = (2017, 6, "b")
+
+
+def _ftd_url(year: int, month: int, half: str) -> str:
+    """Return the correct SEC FTD download URL for a given date/half."""
+    key = (year, month, half)
+
+    if key in _NODE_DATES:
+        return _FTD_URL_NODE.format(year=year, month=month, half=half)
+
+    suffix = _ANOMALOUS_SUFFIX.get(key, "")
+
+    if key < _FOIA_CUTOFF:
+        template = _FTD_URL_FOIA
+    else:
+        template = _FTD_URL_CURRENT
+
+    url = template.format(year=year, month=month, half=half)
+    if suffix:
+        url = url.replace(".zip", f"{suffix}.zip")
+    return url
+
+
+class SecFtdClient(BaseDataClient):
+    """Downloads and caches SEC Failure-to-Deliver data."""
+
+    def __init__(
+        self,
+        user_agent: str = "StockDownloader admin@example.com",
+        cache_dir: str = "data",
+    ) -> None:
+        super().__init__(
+            rate_limit_delay=_RATE_LIMIT_DELAY,
+            max_retries=_MAX_RETRIES,
+            data_dir=cache_dir,
+            default_headers={
+                "User-Agent": user_agent,
+                "Accept-Encoding": "gzip, deflate",
+            },
+        )
+        self._cache_dir = self._data_dir / "cache" / "ftd"
+        self._cache_dir.mkdir(parents=True, exist_ok=True)
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def fetch_ftd_data(
+        self,
+        symbol: str,
+        start_year: int = 2004,
+        end_year: int | None = None,
+        extra_splits: list[SplitAdjustment] | None = None,
+    ) -> list[FtdRecord]:
+        """Fetch FTD records for *symbol* across the given year range.
+
+        Downloads and caches zip files from SEC, parses pipe-delimited
+        contents, and filters by *symbol* (case-insensitive).
+
+        The SEC provides FTD data in two archive formats:
+
+        * **Q1 2004 -- Q2 2009**: quarterly zips (``cnsp_sec_fails_YYYYqN.zip``)
+          containing 3 monthly text files each.
+        * **Jul 2009 -- present**: half-month zips (``cnsfailsYYYYMMx.zip``)
+          containing a single text file each.
+
+        Any known stock splits (see :data:`_KNOWN_SPLITS`) are applied
+        automatically.  Pass *extra_splits* to supply additional split
+        events without modifying the module-level registry.
+
+        Returns records sorted by ``settlement_date`` ascending.
+        """
+        if end_year is None:
+            end_year = datetime.now().year
+
+        # Clamp start_year to the earliest available data.
+        start_year = max(start_year, 2004)
+
+        symbol_upper = symbol.upper()
+
+        # Auto-narrow start year from IPO date when the caller used the
+        # default.  This avoids downloading years of empty ZIPs for
+        # symbols that IPO'd after 2004 (e.g. TSLA in 2010).
+        from stockdownloader.core.models.symbol import get_symbol_info
+
+        _info = get_symbol_info(symbol_upper)
+        if _info is not None:
+            start_year = max(start_year, _info.ftd_start_year)
+
+        # Build the combined splits list for this symbol (may be multiple).
+        all_splits = _KNOWN_SPLITS + (extra_splits or [])
+        splits = [s for s in all_splits if s.symbol == symbol_upper]
+        all_records: list[FtdRecord] = []
+
+        # Phase 1: Quarterly archives (Q1 2004 -- Q2 2009)
+        if start_year <= _QUARTERLY_LAST[0]:
+            all_records.extend(
+                self._fetch_quarterly_era(
+                    symbol_upper, start_year, end_year, splits,
+                ),
+            )
+
+        # Phase 2: Half-month archives (Jul 2009 -- present)
+        hm_start_year = max(start_year, 2009)
+        if hm_start_year <= end_year:
+            all_records.extend(
+                self._fetch_half_month_era(
+                    symbol_upper, hm_start_year, end_year, splits,
+                ),
+            )
+
+        all_records.sort(key=lambda r: r.settlement_date)
+        return all_records
+
+    # ------------------------------------------------------------------
+    # Era-specific fetchers
+    # ------------------------------------------------------------------
+
+    def _fetch_quarterly_era(
+        self,
+        symbol: str,
+        start_year: int,
+        end_year: int,
+        splits: list[SplitAdjustment],
+    ) -> list[FtdRecord]:
+        """Fetch from the quarterly archive era (Q1 2004 -- Q2 2009)."""
+        records: list[FtdRecord] = []
+        q_end_year = min(end_year, _QUARTERLY_LAST[0])
+
+        for year in range(start_year, q_end_year + 1):
+            for quarter in range(1, 5):
+                if year == _QUARTERLY_LAST[0] and quarter > _QUARTERLY_LAST[1]:
+                    break
+                path = self._download_quarterly(year, quarter)
+                if path is None:
+                    continue
+                try:
+                    contents = self._read_zip_all(path)
+                except (zipfile.BadZipFile, OSError) as exc:
+                    logger.warning("Failed to read zip %s: %s", path, exc)
+                    continue
+                for content in contents:
+                    records.extend(
+                        self._parse_ftd_file(content, symbol, splits=splits),
+                    )
+        return records
+
+    def _fetch_half_month_era(
+        self,
+        symbol: str,
+        start_year: int,
+        end_year: int,
+        splits: list[SplitAdjustment],
+    ) -> list[FtdRecord]:
+        """Fetch from the half-month archive era (Jul 2009 -- present)."""
+        records: list[FtdRecord] = []
+
+        for year in range(start_year, end_year + 1):
+            start_month = 7 if year == 2009 else 1
+            for month in range(start_month, 13):
+                # Skip future months
+                now = datetime.now()
+                if year == now.year and month > now.month:
+                    break
+
+                for half in ("a", "b"):
+                    path = self._download_half_month(year, month, half)
+                    if path is None:
+                        continue
+                    try:
+                        content = self._read_zip(path)
+                    except (zipfile.BadZipFile, OSError) as exc:
+                        logger.warning(
+                            "Failed to read zip %s: %s", path, exc,
+                        )
+                        continue
+                    records.extend(
+                        self._parse_ftd_file(content, symbol, splits=splits),
+                    )
+        return records
+
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+
+    def _download_quarterly(
+        self,
+        year: int,
+        quarter: int,
+    ) -> Path | None:
+        """Download and cache a quarterly FTD zip (pre-Jul 2009 era).
+
+        Returns the local file path on success, ``None`` on failure.
+        """
+        filename = f"cnsp_sec_fails_{year}q{quarter}.zip"
+        cached = self._cache_dir / filename
+        if cached.exists():
+            return cached
+
+        # Q1 2004 lives under a different prefix.
+        if year == 2004 and quarter == 1:
+            url = _FTD_QUARTERLY_CURRENT.format(year=year, quarter=quarter)
+        else:
+            url = _FTD_QUARTERLY_FOIA.format(year=year, quarter=quarter)
+
+        return self._download_url(url, cached)
+
+    def _download_half_month(
+        self,
+        year: int,
+        month: int,
+        half: str,
+    ) -> Path | None:
+        """Download and cache a single half-month FTD zip file.
+
+        Returns the local file path on success, ``None`` on failure.
+        """
+        filename = f"cnsfails{year}{month:02d}{half}.zip"
+        cached = self._cache_dir / filename
+        if cached.exists():
+            return cached
+
+        url = _ftd_url(year, month, half)
+        return self._download_url(url, cached)
+
+    def _download_url(self, url: str, cached: Path) -> Path | None:
+        """Download *url* to *cached* with retry and rate-limiting.
+
+        Returns the local file path on success, ``None`` on failure.
+        """
+        for attempt in range(_MAX_RETRIES):
+            try:
+                self._rate_limit()
+                resp = self._session.get(url, timeout=30)
+                if resp.status_code == 200:
+                    cached.write_bytes(resp.content)
+                    return cached
+                if resp.status_code == 404:
+                    logger.debug("FTD file not found (404): %s", url)
+                    return None
+                if resp.status_code == 403:
+                    logger.info(
+                        "SEC rate-limited (403): %s (attempt %d/%d)",
+                        url, attempt + 1, _MAX_RETRIES,
+                    )
+                    time.sleep(2.0 * (attempt + 1))
+                    continue
+                logger.warning(
+                    "SEC returned %d for %s (attempt %d/%d)",
+                    resp.status_code, url, attempt + 1, _MAX_RETRIES,
+                )
+            except (requests.RequestException, OSError) as exc:
+                logger.warning(
+                    "FTD download failed: %s (attempt %d/%d)",
+                    exc, attempt + 1, _MAX_RETRIES,
+                )
+            if attempt < _MAX_RETRIES - 1:
+                time.sleep(1.0)
+
+        return None
+
+    @staticmethod
+    def _read_zip(path: Path) -> str:
+        """Extract the first text file from a cached zip archive.
+
+        Half-month FTD zips contain exactly one pipe-delimited text file.
+        Some files use latin-1 encoding rather than UTF-8.
+        """
+        with zipfile.ZipFile(path, "r") as zf:
+            names = zf.namelist()
+            if not names:
+                return ""
+            raw = zf.read(names[0])
+            try:
+                return raw.decode("utf-8")
+            except UnicodeDecodeError:
+                return raw.decode("latin-1")
+
+    @staticmethod
+    def _read_zip_all(path: Path) -> list[str]:
+        """Extract all text files from a quarterly zip archive.
+
+        Quarterly FTD zips contain 3 monthly text files
+        (e.g. ``cnsp_sec_fails_200701.txt``, ``..._200702.txt``, ``..._200703.txt``).
+        Returns a list of decoded text content, one per file.
+        """
+        results: list[str] = []
+        with zipfile.ZipFile(path, "r") as zf:
+            for name in sorted(zf.namelist()):
+                raw = zf.read(name)
+                try:
+                    results.append(raw.decode("utf-8"))
+                except UnicodeDecodeError:
+                    results.append(raw.decode("latin-1"))
+        return results
+
+    @staticmethod
+    def _parse_ftd_file(
+        content: str,
+        symbol: str,
+        *,
+        split: SplitAdjustment | None = None,
+        splits: list[SplitAdjustment] | None = None,
+    ) -> list[FtdRecord]:
+        """Parse pipe-delimited FTD text and filter by *symbol*.
+
+        Parameters
+        ----------
+        content:
+            Raw pipe-delimited text from the SEC zip file.
+        symbol:
+            Ticker to filter for (already upper-cased).
+        split:
+            *Deprecated* — single :class:`SplitAdjustment`.  Prefer
+            *splits* for stocks with multiple historical splits.
+            Kept for backward compatibility.
+        splits:
+            List of :class:`SplitAdjustment` objects to apply.  Each
+            split whose cutoff date (``split_date + 4 days``) is after
+            the settlement date will be applied, multiplying quantity
+            and dividing price by the split ratio.  Splits are applied
+            chronologically (newest first) so that the combined effect
+            is cumulative.
+
+        Returns
+        -------
+        List of :class:`FtdRecord` instances matching *symbol*.
+        """
+        records: list[FtdRecord] = []
+        lines = content.splitlines()
+
+        # Normalise into a single list, merging legacy `split` with `splits`.
+        all_splits: list[SplitAdjustment] = list(splits or [])
+        if split is not None and split not in all_splits:
+            all_splits.append(split)
+
+        # Pre-compute cutoff strings for each split.  We sort newest
+        # first so the outer loop processes the most-recent split first.
+        # Use split_date + 4 calendar days (~3 business days) to cover
+        # T+2 settlement: trades executed pre-split may settle a few
+        # days after the ex-date with pre-split prices/quantities.
+        split_cutoffs: list[tuple[str, Decimal]] = sorted(
+            [
+                (
+                    (s.split_date + timedelta(days=4)).isoformat(),
+                    s.split_ratio,
+                )
+                for s in all_splits
+            ],
+            reverse=True,  # newest split first
+        )
+
+        for line in lines:
+            # Skip header and blank lines
+            if not line.strip() or line.startswith("SETTLEMENT"):
+                continue
+
+            parts = line.split("|")
+            if len(parts) < 6:
+                continue
+
+            raw_date = parts[0].strip()
+            cusip = parts[1].strip()
+            row_symbol = parts[2].strip().upper()
+            raw_qty = parts[3].strip()
+            description = parts[4].strip()
+            raw_price = parts[5].strip()
+
+            if row_symbol != symbol:
+                continue
+
+            # Parse settlement date: YYYYMMDD -> YYYY-MM-DD
+            try:
+                dt = datetime.strptime(raw_date, "%Y%m%d")
+                settlement_date = dt.strftime("%Y-%m-%d")
+            except ValueError:
+                logger.debug("Skipping line with bad date: %s", raw_date)
+                continue
+
+            # Parse quantity
+            try:
+                quantity = int(raw_qty)
+            except ValueError:
+                logger.debug("Skipping line with bad quantity: %s", raw_qty)
+                continue
+
+            # Parse price
+            try:
+                price = Decimal(raw_price) if raw_price else Decimal("0")
+            except InvalidOperation:
+                price = Decimal("0")
+
+            # Apply ALL applicable splits cumulatively.
+            # For each split whose cutoff is *after* the settlement
+            # date, multiply quantity and divide price.
+            for cutoff_str, ratio in split_cutoffs:
+                if settlement_date < cutoff_str:
+                    quantity = int(Decimal(quantity) * ratio)
+                    if price > 0:
+                        price = price / ratio
+
+            try:
+                records.append(FtdRecord(
+                    settlement_date=settlement_date,
+                    symbol=row_symbol,
+                    cusip=cusip,
+                    quantity=quantity,
+                    description=description,
+                    price=price,
+                ))
+            except ValueError:
+                # Skip records that fail validation
+                continue
+
+        return records
+

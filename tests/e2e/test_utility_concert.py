@@ -1,38 +1,37 @@
 """End-to-end test that exercises all utility classes working in concert:
-  DateHelper + FileHelper + RetryExecutor + BigDecimalMath + CsvParser
+  DateHelper + FileHelper + BigDecimalMath + CsvParser
   + MovingAverageCalculator
 
 This test validates that the utility layer correctly supports the
 application's data processing, file I/O, date handling, mathematical
-computations, and retry patterns that are used across the entire system.
+computations that are used across the entire system.
 """
 from __future__ import annotations
 
 import io
-import logging
 import re
 from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
 
 import pytest
 
-from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.util.big_decimal_math import (
+from stockdownloader.data.parsers import CsvPriceDataLoader
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.math import (
     average,
     divide,
     percent_change,
     scale2,
 )
-from stockdownloader.util.csv_parser import CsvParser
-from stockdownloader.util.date_helper import (
+from stockdownloader.core.io import CsvParser
+from stockdownloader.core.io import (
     MORNINGSTAR_FORMAT,
     YAHOO_EARNINGS_FORMAT,
     YAHOO_FORMAT,
     DateHelper,
     adjust_to_market_day,
 )
-from stockdownloader.util.file_helper import (
+from stockdownloader.core.io import (
     append_line,
     delete_file,
     read_csv_lines,
@@ -40,10 +39,7 @@ from stockdownloader.util.file_helper import (
     write_content,
     write_lines,
 )
-from stockdownloader.util.moving_average_calculator import ema, sma
-from stockdownloader.util.retry_executor import execute, execute_with_result
-
-LOGGER = logging.getLogger(__name__)
+from stockdownloader.indicators import ema, sma
 
 
 @pytest.fixture(scope="module")
@@ -226,75 +222,6 @@ def test_file_helper_and_date_helper_integration(tmp_path):
 
     # Clean up
     delete_file(incomplete_file)
-
-
-# ========== RetryExecutor ==========
-
-
-def test_retry_executor_succeeds_on_first_try():
-    attempts = [0]
-
-    def action():
-        attempts[0] += 1
-        # Success on first try
-
-    execute(action, logger=LOGGER, context="successful operation")
-    assert attempts[0] == 1, "Should only attempt once on success"
-
-
-def test_retry_executor_retries_on_failure():
-    attempts = [0]
-
-    def action():
-        attempts[0] += 1
-        if attempts[0] < 3:
-            raise RuntimeError("Simulated failure")
-
-    execute(action, max_retries=3, logger=LOGGER, context="retrying operation")
-    assert attempts[0] == 3, "Should retry until success"
-
-
-def test_retry_executor_exhausts_retries():
-    attempts = [0]
-
-    def action():
-        attempts[0] += 1
-        raise RuntimeError("Always fails")
-
-    execute(action, max_retries=3, logger=LOGGER, context="always failing operation")
-    assert attempts[0] == 4, "Should attempt maxRetries + 1 times (0..3)"
-
-
-def test_retry_executor_supplier_returns_value():
-    result = execute_with_result(
-        lambda: "success",
-        max_retries=3, logger=LOGGER, context="supplier operation",
-    )
-    assert result == "success"
-
-
-def test_retry_executor_supplier_retries_and_returns():
-    attempts = [0]
-
-    def action():
-        attempts[0] += 1
-        if attempts[0] < 2:
-            raise RuntimeError("Temporary failure")
-        return "recovered"
-
-    result = execute_with_result(
-        action, max_retries=3, logger=LOGGER, context="supplier retry",
-    )
-    assert result == "recovered"
-    assert attempts[0] == 2
-
-
-def test_retry_executor_supplier_returns_none_on_exhaustion():
-    result = execute_with_result(
-        lambda: (_ for _ in ()).throw(RuntimeError("Always fails")),
-        max_retries=2, logger=LOGGER, context="supplier exhaust",
-    )
-    assert result is None, "Should return None when all retries exhausted"
 
 
 # ========== BigDecimalMath ==========
@@ -480,28 +407,6 @@ def test_full_utility_chain_from_csv_to_analysis(tmp_path):
     assert len(results) == 3
 
     delete_file(result_file)
-
-
-def test_retry_executor_with_file_helper(tmp_path):
-    # Simulate retry pattern used by StockListDownloader
-    filepath = str(tmp_path / "retry-test.txt")
-    attempts = [0]
-
-    def action():
-        attempts[0] += 1
-        if attempts[0] < 2:
-            raise RuntimeError("Simulated download failure")
-        # On success, write data
-        write_lines(sorted({"AAPL", "MSFT"}), filepath)
-
-    execute(action, max_retries=3, logger=LOGGER, context="file write with retry")
-
-    lines = read_lines(filepath)
-    assert len(lines) == 2
-    assert "AAPL" in lines
-    assert "MSFT" in lines
-
-    delete_file(filepath)
 
 
 def test_date_helper_formats_used_in_data_pipeline():

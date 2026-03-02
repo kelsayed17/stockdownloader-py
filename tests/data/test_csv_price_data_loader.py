@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
+from stockdownloader.data.parsers import CsvPriceDataLoader
 
 
 def test_load_from_stream():

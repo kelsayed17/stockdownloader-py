@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from stockdownloader.data.intraday_csv_writer import write_to_file
-from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
-from stockdownloader.model.intraday_price_data import IntradayPriceData
+from stockdownloader.data.intraday_csv import write_to_file
+from stockdownloader.data.intraday_csv import IntradayCsvLoader
+from stockdownloader.core.models.price import IntradayPriceData
 
 
 def _make_bar(date: str, close: str = "600.00", volume: int = 1000) -> IntradayPriceData:

@@ -1,0 +1,287 @@
+// This Pine Script(tm) v6 strategy is subject to the terms of the Mozilla Public License 2.0
+// https://mozilla.org/MPL/2.0/
+//
+// BB + RSI Mean Reversion
+//
+// Mean reversion using Bollinger Bands, RSI, and Stochastic.
+// Trades only in range-bound markets (ADX below threshold).
+// Buy at lower band + RSI oversold + Stoch < 20.
+// Sell at upper band + RSI overbought + Stoch > 80.
+//
+// Entry Logic:
+//   Long  - Price at lower BB or RSI crosses above oversold, Stochastic oversold, ranging market
+//   Short - Price at upper BB or RSI crosses below overbought, Stochastic overbought, ranging market
+
+//@version=6
+strategy("BB + RSI Mean Reversion", shorttitle="BB-RSI", overlay=true,
+     initial_capital=100000, default_qty_type=strategy.fixed, default_qty_value=1,
+     commission_type=strategy.commission.cash_per_order, commission_value=1.0,
+     slippage=1, process_orders_on_close=false, calc_on_every_tick=false,
+     margin_long=100, margin_short=100)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INPUTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+int    bbPeriod         = input.int(20, title="BB Period", minval=1)
+float  bbMult           = input.float(2.0, title="BB Std Dev", minval=0.5, step=0.1)
+int    rsiPeriod        = input.int(14, title="RSI Period", minval=1)
+float  rsiOS            = input.float(30, title="RSI Oversold", minval=0.0, step=1.0)
+float  rsiOB            = input.float(70, title="RSI Overbought", minval=0.0, step=1.0)
+float  adxMax           = input.float(25, title="ADX Max (Range-Bound)", minval=0.0, step=1.0)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INDICATORS
+// ─────────────────────────────────────────────────────────────────────────────
+
+[bbMid, bbUpper, bbLower] = ta.bb(close, bbPeriod, bbMult)
+plot([bbMid, bbUpper, bbLower], title="BB", color=color.blue, linewidth=1)
+float rsiVal = ta.rsi(close, rsiPeriod)
+plot(rsiVal, title="RSI", color=color.new(color.gray, 100), display=display.data_window)
+float stochK = ta.stoch(close, high, low, 14)
+float stochD = ta.sma(stochK, 3)
+[plusDI, minusDI, adxValue] = ta.dmi(14, 14)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SESSION
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool isMarket = session.ismarket
+bool isNewDay = timeframe.change("D")
+int  barOfDay = ta.barssince(isNewDay) + 1
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POSITION SIZING
+// ─────────────────────────────────────────────────────────────────────────────
+
+f_qty(float entry, float stop) =>
+    float cap    = 100000.0
+    float risk   = cap * (1.0 / 100.0)
+    float perSh  = math.abs(entry - stop)
+    float raw    = perSh > 0 ? risk / perSh : 1.0
+    float maxQty = entry > 0 ? cap / entry * 0.95 : 1.0
+    math.max(math.min(raw, maxQty), 1.0)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RISK MANAGEMENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+var int   dayTrades  = 0
+var int   lastBarEntry = 0
+var int   consecLoss = 0
+var bool  tripped    = false
+var float dayEquity  = 0.0
+var bool  dayLimited = false
+
+if isNewDay
+    dayTrades  := 0
+    lastBarEntry := 0
+    consecLoss := 0
+    tripped    := false
+    dayEquity  := strategy.equity
+    dayLimited := false
+
+if dayEquity > 0 and (strategy.equity - dayEquity) / dayEquity * 100 <= -3.0
+    dayLimited := true
+
+bool ready  = isMarket and dayTrades < 4 and not tripped and not dayLimited
+bool spaced = (bar_index - lastBarEntry) >= 3 or lastBarEntry == 0
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SIGNAL LOGIC
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool longCondition  = (close <= bbLower or ta.crossover(rsiVal, rsiOS)) and stochK < 20 and adxValue < adxMax
+bool shortCondition = (close >= bbUpper or ta.crossunder(rsiVal, rsiOB)) and stochK > 80 and adxValue < adxMax
+
+bool exitLongCond  = strategy.position_size > 0 and (shortCondition)
+bool exitShortCond = strategy.position_size < 0 and (longCondition)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SL / TP CALCULATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+float atrVal   = ta.atr(14)
+float slRisk   = math.min(atrVal * 1.5, 2.0)
+float longSL   = close - slRisk
+float longTP   = close + slRisk * 1.5
+float shortSL  = close + slRisk
+float shortTP  = close - slRisk * 1.5
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXECUTION
+// ─────────────────────────────────────────────────────────────────────────────
+
+var float  pendingSL  = na
+var float  pendingTP_ = na
+var int    pendingDir = 0
+
+bool goLong  = longCondition and ready and spaced and barstate.isconfirmed
+bool goShort = shortCondition and ready and spaced and barstate.isconfirmed
+
+if goLong
+    if strategy.position_size < 0
+        strategy.close("S", comment="Flip")
+    float qty = f_qty(close, longSL)
+    strategy.entry("L", strategy.long, qty=qty, comment="BB-RSI|L")
+    strategy.exit("LX", "L", stop=longSL, limit=longTP)
+    dayTrades    += 1
+    lastBarEntry := bar_index
+    pendingSL    := longSL
+    pendingTP_   := longTP
+    pendingDir   := 1
+    alert("BB + RSI Mean Reversion: LONG | E " + str.tostring(close, format.mintick) + " | SL " + str.tostring(longSL, format.mintick) + " | TP " + str.tostring(longTP, format.mintick) + " | Qty " + str.tostring(qty, "#"), alert.freq_once_per_bar_close)
+
+if goShort
+    if strategy.position_size > 0
+        strategy.close("L", comment="Flip")
+    float qty = f_qty(close, shortSL)
+    strategy.entry("S", strategy.short, qty=qty, comment="BB-RSI|S")
+    strategy.exit("SX", "S", stop=shortSL, limit=shortTP)
+    dayTrades    += 1
+    lastBarEntry := bar_index
+    pendingSL    := shortSL
+    pendingTP_   := shortTP
+    pendingDir   := -1
+    alert("BB + RSI Mean Reversion: SHORT | E " + str.tostring(close, format.mintick) + " | SL " + str.tostring(shortSL, format.mintick) + " | TP " + str.tostring(shortTP, format.mintick) + " | Qty " + str.tostring(qty, "#"), alert.freq_once_per_bar_close)
+
+// Condition-based exits (strategy SL/TP handled by strategy.exit)
+if exitLongCond
+    strategy.close("L", comment="ExitLong")
+if exitShortCond
+    strategy.close("S", comment="ExitShort")
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TRADE LABELS
+// ─────────────────────────────────────────────────────────────────────────────
+
+bool newLong  = strategy.position_size > 0 and strategy.position_size[1] <= 0
+bool newShort = strategy.position_size < 0 and strategy.position_size[1] >= 0
+float fillPrice = strategy.position_avg_price
+
+if newLong and not na(pendingSL) and pendingDir == 1
+    label.new(bar_index, low - atrVal * 0.5,
+         "\U0001F4C8 LONG" +
+         "\nBB + RSI Mean Reversion" +
+         "\nE  " + str.tostring(fillPrice, format.mintick) +
+         "\nS  " + str.tostring(pendingSL, format.mintick) +
+         "\nT  " + str.tostring(pendingTP_, format.mintick),
+         style=label.style_label_up,
+         color=color.new(#1B5E20, 0),
+         textcolor=color.new(#FFFFFF, 0),
+         size=size.small)
+
+if newShort and not na(pendingSL) and pendingDir == -1
+    label.new(bar_index, high + atrVal * 0.5,
+         "\U0001F4C9 SHORT" +
+         "\nBB + RSI Mean Reversion" +
+         "\nE  " + str.tostring(fillPrice, format.mintick) +
+         "\nS  " + str.tostring(pendingSL, format.mintick) +
+         "\nT  " + str.tostring(pendingTP_, format.mintick),
+         style=label.style_label_down,
+         color=color.new(#B71C1C, 0),
+         textcolor=color.new(#FFFFFF, 0),
+         size=size.small)
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXIT MANAGEMENT — BREAKEVEN + FILL ALIGNMENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+var float entryPrice = na
+var float origSL     = na
+var float pendingTP  = na
+var bool  movedBE    = false
+float beBuf = 0.05
+
+// Position open — capture fill price and realign exits
+if strategy.position_size != 0 and strategy.position_size[1] == 0
+    entryPrice := strategy.position_avg_price
+    movedBE    := false
+    if strategy.position_size > 0
+        float _slDist = slRisk
+        origSL    := entryPrice - _slDist
+        pendingTP := entryPrice + _slDist * 1.5
+        strategy.exit("LX", "L", stop=origSL, limit=pendingTP)
+    else
+        float _slDist = slRisk
+        origSL    := entryPrice + _slDist
+        pendingTP := entryPrice - _slDist * 1.5
+        strategy.exit("SX", "S", stop=origSL, limit=pendingTP)
+
+// Breakeven trigger at 0.5R
+if strategy.position_size > 0 and not movedBE and not na(entryPrice) and not na(origSL)
+    float riskAmt = entryPrice - origSL
+    if riskAmt > 0 and close >= entryPrice + riskAmt * 0.5
+        strategy.exit("LX", "L", stop=entryPrice + beBuf, limit=pendingTP, comment="BE")
+        movedBE := true
+        alert("BB + RSI Mean Reversion: BE LONG | SL → " + str.tostring(entryPrice + beBuf, format.mintick), alert.freq_once_per_bar_close)
+
+if strategy.position_size < 0 and not movedBE and not na(entryPrice) and not na(origSL)
+    float riskAmt = origSL - entryPrice
+    if riskAmt > 0 and close <= entryPrice - riskAmt * 0.5
+        strategy.exit("SX", "S", stop=entryPrice - beBuf, limit=pendingTP, comment="BE")
+        movedBE := true
+        alert("BB + RSI Mean Reversion: BE SHORT | SL → " + str.tostring(entryPrice - beBuf, format.mintick), alert.freq_once_per_bar_close)
+
+if strategy.position_size == 0
+    movedBE := false
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EOD CLOSE
+// ─────────────────────────────────────────────────────────────────────────────
+
+if not isMarket and isMarket[1] and strategy.position_size != 0
+    strategy.close_all(comment="EOD")
+    alert("BB + RSI Mean Reversion: EOD CLOSE | " + str.tostring(close, format.mintick), alert.freq_once_per_bar_close)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOSS TRACKING
+// ─────────────────────────────────────────────────────────────────────────────
+
+if strategy.position_size == 0 and strategy.position_size[1] != 0
+    float pnl = strategy.netprofit - nz(strategy.netprofit[1])
+    if pnl > 0
+        consecLoss := 0
+    else
+        consecLoss += 1
+        if consecLoss >= 3
+            tripped := true
+            alert("BB + RSI Mean Reversion: CIRCUIT BREAKER | " + str.tostring(consecLoss) + " losses", alert.freq_once_per_bar_close)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LEVEL PLOTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+var float plotEntry = na
+var float plotSL    = na
+var float plotTP    = na
+
+if strategy.position_size != 0 and strategy.position_size[1] == 0
+    plotEntry := entryPrice
+    plotSL    := origSL
+    plotTP    := pendingTP
+if strategy.position_size == 0
+    plotEntry := na
+    plotSL    := na
+    plotTP    := na
+
+plot(plotEntry, title="Entry Price", color=color.white, style=plot.style_linebr, linewidth=2)
+plot(plotTP, title="Take Profit", color=color.new(color.lime, 20), style=plot.style_linebr, linewidth=2)
+plot(plotSL, title="Stop Loss", color=color.new(color.red, 20), style=plot.style_linebr, linewidth=2)
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BACKGROUND
+// ─────────────────────────────────────────────────────────────────────────────
+
+color bgColor = na
+
+if strategy.position_size > 0
+    bgColor := color.new(color.green, 90)
+else if strategy.position_size < 0
+    bgColor := color.new(color.red, 90)
+
+bgcolor(bgColor, title="Position Zone")
+

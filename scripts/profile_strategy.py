@@ -6,17 +6,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from stockdownloader.data.intraday_csv_loader import IntradayCsvLoader
-from stockdownloader.backtest.intraday_backtest_engine import IntradayBacktestEngine
-from stockdownloader.strategy.daily_to_intraday_adapter import DailyToIntradayAdapter
-from stockdownloader.strategy.registry import StrategyRegistry
+from stockdownloader.data.intraday_csv import IntradayCsvLoader
+from stockdownloader.backtesting.engines.intraday import IntradayBacktestEngine
+from stockdownloader.strategies.intraday.daily_adapter import DailyToIntradayAdapter
+from stockdownloader.strategies.registry import StrategyRegistry
 
-from stockdownloader.strategy.registrations import ensure_registered
+from stockdownloader.strategies.loader import ensure_registered
 ensure_registered()
 
 
 def main():
-    csv_path = Path(__file__).resolve().parent.parent / "data" / "spy_5m_bars.csv"
+    csv_path = Path(__file__).resolve().parent.parent / "data" / "SPY" / "5m_bars.csv"
     if not csv_path.exists():
         print(f"Data file not found: {csv_path}")
         return

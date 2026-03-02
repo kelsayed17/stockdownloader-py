@@ -5,8 +5,8 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.data.yahoo_finance_client import YahooFinanceClient
-from stockdownloader.model.quote_data import QuoteData
+from stockdownloader.data.market.yahoo_finance_client import YahooFinanceClient
+from stockdownloader.core.models.financial import QuoteData
 
 pytestmark = pytest.mark.live
 

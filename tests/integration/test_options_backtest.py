@@ -8,21 +8,20 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.backtest.options_backtest_engine import OptionsBacktestEngine
-from stockdownloader.backtest.backtest_result import OptionsBacktestResult
-from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
-from stockdownloader.model.options import OptionContract, OptionType, OptionsChain
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.model.quote_data import QuoteData
-from stockdownloader.model.unified_market_data import (
+from stockdownloader.backtesting.engines.options import OptionsBacktestEngine
+from stockdownloader.backtesting.results.result import OptionsBacktestResult
+from stockdownloader.data.parsers import CsvPriceDataLoader
+from stockdownloader.core.models.options import OptionContract, OptionType, OptionsChain
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.core.models.financial import QuoteData
+from stockdownloader.core.models.market_data import (
     FinancialData,
     HistoricalData,
     UnifiedMarketData,
 )
-from stockdownloader.strategy.options.covered_call_strategy import CoveredCallStrategy
-from stockdownloader.strategy.options_strategy import OptionsStrategy
-from stockdownloader.strategy.options.protective_put_strategy import ProtectivePutStrategy
-from stockdownloader.util.black_scholes_calculator import (
+from stockdownloader.strategies.options.strategies import CoveredCallStrategy, ProtectivePutStrategy
+from stockdownloader.strategies.options.strategies import OptionsStrategy
+from stockdownloader.analysis.options.pricing import (
     price as bs_price,
     estimate_volatility,
     delta as bs_delta,

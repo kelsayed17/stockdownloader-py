@@ -1,0 +1,150 @@
+"""Momentum/trend-following strategy combining MACD, ADX, and EMA.
+
+BUY when: MACD bullish crossover AND ADX > 25 (strong trend) AND Price > EMA(200)
+SELL when: MACD bearish crossover OR ADX falls below 20 (trend weakening)
+
+Also uses OBV as volume confirmation: only enter if OBV is rising (accumulation).
+Position sizing should be scaled by ATR externally (smaller in volatile markets).
+"""
+from __future__ import annotations
+
+from decimal import Decimal
+from typing import TYPE_CHECKING
+
+from stockdownloader.strategies.base import Signal, TradingStrategy
+from stockdownloader.indicators.hub import IndicatorHub
+from stockdownloader.pinescript.models import (
+    Condition, Indicator, Input, StrategyDefinition,
+)
+
+if TYPE_CHECKING:
+    from stockdownloader.core.models.price import PriceData
+
+
+class MomentumConfluenceStrategy(TradingStrategy):
+    """Momentum confluence strategy using MACD + ADX + EMA + OBV."""
+
+    def __init__(
+        self,
+        fast_ema: int = 12,
+        slow_ema: int = 26,
+        signal_period: int = 9,
+        ema_trend_filter: int = 200,
+        adx_strength_threshold: float = 25,
+        adx_weak_threshold: float = 20,
+        hub: IndicatorHub | None = None,
+    ) -> None:
+        self._fast_ema = fast_ema
+        self._slow_ema = slow_ema
+        self._signal_period = signal_period
+        self._ema_trend_filter = ema_trend_filter
+        self._adx_strength_threshold = adx_strength_threshold
+        self._adx_weak_threshold = adx_weak_threshold
+        self._hub = hub or IndicatorHub()
+
+    @property
+    def name(self) -> str:
+        return (
+            f"Momentum (MACD {self._fast_ema}/{self._slow_ema}/{self._signal_period} "
+            f"+ ADX>{self._adx_strength_threshold:.0f} + EMA{self._ema_trend_filter})"
+        )
+
+    def evaluate(self, data: list[PriceData], current_index: int) -> Signal:
+        if current_index < self.warmup_period:
+            return Signal.HOLD
+
+        close = data[current_index].close
+
+        # MACD crossover detection
+        curr_macd_line = self._hub.macd_line(data, current_index, self._fast_ema, self._slow_ema)
+        curr_macd_signal = self._hub.macd_signal(
+            data, current_index, self._fast_ema, self._slow_ema, self._signal_period
+        )
+        prev_macd_line = self._hub.macd_line(data, current_index - 1, self._fast_ema, self._slow_ema)
+        prev_macd_signal = self._hub.macd_signal(
+            data, current_index - 1, self._fast_ema, self._slow_ema, self._signal_period
+        )
+
+        macd_bullish_cross = (
+            curr_macd_line > curr_macd_signal
+            and prev_macd_line <= prev_macd_signal
+        )
+        macd_bearish_cross = (
+            curr_macd_line < curr_macd_signal
+            and prev_macd_line >= prev_macd_signal
+        )
+
+        # ADX for trend strength
+        adx_result = self._hub.adx(data, current_index)
+        strong_trend = float(adx_result.adx) > self._adx_strength_threshold
+        weak_trend = float(adx_result.adx) < self._adx_weak_threshold
+        bullish_di = adx_result.plus_di > adx_result.minus_di
+
+        # EMA trend filter
+        ema_val = self._hub.ema(data, current_index, self._ema_trend_filter)
+        above_trend_ema = close > ema_val
+
+        # OBV confirmation
+        obv_confirm = self._hub.is_obv_rising(data, current_index, 5)
+
+        # BUY: MACD bullish crossover + strong uptrend + above EMA + volume confirmation
+        if macd_bullish_cross and strong_trend and bullish_di and above_trend_ema and obv_confirm:
+            return Signal.BUY
+
+        # SELL: MACD bearish crossover OR trend weakening
+        if macd_bearish_cross or (weak_trend and not above_trend_ema):
+            return Signal.SELL
+
+        return Signal.HOLD
+
+    @property
+    def warmup_period(self) -> int:
+        return max(self._ema_trend_filter, self._slow_ema + self._signal_period) + 1
+
+    def to_pinescript(self) -> StrategyDefinition:
+        return StrategyDefinition(
+            name="Momentum Confluence",
+            short_name="MOM-CONF",
+            description=(
+                "Momentum confluence: MACD + ADX + EMA trend + OBV.\n"
+                "Buy requires all 5 factors aligned.\n"
+                "Sell on MACD bearish cross or trend weakening below EMA."
+            ),
+            inputs=[
+                Input.int_("mcFast", self._fast_ema, "MACD Fast EMA"),
+                Input.int_("mcSlow", self._slow_ema, "MACD Slow EMA"),
+                Input.int_("mcSignal", self._signal_period, "Signal Period"),
+                Input.int_("mcTrendEma", self._ema_trend_filter,
+                           "Trend EMA Period"),
+                Input.float_("mcAdxStrong", self._adx_strength_threshold,
+                             "ADX Strong Threshold", step=1.0),
+                Input.float_("mcAdxWeak", self._adx_weak_threshold,
+                             "ADX Weak Threshold", step=1.0),
+            ],
+            indicators=[
+                *Indicator.macd("mcFast", "mcSlow", "mcSignal",
+                                var_line="mcMacdLine",
+                                var_signal="mcMacdSignal",
+                                var_hist="mcMacdHist"),
+                Indicator.ema("mcEmaTrend", "close", "mcTrendEma",
+                              plot=True, color="color.gray"),
+                Indicator.dmi("14", "14",
+                              var_plus="mcPlusDI", var_minus="mcMinusDI",
+                              var_adx="mcAdx"),
+                Indicator.obv("mcObvRaw"),
+                Indicator.raw("mcObvEma", "ta.ema(mcObvRaw, 5)"),
+                Indicator.raw("mcObvUp", "mcObvEma > mcObvEma[1]"),
+            ],
+            long_entry=Condition(
+                "ta.crossover(mcMacdLine, mcMacdSignal) "
+                "and mcAdx > mcAdxStrong "
+                "and mcPlusDI > mcMinusDI "
+                "and close > mcEmaTrend and mcObvUp",
+                "MACD bullish cross + strong ADX + bullish DI + above EMA + OBV rising",
+            ),
+            short_entry=Condition(
+                "ta.crossunder(mcMacdLine, mcMacdSignal) or "
+                "(mcAdx < mcAdxWeak and close < mcEmaTrend)",
+                "MACD bearish cross or weak trend below EMA",
+            ),
+        )

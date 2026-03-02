@@ -7,14 +7,14 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.backtest.backtest_engine import BacktestEngine
-from stockdownloader.backtest.backtest_result import BacktestResult
-from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
-from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
-from stockdownloader.strategy.trading_strategy import TradingStrategy
+from stockdownloader.backtesting.engines.daily import BacktestEngine
+from stockdownloader.backtesting.results.result import BacktestResult
+from stockdownloader.data.parsers import CsvPriceDataLoader
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.strategies.daily.simple import MACDStrategy
+from stockdownloader.strategies.daily.simple import RSIStrategy
+from stockdownloader.strategies.daily.simple import SMACrossoverStrategy
+from stockdownloader.strategies.base import TradingStrategy
 
 INITIAL_CAPITAL = Decimal("100000.00")
 

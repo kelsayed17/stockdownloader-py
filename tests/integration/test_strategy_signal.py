@@ -7,12 +7,12 @@ from decimal import Decimal
 
 import pytest
 
-from stockdownloader.data.csv_price_data_loader import CsvPriceDataLoader
-from stockdownloader.model.price_data import PriceData
-from stockdownloader.strategy.daily.macd_strategy import MACDStrategy
-from stockdownloader.strategy.daily.rsi_strategy import RSIStrategy
-from stockdownloader.strategy.daily.sma_crossover_strategy import SMACrossoverStrategy
-from stockdownloader.strategy.trading_strategy import Signal, TradingStrategy
+from stockdownloader.data.parsers import CsvPriceDataLoader
+from stockdownloader.core.models.price import PriceData
+from stockdownloader.strategies.daily.simple import MACDStrategy
+from stockdownloader.strategies.daily.simple import RSIStrategy
+from stockdownloader.strategies.daily.simple import SMACrossoverStrategy
+from stockdownloader.strategies.base import Signal, TradingStrategy
 
 
 @pytest.fixture(scope="module")

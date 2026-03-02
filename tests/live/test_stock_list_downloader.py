@@ -8,7 +8,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from stockdownloader.data.stock_list_downloader import StockListDownloader
+from stockdownloader.data.stock_list import StockListDownloader
 
 pytestmark = pytest.mark.live
 
