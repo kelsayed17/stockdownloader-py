@@ -657,7 +657,7 @@ class TestCompositeCatalog:
             defn = factory()
             pine = gen.generate_composite(defn)
             assert '//@version=6' in pine, f"{name} missing version"
-            assert 'indicator(' in pine, f"{name} missing indicator"
+            assert 'strategy(' in pine, f"{name} missing strategy"
 
     def test_all_composites_have_alerts(
         self, gen: PineScriptGenerator
@@ -665,8 +665,7 @@ class TestCompositeCatalog:
         for name, factory in COMPOSITE_STRATEGY_CATALOG.items():
             defn = factory()
             pine = gen.generate_composite(defn)
-            assert 'alertcondition(' in pine, f"{name} missing alerts"
-            assert '"Any Signal"' in pine, f"{name} missing combined alert"
+            assert 'alert(' in pine, f"{name} missing alerts"
 
 
 # ======================================================================

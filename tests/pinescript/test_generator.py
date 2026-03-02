@@ -498,8 +498,6 @@ class TestPrebuiltStrategies:
         assert "ta.dmi" in pine
         assert "cumTPV" in pine  # session VWAP
         assert "isNewSession" in pine
-        assert "Buy Call" in pine
-        assert "Buy Put" in pine
         assert "0930-1600" in pine
 
     def test_momentum_confluence_strategy(self):
@@ -567,9 +565,9 @@ class TestStandaloneVwapStrategies:
     def _validate_vwap_pine(self, pine: str, name: str):
         """Validate common VWAP infrastructure is present."""
         assert '//@version=6' in pine, f"{name}: missing version"
-        assert 'indicator(' in pine, f"{name}: missing indicator()"
-        assert 'alertcondition(' in pine, f"{name}: missing alerts"
-        assert 'posState' in pine, f"{name}: missing position state"
+        assert 'strategy(' in pine, f"{name}: missing strategy()"
+        assert 'alert(' in pine, f"{name}: missing alerts"
+        assert 'strategy.position_size' in pine, f"{name}: missing position state"
         # Session detection
         assert 'isNewSession' in pine, f"{name}: missing session detection"
         assert 'inSession' in pine, f"{name}: missing inSession"
@@ -647,8 +645,8 @@ class TestStandaloneVwapStrategies:
             assert 'enablePS' not in pine
 
     def test_catalog_count(self):
-        """Catalog should have 21 strategies (9 + 5 VWAP + GME + 3 SPY + 3 SPY v2)."""
-        assert len(STRATEGY_CATALOG) == 21
+        """Catalog should have 18 strategies (9 + 5 VWAP + GME + 3 SPY)."""
+        assert len(STRATEGY_CATALOG) == 18
 
 
 # ------------------------------------------------------------------

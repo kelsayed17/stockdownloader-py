@@ -16,6 +16,10 @@ Contains:
 
 2. **Composite strategy factories** -- multi-mode toggleable strategies plus
    the ``COMPOSITE_STRATEGY_CATALOG`` registry.
+
+All factories produce ``strategy_mode=True`` definitions so that every
+generated Pine Script uses ``strategy()`` with rich entry labels, position
+sizing, breakeven management, circuit breaker, and EOD close.
 """
 
 from __future__ import annotations
@@ -43,7 +47,7 @@ from stockdownloader.pinescript.models import (
     StrategyDefinition,
 )
 from stockdownloader.pinescript import mode_to_strategy, strategy_to_mode
-from stockdownloader.gme.prediction import gme_prediction_strategy
+from stockdownloader.gme.prediction import gme_prediction_strategy as _gme_factory
 from stockdownloader.pinescript.modes import (
     pb_mode as _pb_mode,
     rev_mode as _rev_mode,
@@ -57,11 +61,8 @@ from stockdownloader.pinescript.modes import (
 )
 from stockdownloader.app.pinescript_catalog.spy_strategies import (
     spy_macd_obv_strategy,
-    spy_macd_obv_strategy_v2,
     spy_macd_optimized_strategy,
-    spy_macd_optimized_strategy_v2,
     spy_sma_crossover_strategy,
-    spy_sma_crossover_strategy_v2,
 )
 
 
@@ -74,48 +75,64 @@ def sma_crossover_strategy(
     short_period: int = 9, long_period: int = 21,
 ) -> StrategyDefinition:
     """SMA Golden Cross / Death Cross -- delegates to Python strategy."""
-    return SMACrossoverStrategy(short_period, long_period).to_pinescript()
+    defn = SMACrossoverStrategy(short_period, long_period).to_pinescript()
+    defn.strategy_mode = True
+    return defn
 
 
 def rsi_strategy(
     period: int = 14, oversold: float = 30.0, overbought: float = 70.0,
 ) -> StrategyDefinition:
     """RSI oversold/overbought -- delegates to Python strategy."""
-    return RSIStrategy(period, oversold, overbought).to_pinescript()
+    defn = RSIStrategy(period, oversold, overbought).to_pinescript()
+    defn.strategy_mode = True
+    return defn
 
 
 def macd_strategy(
     fast: int = 12, slow: int = 26, signal: int = 9,
 ) -> StrategyDefinition:
     """MACD crossover -- delegates to Python strategy."""
-    return MACDStrategy(fast, slow, signal).to_pinescript()
+    defn = MACDStrategy(fast, slow, signal).to_pinescript()
+    defn.strategy_mode = True
+    return defn
 
 
 def bollinger_rsi_strategy() -> StrategyDefinition:
     """BB + RSI mean-reversion -- delegates to Python strategy."""
-    return BollingerBandRSIStrategy().to_pinescript()
+    defn = BollingerBandRSIStrategy().to_pinescript()
+    defn.strategy_mode = True
+    return defn
 
 
 def dmi_vwap_strategy() -> StrategyDefinition:
     """DMI + session VWAP -- delegates to Python strategy."""
-    return DmiVwapStrategy().to_pinescript()
+    defn = DmiVwapStrategy().to_pinescript()
+    defn.strategy_mode = True
+    return defn
 
 
 def momentum_confluence_strategy() -> StrategyDefinition:
     """Momentum confluence -- delegates to Python strategy."""
-    return MomentumConfluenceStrategy().to_pinescript()
+    defn = MomentumConfluenceStrategy().to_pinescript()
+    defn.strategy_mode = True
+    return defn
 
 
 def breakout_strategy() -> StrategyDefinition:
     """BB squeeze breakout -- delegates to Python strategy."""
-    return BreakoutStrategy().to_pinescript()
+    defn = BreakoutStrategy().to_pinescript()
+    defn.strategy_mode = True
+    return defn
 
 
 def multi_indicator_strategy(
     buy_threshold: int = 4, sell_threshold: int = 4,
 ) -> StrategyDefinition:
     """Multi-indicator confluence scoring -- delegates to Python strategy."""
-    return MultiIndicatorStrategy(buy_threshold, sell_threshold).to_pinescript()
+    defn = MultiIndicatorStrategy(buy_threshold, sell_threshold).to_pinescript()
+    defn.strategy_mode = True
+    return defn
 
 
 # ======================================================================
@@ -131,6 +148,7 @@ def macd_obv_strategy(
     return StrategyDefinition(
         name="MACD + OBV",
         short_name="MACD-OBV",
+        strategy_mode=True,
         description="Walk-forward validated winner.\n"
                     "MACD crossover confirmed by OBV trend alignment.",
         inputs=[
@@ -159,6 +177,13 @@ def macd_obv_strategy(
     )
 
 
+def gme_prediction_strategy() -> StrategyDefinition:
+    """GME Quant Regime Prediction -- strategy mode wrapper."""
+    defn = _gme_factory()
+    defn.strategy_mode = True
+    return defn
+
+
 # ======================================================================
 # Standalone VWAP strategy factories
 # ======================================================================
@@ -168,6 +193,7 @@ def vwap_pullback_strategy() -> StrategyDefinition:
     return mode_to_strategy(
         _pb_mode(), shared=_vwap_shared_infrastructure(),
         name_override="VWAP Pullback", short_name_override="VWAP-PB",
+        strategy_mode=True,
     )
 
 
@@ -175,6 +201,7 @@ def vwap_reversal_strategy() -> StrategyDefinition:
     return mode_to_strategy(
         _rev_mode(), shared=_vwap_shared_infrastructure(),
         name_override="VWAP Reversal", short_name_override="VWAP-REV",
+        strategy_mode=True,
     )
 
 
@@ -182,6 +209,7 @@ def vwap_or_breakout_strategy() -> StrategyDefinition:
     return mode_to_strategy(
         _orb_mode(), shared=_vwap_shared_infrastructure(),
         name_override="VWAP OR Breakout", short_name_override="VWAP-ORB",
+        strategy_mode=True,
     )
 
 
@@ -189,6 +217,7 @@ def vwap_or_reversal_strategy() -> StrategyDefinition:
     return mode_to_strategy(
         _orr_mode(), shared=_vwap_shared_infrastructure(),
         name_override="VWAP OR Reversal", short_name_override="VWAP-ORR",
+        strategy_mode=True,
     )
 
 
@@ -196,6 +225,7 @@ def vwap_pattern_scalp_strategy() -> StrategyDefinition:
     return mode_to_strategy(
         _ps_mode(), shared=_vwap_shared_infrastructure(),
         name_override="VWAP Pattern Scalp", short_name_override="VWAP-PS",
+        strategy_mode=True,
     )
 
 
@@ -223,9 +253,41 @@ STRATEGY_CATALOG: dict[str, callable] = {
     "spy_macd_obv": spy_macd_obv_strategy,
     "spy_sma_crossover": spy_sma_crossover_strategy,
     "spy_macd_optimized": spy_macd_optimized_strategy,
-    "spy_macd_obv_v2": spy_macd_obv_strategy_v2,
-    "spy_sma_crossover_v2": spy_sma_crossover_strategy_v2,
-    "spy_macd_optimized_v2": spy_macd_optimized_strategy_v2,
+}
+
+
+# Subdirectory for each strategy: {timeframe}/{ticker}
+PINE_OUTPUT_SUBDIR: dict[str, str] = {
+    # Daily / General
+    "sma_crossover": "daily/general",
+    "rsi": "daily/general",
+    "macd": "daily/general",
+    "macd_obv": "daily/general",
+    "bollinger_rsi": "daily/general",
+    "momentum_confluence": "daily/general",
+    "breakout": "daily/general",
+    "multi_indicator": "daily/general",
+    # Daily / SPY
+    "spy_macd_obv": "daily/spy",
+    "spy_sma_crossover": "daily/spy",
+    "spy_macd_optimized": "daily/spy",
+    # Daily / GME
+    "gme_prediction": "daily/gme",
+    # Intraday / General
+    "vwap_pullback": "intraday/general",
+    "vwap_reversal": "intraday/general",
+    "vwap_or_breakout": "intraday/general",
+    "vwap_or_reversal": "intraday/general",
+    "vwap_pattern_scalp": "intraday/general",
+    # Intraday / SPY
+    "dmi_vwap": "intraday/spy",
+}
+
+# Subdirectory for each composite strategy
+COMPOSITE_PINE_OUTPUT_SUBDIR: dict[str, str] = {
+    "vwap_composite": "intraday/general",
+    "signal_stack": "daily/general",
+    "full_composite": "daily/general",
 }
 
 
@@ -235,10 +297,11 @@ STRATEGY_CATALOG: dict[str, callable] = {
 
 
 def vwap_composite_strategy() -> CompositeStrategyDefinition:
-    """All 5 VWAP modes as a single toggleable indicator."""
+    """All 5 VWAP modes as a single toggleable strategy."""
     return CompositeStrategyDefinition(
         name="VWAP Composite Strategy",
         short_name="VWAP-ALL",
+        strategy_mode=True,
         description=(
             "Comprehensive VWAP intraday strategy with 5 entry modes.\n"
             "Each mode can be independently enabled/disabled.\n"
@@ -341,10 +404,11 @@ def signal_stack_composite_strategy() -> CompositeStrategyDefinition:
     return CompositeStrategyDefinition(
         name="Signal Stack Composite",
         short_name="SIG-STACK",
+        strategy_mode=True,
         description=(
             "Top signal generators as independently toggleable modes.\n"
             "Combines MACD crossover, RSI extremes, SMA crossover,\n"
-            "OBV trend, and ADX trend into one indicator.\n"
+            "OBV trend, and ADX trend into one strategy.\n"
             "Default aggregation: any mode that fires triggers a signal."
         ),
         modes=[macd_mode, rsi_mode, sma_mode, obv_mode, adx_mode],
@@ -538,6 +602,7 @@ def full_composite_strategy() -> CompositeStrategyDefinition:
     return CompositeStrategyDefinition(
         name="Full Strategy Composite",
         short_name="FULL-COMP",
+        strategy_mode=True,
         description=(
             "All top-performing strategies as independently toggleable modes.\n"
             "Walk-forward validated winners plus optimizer tournament leaders.\n"

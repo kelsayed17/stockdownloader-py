@@ -41,6 +41,7 @@ from __future__ import annotations
 
 from stockdownloader.pinescript.models import (
     CompositeStrategyDefinition,
+    Condition,
     Indicator,
     Input,
     InputType,
@@ -58,6 +59,7 @@ from stockdownloader.pinescript.composite_renderer import (
     composite_mode_section,
     composite_session,
     composite_shared_indicators,
+    composite_signal_aggregation,
 )
 from stockdownloader.pinescript.strategy_renderer import (
     emit_state_machine,
@@ -277,6 +279,9 @@ class PineScriptGenerator:
 
     def generate_composite(self, defn: CompositeStrategyDefinition) -> str:
         """Generate Pine Script v6 with per-mode toggle inputs."""
+        if defn.strategy_mode:
+            return self._generate_composite_strategy(defn)
+
         parts: list[str] = []
         parts.append(self._composite_header(defn))
         parts.append(self._composite_inputs(defn))
@@ -294,6 +299,80 @@ class PineScriptGenerator:
         parts.append(self._composite_labels(defn))
         parts.append(self._composite_background(defn))
         parts.append(self._composite_alerts(defn))
+
+        if defn.extra_plots:
+            parts.append(self._section("ADDITIONAL PLOTS",
+                                       "\n".join(defn.extra_plots)))
+
+        return "\n".join(parts) + "\n"
+
+    def _generate_composite_strategy(
+        self, defn: CompositeStrategyDefinition,
+    ) -> str:
+        """Generate composite Pine Script in strategy() mode."""
+        # Build a temporary StrategyDefinition for the strategy renderer
+        temp = StrategyDefinition(
+            name=defn.name,
+            short_name=defn.short_name,
+            strategy_mode=True,
+            initial_capital=defn.initial_capital,
+            commission_per_order=defn.commission_per_order,
+            slippage=defn.slippage,
+            risk_per_trade_pct=defn.risk_per_trade_pct,
+            use_fixed_capital=defn.use_fixed_capital,
+            sl_atr_mult=defn.sl_atr_mult,
+            sl_cap_dollars=defn.sl_cap_dollars,
+            rr_ratio=defn.rr_ratio,
+            be_trigger=defn.be_trigger,
+            max_trades_per_day=defn.max_trades_per_day,
+            min_bars_between=defn.min_bars_between,
+            circuit_breaker_losses=defn.circuit_breaker_losses,
+            daily_loss_limit_pct=defn.daily_loss_limit_pct,
+            close_eod=defn.close_eod,
+            barstate_confirmed=defn.barstate_confirmed,
+            # Composites always support both directions
+            long_entry=Condition("longCondition"),
+            short_entry=Condition("shortCondition"),
+            long_exit=Condition("shortCondition"),
+            short_exit=Condition("longCondition"),
+            exit_on_reverse=False,
+        )
+
+        # Build description block
+        desc = ""
+        if defn.description:
+            for line in defn.description.split("\n"):
+                desc += f"// {line}\n"
+        mode_list = ", ".join(m.short_name.upper() for m in defn.modes)
+        desc += f"//\n// Modes: {mode_list}\n"
+        desc += f"// Aggregation: {defn.aggregation}\n"
+
+        parts: list[str] = []
+        parts.append(render_strategy_header(
+            defn.name, defn.short_name, desc, temp,
+        ))
+        parts.append(composite_inputs(self, defn, strategy_mode=True))
+        parts.append(composite_session(self, defn))
+        parts.append(composite_shared_indicators(self, defn))
+
+        if defn.shared_code:
+            parts.append(self._section("SHARED COMPUTATIONS",
+                                       "\n".join(defn.shared_code)))
+
+        for mode in defn.modes:
+            parts.append(composite_mode_section(self, mode))
+
+        # Signal aggregation (no state machine — strategy handles state)
+        parts.append(composite_signal_aggregation(self, defn))
+
+        # Strategy execution (skip signal declarations — already aggregated)
+        parts.append(emit_strategy_logic(
+            temp, self._section_header,
+            skip_signals=True, mode_var="activeMode",
+        ))
+
+        # Background coloring
+        parts.append(render_strategy_background(True, self._section_header))
 
         if defn.extra_plots:
             parts.append(self._section("ADDITIONAL PLOTS",
@@ -583,6 +662,7 @@ def mode_to_strategy(
     use_session_filter: bool = True,
     name_override: str = "",
     short_name_override: str = "",
+    strategy_mode: bool = False,
 ) -> StrategyDefinition:
     """Convert a ``ModeDefinition`` into a standalone ``StrategyDefinition``."""
     infra = shared or SharedInfrastructure()
@@ -594,6 +674,7 @@ def mode_to_strategy(
         session=session,
         timezone=timezone,
         use_session_filter=use_session_filter,
+        strategy_mode=strategy_mode,
         inputs=[*infra.inputs, *mode.inputs],
         indicators=[*infra.indicators],
         extra_code=[

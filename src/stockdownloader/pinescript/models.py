@@ -283,6 +283,28 @@ class CompositeStrategyDefinition:
 
     extra_plots: list[str] = field(default_factory=list)
 
+    # ------------------------------------------------------------------
+    # Strategy mode (when True, emit strategy() instead of indicator())
+    # ------------------------------------------------------------------
+    strategy_mode: bool = False
+
+    # Strategy infrastructure (only used when strategy_mode=True)
+    initial_capital: float = 100000.0
+    commission_per_order: float = 1.0
+    slippage: int = 1
+    risk_per_trade_pct: float = 1.0
+    use_fixed_capital: bool = True
+    sl_atr_mult: float = 1.5
+    sl_cap_dollars: float = 2.0
+    rr_ratio: float = 1.5
+    be_trigger: float = 0.5
+    max_trades_per_day: int = 4
+    min_bars_between: int = 3
+    circuit_breaker_losses: int = 3
+    daily_loss_limit_pct: float = 3.0
+    close_eod: bool = True
+    barstate_confirmed: bool = True
+
 
 @dataclass(slots=True)
 class StrategyDefinition:

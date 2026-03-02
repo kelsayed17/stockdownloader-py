@@ -35,9 +35,25 @@ strategy("{name}", shorttitle="{short_name}", overlay=true,
 
 
 def emit_strategy_logic(
-    s: StrategyDefinition, section_header_fn: Callable[[str], str],
+    s: StrategyDefinition,
+    section_header_fn: Callable[[str], str],
+    *,
+    skip_signals: bool = False,
+    mode_var: str | None = None,
 ) -> str:
-    """Emit strategy entry/exit logic with position sizing & risk management."""
+    """Emit strategy entry/exit logic with position sizing & risk management.
+
+    Parameters
+    ----------
+    skip_signals:
+        When True, skip the SIGNAL LOGIC section (assumes ``longCondition``
+        and ``shortCondition`` are already defined, e.g. by composite
+        aggregation).
+    mode_var:
+        When set, use this Pine Script variable name (e.g. ``"activeMode"``)
+        in entry labels and strategy.entry() comments instead of the static
+        strategy name.
+    """
     has_long = s.long_entry is not None
     has_short = s.short_entry is not None
 
@@ -115,12 +131,13 @@ f_qty(float entry, float stop) =>
     )
 
     # --- Signal conditions ---
-    lines.append(section_header_fn("SIGNAL LOGIC"))
-    if has_long:
-        lines.append(f"bool longCondition  = {s.long_entry.expr}")
-    if has_short:
-        lines.append(f"bool shortCondition = {s.short_entry.expr}")
-    lines.append("")
+    if not skip_signals:
+        lines.append(section_header_fn("SIGNAL LOGIC"))
+        if has_long:
+            lines.append(f"bool longCondition  = {s.long_entry.expr}")
+        if has_short:
+            lines.append(f"bool shortCondition = {s.short_entry.expr}")
+        lines.append("")
     lines.append(
         f"bool exitLongCond  = strategy.position_size > 0"
         f" and ({long_exit_expr})"
@@ -130,6 +147,19 @@ f_qty(float entry, float stop) =>
             f"bool exitShortCond = strategy.position_size < 0"
             f" and ({short_exit_expr})"
         )
+
+    # Precompute name/comment expressions (dynamic mode vs static name)
+    if mode_var:
+        label_name_long = f'"\\n" + {mode_var}'
+        label_name_short = f'"\\n" + {mode_var}'
+        comment_long = f'{mode_var} + "|L"'
+        comment_short = f'{mode_var} + "|S"'
+    else:
+        esc_name = s.name.replace('"', "'")
+        label_name_long = f'"\\n{esc_name}"'
+        label_name_short = f'"\\n{esc_name}"'
+        comment_long = f'"{sn}|L"'
+        comment_short = f'"{sn}|S"'
 
     # --- SL / TP ---
     lines.append(section_header_fn("SL / TP CALCULATION"))
@@ -151,6 +181,12 @@ f_qty(float entry, float stop) =>
     long_guard = f"longCondition and ready and spaced{confirmed}"
     short_guard = f"shortCondition and ready and spaced{confirmed}"
 
+    # Pending state for label drawing after fill
+    lines.append("var float  pendingSL  = na")
+    lines.append("var float  pendingTP_ = na")
+    lines.append("var int    pendingDir = 0")
+    lines.append("")
+
     if has_long:
         lines.append(f"bool goLong  = {long_guard}")
     if has_short:
@@ -166,13 +202,16 @@ f_qty(float entry, float stop) =>
         lines.append("    float qty = f_qty(close, longSL)")
         lines.append(
             f'    strategy.entry("L", strategy.long, qty=qty,'
-            f' comment="{sn}|L")'
+            f' comment={comment_long})'
         )
         lines.append(
             '    strategy.exit("LX", "L", stop=longSL, limit=longTP)'
         )
         lines.append("    dayTrades    += 1")
         lines.append("    lastBarEntry := bar_index")
+        lines.append("    pendingSL    := longSL")
+        lines.append("    pendingTP_   := longTP")
+        lines.append("    pendingDir   := 1")
         lines.append(
             f'    alert("{s.name}: LONG'
             f' | E " + str.tostring(close, format.mintick)'
@@ -181,12 +220,6 @@ f_qty(float entry, float stop) =>
             f' + " | Qty " + str.tostring(qty, "#")'
             f', alert.freq_once_per_bar_close)'
         )
-        # Label
-        lines.append('    label.new(bar_index, low, "Buy",')
-        lines.append("         style=label.style_label_up,")
-        lines.append("         color=color.green,")
-        lines.append("         textcolor=color.white,")
-        lines.append("         size=size.small)")
         lines.append("")
 
     # Short entry
@@ -198,13 +231,16 @@ f_qty(float entry, float stop) =>
         lines.append("    float qty = f_qty(close, shortSL)")
         lines.append(
             f'    strategy.entry("S", strategy.short, qty=qty,'
-            f' comment="{sn}|S")'
+            f' comment={comment_short})'
         )
         lines.append(
             '    strategy.exit("SX", "S", stop=shortSL, limit=shortTP)'
         )
         lines.append("    dayTrades    += 1")
         lines.append("    lastBarEntry := bar_index")
+        lines.append("    pendingSL    := shortSL")
+        lines.append("    pendingTP_   := shortTP")
+        lines.append("    pendingDir   := -1")
         lines.append(
             f'    alert("{s.name}: SHORT'
             f' | E " + str.tostring(close, format.mintick)'
@@ -213,30 +249,63 @@ f_qty(float entry, float stop) =>
             f' + " | Qty " + str.tostring(qty, "#")'
             f', alert.freq_once_per_bar_close)'
         )
-        lines.append('    label.new(bar_index, high, "Sell",')
-        lines.append("         style=label.style_label_down,")
-        lines.append("         color=color.red,")
-        lines.append("         textcolor=color.white,")
-        lines.append("         size=size.small)")
         lines.append("")
 
     # Strategy exits (condition-based, not TP/SL)
     lines.append("// Condition-based exits (strategy SL/TP handled by strategy.exit)")
     lines.append("if exitLongCond")
     lines.append('    strategy.close("L", comment="ExitLong")')
-    lines.append('    label.new(bar_index, high, "Exit Long",')
-    lines.append("         style=label.style_label_down,")
-    lines.append("         color=color.orange,")
-    lines.append("         textcolor=color.white,")
-    lines.append("         size=size.small)")
     if has_short:
         lines.append("if exitShortCond")
         lines.append('    strategy.close("S", comment="ExitShort")')
-        lines.append('    label.new(bar_index, low, "Exit Short",')
-        lines.append("         style=label.style_label_up,")
-        lines.append("         color=color.orange,")
-        lines.append("         textcolor=color.white,")
-        lines.append("         size=size.small)")
+
+    # --- Entry labels (drawn on fill, using actual fill price) ---
+    lines.append("")
+    lines.append(section_header_fn("TRADE LABELS"))
+    lines.append(
+        "bool newLong  = strategy.position_size > 0"
+        " and strategy.position_size[1] <= 0"
+    )
+    lines.append(
+        "bool newShort = strategy.position_size < 0"
+        " and strategy.position_size[1] >= 0"
+    )
+    lines.append("float fillPrice = strategy.position_avg_price")
+    lines.append("")
+    if has_long:
+        lines.append(
+            "if newLong and not na(pendingSL) and pendingDir == 1"
+        )
+        lines.append(
+            f'    label.new(bar_index, low - atrVal * 0.5,\n'
+            f'         "\\U0001F4C8 LONG" +\n'
+            f'         {label_name_long} +\n'
+            f'         "\\nE  " + str.tostring(fillPrice, format.mintick) +\n'
+            f'         "\\nS  " + str.tostring(pendingSL, format.mintick) +\n'
+            f'         "\\nT  " + str.tostring(pendingTP_, format.mintick),\n'
+            f'         style=label.style_label_up,\n'
+            f'         color=color.new(#1B5E20, 0),\n'
+            f'         textcolor=color.new(#FFFFFF, 0),\n'
+            f'         size=size.small)'
+        )
+        lines.append("")
+    if has_short:
+        lines.append(
+            "if newShort and not na(pendingSL) and pendingDir == -1"
+        )
+        lines.append(
+            f'    label.new(bar_index, high + atrVal * 0.5,\n'
+            f'         "\\U0001F4C9 SHORT" +\n'
+            f'         {label_name_short} +\n'
+            f'         "\\nE  " + str.tostring(fillPrice, format.mintick) +\n'
+            f'         "\\nS  " + str.tostring(pendingSL, format.mintick) +\n'
+            f'         "\\nT  " + str.tostring(pendingTP_, format.mintick),\n'
+            f'         style=label.style_label_down,\n'
+            f'         color=color.new(#B71C1C, 0),\n'
+            f'         textcolor=color.new(#FFFFFF, 0),\n'
+            f'         size=size.small)'
+        )
+        lines.append("")
 
     # --- Exit management: BE + fill alignment ---
     lines.append(section_header_fn(

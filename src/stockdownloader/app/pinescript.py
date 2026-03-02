@@ -36,7 +36,9 @@ from pathlib import Path
 
 from stockdownloader.core.config import DEFAULT_PINESCRIPT_DIR
 from stockdownloader.app.pinescript_catalog.catalogs import (
+    COMPOSITE_PINE_OUTPUT_SUBDIR,
     COMPOSITE_STRATEGY_CATALOG,
+    PINE_OUTPUT_SUBDIR,
     STRATEGY_CATALOG,
 )
 from stockdownloader.pinescript import PineScriptGenerator
@@ -132,19 +134,21 @@ def main() -> None:
             return
 
         if args.all:
-            out_dir = (Path(args.output_dir) if args.output_dir
-                       else DEFAULT_PINESCRIPT_DIR)
-            out_dir.mkdir(parents=True, exist_ok=True)
+            base_dir = (Path(args.output_dir) if args.output_dir
+                        else DEFAULT_PINESCRIPT_DIR)
 
             for name, factory in sorted(COMPOSITE_STRATEGY_CATALOG.items()):
                 defn = factory()
                 pine = gen.generate_composite(defn)
+                subdir = COMPOSITE_PINE_OUTPUT_SUBDIR.get(name, "")
+                out_dir = base_dir / subdir if subdir else base_dir
+                out_dir.mkdir(parents=True, exist_ok=True)
                 out_path = out_dir / f"{name}.pine"
                 out_path.write_text(pine)
                 print(f"  {out_path}")
 
             print(f"\nGenerated {len(COMPOSITE_STRATEGY_CATALOG)} composite "
-                  f"Pine Script files in {out_dir}/")
+                  f"Pine Script files in {base_dir}/")
             return
 
         if not args.strategy:
@@ -192,19 +196,21 @@ def main() -> None:
         return
 
     if args.all:
-        out_dir = (Path(args.output_dir) if args.output_dir
-                   else DEFAULT_PINESCRIPT_DIR)
-        out_dir.mkdir(parents=True, exist_ok=True)
+        base_dir = (Path(args.output_dir) if args.output_dir
+                    else DEFAULT_PINESCRIPT_DIR)
 
         for name, factory in sorted(STRATEGY_CATALOG.items()):
             defn = factory()
             pine = gen.generate(defn)
+            subdir = PINE_OUTPUT_SUBDIR.get(name, "")
+            out_dir = base_dir / subdir if subdir else base_dir
+            out_dir.mkdir(parents=True, exist_ok=True)
             out_path = out_dir / f"{name}.pine"
             out_path.write_text(pine)
             print(f"  {out_path}")
 
         print(f"\nGenerated {len(STRATEGY_CATALOG)} Pine Script files "
-              f"in {out_dir}/")
+              f"in {base_dir}/")
         return
 
     if not args.strategy:

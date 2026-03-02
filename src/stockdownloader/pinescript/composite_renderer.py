@@ -32,14 +32,20 @@ def composite_header(gen: PineScriptGenerator, d: CompositeStrategyDefinition) -
     return gen._render_header(d.name, d.short_name, desc)
 
 
-def composite_inputs(gen: PineScriptGenerator, d: CompositeStrategyDefinition) -> str:
+def composite_inputs(
+    gen: PineScriptGenerator,
+    d: CompositeStrategyDefinition,
+    *,
+    strategy_mode: bool = False,
+) -> str:
     lines: list[str] = []
 
     lines.append(gen._section_header("INPUTS"))
-    lines.append('bool   showLabels    = input.bool(true, '
-                  'title="Show Signal Labels", group="Display")')
-    lines.append('bool   showBgColor   = input.bool(true, '
-                  'title="Show Background Coloring", group="Display")')
+    if not strategy_mode:
+        lines.append('bool   showLabels    = input.bool(true, '
+                      'title="Show Signal Labels", group="Display")')
+        lines.append('bool   showBgColor   = input.bool(true, '
+                      'title="Show Background Coloring", group="Display")')
 
     if d.shared_inputs:
         lines.append("")
@@ -232,4 +238,56 @@ def composite_alerts(gen: PineScriptGenerator, d: CompositeStrategyDefinition) -
         "Any Signal",
         f"{d.name}: Signal triggered. Check chart.",
     )
+    return "\n".join(lines)
+
+
+def composite_signal_aggregation(
+    gen: PineScriptGenerator, d: CompositeStrategyDefinition,
+) -> str:
+    """Signal aggregation for composite strategy mode.
+
+    Same as :func:`composite_aggregation` but without the indicator-mode
+    state machine.  Sets ``longCondition``, ``shortCondition``, and
+    ``activeMode`` for consumption by :func:`emit_strategy_logic`.
+    """
+    lines: list[str] = []
+    lines.append(gen._section_header("SIGNAL AGGREGATION"))
+
+    lines.append("bool longCondition = false")
+    lines.append("bool shortCondition = false")
+    lines.append('var string activeMode = ""')
+    lines.append("")
+
+    if d.aggregation == "first_to_fire":
+        order = d.priority_order or [m.short_name for m in d.modes]
+        first = True
+        for sn in order:
+            kw = "if" if first else "else if"
+            lines.append(f"{kw} {sn}Long")
+            lines.append("    longCondition := true")
+            lines.append(f'    activeMode := "{sn.upper()}"')
+            first = False
+        first = True
+        lines.append("")
+        for sn in order:
+            kw = "if" if first else "else if"
+            lines.append(f"{kw} {sn}Short")
+            lines.append("    shortCondition := true")
+            lines.append(f'    activeMode := "{sn.upper()}"')
+            first = False
+    else:
+        # "any" aggregation
+        long_parts = [f"{m.short_name}Long" for m in d.modes]
+        short_parts = [f"{m.short_name}Short" for m in d.modes]
+        lines.append(
+            f"longCondition := {' or '.join(long_parts)}"
+        )
+        lines.append(
+            f"shortCondition := {' or '.join(short_parts)}"
+        )
+        for m in d.modes:
+            sn = m.short_name
+            lines.append(f'if {sn}Long or {sn}Short')
+            lines.append(f'    activeMode := "{sn.upper()}"')
+
     return "\n".join(lines)

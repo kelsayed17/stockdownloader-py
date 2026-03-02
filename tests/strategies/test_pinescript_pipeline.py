@@ -28,14 +28,14 @@ class TestDailyRoundTrip:
     def _validate_pine(self, pine: str, label: str) -> None:
         """Basic structural checks on generated Pine Script."""
         assert pine, f"{label}: empty output"
-        assert "indicator(" in pine, f"{label}: missing indicator()"
-        assert "alertcondition(" in pine, f"{label}: missing alerts"
+        assert "strategy(" in pine, f"{label}: missing strategy()"
         assert len(pine) > 200, f"{label}: output too short"
         assert len(pine.splitlines()) > 20, f"{label}: too few lines"
 
     def test_sma_crossover(self):
         from stockdownloader.strategies.daily import SMACrossoverStrategy
         defn = SMACrossoverStrategy(9, 21).to_pinescript()
+        defn.strategy_mode = True
         pine = self.gen.generate(defn)
         self._validate_pine(pine, "SMA")
         assert "ta.sma" in pine
@@ -44,6 +44,7 @@ class TestDailyRoundTrip:
     def test_rsi(self):
         from stockdownloader.strategies.daily import RSIStrategy
         defn = RSIStrategy(14, 30, 70).to_pinescript()
+        defn.strategy_mode = True
         pine = self.gen.generate(defn)
         self._validate_pine(pine, "RSI")
         assert "ta.rsi" in pine
@@ -51,6 +52,7 @@ class TestDailyRoundTrip:
     def test_macd(self):
         from stockdownloader.strategies.daily import MACDStrategy
         defn = MACDStrategy(12, 26, 9).to_pinescript()
+        defn.strategy_mode = True
         pine = self.gen.generate(defn)
         self._validate_pine(pine, "MACD")
         assert "ta.macd" in pine
@@ -58,6 +60,7 @@ class TestDailyRoundTrip:
     def test_bollinger_rsi(self):
         from stockdownloader.strategies.daily import BollingerBandRSIStrategy
         defn = BollingerBandRSIStrategy().to_pinescript()
+        defn.strategy_mode = True
         pine = self.gen.generate(defn)
         self._validate_pine(pine, "BB-RSI")
         assert "ta.bb" in pine
@@ -67,6 +70,7 @@ class TestDailyRoundTrip:
     def test_breakout(self):
         from stockdownloader.strategies.daily import BreakoutStrategy
         defn = BreakoutStrategy().to_pinescript()
+        defn.strategy_mode = True
         pine = self.gen.generate(defn)
         self._validate_pine(pine, "Breakout")
         assert "isSqueeze" in pine
@@ -75,6 +79,7 @@ class TestDailyRoundTrip:
     def test_momentum_confluence(self):
         from stockdownloader.strategies.daily import MomentumConfluenceStrategy
         defn = MomentumConfluenceStrategy().to_pinescript()
+        defn.strategy_mode = True
         pine = self.gen.generate(defn)
         self._validate_pine(pine, "MomConf")
         assert "ta.macd" in pine
@@ -84,6 +89,7 @@ class TestDailyRoundTrip:
     def test_multi_indicator(self):
         from stockdownloader.strategies.daily import MultiIndicatorStrategy
         defn = MultiIndicatorStrategy().to_pinescript()
+        defn.strategy_mode = True
         pine = self.gen.generate(defn)
         self._validate_pine(pine, "MultiInd")
         assert "buyScore" in pine
@@ -92,12 +98,11 @@ class TestDailyRoundTrip:
     def test_dmi_vwap(self):
         from stockdownloader.strategies.intraday.dmi_vwap import DmiVwapStrategy
         defn = DmiVwapStrategy().to_pinescript()
+        defn.strategy_mode = True
         pine = self.gen.generate(defn)
         self._validate_pine(pine, "DMI+VWAP")
         assert "ta.dmi" in pine
         assert "isNewSession" in pine
-        assert "Buy Call" in pine
-        assert "Buy Put" in pine
 
 
 # ======================================================================
@@ -113,7 +118,7 @@ class TestStrategyCatalog:
 
     def test_catalog_count(self):
         """Catalog has the expected number of strategies."""
-        assert len(STRATEGY_CATALOG) == 21
+        assert len(STRATEGY_CATALOG) == 18
 
     def test_all_catalog_entries_generate(self):
         """Every factory in the catalog produces valid Pine Script."""
@@ -121,8 +126,8 @@ class TestStrategyCatalog:
             defn = factory()
             pine = self.gen.generate(defn)
             assert pine, f"{name}: empty output"
-            assert ("indicator(" in pine or "strategy(" in pine), (
-                f"{name}: missing indicator() or strategy()"
+            assert "strategy(" in pine, (
+                f"{name}: missing strategy()"
             )
             assert len(pine) > 200, f"{name}: output too short ({len(pine)})"
             assert len(pine.splitlines()) > 20, f"{name}: too few lines"
@@ -137,7 +142,6 @@ class TestStrategyCatalog:
             "vwap_or_breakout", "vwap_or_reversal", "vwap_pattern_scalp",
             "gme_prediction",
             "spy_macd_obv", "spy_sma_crossover", "spy_macd_optimized",
-            "spy_macd_obv_v2", "spy_sma_crossover_v2", "spy_macd_optimized_v2",
         }
         assert set(STRATEGY_CATALOG.keys()) == expected
 
@@ -252,30 +256,31 @@ class TestIntradayModeRoundTrip:
             mode, shared=_vwap_shared_infrastructure(),
             name_override=f"Test {mode.name}",
             short_name_override=f"T-{mode.short_name.upper()}",
+            strategy_mode=True,
         )
         return self.gen.generate(defn)
 
     def test_pullback_round_trip(self):
         from stockdownloader.strategies.intraday import PullbackStrategy
         pine = self._mode_to_pine(PullbackStrategy.pinescript_mode())
-        assert "indicator(" in pine
+        assert "strategy(" in pine
 
     def test_reversal_round_trip(self):
         from stockdownloader.strategies.intraday import ReversalStrategy
         pine = self._mode_to_pine(ReversalStrategy.pinescript_mode())
-        assert "indicator(" in pine
+        assert "strategy(" in pine
 
     def test_or_breakout_round_trip(self):
         from stockdownloader.strategies.intraday import ORBreakoutStrategy
         pine = self._mode_to_pine(ORBreakoutStrategy.pinescript_mode())
-        assert "indicator(" in pine
+        assert "strategy(" in pine
 
     def test_or_reversal_round_trip(self):
         from stockdownloader.strategies.intraday import ORReversalStrategy
         pine = self._mode_to_pine(ORReversalStrategy.pinescript_mode())
-        assert "indicator(" in pine
+        assert "strategy(" in pine
 
     def test_pattern_scalp_round_trip(self):
         from stockdownloader.strategies.intraday import PatternScalpStrategy
         pine = self._mode_to_pine(PatternScalpStrategy.pinescript_mode())
-        assert "indicator(" in pine
+        assert "strategy(" in pine
