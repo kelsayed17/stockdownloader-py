@@ -1,0 +1,656 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © GME Alternative Data Panel — Moving Average Edition
+// All data streams displayed as smoothed MAs with fast/slow crossovers
+
+//@version=6
+indicator("GME Alt Data MAs", shorttitle="GME-MA", format=format.volume)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ INPUTS
+// ════════════════════════════════════════════════════════════════════════════════
+
+grp_display = "Display Mode"
+data_mode = input.string("All (Normalized MAs)", "Primary Display",
+     options=["Short Interest MAs", "Days to Cover MAs", "Dark Pool ATS % MAs",
+              "Borrow Rate MAs", "Institutional Ownership MAs",
+              "All (Normalized MAs)"], group=grp_display)
+
+grp_ma = "Moving Average Settings"
+fast_len = input.int(10, "Fast MA Length", minval=2, maxval=50, group=grp_ma)
+slow_len = input.int(30, "Slow MA Length", minval=5, maxval=100, group=grp_ma)
+ma_type = input.string("EMA", "MA Type", options=["EMA", "SMA", "WMA", "VWMA-like"], group=grp_ma)
+show_raw = input.bool(true, "Show Raw Data (dimmed)", group=grp_ma)
+show_fill = input.bool(true, "Show Fast/Slow Fill", group=grp_ma)
+show_crosses = input.bool(true, "Show MA Crossovers", group=grp_ma)
+
+grp_thresh = "Threshold Lines"
+show_thresholds = input.bool(true, "Show Threshold Lines", group=grp_thresh)
+si_warn = input.float(50.0, "SI Warning (M shares)", step=5.0, group=grp_thresh)
+si_danger = input.float(65.0, "SI Danger (M shares)", step=5.0, group=grp_thresh)
+dtc_elevated = input.float(10.0, "DTC Elevated", step=1.0, group=grp_thresh)
+dtc_extreme = input.float(20.0, "DTC Extreme", step=1.0, group=grp_thresh)
+dp_normal = input.float(20.0, "DP Normal ATS%", step=1.0, group=grp_thresh)
+dp_high = input.float(30.0, "DP High ATS%", step=1.0, group=grp_thresh)
+br_moderate = input.float(10.0, "Borrow Rate Moderate %", step=1.0, group=grp_thresh)
+br_high = input.float(30.0, "Borrow Rate High %", step=1.0, group=grp_thresh)
+own_low = input.float(150.0, "Ownership Low (M shares)", step=10.0, group=grp_thresh)
+own_high = input.float(300.0, "Ownership High (M shares)", step=10.0, group=grp_thresh)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ MA HELPER — computes selected MA type
+// ════════════════════════════════════════════════════════════════════════════════
+
+calc_ma(src, len) =>
+    switch ma_type
+        "EMA" => ta.ema(src, len)
+        "SMA" => ta.sma(src, len)
+        "WMA" => ta.wma(src, len)
+        "VWMA-like" => ta.wma(src, len)   // weighted approximation
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ SHORT INTEREST DATA (bi-monthly FINRA reports, forward-filled)
+// ════════════════════════════════════════════════════════════════════════════════
+
+si_lookup(t) =>
+    float si = na
+    float dtc = na
+    if t >= timestamp("2026-01-15")
+        si := 65750329, dtc := 12.58
+    else if t >= timestamp("2025-12-31")
+        si := 65777475, dtc := 13.04
+    else if t >= timestamp("2025-12-15")
+        si := 68009329, dtc := 8.91
+    else if t >= timestamp("2025-10-31")
+        si := 66295361, dtc := 9.30
+    else if t >= timestamp("2025-10-15")
+        si := 70110569, dtc := 7.66
+    else if t >= timestamp("2025-09-30")
+        si := 71953849, dtc := 8.94
+    else if t >= timestamp("2025-09-15")
+        si := 66822071, dtc := 4.70
+    else if t >= timestamp("2025-08-15")
+        si := 67843378, dtc := 13.04
+    else if t >= timestamp("2025-07-31")
+        si := 67893588, dtc := 7.25
+    else if t >= timestamp("2025-07-15")
+        si := 68173557, dtc := 7.73
+    else if t >= timestamp("2025-06-30")
+        si := 77185174, dtc := 4.96
+    else if t >= timestamp("2025-05-15")
+        si := 49516766, dtc := 6.43
+    else if t >= timestamp("2025-04-30")
+        si := 48711464, dtc := 6.74
+    else if t >= timestamp("2025-04-15")
+        si := 50002641, dtc := 3.82
+    else if t >= timestamp("2025-03-31")
+        si := 47564164, dtc := 2.15
+    else if t >= timestamp("2025-02-28")
+        si := 28516200, dtc := 5.33
+    else if t >= timestamp("2025-01-31")
+        si := 30329696, dtc := 5.86
+    else if t >= timestamp("2025-01-15")
+        si := 32138831, dtc := 3.70
+    else if t >= timestamp("2024-12-31")
+        si := 31301108, dtc := 2.57
+    else if t >= timestamp("2024-11-15")
+        si := 31866496, dtc := 2.50
+    else if t >= timestamp("2024-10-31")
+        si := 35943712, dtc := 5.90
+    else if t >= timestamp("2024-10-15")
+        si := 35962132, dtc := 6.92
+    else if t >= timestamp("2024-09-30")
+        si := 38133807, dtc := 2.81
+    else if t >= timestamp("2024-08-15")
+        si := 35971941, dtc := 5.60
+    else if t >= timestamp("2024-07-31")
+        si := 37925649, dtc := 3.02
+    else if t >= timestamp("2024-07-15")
+        si := 40344382, dtc := 2.55
+    else if t >= timestamp("2024-05-31")
+        si := 46538235, dtc := 1.00
+    else if t >= timestamp("2024-05-15")
+        si := 68391054, dtc := 1.03
+    else if t >= timestamp("2024-04-30")
+        si := 64373343, dtc := 17.36
+    else if t >= timestamp("2024-04-15")
+        si := 59954492, dtc := 12.73
+    else if t >= timestamp("2024-03-15")
+        si := 59554103, dtc := 18.23
+    else if t >= timestamp("2024-02-29")
+        si := 60479692, dtc := 24.62
+    else if t >= timestamp("2024-02-15")
+        si := 60191632, dtc := 21.11
+    else if t >= timestamp("2024-01-31")
+        si := 59673027, dtc := 20.68
+    else if t >= timestamp("2023-12-15")
+        si := 62664063, dtc := 5.44
+    else if t >= timestamp("2023-11-30")
+        si := 63590274, dtc := 5.67
+    else if t >= timestamp("2023-11-15")
+        si := 60673347, dtc := 18.31
+    else if t >= timestamp("2023-10-31")
+        si := 59938352, dtc := 17.16
+    else if t >= timestamp("2023-09-15")
+        si := 53950371, dtc := 12.63
+    else if t >= timestamp("2023-08-31")
+        si := 51250434, dtc := 17.09
+    else if t >= timestamp("2023-08-15")
+        si := 51203657, dtc := 24.16
+    else if t >= timestamp("2023-07-31")
+        si := 50478950, dtc := 21.21
+    else if t >= timestamp("2023-06-30")
+        si := 52281039, dtc := 18.46
+    else if t >= timestamp("2023-06-15")
+        si := 55155121, dtc := 6.07
+    else if t >= timestamp("2023-05-31")
+        si := 55841413, dtc := 16.21
+    else if t >= timestamp("2023-05-15")
+        si := 57320808, dtc := 24.08
+    else if t >= timestamp("2023-03-31")
+        si := 56723649, dtc := 4.93
+    else if t >= timestamp("2023-03-15")
+        si := 58505711, dtc := 18.99
+    else if t >= timestamp("2023-02-28")
+        si := 56850983, dtc := 18.55
+    else if t >= timestamp("2023-02-15")
+        si := 57289638, dtc := 10.99
+    else if t >= timestamp("2023-01-31")
+        si := 57882022, dtc := 11.43
+    else if t >= timestamp("2022-12-15")
+        si := 54707097, dtc := 8.40
+    else if t >= timestamp("2022-11-30")
+        si := 54620238, dtc := 18.98
+    else if t >= timestamp("2022-11-15")
+        si := 54655571, dtc := 11.32
+    else if t >= timestamp("2022-10-31")
+        si := 53372724, dtc := 8.34
+    else if t >= timestamp("2022-09-30")
+        si := 51092394, dtc := 13.76
+    else if t >= timestamp("2022-09-15")
+        si := 49525156, dtc := 7.25
+    else if t >= timestamp("2022-08-31")
+        si := 49593249, dtc := 6.55
+    else if t >= timestamp("2022-08-15")
+        si := 53245515, dtc := 7.96
+    else if t >= timestamp("2022-07-15")
+        si := 14905476, dtc := 4.41
+    else if t >= timestamp("2022-06-30")
+        si := 13301379, dtc := 5.53
+    else if t >= timestamp("2022-06-15")
+        si := 14511385, dtc := 3.50
+    else if t >= timestamp("2022-05-31")
+        si := 15537841, dtc := 3.12
+    [si, dtc]
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ DARK POOL ATS% DATA (weekly FINRA, forward-filled)
+// ════════════════════════════════════════════════════════════════════════════════
+
+dp_lookup(t) =>
+    float pct = na
+    if t >= timestamp("2026-01-26")
+        pct := 19.2
+    else if t >= timestamp("2026-01-19")
+        pct := 21.0
+    else if t >= timestamp("2026-01-12")
+        pct := 18.4
+    else if t >= timestamp("2026-01-05")
+        pct := 15.9
+    else if t >= timestamp("2025-12-29")
+        pct := 25.3
+    else if t >= timestamp("2025-12-22")
+        pct := 18.5
+    else if t >= timestamp("2025-12-15")
+        pct := 19.7
+    else if t >= timestamp("2025-12-08")
+        pct := 25.9
+    else if t >= timestamp("2025-12-01")
+        pct := 21.6
+    else if t >= timestamp("2025-11-24")
+        pct := 29.8
+    else if t >= timestamp("2025-11-17")
+        pct := 21.4
+    else if t >= timestamp("2025-11-10")
+        pct := 21.2
+    else if t >= timestamp("2025-11-03")
+        pct := 24.2
+    else if t >= timestamp("2025-10-27")
+        pct := 18.4
+    else if t >= timestamp("2025-10-20")
+        pct := 15.0
+    else if t >= timestamp("2025-10-13")
+        pct := 18.2
+    else if t >= timestamp("2025-10-06")
+        pct := 19.8
+    else if t >= timestamp("2025-09-29")
+        pct := 21.1
+    else if t >= timestamp("2025-09-22")
+        pct := 20.4
+    else if t >= timestamp("2025-09-15")
+        pct := 17.0
+    else if t >= timestamp("2025-09-08")
+        pct := 18.1
+    else if t >= timestamp("2025-09-01")
+        pct := 21.2
+    else if t >= timestamp("2025-08-25")
+        pct := 22.5
+    else if t >= timestamp("2025-08-18")
+        pct := 20.5
+    else if t >= timestamp("2025-08-11")
+        pct := 21.5
+    else if t >= timestamp("2025-08-04")
+        pct := 20.7
+    else if t >= timestamp("2025-07-28")
+        pct := 18.8
+    else if t >= timestamp("2025-07-21")
+        pct := 21.8
+    else if t >= timestamp("2025-07-14")
+        pct := 21.0
+    else if t >= timestamp("2025-07-07")
+        pct := 17.7
+    else if t >= timestamp("2025-06-30")
+        pct := 13.7
+    else if t >= timestamp("2025-06-23")
+        pct := 17.3
+    else if t >= timestamp("2025-06-16")
+        pct := 17.3
+    else if t >= timestamp("2025-06-09")
+        pct := 18.5
+    else if t >= timestamp("2025-06-02")
+        pct := 15.3
+    else if t >= timestamp("2025-05-26")
+        pct := 18.2
+    else if t >= timestamp("2025-05-19")
+        pct := 16.9
+    else if t >= timestamp("2025-05-12")
+        pct := 19.9
+    else if t >= timestamp("2025-05-05")
+        pct := 17.9
+    else if t >= timestamp("2025-04-28")
+        pct := 19.8
+    else if t >= timestamp("2025-04-21")
+        pct := 19.2
+    else if t >= timestamp("2025-04-14")
+        pct := 16.8
+    else if t >= timestamp("2025-04-07")
+        pct := 19.1
+    else if t >= timestamp("2025-03-31")
+        pct := 17.3
+    else if t >= timestamp("2025-03-24")
+        pct := 19.3
+    else if t >= timestamp("2025-03-17")
+        pct := 21.6
+    else if t >= timestamp("2025-03-10")
+        pct := 20.3
+    else if t >= timestamp("2025-03-03")
+        pct := 21.4
+    else if t >= timestamp("2025-02-24")
+        pct := 19.3
+    else if t >= timestamp("2025-02-17")
+        pct := 20.6
+    else if t >= timestamp("2025-02-10")
+        pct := 22.1
+    else if t >= timestamp("2025-02-03")
+        pct := 20.2
+    pct
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ OWNERSHIP DATA (Quarterly 13F, forward-filled — SEC EDGAR post-split adjusted)
+// ════════════════════════════════════════════════════════════════════════════════
+
+own_lookup(t) =>
+    // Data sourced directly from SEC EDGAR EFTS 13F-HR filings (CUSIP 36467W109)
+    // All values normalized to post-split equivalent (4:1 split Jul 21 2022)
+    // Pre-split quarters (through Q2 2022) multiplied by 4 for consistency
+    float shares = na
+    if t >= timestamp("2025-12-31")
+        shares := 252217128
+    else if t >= timestamp("2025-09-30")
+        shares := 346318462
+    else if t >= timestamp("2025-06-30")
+        shares := 248056152
+    else if t >= timestamp("2025-03-31")
+        shares := 205780423
+    else if t >= timestamp("2024-12-31")
+        shares := 174076681
+    else if t >= timestamp("2024-09-30")
+        shares := 155176699
+    else if t >= timestamp("2024-06-30")
+        shares := 123415716
+    else if t >= timestamp("2024-03-31")
+        shares := 108170198
+    else if t >= timestamp("2023-12-31")
+        shares := 105591721
+    else if t >= timestamp("2023-09-30")
+        shares := 100772296
+    else if t >= timestamp("2023-06-30")
+        shares := 126726539
+    else if t >= timestamp("2023-03-31")
+        shares := 120928429
+    else if t >= timestamp("2022-12-31")
+        shares := 122620755
+    else if t >= timestamp("2022-09-30")
+        shares := 120355288
+    // --- Pre-split quarters below: as-filed shares x4 for post-split equivalent ---
+    else if t >= timestamp("2022-06-30")
+        shares := 141494068    // 35,373,517 x 4
+    else if t >= timestamp("2022-03-31")
+        shares := 209717424    // 52,429,356 x 4
+    else if t >= timestamp("2021-12-31")
+        shares := 144110656    // 36,027,664 x 4
+    else if t >= timestamp("2021-09-30")
+        shares := 148790064    // 37,197,516 x 4
+    else if t >= timestamp("2021-06-30")
+        shares := 197665164    // 49,416,291 x 4
+    else if t >= timestamp("2021-03-31")
+        shares := 211501320    // 52,875,330 x 4
+    else if t >= timestamp("2020-12-31")
+        shares := 442665764    // 110,666,441 x 4
+    else if t >= timestamp("2020-09-30")
+        shares := 367241180    // 91,810,295 x 4
+    else if t >= timestamp("2020-06-30")
+        shares := 390260564    // 97,565,141 x 4
+    else if t >= timestamp("2020-03-31")
+        shares := 403126004    // 100,781,501 x 4
+    shares
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ RAW DATA SERIES
+// ════════════════════════════════════════════════════════════════════════════════
+
+bar_ts = time
+[raw_si, raw_dtc] = si_lookup(bar_ts)
+raw_dp_pct = dp_lookup(bar_ts)
+raw_own = own_lookup(bar_ts)
+
+// Convert SI to millions
+raw_si_m = not na(raw_si) ? raw_si / 1e6 : na
+
+// Ownership in millions
+raw_own_m = not na(raw_own) ? raw_own / 1e6 : na
+
+// Borrow rate estimate from DTC
+raw_borrow = if na(raw_dtc)
+    na
+else if raw_dtc < 1.0
+    0.25 + (raw_dtc / 1.0) * 0.75
+else if raw_dtc < 3.0
+    1.0 + ((raw_dtc - 1.0) / 2.0) * 4.0
+else if raw_dtc < 7.0
+    5.0 + ((raw_dtc - 3.0) / 4.0) * 15.0
+else if raw_dtc < 15.0
+    20.0 + ((raw_dtc - 7.0) / 8.0) * 30.0
+else
+    math.min(50.0 + (raw_dtc - 15.0) * 3.0, 100.0)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ MOVING AVERAGES ON ALL DATA STREAMS
+// ════════════════════════════════════════════════════════════════════════════════
+
+// Short Interest MAs
+si_fast = calc_ma(raw_si_m, fast_len)
+si_slow = calc_ma(raw_si_m, slow_len)
+
+// Days to Cover MAs
+dtc_fast = calc_ma(raw_dtc, fast_len)
+dtc_slow = calc_ma(raw_dtc, slow_len)
+
+// Dark Pool ATS% MAs
+dp_fast = calc_ma(raw_dp_pct, fast_len)
+dp_slow = calc_ma(raw_dp_pct, slow_len)
+
+// Borrow Rate MAs
+br_fast = calc_ma(raw_borrow, fast_len)
+br_slow = calc_ma(raw_borrow, slow_len)
+
+// Ownership MAs
+own_fast = calc_ma(raw_own_m, fast_len)
+own_slow = calc_ma(raw_own_m, slow_len)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ CROSSOVER SIGNALS
+// ════════════════════════════════════════════════════════════════════════════════
+
+si_bull_cross  = ta.crossover(si_fast, si_slow)
+si_bear_cross  = ta.crossunder(si_fast, si_slow)
+dtc_bull_cross = ta.crossover(dtc_fast, dtc_slow)
+dtc_bear_cross = ta.crossunder(dtc_fast, dtc_slow)
+dp_bull_cross  = ta.crossover(dp_fast, dp_slow)
+dp_bear_cross  = ta.crossunder(dp_fast, dp_slow)
+br_bull_cross  = ta.crossover(br_fast, br_slow)
+br_bear_cross  = ta.crossunder(br_fast, br_slow)
+own_bull_cross = ta.crossover(own_fast, own_slow)
+own_bear_cross = ta.crossunder(own_fast, own_slow)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ COLOR HELPERS
+// ════════════════════════════════════════════════════════════════════════════════
+
+col_fast  = #00bcd4  // Cyan for fast MA
+col_slow  = #ff9800  // Orange for slow MA
+col_raw   = color.new(color.gray, 60)
+col_bull_fill = color.new(color.green, 80)
+col_bear_fill = color.new(color.red, 80)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ MODE FLAGS — used for conditional visibility at global scope
+// ════════════════════════════════════════════════════════════════════════════════
+
+show_si_mode  = data_mode == "Short Interest MAs"
+show_dtc_mode = data_mode == "Days to Cover MAs"
+show_dp_mode  = data_mode == "Dark Pool ATS % MAs"
+show_br_mode  = data_mode == "Borrow Rate MAs"
+show_own_mode = data_mode == "Institutional Ownership MAs"
+show_all_mode = data_mode == "All (Normalized MAs)"
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ NORMALIZED DATA FOR "ALL" MODE (computed at global scope)
+// ════════════════════════════════════════════════════════════════════════════════
+
+si_norm  = not na(raw_si_m)   ? math.min(raw_si_m / 80.0 * 100, 100)    : na  // 80M = ceiling
+dtc_norm = not na(raw_dtc)    ? math.min(raw_dtc / 25.0 * 100, 100)     : na  // 25d = ceiling
+dp_norm  = not na(raw_dp_pct) ? math.min(raw_dp_pct / 40.0 * 100, 100)  : na  // 40% = ceiling
+br_norm  = not na(raw_borrow) ? math.min(raw_borrow / 80.0 * 100, 100)  : na  // 80% = ceiling
+own_norm = not na(raw_own_m)  ? math.min(raw_own_m / 500.0 * 100, 100)  : na  // 500M = ceiling (split-adjusted)
+
+// Fast MAs of normalized values
+si_n_ma  = calc_ma(si_norm, fast_len)
+dtc_n_ma = calc_ma(dtc_norm, fast_len)
+dp_n_ma  = calc_ma(dp_norm, fast_len)
+br_n_ma  = calc_ma(br_norm, fast_len)
+own_n_ma = calc_ma(own_norm, fast_len)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ CONDITIONAL PLOT VALUES — na hides the plot when mode is not active
+// ════════════════════════════════════════════════════════════════════════════════
+
+// --- Short Interest mode values ---
+si_raw_val  = show_si_mode and show_raw ? raw_si_m : na
+si_fast_val = show_si_mode ? si_fast : na
+si_slow_val = show_si_mode ? si_slow : na
+
+// --- Days to Cover mode values ---
+dtc_raw_val  = show_dtc_mode and show_raw ? raw_dtc : na
+dtc_fast_val = show_dtc_mode ? dtc_fast : na
+dtc_slow_val = show_dtc_mode ? dtc_slow : na
+dtc_zero_val = show_dtc_mode ? 0.0 : na
+
+// --- Dark Pool mode values ---
+dp_raw_val  = show_dp_mode and show_raw ? raw_dp_pct : na
+dp_fast_val = show_dp_mode ? dp_fast : na
+dp_slow_val = show_dp_mode ? dp_slow : na
+
+// --- Borrow Rate mode values ---
+br_raw_val  = show_br_mode and show_raw ? raw_borrow : na
+br_fast_val = show_br_mode ? br_fast : na
+br_slow_val = show_br_mode ? br_slow : na
+br_zero_val = show_br_mode ? 0.0 : na
+
+// --- Ownership mode values ---
+own_raw_val  = show_own_mode and show_raw ? raw_own_m : na
+own_fast_val = show_own_mode ? own_fast : na
+own_slow_val = show_own_mode ? own_slow : na
+
+// --- All Normalized mode values ---
+all_si_val  = show_all_mode ? si_n_ma : na
+all_dtc_val = show_all_mode ? dtc_n_ma : na
+all_dp_val  = show_all_mode ? dp_n_ma : na
+all_br_val  = show_all_mode ? br_n_ma : na
+all_own_val = show_all_mode ? own_n_ma : na
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ FILL COLORS — computed at global scope
+// ════════════════════════════════════════════════════════════════════════════════
+
+si_fill_col  = show_si_mode and show_fill ? (si_fast > si_slow ? col_bear_fill : col_bull_fill) : na
+dtc_fill_col = show_dtc_mode and show_fill ? (dtc_fast > dtc_slow ? col_bear_fill : col_bull_fill) : na
+dtc_zone_col = show_dtc_mode ? color.new(dtc_fast > dtc_extreme ? color.red : dtc_fast > dtc_elevated ? color.orange : color.green, 88) : na
+dp_fill_col  = show_dp_mode and show_fill ? (dp_fast > dp_slow ? col_bear_fill : col_bull_fill) : na
+br_fill_col  = show_br_mode and show_fill ? (br_fast > br_slow ? col_bear_fill : col_bull_fill) : na
+br_zone_col  = show_br_mode ? color.new(br_fast > br_high ? color.red : br_fast > br_moderate ? color.orange : color.green, 88) : na
+own_fill_col = show_own_mode and show_fill ? (own_fast > own_slow ? col_bull_fill : col_bear_fill) : na
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ PLOTS — ALL at global scope, hidden via na when mode is inactive
+// ════════════════════════════════════════════════════════════════════════════════
+
+// --- Short Interest MAs ---
+p_si_raw  = plot(si_raw_val,  "SI Raw",     color=col_raw,  linewidth=1, style=plot.style_stepline)
+p_si_fast = plot(si_fast_val, "SI Fast MA", color=col_fast, linewidth=2)
+p_si_slow = plot(si_slow_val, "SI Slow MA", color=col_slow, linewidth=2)
+fill(p_si_fast, p_si_slow, color=si_fill_col)
+
+// --- Days to Cover MAs ---
+p_dtc_raw  = plot(dtc_raw_val,  "DTC Raw",     color=col_raw,  linewidth=1, style=plot.style_stepline)
+p_dtc_fast = plot(dtc_fast_val, "DTC Fast MA", color=col_fast, linewidth=2)
+p_dtc_slow = plot(dtc_slow_val, "DTC Slow MA", color=col_slow, linewidth=2)
+p_dtc_zero = plot(dtc_zero_val, "DTC Zero",    display=display.none)
+fill(p_dtc_fast, p_dtc_slow, color=dtc_fill_col)
+fill(p_dtc_fast, p_dtc_zero, color=dtc_zone_col)
+
+// --- Dark Pool ATS% MAs ---
+p_dp_raw  = plot(dp_raw_val,  "DP Raw",     color=col_raw,  linewidth=1, style=plot.style_stepline)
+p_dp_fast = plot(dp_fast_val, "DP Fast MA", color=col_fast, linewidth=2)
+p_dp_slow = plot(dp_slow_val, "DP Slow MA", color=col_slow, linewidth=2)
+fill(p_dp_fast, p_dp_slow, color=dp_fill_col)
+
+// --- Borrow Rate MAs ---
+p_br_raw  = plot(br_raw_val,  "BR Raw",     color=col_raw,  linewidth=1, style=plot.style_stepline)
+p_br_fast = plot(br_fast_val, "BR Fast MA", color=col_fast, linewidth=2)
+p_br_slow = plot(br_slow_val, "BR Slow MA", color=col_slow, linewidth=2)
+p_br_zero = plot(br_zero_val, "BR Zero",    display=display.none)
+fill(p_br_fast, p_br_slow, color=br_fill_col)
+fill(p_br_fast, p_br_zero, color=br_zone_col)
+
+// --- Ownership MAs ---
+p_own_raw  = plot(own_raw_val,  "Own Raw",     color=col_raw,  linewidth=1, style=plot.style_stepline)
+p_own_fast = plot(own_fast_val, "Own Fast MA", color=col_fast, linewidth=2)
+p_own_slow = plot(own_slow_val, "Own Slow MA", color=col_slow, linewidth=2)
+fill(p_own_fast, p_own_slow, color=own_fill_col)
+
+// --- All Normalized MAs ---
+plot(all_si_val,  "SI MA (Norm)",        color=color.new(color.orange, 10), linewidth=2)
+plot(all_dtc_val, "DTC MA (Norm)",       color=color.new(color.red, 10),    linewidth=2)
+plot(all_dp_val,  "Dark Pool MA (Norm)", color=color.new(color.purple, 10), linewidth=2)
+plot(all_br_val,  "Borrow MA (Norm)",    color=color.new(color.yellow, 10), linewidth=2)
+plot(all_own_val, "Ownership MA (Norm)", color=color.new(color.green, 10),  linewidth=2)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ THRESHOLD LINES — plot() with constant values instead of hline()
+// ▌ Using plot() so we can conditionally hide via na
+// ════════════════════════════════════════════════════════════════════════════════
+
+// Short Interest thresholds
+plot(show_si_mode and show_thresholds ? si_warn : na,   "SI Warning",  color=color.new(color.orange, 50), linewidth=1, style=plot.style_cross)
+plot(show_si_mode and show_thresholds ? si_danger : na, "SI Danger",   color=color.new(color.red, 50),    linewidth=1, style=plot.style_cross)
+
+// Days to Cover thresholds
+plot(show_dtc_mode and show_thresholds ? dtc_elevated : na, "DTC Elevated", color=color.new(color.orange, 50), linewidth=1, style=plot.style_cross)
+plot(show_dtc_mode and show_thresholds ? dtc_extreme : na,  "DTC Extreme",  color=color.new(color.red, 50),    linewidth=1, style=plot.style_cross)
+
+// Dark Pool thresholds
+plot(show_dp_mode and show_thresholds ? dp_normal : na, "DP Normal", color=color.new(color.orange, 50), linewidth=1, style=plot.style_cross)
+plot(show_dp_mode and show_thresholds ? dp_high : na,   "DP High",   color=color.new(color.red, 50),    linewidth=1, style=plot.style_cross)
+
+// Borrow Rate thresholds
+plot(show_br_mode and show_thresholds ? br_moderate : na, "BR Moderate", color=color.new(color.orange, 50), linewidth=1, style=plot.style_cross)
+plot(show_br_mode and show_thresholds ? br_high : na,     "BR High",     color=color.new(color.red, 50),    linewidth=1, style=plot.style_cross)
+
+// Ownership thresholds
+plot(show_own_mode and show_thresholds ? own_low : na,  "Own Low",  color=color.new(color.red, 50),   linewidth=1, style=plot.style_cross)
+plot(show_own_mode and show_thresholds ? own_high : na, "Own High", color=color.new(color.green, 50), linewidth=1, style=plot.style_cross)
+
+// All Normalized mode reference lines
+plot(show_all_mode ? 50.0 : na, "Midpoint",  color=color.new(color.gray, 60),  linewidth=1, style=plot.style_cross)
+plot(show_all_mode ? 75.0 : na, "High Zone", color=color.new(color.red, 70),   linewidth=1, style=plot.style_cross)
+plot(show_all_mode ? 25.0 : na, "Low Zone",  color=color.new(color.green, 70), linewidth=1, style=plot.style_cross)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ CROSSOVER SHAPES — ALL at global scope, hidden via false condition
+// ════════════════════════════════════════════════════════════════════════════════
+
+// SI crossovers (SI rising = bearish for stock, so up-triangle = red)
+plotshape(show_si_mode and show_crosses and si_bull_cross ? true : false, "SI Rising",  shape.triangleup,   location.bottom, color.red,   size=size.tiny)
+plotshape(show_si_mode and show_crosses and si_bear_cross ? true : false, "SI Falling", shape.triangledown, location.top,    color.green, size=size.tiny)
+
+// DTC crossovers
+plotshape(show_dtc_mode and show_crosses and dtc_bull_cross ? true : false, "DTC Rising",  shape.triangleup,   location.bottom, color.red,   size=size.tiny)
+plotshape(show_dtc_mode and show_crosses and dtc_bear_cross ? true : false, "DTC Falling", shape.triangledown, location.top,    color.green, size=size.tiny)
+
+// DP crossovers
+plotshape(show_dp_mode and show_crosses and dp_bull_cross ? true : false, "DP Rising",  shape.triangleup,   location.bottom, color.orange, size=size.tiny)
+plotshape(show_dp_mode and show_crosses and dp_bear_cross ? true : false, "DP Falling", shape.triangledown, location.top,    color.green,  size=size.tiny)
+
+// BR crossovers
+plotshape(show_br_mode and show_crosses and br_bull_cross ? true : false, "BR Rising",  shape.triangleup,   location.bottom, color.red,   size=size.tiny)
+plotshape(show_br_mode and show_crosses and br_bear_cross ? true : false, "BR Falling", shape.triangledown, location.top,    color.green, size=size.tiny)
+
+// Ownership crossovers (rising ownership = bullish, so up-triangle = green)
+plotshape(show_own_mode and show_crosses and own_bull_cross ? true : false, "Own Rising",  shape.triangleup,   location.bottom, color.green, size=size.tiny)
+plotshape(show_own_mode and show_crosses and own_bear_cross ? true : false, "Own Falling", shape.triangledown, location.top,    color.red,   size=size.tiny)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ DATA CHANGE MARKERS
+// ════════════════════════════════════════════════════════════════════════════════
+
+si_changed = not na(raw_si) and (na(raw_si[1]) or raw_si != raw_si[1])
+dp_changed = not na(raw_dp_pct) and (na(raw_dp_pct[1]) or raw_dp_pct != raw_dp_pct[1])
+own_changed = not na(raw_own) and (na(raw_own[1]) or raw_own != raw_own[1])
+
+bgcolor(si_changed ? color.new(color.orange, 88) : na, title="SI Report Day")
+bgcolor(dp_changed ? color.new(color.purple, 92) : na, title="DP Report Day")
+bgcolor(own_changed ? color.new(color.teal, 92) : na, title="13F Report Day")
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ LEGEND TABLE (table calls are fine in local scope)
+// ════════════════════════════════════════════════════════════════════════════════
+
+if barstate.islast and show_all_mode
+    var tbl = table.new(position.top_right, 2, 7, bgcolor=color.new(color.black, 15), border_width=1, border_color=color.gray)
+    table.cell(tbl, 0, 0, "LEGEND", text_color=color.white, bgcolor=color.new(color.blue, 30), text_size=size.tiny, text_halign=text.align_center)
+    table.merge_cells(tbl, 0, 0, 1, 0)
+    table.cell(tbl, 0, 1, "━━", text_color=color.orange, text_size=size.tiny)
+    table.cell(tbl, 1, 1, "Short Interest", text_color=color.white, text_size=size.tiny)
+    table.cell(tbl, 0, 2, "━━", text_color=color.red, text_size=size.tiny)
+    table.cell(tbl, 1, 2, "Days to Cover", text_color=color.white, text_size=size.tiny)
+    table.cell(tbl, 0, 3, "━━", text_color=color.purple, text_size=size.tiny)
+    table.cell(tbl, 1, 3, "Dark Pool ATS%", text_color=color.white, text_size=size.tiny)
+    table.cell(tbl, 0, 4, "━━", text_color=color.yellow, text_size=size.tiny)
+    table.cell(tbl, 1, 4, "Borrow Rate Est", text_color=color.white, text_size=size.tiny)
+    table.cell(tbl, 0, 5, "━━", text_color=color.green, text_size=size.tiny)
+    table.cell(tbl, 1, 5, "Inst. Ownership", text_color=color.white, text_size=size.tiny)
+    table.cell(tbl, 0, 6, "Scale", text_color=color.gray, text_size=size.tiny)
+    table.cell(tbl, 1, 6, "0-100 normalized", text_color=color.gray, text_size=size.tiny)
+
+// ════════════════════════════════════════════════════════════════════════════════
+// ▌ ALERTS
+// ════════════════════════════════════════════════════════════════════════════════
+
+alertcondition(show_crosses and si_bull_cross, title="SI Fast > Slow (Bearish)", message="GME Short Interest fast MA crossed above slow — shorts increasing")
+alertcondition(show_crosses and si_bear_cross, title="SI Fast < Slow (Bullish)", message="GME Short Interest fast MA crossed below slow — shorts decreasing")
+alertcondition(show_crosses and dtc_bull_cross, title="DTC Fast > Slow", message="GME Days-to-Cover trending up — squeeze pressure building")
+alertcondition(show_crosses and dtc_bear_cross, title="DTC Fast < Slow", message="GME Days-to-Cover trending down — squeeze pressure easing")
+alertcondition(show_crosses and own_bull_cross, title="Ownership Rising", message="GME Institutional ownership fast MA crossed above slow — accumulation")
+alertcondition(show_crosses and own_bear_cross, title="Ownership Falling", message="GME Institutional ownership fast MA crossed below slow — distribution")
+alertcondition(si_changed, title="New SI Report", message="New GME Short Interest report published")
+alertcondition(own_changed, title="New 13F Report", message="New GME 13F institutional ownership data")
